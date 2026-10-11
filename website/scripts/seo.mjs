@@ -16,7 +16,7 @@ export function seoHead(key) {
   const website = `${origin}/#website`;
   const graph = [{ '@type': 'WebPage', '@id': `${url}#webpage`, url, isPartOf: { '@id': website } }];
   if (key === 'home') graph.push(
-    { '@type': 'Organization', '@id': organization, name: 'RMinte', legalName: '泛灵（成都）人工智能科技有限公司', url: `${origin}/`, logo: `${origin}/assets/images/logo-white.svg` },
+    { '@type': 'Organization', '@id': organization, name: 'RMinte', legalName: '泛灵（成都）人工智能科技有限公司', url: `${origin}/`, logo: `${origin}/assets/images/favicon.png` },
     { '@type': 'WebSite', '@id': website, name: 'RMinte', url: `${origin}/`, publisher: { '@id': organization } },
     { '@type': 'Product', '@id': `${origin}/#rm-01`, name: 'RM-01', url, image, brand: { '@type': 'Brand', name: 'RMinte' }, manufacturer: { '@id': organization } }
   );
