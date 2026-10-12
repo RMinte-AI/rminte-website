@@ -30,7 +30,7 @@
   <script>
     // ja/ko/es/fr carry their own catalog file; zh and en need none. Resolve the language the way i18n.js does and load only that file.
     (function (up) {
-      var ok = /^(zh|en|ja|ko|es|fr)$/, c = window.RM_CATALOG = { base: up + 'assets/translations/', v: 'docs-20261011' };
+      var ok = /^(zh|en|ja|ko|es|fr)$/, c = window.RM_CATALOG = { base: up + 'assets/translations/', v: 'docs-20261013' };
       c.load = function () {
         var s; try { s = localStorage.getItem('rm-soft-lang'); } catch (e) {}
         var l = [new URLSearchParams(location.search).get('lang'), (location.hash.match(/^#(zh|en|ja|ko|es|fr)-/) || [])[1], s, window.RM_DEFAULT_LANG].filter(function (x) { return ok.test(x); })[0];
@@ -41,7 +41,7 @@
       // Each CJK face is requested only when its language is shown: every page used to ask for Noto Sans SC, JP and KR (about 0.9 MB of fonts and
       // 210 KB of stylesheet that English, Spanish and French visitors never use). While the head is parsing, document.write keeps the link
       // render-blocking like a static one; i18n.js calls this again (late) when the visitor switches language.
-      var cjk = { zh: 'assets/fonts/noto-sans-sc.css?v=docs-20261011', ja: 'https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&display=swap', ko: 'https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap' };
+      var cjk = { zh: 'assets/fonts/noto-sans-sc.css?v=docs-20261013', ja: 'https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&display=swap', ko: 'https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap' };
       c.fonts = function (l, late) {
         if (!cjk[l] || document.querySelector('link[data-cjk="' + l + '"]')) return;
         var h = /^https:/.test(cjk[l]) ? cjk[l] : up + cjk[l];
@@ -52,7 +52,7 @@
     })('../');
   </script>
   <script src="../assets/i18n.js?v=catalogs-20261004" defer></script>
-  <script src="../assets/guides.js?v=docs-20261011" defer></script>
+  <script src="../assets/guides.js?v=docs-20261013" defer></script>
   <script src="../assets/site-data.js?v=inference-specs-20261007" defer></script>
   <script src="../assets/footer.js?v=d9-nav-1" defer></script>
 </head>
@@ -391,7 +391,7 @@
 <a class="toc-link toc-depth-1" href="#fr-section-34" data-toc-target="fr-section-34">Opérations réseau avancées</a>
 <a class="toc-link toc-depth-0" href="#fr-section-37" data-toc-target="fr-section-37">7. Gestion des fichiers</a>
 <a class="toc-link toc-depth-1" href="#fr-section-38" data-toc-target="fr-section-38">Parcourir et gérer les fichiers</a>
-<a class="toc-link toc-depth-1" href="#fr-section-39" data-toc-target="fr-section-39">Télécharger des fichiers</a>
+<a class="toc-link toc-depth-1" href="#fr-section-39" data-toc-target="fr-section-39">Envoyer des fichiers</a>
 <a class="toc-link toc-depth-1" href="#fr-section-40" data-toc-target="fr-section-40">Opérations par lots</a>
 <a class="toc-link toc-depth-1" href="#fr-section-41" data-toc-target="fr-section-41">Supprimer un fichier ou un dossier La suppression de</a>
 <a class="toc-link toc-depth-1" href="#fr-section-42" data-toc-target="fr-section-42">Monter et démonter la carte SD Le démontage de</a>
@@ -660,7 +660,7 @@
 <a class="toc-link toc-depth-1" href="#fr-section-34" data-toc-target="fr-section-34">Opérations réseau avancées</a>
 <a class="toc-link toc-depth-0" href="#fr-section-37" data-toc-target="fr-section-37">7. Gestion des fichiers</a>
 <a class="toc-link toc-depth-1" href="#fr-section-38" data-toc-target="fr-section-38">Parcourir et gérer les fichiers</a>
-<a class="toc-link toc-depth-1" href="#fr-section-39" data-toc-target="fr-section-39">Télécharger des fichiers</a>
+<a class="toc-link toc-depth-1" href="#fr-section-39" data-toc-target="fr-section-39">Envoyer des fichiers</a>
 <a class="toc-link toc-depth-1" href="#fr-section-40" data-toc-target="fr-section-40">Opérations par lots</a>
 <a class="toc-link toc-depth-1" href="#fr-section-41" data-toc-target="fr-section-41">Supprimer un fichier ou un dossier La suppression de</a>
 <a class="toc-link toc-depth-1" href="#fr-section-42" data-toc-target="fr-section-42">Monter et démonter la carte SD Le démontage de</a>
@@ -722,11 +722,13 @@
 <h3 id="zh-section-16" data-heading-key="section-16"><a href="#zh-section-16">使用快捷操作</a></h3>
 <p>快捷操作卡片由 root 用户配置。显示卡片和允许手动运行是两项设置；看得到卡片，不代表可以启动任务。</p>
 <ol><li>查看卡片名称、状态和可用按钮，确认目标任务。</li><li>点击可执行的卡片，等待本次操作的状态更新。处理中不要再次启动。</li><li>后台任务可能提供日志、核验状态或停止按钮。查看日志可了解任务输出。点击停止后，检查任务是否已停止。</li><li>状态未知或启动被阻止时，先使用页面提供的核验功能，或请 root 用户检查规则、远程指令和主机连接。</li></ol>
+<p>无法启动时，按提示处理，不要连续点击：</p>
+<ul><li>规则已停用，或不允许手动触发：请 root 用户检查规则设置，不要把看到卡片当作运行许可。</li><li>任务正在执行、启动、核验或停止：等待状态更新。</li><li>关联服务已在运行：无需再启动。需要重启服务时，先停止并确认结果。</li><li>服务是否停止尚未确认：先核验状态。无法确认时，请 root 用户检查主机连接。</li><li>规则尚未加载，或等待重启移除：请 root 用户核对规则版本和待重启提示。</li><li>自动化暂不接受启动请求：请 root 用户检查引擎和配置状态，不要自行重启设备。</li></ul>
 <p>重新启动服务前，先确认它已停止。页面接受启动或停止请求后，任务可能仍在处理中；等待最终状态。完成一次点击后，等待几秒再启动其他操作。</p>
 <p>长按卡片，出现排序提示后拖动，可以调整显示顺序。</p>
 <p>没有可用卡片时，先分清页面提示：</p>
 <ul><li>“快捷操作正在加载”：等待配置加载完成；长时间没有变化时，刷新页面或联系 root 用户检查。</li><li>“快捷操作暂不可用”：联系 root 用户处理。不要反复点击启动。</li><li>没有已配置的快捷操作：如需添加，请联系 root 用户检查规则的“显示在面板”设置。</li></ul>
-<p>规则更新后，卡片可能仍运行旧任务，直到设备重启。新导入或待移除的规则也可能无法启动。任务刚被调整时，先请 root 用户确认当前使用的版本，再执行。</p>
+<p>导入规则包后，卡片可能仍运行旧任务，直到设备重启。新导入或待移除的规则也可能无法启动。任务刚被调整时，先请 root 用户确认当前使用的版本，再执行。</p>
 <p>不要为了恢复卡片，自行重启正在提供服务的设备。</p>
 <h3 id="zh-section-17" data-heading-key="section-17"><a href="#zh-section-17">管理数据组件</a></h3>
 <p>数据组件用于在“设备面板”中持续显示设备数据。</p>
@@ -791,7 +793,8 @@
 <h3 id="zh-section-38" data-heading-key="section-38"><a href="#zh-section-38">浏览和管理文件</a></h3>
 <ul><li>点击文件夹名称进入该目录。</li><li>点击文件右侧的下载按钮，将文件保存到浏览器的下载位置。</li><li>点击重命名按钮，输入新名称并确认。</li><li>点击“新建文件夹”，输入文件夹名称并创建。</li><li>点击刷新按钮重新加载当前目录和存储状态。</li></ul>
 <h3 id="zh-section-39" data-heading-key="section-39"><a href="#zh-section-39">上传文件</a></h3>
-<ol><li>进入目标目录。</li><li>点击“上传文件”。</li><li>点击上传区域选择一个或多个文件，或将文件拖入该区域。</li><li>检查上传列表，移除不需要的文件。</li><li>点击“上传”，等待每个文件显示完成状态。</li></ol>
+<p>文件只能上传到 SD 卡，不能上传到 SPIFFS。先确认 SD 卡已挂载。</p>
+<ol><li>点击“SD 卡”，进入要上传文件的目录。</li><li>点击“上传文件”。</li><li>点击上传区域选择一个或多个文件，或将文件拖入该区域。</li><li>检查上传列表，移除不需要的文件。</li><li>点击“上传”，等待每个文件显示完成状态。</li></ol>
 <p>上传 <code>.tscfg</code> 配置包后，页面会显示配置包的验证和应用步骤。但当前文件上传入口不会应用包中的设置；上传或验证成功，不代表设置已经生效。</p>
 <p>规则配置包请交给 root 用户，从“自动化”页面导入。不要用普通文件上传代替规则导入。其他配置包的来源和签名说明见安全指南。</p>
 <h3 id="zh-section-40" data-heading-key="section-40"><a href="#zh-section-40">批量操作</a></h3>
@@ -822,7 +825,10 @@
 <h2 id="zh-section-47" data-heading-key="section-47"><a href="#zh-section-47">9. 安全管理入口</a></h2>
 <p>点击顶部导航中的“安全”进入安全管理页面。SSH 密钥、远程主机、主机指纹、HTTPS 证书、配置包和账户管理的操作请查看《TianshanOS 安全指南》。本指南不重复这些内容。</p>
 <h3 id="zh-section-48" data-heading-key="section-48"><a href="#zh-section-48">遇到失败或结果未确认</a></h3>
-<p>先阅读提示，再检查设备或文件。超时或断开连接不代表操作没有执行；不要立即重复断电、删除、启动任务或升级。</p>
+<p>填写表单时，字段旁可能出现红色标记和错误说明。先按说明修正该字段，再保存。标记消失不代表已经保存成功；还要检查保存提示和列表。</p>
+<p>先看哪项操作失败，再阅读原因和下一步。提示没有说明原因时，不要猜测。</p>
+<p>如果提示提供“详情”，点击后可查看更多信息。点击“收起”可隐藏详情。页面提供 × 时，可点击它关闭提示。需要求助时，保留提示和详情，交给 root 用户检查。</p>
+<p>出现“结果未确认”时，先刷新并检查设备、文件或任务状态。超时或断开连接不代表操作没有执行；不要立即重复断电、删除、启动任务或升级。仍无法确认时，请 root 用户检查。</p>
 <p>批量操作后，分别检查成功、失败和未确认的项目。下载文件后，在浏览器下载列表中确认文件已保存。</p>
 
           </article>
@@ -874,11 +880,13 @@
 <h3 id="en-section-16" data-heading-key="section-16"><a href="#en-section-16">Use Quick Actions</a></h3>
 <p>A root user configures Quick Action cards. Card visibility and manual execution are separate settings. Seeing a card does not mean you can start its task.</p>
 <ol><li>Check the card’s name, state, and available controls to identify the task.</li><li>Select an available card and wait for its state to update. Do not start it again while it is processing.</li><li>Background tasks may provide log, status-verification, or stop controls. Read the log to see task output. After selecting stop, check that the task has stopped.</li><li>If the state is unknown or starting is blocked, use the available verification control, or ask a root user to check the rule, remote command, and host connection.</li></ol>
+<p>If starting is blocked, follow the reason shown. Do not keep selecting start:</p>
+<ul><li>Rule disabled or manual triggering not allowed: Ask a root user to check the rule settings. A visible card is not permission to run it.</li><li>Task executing, starting, verifying, or stopping: Wait for the state to update.</li><li>Linked service already running: Do not start it again. To restart it, stop it first and confirm the result.</li><li>Service not confirmed stopped: Verify its state. If it remains unclear, ask a root user to check the host connection.</li><li>Rule not loaded or awaiting removal after restart: Ask a root user to check the rule version and pending-restart message.</li><li>Automation not accepting start requests: Ask a root user to check the engine and configuration state. Do not restart the device yourself.</li></ul>
 <aside class="guide-notice"><span>Operational note</span><p>Confirm that a service has stopped before restarting it. An accepted start or stop request may still be in progress; wait for the final state. After triggering one action, wait a few seconds before starting another.</p></aside>
 <p>Press and hold a card until the reorder indicator appears, then drag it to change the display order.</p>
 <p>If no cards are available, check which message the page shows:</p>
 <ul><li>“Loading quick actions”: Wait for configuration to finish loading. If the message persists, refresh the page or ask a root user to investigate.</li><li>“Quick actions unavailable”: Ask a root user for help. Do not keep selecting start.</li><li>No configured Quick Actions: If you need one, ask a root user to check the rules’ “Show on panel” setting.</li></ul>
-<aside class="guide-notice"><span>Operational note</span><p>After a rule update, a card may still run the old task until the device restarts. Newly imported rules or rules awaiting removal may not start. If a task was recently changed, ask a root user to confirm which version is in use before running it.</p></aside>
+<aside class="guide-notice"><span>Operational note</span><p>After importing a rule package, a card may still run the old task until the device restarts. Newly imported rules or rules awaiting removal may not start. If a task was recently changed, ask a root user to confirm which version is in use before running it.</p></aside>
 <p>Do not restart a device providing active services just to restore a card.</p>
 <h3 id="en-section-17" data-heading-key="section-17"><a href="#en-section-17">Manage Data Widgets</a></h3>
 <p>Data widgets continuously display device data in the “Device Panel.”</p>
@@ -943,7 +951,8 @@
 <h3 id="en-section-38" data-heading-key="section-38"><a href="#en-section-38">Browse and Manage Files</a></h3>
 <ul><li>Select a folder name to open it.</li><li>Select the download button beside a file to save it to the browser's download location.</li><li>Select the rename button, enter a new name, and confirm.</li><li>Select “New Folder,” enter a folder name, and create it.</li><li>Select the refresh button to reload the current directory and storage state.</li></ul>
 <h3 id="en-section-39" data-heading-key="section-39"><a href="#en-section-39">Upload Files</a></h3>
-<ol><li>Open the target directory.</li><li>Select “Upload Files.”</li><li>Select one or more files, or drag files into the upload area.</li><li>Review the upload list and remove unwanted files.</li><li>Select “Upload” and wait for each file to show completion.</li></ol>
+<p>Files can only be uploaded to the SD Card, not SPIFFS. Confirm that the SD Card is mounted first.</p>
+<ol><li>Select “SD Card” and open the folder where you want to upload the files.</li><li>Select “Upload Files.”</li><li>Select one or more files, or drag files into the upload area.</li><li>Review the upload list and remove unwanted files.</li><li>Select “Upload” and wait for each file to show completion.</li></ol>
 <p>Uploading a <code>.tscfg</code> package opens verification and application steps. However, this file-upload page does not yet apply the package's settings. Successful upload or verification does not mean the settings are in effect.</p>
 <p>Give rule packages to a root user to import on Automation. Ordinary file upload is not a substitute for rule import. See the Security Guide for source and signature guidance for other packages.</p>
 <h3 id="en-section-40" data-heading-key="section-40"><a href="#en-section-40">Batch Operations</a></h3>
@@ -974,13 +983,16 @@
 <h2 id="en-section-47" data-heading-key="section-47"><a href="#en-section-47">9. Security Management Entry</a></h2>
 <p>Select “Security” in the top navigation to open security management. Use the TianshanOS Security Guide for SSH keys, remote hosts, known-host fingerprints, HTTPS certificates, configuration packages, and account management. These procedures are not repeated here.</p>
 <h3 id="en-section-48" data-heading-key="section-48"><a href="#en-section-48">Failed or Unconfirmed Operations</a></h3>
-<p>Read the message, then check the device or file. A timeout or lost connection does not mean the operation failed to run. Do not immediately repeat power, delete, task-start, or upgrade operations.</p>
+<p>Forms may mark a field in red and show an error beside it. Correct that field as instructed, then save. A cleared error mark does not confirm a successful save; check the save message and list too.</p>
+<p>Check which operation failed, then read the reason and next step. If the message gives no reason, do not guess.</p>
+<p>If “Details” is available, select it to see more information. Select “Hide” to hide the details. If a × button is shown, select it to dismiss the message. When asking for help, keep a record of the message and details for a root user to check.</p>
+<p>If the result is unconfirmed, refresh and check the device, file, or task state. A timeout or lost connection does not mean the operation failed to run. Do not immediately repeat power, delete, task-start, or upgrade operations. Ask a root user to investigate if the result remains unclear.</p>
 <p>For batch actions, check successful, failed, and unconfirmed items separately. Confirm downloaded files in the browser’s download list.</p>
 
           </article>
 
           <article class="guide-article lang-pane" data-lang-pane="ja" hidden>
-<p>このガイドは TianshanOS 0.6.2 に基づいています。機能や手順に変更はなく、以降のバージョンでも引き続き使用できます。コントロール、メッセージ、または結果が異なる場合は、インストールされているバージョンのガイダンスを確認してください。</p>
+<p>このガイドは TianshanOS 0.6.2 に基づいています。以降のバージョンでも、機能や手順が変わっていない部分は参考にできます。画面の項目、メッセージ、操作結果が異なる場合は、使用中のバージョンの説明を確認してください。</p>
 <p>このガイドでは、admin アカウントのシステム チェック、デバイス コントロール、ネットワーク、ファイル、およびファームウェアのアップデートについて説明します。ルート操作ガイドでは、端末アクセス、リモート コマンド、および自動化構成について説明します。セキュリティ管理については、別冊の「セキュリティガイド」を参照してください。</p>
 <p>デバイスに表示されるコントロールを使用します。特定のハードウェアまたは構成が必要なものもあります。コンピュータでは、アイコン ボタンの上にカーソルを置くと、その名前が表示されます。</p>
 <h2 id="ja-section-1" data-heading-key="section-1"><a href="#ja-section-1">1. はじめに</a></h2>
@@ -1026,11 +1038,13 @@
 <h3 id="ja-section-16" data-heading-key="section-16"><a href="#ja-section-16">クイック アクションを使用する</a></h3>
 <p>クイック アクションのカードは root ユーザーが設定します。カードの表示と手動実行の許可は別の設定です。カードが表示されていても、実行できるとは限りません。</p>
 <ol><li>カードの名前、状態、使用可能なコントロールを確認して、タスクを特定します。</li><li>実行できるカードを選択し、状態の更新を待ってください。処理中は同じ操作を繰り返さないでください。</li><li>バックグラウンド タスクは、ログ、ステータス検証、または停止制御を提供する場合があります。ログを読んでタスクの出力を確認します。停止を選択した後、タスクが停止していることを確認します。</li><li>状態が不明であるか、開始がブロックされている場合は、利用可能な検証コントロールを使用するか、root ユーザーにルール、リモート コマンド、およびホスト接続を確認するよう依頼してください。</li></ol>
+<p>開始できないときは、表示された理由に従って対処してください。開始ボタンを繰り返し押さないでください：</p>
+<ul><li>ルールが無効、または手動実行が許可されていない：root ユーザーにルールの設定を確認してもらってください。カードの表示は実行の許可を意味しません。</li><li>タスクが実行中、起動中、確認中、または停止中：状態の更新を待ってください。</li><li>関連サービスが動作中：再度開始する必要はありません。再起動する場合は、先に停止し、結果を確認してください。</li><li>サービスの停止が未確認：先に状態を確認してください。確認できない場合は、root ユーザーにホストへの接続を調べてもらってください。</li><li>ルールが未読み込み、または再起動後の削除待ち：root ユーザーにルールの版と再起動待ちのメッセージを確認してもらってください。</li><li>自動化が開始要求を受け付けない：root ユーザーにエンジンと設定の状態を確認してもらってください。自分の判断でデバイスを再起動しないでください。</li></ul>
 <p>サービスを再起動する前に、サービスが停止していることを確認してください。受け入れられた開始または停止リクエストがまだ進行中である可能性があります。最終状態を待ちます。 1 つのアクションをトリガーした後、別のアクションを開始するまで数秒待ってください。</p>
 <p>並べ替えインジケーターが表示されるまでカードを長押しし、ドラッグして表示順序を変更します。</p>
 <p>使用可能なカードがない場合は、ページにどのメッセージが表示されるかを確認してください。</p>
 <ul><li>「クイック アクションを読み込み中」: 設定の読み込みが完了するまで待ちます。メッセージが続く場合は、ページを更新するか、root ユーザーに調査を依頼してください。</li><li>「クイック アクションは利用できません」：root ユーザーに確認を依頼してください。開始ボタンを繰り返し押さないでください。</li><li>クイック アクションが設定されていません: 必要な場合は、root ユーザーにルールの [パネルに表示] 設定を確認するよう依頼してください。</li></ul>
-<p>ルールの更新後、デバイスが再起動されるまでカードは古いタスクを実行する可能性があります。新しくインポートされたルール、または削除を待っているルールは開始されない場合があります。タスクが最近変更された場合は、実行前に root ユーザーに使用中のバージョンを確認するよう依頼してください。</p>
+<p>ルール パッケージをインポートした後は、デバイスの再起動までカードが古いタスクを実行することがあります。新しくインポートしたルールや削除待ちのルールは、開始できないこともあります。タスクが変更された直後は、実行前に root ユーザーに現在の版を確認してもらってください。</p>
 <p>カードを復元するためだけに、アクティブなサービスを提供するデバイスを再起動しないでください。</p>
 <h3 id="ja-section-17" data-heading-key="section-17"><a href="#ja-section-17">データ ウィジェットの管理</a></h3>
 <p>データ ウィジェットは、「デバイス パネル」にデバイス データを継続的に表示します。</p>
@@ -1095,7 +1109,8 @@
 <h3 id="ja-section-38" data-heading-key="section-38"><a href="#ja-section-38">ファイルの参照と管理</a></h3>
 <ul><li>フォルダー名を選択して開きます。</li><li>ファイルの横にあるダウンロード ボタンを選択して、ファイルをブラウザのダウンロード場所に保存します。</li><li>名前変更ボタンを選択し、新しい名前を入力して確認します。</li><li>「新しいフォルダー」を選択し、フォルダー名を入力して作成します。</li><li>[更新] ボタンを選択して、現在のディレクトリとストレージの状態を再ロードします。</li></ul>
 <h3 id="ja-section-39" data-heading-key="section-39"><a href="#ja-section-39">ファイルをアップロードする</a></h3>
-<ol><li>対象のディレクトリを開きます。</li><li>「ファイルをアップロード」を選択します。</li><li>1 つ以上のファイルを選択するか、ファイルをアップロード領域にドラッグします。</li><li>アップロード リストを確認し、不要なファイルを削除します。</li><li>「アップロード」を選択し、各ファイルが完了を示すまで待ち​​ます。</li></ol>
+<p>ファイルのアップロード先は SD カードだけです。SPIFFS にはアップロードできません。先に SD カードがマウントされていることを確認してください。</p>
+<ol><li>「SD カード」を選択し、ファイルをアップロードするフォルダーを開きます。</li><li>「ファイルをアップロード」を選択します。</li><li>1 つ以上のファイルを選択するか、ファイルをアップロード領域にドラッグします。</li><li>アップロード リストを確認し、不要なファイルを削除します。</li><li>「アップロード」を選択し、各ファイルが完了を示すまで待ち​​ます。</li></ol>
 <p><code>.tscfg</code> パッケージをアップロードすると、検証と適用の画面が開きます。ただし、このファイル画面からは、パッケージ内の設定をまだ適用できません。アップロードや検証に成功しても、設定が反映されたとは限りません。</p>
 <p>オートメーションにインポートするルール パッケージを root ユーザーに提供します。通常のファイルのアップロードは、ルールのインポートの代わりにはなりません。他のパッケージのソースと署名のガイダンスについては、『セキュリティ ガイド』を参照してください。</p>
 <h3 id="ja-section-40" data-heading-key="section-40"><a href="#ja-section-40">バッチ操作</a></h3>
@@ -1126,7 +1141,10 @@
 <h2 id="ja-section-47" data-heading-key="section-47"><a href="#ja-section-47">9. セキュリティ管理エントリ</a></h2>
 <p>上部のナビゲーションで [セキュリティ] を選択し、セキュリティ管理を開きます。 SSH キー、リモート ホスト、既知のホストのフィンガープリント、HTTPS 証明書、構成パッケージ、およびアカウント管理については、TianshanOS セキュリティ ガイドを使用してください。これらの手順はここでは繰り返しません。</p>
 <h3 id="ja-section-48" data-heading-key="section-48"><a href="#ja-section-48">失敗または未確認の操作</a></h3>
-<p>メッセージを読んで、デバイスまたはファイルを確認してください。タイムアウトや接続の切断は、操作の実行が失敗したことを意味するものではありません。電源、削除、タスクの開始、またはアップグレードの操作をすぐに繰り返さないでください。</p>
+<p>フォームの項目が赤く表示され、横にエラーの説明が出ることがあります。説明に従って項目を修正し、保存してください。赤い表示が消えても、保存の成功は確認できません。保存のメッセージと一覧も確認してください。</p>
+<p>どの操作が失敗したかを確認し、理由と次の手順を読んでください。理由が表示されていない場合は、推測で対処しないでください。</p>
+<p>「詳細」があれば、選択して追加情報を確認できます。「非表示」で詳細を閉じます。× ボタンが表示されている場合は、それを選択してメッセージを閉じられます。助けを求めるときは、メッセージと詳細を記録し、root ユーザーに渡してください。</p>
+<p>結果が未確認の場合は、表示を更新し、デバイス、ファイル、またはタスクの状態を確認してください。タイムアウトや接続切断は、操作が実行されなかったことを意味しません。電源の切り替え、削除、タスク開始、更新をすぐに繰り返さないでください。確認できない場合は、root ユーザーに調査を依頼してください。</p>
 <p>バッチアクションの場合、成功、失敗、未確認の項目を個別に確認します。ダウンロードしたファイルはブラウザのダウンロードリストで確認できます。</p>
 
           </article>
@@ -1178,11 +1196,13 @@
 <h3 id="ko-section-16" data-heading-key="section-16"><a href="#ko-section-16">빠른 작업 사용</a></h3>
 <p>빠른 작업 카드는 root 사용자가 설정합니다. 카드 표시와 수동 실행 허용은 별도의 설정입니다. 카드가 보여도 작업을 실행할 수 없는 경우가 있습니다.</p>
 <ol><li>카드의 이름, 상태 및 사용 가능한 컨트롤을 확인하여 작업을 식별합니다.</li><li>실행 가능한 카드를 선택한 뒤 상태가 바뀔 때까지 기다리세요. 처리 중에는 같은 작업을 다시 시작하지 마세요.</li><li>백그라운드 작업은 로그, 상태 확인 또는 중지 제어를 제공할 수 있습니다. 작업 출력을 보려면 로그를 읽어보세요. 중지를 선택한 후 작업이 중지되었는지 확인하세요.</li><li>상태를 알 수 없거나 시동이 차단된 경우 사용 가능한 확인 제어를 사용하거나 root 사용자에게 규칙, 원격 명령 및 호스트 연결을 확인하도록 요청하십시오.</li></ol>
+<p>시작할 수 없으면 표시된 이유에 따라 처리하세요. 시작 버튼을 반복해서 누르지 마세요:</p>
+<ul><li>규칙이 비활성 상태이거나 수동 실행이 허용되지 않음: root 사용자에게 규칙 설정을 확인해 달라고 요청하세요. 카드가 보여도 실행 권한이 있는 것은 아닙니다.</li><li>작업이 실행·시작·확인·중지 중임: 상태가 바뀔 때까지 기다리세요.</li><li>연결된 서비스가 이미 실행 중임: 다시 시작할 필요가 없습니다. 재시작하려면 먼저 중지하고 결과를 확인하세요.</li><li>서비스가 중지됐는지 확인되지 않음: 먼저 상태를 확인하세요. 확인할 수 없으면 root 사용자에게 호스트 연결을 점검해 달라고 요청하세요.</li><li>규칙이 로드되지 않았거나 재시작 후 삭제 대기 중임: root 사용자에게 규칙 버전과 재시작 대기 메시지를 확인해 달라고 요청하세요.</li><li>자동화가 시작 요청을 받지 않음: root 사용자에게 엔진과 설정 상태를 확인해 달라고 요청하세요. 임의로 장치를 재시작하지 마세요.</li></ul>
 <p>서비스를 다시 시작하기 전에 서비스가 중지되었는지 확인하세요. 승인된 시작 또는 중지 요청이 아직 진행 중일 수 있습니다. 최종 상태를 기다리세요. 하나의 작업을 실행한 후 다른 작업을 시작하기 전에 몇 초 정도 기다리십시오.</p>
 <p>재정렬 표시가 나타날 때까지 카드를 길게 누른 다음 끌어서 표시 순서를 변경합니다.</p>
 <p>사용 가능한 카드가 없는 경우 페이지에 표시되는 메시지를 확인하십시오.</p>
 <ul><li>&quot;빠른 작업 로드 중&quot;: 구성 로드가 완료될 때까지 기다립니다. 메시지가 지속되면 페이지를 새로 고치거나 root 사용자에게 조사를 요청하세요.</li><li>“빠른 작업을 사용할 수 없음”: root 사용자에게 확인을 요청하세요. 시작 버튼을 반복해서 누르지 마세요.</li><li>구성된 빠른 작업 없음: 필요한 경우 root 사용자에게 규칙의 &quot;패널에 표시&quot; 설정을 확인하도록 요청하세요.</li></ul>
-<p>규칙 업데이트 후에도 카드는 장치가 다시 시작될 때까지 이전 작업을 계속 실행할 수 있습니다. 새로 가져온 규칙이나 제거 대기 중인 규칙이 시작되지 않을 수 있습니다. 작업이 최근에 변경된 경우 root 사용자에게 작업을 실행하기 전에 사용 중인 버전을 확인하도록 요청하세요.</p>
+<p>규칙 패키지를 가져온 뒤에는 장치를 재시작할 때까지 카드가 이전 작업을 실행할 수 있습니다. 새로 가져온 규칙이나 삭제 대기 중인 규칙은 시작하지 못할 수도 있습니다. 작업이 바뀐 직후에는 실행 전에 root 사용자에게 현재 적용 중인 버전을 확인해 달라고 요청하세요.</p>
 <p>단지 카드를 복원하기 위해 활성 서비스를 제공하는 장치를 다시 시작하지 마십시오.</p>
 <h3 id="ko-section-17" data-heading-key="section-17"><a href="#ko-section-17">데이터 위젯 관리</a></h3>
 <p>데이터 위젯은 &quot;장치 패널&quot;에 장치 데이터를 지속적으로 표시합니다.</p>
@@ -1247,7 +1267,8 @@
 <h3 id="ko-section-38" data-heading-key="section-38"><a href="#ko-section-38">파일 찾아보기 및 관리</a></h3>
 <ul><li>폴더 이름을 선택하여 엽니다.</li><li>파일 옆에 있는 다운로드 버튼을 선택하여 브라우저의 다운로드 위치에 저장합니다.</li><li>이름 바꾸기 버튼을 선택하고 새 이름을 입력한 후 확인합니다.</li><li>“새 폴더”를 선택하고 폴더 이름을 입력한 후 생성합니다.</li><li>현재 디렉터리와 저장소 상태를 다시 로드하려면 새로 고침 버튼을 선택하세요.</li></ul>
 <h3 id="ko-section-39" data-heading-key="section-39"><a href="#ko-section-39">파일 업로드</a></h3>
-<ol><li>대상 디렉터리를 엽니다.</li><li>&quot;파일 업로드&quot;를 선택합니다.</li><li>하나 이상의 파일을 선택하거나 파일을 업로드 영역으로 끌어다 놓습니다.</li><li>업로드 목록을 검토하고 원하지 않는 파일을 제거합니다.</li><li>&quot;업로드&quot;를 선택하고 각 파일이 완료될 때까지 기다립니다.</li></ol>
+<p>파일은 SD 카드에만 업로드할 수 있습니다. SPIFFS에는 업로드할 수 없습니다. 먼저 SD 카드가 마운트되어 있는지 확인하세요.</p>
+<ol><li>“SD 카드”를 선택하고 파일을 업로드할 폴더를 여세요.</li><li>&quot;파일 업로드&quot;를 선택합니다.</li><li>하나 이상의 파일을 선택하거나 파일을 업로드 영역으로 끌어다 놓습니다.</li><li>업로드 목록을 검토하고 원하지 않는 파일을 제거합니다.</li><li>&quot;업로드&quot;를 선택하고 각 파일이 완료될 때까지 기다립니다.</li></ol>
 <p><code>.tscfg</code> 패키지를 업로드하면 검증과 적용 화면이 열립니다. 하지만 현재 파일 업로드 페이지는 패키지의 설정을 적용하지 않습니다. 업로드나 검증에 성공해도 설정이 적용된 것은 아닙니다.</p>
 <p>자동화에서 가져올 수 있도록 root 사용자에게 규칙 패키지를 제공합니다. 일반 파일 업로드는 규칙 가져오기를 대체할 수 없습니다. 다른 패키지에 대한 소스 및 서명 지침은 보안 가이드를 참조하세요.</p>
 <h3 id="ko-section-40" data-heading-key="section-40"><a href="#ko-section-40">배치 작업</a></h3>
@@ -1278,7 +1299,10 @@
 <h2 id="ko-section-47" data-heading-key="section-47"><a href="#ko-section-47">9. 보안관리 항목</a></h2>
 <p>상단 탐색에서 &quot;보안&quot;을 선택하여 보안 관리를 엽니다. SSH 키, 원격 호스트, 알려진 호스트 지문, HTTPS 인증서, 구성 패키지 및 계정 관리에 대해서는 TianshanOS 보안 가이드를 사용하세요. 이러한 절차는 여기서 반복되지 않습니다.</p>
 <h3 id="ko-section-48" data-heading-key="section-48"><a href="#ko-section-48">실패 또는 확인되지 않은 작업</a></h3>
-<p>메시지를 읽은 후 장치나 파일을 확인하세요. 시간 초과 또는 연결 끊김이 작업 실행 실패를 의미하는 것은 아닙니다. 전원, 삭제, 작업 시작 또는 업그레이드 작업을 즉시 반복하지 마십시오.</p>
+<p>입력란이 빨간색으로 표시되고 옆에 오류 설명이 나올 수 있습니다. 설명에 따라 해당 입력란을 수정한 뒤 저장하세요. 오류 표시가 사라져도 저장에 성공한 것은 아닙니다. 저장 메시지와 목록도 확인하세요.</p>
+<p>어떤 작업이 실패했는지 확인한 뒤 이유와 다음 조치를 읽으세요. 이유가 표시되지 않으면 추측하지 마세요.</p>
+<p>“자세히”가 표시되면 선택해 추가 정보를 확인하세요. “숨기기”로 상세 내용을 접을 수 있습니다. × 버튼이 있으면 눌러 메시지를 닫을 수 있습니다. 도움을 요청할 때는 메시지와 상세 내용을 기록해 root 사용자에게 전달하세요.</p>
+<p>결과가 확인되지 않으면 새로고침하고 장치·파일·작업 상태를 확인하세요. 시간 초과나 연결 끊김은 작업이 실행되지 않았다는 뜻이 아닙니다. 전원 제어·삭제·작업 시작·업그레이드를 곧바로 반복하지 마세요. 계속 확인할 수 없으면 root 사용자에게 점검을 요청하세요.</p>
 <p>일괄 작업의 경우 성공, 실패, 미확인 항목을 별도로 확인합니다. 브라우저의 다운로드 목록에서 다운로드한 파일을 확인하세요.</p>
 
           </article>
@@ -1330,11 +1354,13 @@
 <h3 id="es-section-16" data-heading-key="section-16"><a href="#es-section-16">Usar acciones rápidas</a></h3>
 <p>Un usuario root configura las tarjetas de acciones rápidas. Mostrar una tarjeta y permitir su ejecución manual son ajustes distintos. Una tarjeta visible puede no permitir iniciar la tarea.</p>
 <ol><li>Verifique el nombre de la tarjeta, el estado y los controles disponibles para identificar la tarea.</li><li>Seleccione una tarjeta disponible y espere a que cambie su estado. No vuelva a iniciar la tarea mientras se esté procesando.</li><li>Las tareas en segundo plano pueden proporcionar controles de registro, verificación de estado o detención. Lea el registro para ver el resultado de la tarea. Después de seleccionar detener, verifique que la tarea se haya detenido.</li><li>Si el estado es desconocido o el inicio está bloqueado, utilice el control de verificación disponible o solicite a un usuario de root que verifique la regla, el comando remoto y la conexión del host.</li></ol>
+<p>Si no puede iniciar la tarea, siga las indicaciones del mensaje. No pulse Inicio repetidamente:</p>
+<ul><li>Regla deshabilitada o ejecución manual no permitida: pida a un usuario root que revise los ajustes. Que la tarjeta sea visible no autoriza a ejecutar la tarea.</li><li>Tarea en ejecución, iniciándose, verificándose o deteniéndose: espere a que se actualice el estado.</li><li>Servicio vinculado en ejecución: no lo inicie otra vez. Para reiniciarlo, deténgalo primero y confirme el resultado.</li><li>Parada del servicio sin confirmar: verifique su estado. Si sigue sin poder confirmarlo, pida a un usuario root que revise la conexión al host.</li><li>Regla sin cargar o pendiente de eliminar tras el reinicio: pida a un usuario root que revise la versión de la regla y el mensaje de reinicio pendiente.</li><li>La automatización no acepta solicitudes de inicio: pida a un usuario root que revise el motor y la configuración. No reinicie el dispositivo por su cuenta.</li></ul>
 <aside class="guide-notice"><span>Nota de operación</span><p>Confirme que un servicio se haya detenido antes de reiniciarlo. Es posible que aún esté en curso una solicitud de inicio o detención aceptada; esperar el estado final. Después de activar una acción, espere unos segundos antes de iniciar otra.</p></aside>
 <p>Mantenga presionada una tarjeta hasta que aparezca el indicador de reorden, luego arrástrela para cambiar el orden de visualización.</p>
 <p>Si no hay tarjetas disponibles, verifique qué mensaje muestra la página:</p>
 <ul><li>“Cargando acciones rápidas”: Espere a que la configuración termine de cargarse. Si el mensaje persiste, actualice la página o solicite a un usuario de root que investigue.</li><li>«Acciones rápidas no disponibles»: pida ayuda a un usuario root. No pulse Inicio repetidamente.</li><li>No hay acciones rápidas configuradas: si necesita una, solicite a un usuario de root que verifique la configuración &quot;Mostrar en panel&quot; de las reglas.</li></ul>
-<aside class="guide-notice"><span>Nota de operación</span><p>Después de una actualización de reglas, es posible que una tarjeta aún ejecute la tarea anterior hasta que se reinicie el dispositivo. Es posible que las reglas recién importadas o las reglas en espera de eliminación no se inicien. Si una tarea se cambió recientemente, solicite a un usuario de root que confirme qué versión está en uso antes de ejecutarla.</p></aside>
+<aside class="guide-notice"><span>Nota de operación</span><p>Tras importar un paquete de reglas, una tarjeta puede seguir ejecutando la tarea anterior hasta que se reinicie el dispositivo. Las reglas nuevas o pendientes de eliminar pueden no permitir el inicio. Si la tarea acaba de cambiar, pida a un usuario root que confirme la versión en uso antes de ejecutarla.</p></aside>
 <p>No reinicie un dispositivo que proporciona servicios activos solo para restaurar una tarjeta.</p>
 <h3 id="es-section-17" data-heading-key="section-17"><a href="#es-section-17">Administrar widgets de datos</a></h3>
 <p>Los widgets de datos muestran los datos del dispositivo en el «Panel de dispositivos» y los actualizan durante el uso.</p>
@@ -1399,7 +1425,8 @@
 <h3 id="es-section-38" data-heading-key="section-38"><a href="#es-section-38">Explorar y administrar archivos</a></h3>
 <ul><li>Seleccione un nombre de carpeta para abrirla.</li><li>Seleccione el botón de descarga al lado de un archivo para guardarlo en la ubicación de descarga del navegador.</li><li>Seleccione el botón de cambio de nombre, ingrese un nuevo nombre y confirme.</li><li>Seleccione “Nueva carpeta”, ingrese un nombre de carpeta y créela.</li><li>Seleccione el botón Actualizar para recargar el directorio actual y el estado de almacenamiento.</li></ul>
 <h3 id="es-section-39" data-heading-key="section-39"><a href="#es-section-39">Cargar archivos</a></h3>
-<ol><li>Abra el directorio de destino.</li><li>Seleccione &quot;Cargar archivos&quot;.</li><li>Seleccione uno o más archivos o arrastre archivos al área de carga.</li><li>Revise la lista de carga y elimine archivos no deseados.</li><li>Seleccione &quot;Cargar&quot; y espere a que cada archivo muestre su finalización.</li></ol>
+<p>Los archivos solo se pueden subir a la tarjeta SD, no a SPIFFS. Compruebe primero que la tarjeta SD esté montada.</p>
+<ol><li>Seleccione «Tarjeta SD» y abra la carpeta donde desea subir los archivos.</li><li>Seleccione &quot;Cargar archivos&quot;.</li><li>Seleccione uno o más archivos o arrastre archivos al área de carga.</li><li>Revise la lista de carga y elimine archivos no deseados.</li><li>Seleccione &quot;Cargar&quot; y espere a que cada archivo muestre su finalización.</li></ol>
 <p>Al subir un paquete <code>.tscfg</code>, se abren los pasos de verificación y aplicación. Esta página de archivos todavía no aplica los ajustes del paquete. Que la carga o la verificación se complete no significa que los ajustes estén activos.</p>
 <p>Proporciona paquetes de reglas a un usuario de root para importarlos en Automatización. La carga normal de archivos no sustituye a la importación de reglas. Consulte la Guía de seguridad para obtener orientación sobre fuentes y firmas para otros paquetes.</p>
 <h3 id="es-section-40" data-heading-key="section-40"><a href="#es-section-40">Operaciones por lotes</a></h3>
@@ -1430,7 +1457,10 @@
 <h2 id="es-section-47" data-heading-key="section-47"><a href="#es-section-47">9. Entrada de gestión de seguridad</a></h2>
 <p>Seleccione &quot;Seguridad&quot; en la navegación superior para abrir la administración de seguridad. Utilice la Guía de seguridad TianshanOS para claves SSH, hosts remotos, huellas digitales de host conocidos, certificados HTTPS, paquetes de configuración y administración de cuentas. Estos procedimientos no se repiten aquí.</p>
 <h3 id="es-section-48" data-heading-key="section-48"><a href="#es-section-48">Operaciones fallidas o no confirmadas</a></h3>
-<p>Lea el mensaje, luego verifique el dispositivo o archivo. Un tiempo de espera agotado o una conexión perdida no significa que la operación no se haya ejecutado. No repita inmediatamente las operaciones de encendido, eliminación, inicio de tareas o actualización.</p>
+<p>Un formulario puede marcar un campo en rojo y mostrar el error a su lado. Corrija ese campo según las indicaciones y guarde. Que desaparezca la marca no confirma el guardado; compruebe también el mensaje y la lista.</p>
+<p>Compruebe qué operación falló y lea el motivo y el siguiente paso. Si el mensaje no da un motivo, no lo suponga.</p>
+<p>Si aparece «Detalles», selecciónelo para ver más información. «Ocultar» cierra los detalles. Si hay un botón ×, puede cerrar el mensaje con él. Cuando pida ayuda, conserve el mensaje y los detalles para que un usuario root los revise.</p>
+<p>Si el resultado no está confirmado, actualice y compruebe el estado del dispositivo, archivo o tarea. Un tiempo de espera agotado o una desconexión no significa que la operación no se haya ejecutado. No repita de inmediato las operaciones de alimentación, eliminación, inicio de tareas o actualización. Pida ayuda a un usuario root si sigue sin poder confirmar el resultado.</p>
 <p>Para acciones por lotes, verifique los elementos exitosos, fallidos y no confirmados por separado. Confirme los archivos descargados en la lista de descargas del navegador.</p>
 
           </article>
@@ -1482,11 +1512,13 @@
 <h3 id="fr-section-16" data-heading-key="section-16"><a href="#fr-section-16">Utiliser des actions rapides</a></h3>
 <p>Un utilisateur root configure les cartes d’actions rapides. Leur affichage et l’autorisation de lancer une tâche sont deux réglages distincts. Une carte visible ne permet pas toujours de lancer sa tâche.</p>
 <ol><li>Vérifiez le nom de la carte, son état et les commandes disponibles pour identifier la tâche.</li><li>Sélectionnez une carte disponible, puis attendez la mise à jour de son état. Ne relancez pas la tâche pendant son traitement.</li><li>Les tâches en arrière-plan peuvent fournir des contrôles de journal, de vérification de l'état ou d'arrêt. Lisez le journal pour voir le résultat de la tâche. Après avoir sélectionné stop, vérifiez que la tâche s'est arrêtée.</li><li>Si l'état est inconnu ou si le démarrage est bloqué, utilisez le contrôle de vérification disponible ou demandez à un utilisateur root de vérifier la règle, la commande à distance et la connexion hôte.</li></ol>
+<p>Si la tâche ne peut pas démarrer, suivez le motif affiché. N’appuyez pas plusieurs fois sur Démarrer :</p>
+<ul><li>Règle désactivée ou lancement manuel non autorisé : demandez à un utilisateur root de vérifier les réglages. Une carte visible ne vaut pas autorisation de lancer la tâche.</li><li>Tâche en cours d’exécution, de démarrage, de vérification ou d’arrêt : attendez la mise à jour de son état.</li><li>Service associé en fonctionnement : ne le relancez pas. Pour le redémarrer, arrêtez-le d’abord et confirmez le résultat.</li><li>Arrêt du service non confirmé : vérifiez son état. S’il reste inconnu, demandez à un utilisateur root de vérifier la connexion à l’hôte.</li><li>Règle non chargée ou en attente de suppression après redémarrage : demandez à un utilisateur root de vérifier sa version et le message de redémarrage en attente.</li><li>L’automatisation n’accepte pas les demandes de démarrage : demandez à un utilisateur root de vérifier le moteur et la configuration. Ne redémarrez pas l’appareil de votre propre initiative.</li></ul>
 <aside class="guide-notice"><span>Note d’utilisation</span><p>Confirmez qu'un service s'est arrêté avant de le redémarrer. Une demande de démarrage ou d'arrêt acceptée peut être encore en cours ; attendre l'état final. Après avoir déclenché une action, attendez quelques secondes avant d’en lancer une autre.</p></aside>
 <p>Appuyez et maintenez une carte jusqu'à ce que l'indicateur de réorganisation apparaisse, puis faites-la glisser pour modifier l'ordre d'affichage.</p>
 <p>Si aucune carte n'est disponible, vérifiez quel message la page affiche :</p>
 <ul><li>« Chargement des actions rapides » : attendez que la configuration termine le chargement. Si le message persiste, actualisez la page ou demandez à un utilisateur root d'enquêter.</li><li>« Actions rapides indisponibles » : demandez de l’aide à un utilisateur root. N’appuyez pas plusieurs fois sur Démarrer.</li><li>Aucune action rapide configurée : si vous en avez besoin, demandez à un utilisateur de root de vérifier le paramètre « Afficher sur le panneau » des règles.</li></ul>
-<aside class="guide-notice"><span>Note d’utilisation</span><p>Après une mise à jour des règles, une carte peut toujours exécuter l'ancienne tâche jusqu'au redémarrage de l'appareil. Les règles récemment importées ou celles en attente de suppression peuvent ne pas démarrer. Si une tâche a été récemment modifiée, demandez à un utilisateur de root de confirmer quelle version est utilisée avant de l'exécuter.</p></aside>
+<aside class="guide-notice"><span>Note d’utilisation</span><p>Après l’importation d’un paquet de règles, une carte peut encore exécuter l’ancienne tâche jusqu’au redémarrage de l’appareil. Les nouvelles règles ou celles en attente de suppression peuvent ne pas démarrer. Si la tâche vient de changer, demandez à un utilisateur root de confirmer la version en cours avant de la lancer.</p></aside>
 <p>Ne redémarrez pas un appareil fournissant des services actifs uniquement pour restaurer une carte.</p>
 <h3 id="fr-section-17" data-heading-key="section-17"><a href="#fr-section-17">Gérer les widgets de données</a></h3>
 <p>Les widgets de données affichent et actualisent les données de l’appareil dans le « Panneau des appareils ».</p>
@@ -1550,10 +1582,11 @@
 <p>La carte SD est un stockage amovible et SPIFFS est un stockage de fichiers interne à l'appareil. Sélectionnez « Carte SD » ou « SPIFFS » pour changer d'emplacement. Le chemin en haut montre votre dossier actuel. Sélectionnez un nom de dossier dans le chemin pour y revenir.</p>
 <h3 id="fr-section-38" data-heading-key="section-38"><a href="#fr-section-38">Parcourir et gérer les fichiers</a></h3>
 <ul><li>Sélectionnez un nom de dossier pour l'ouvrir.</li><li>Sélectionnez le bouton de téléchargement à côté d'un fichier pour l'enregistrer à l'emplacement de téléchargement du navigateur.</li><li>Sélectionnez le bouton Renommer, saisissez un nouveau nom et confirmez.</li><li>Sélectionnez « Nouveau dossier », saisissez un nom de dossier et créez-le.</li><li>Sélectionnez le bouton d'actualisation pour recharger le répertoire actuel et l'état de stockage.</li></ul>
-<h3 id="fr-section-39" data-heading-key="section-39"><a href="#fr-section-39">Télécharger des fichiers</a></h3>
-<ol><li>Ouvrez le répertoire cible.</li><li>Sélectionnez « Télécharger des fichiers ».</li><li>Sélectionnez un ou plusieurs fichiers ou faites glisser les fichiers dans la zone de téléchargement.</li><li>Consultez la liste de téléchargement et supprimez les fichiers indésirables.</li><li>Sélectionnez « Télécharger » et attendez que chaque fichier soit terminé.</li></ol>
+<h3 id="fr-section-39" data-heading-key="section-39"><a href="#fr-section-39">Envoyer des fichiers</a></h3>
+<p>Les fichiers peuvent être envoyés uniquement sur la carte SD, pas dans SPIFFS. Vérifiez d’abord que la carte SD est montée.</p>
+<ol><li>Sélectionnez « Carte SD » et ouvrez le dossier où vous souhaitez envoyer les fichiers.</li><li>Sélectionnez « Envoyer des fichiers ».</li><li>Sélectionnez un ou plusieurs fichiers, ou faites-les glisser dans la zone d’envoi.</li><li>Vérifiez la liste des fichiers à envoyer et retirez ceux dont vous n’avez pas besoin.</li><li>Sélectionnez « Envoyer » et attendez la confirmation pour chaque fichier.</li></ol>
 <p>L’envoi d’un paquet <code>.tscfg</code> ouvre les étapes de vérification et d’application. Cette page de fichiers n’applique pas encore les réglages du paquet. Un envoi ou une vérification réussi ne signifie pas que les réglages sont actifs.</p>
-<p>Donnez des packages de règles à un utilisateur root pour qu'il les importe sur Automation. Le téléchargement de fichiers ordinaire ne remplace pas l’importation de règles. Consultez le Guide de sécurité pour obtenir des conseils sur la source et la signature des autres packages.</p>
+<p>Confiez les paquets de règles à un utilisateur root, qui les importera depuis « Automatisation ». Un simple envoi de fichiers ne remplace pas l’importation de règles. Pour l’origine et la signature des autres paquets, consultez le Guide de sécurité.</p>
 <h3 id="fr-section-40" data-heading-key="section-40"><a href="#fr-section-40">Opérations par lots</a></h3>
 <p>Après avoir sélectionné des fichiers ou des dossiers, la barre d'outils batch apparaît.</p>
 <ul><li>« Téléchargement par lots » télécharge les fichiers sélectionnés, sans inclure les dossiers.</li><li>« Suppression par lots » supprime les fichiers et dossiers sélectionnés.</li><li>« Effacer la sélection » efface la sélection actuelle.</li></ul>
@@ -1582,7 +1615,10 @@
 <h2 id="fr-section-47" data-heading-key="section-47"><a href="#fr-section-47">9. Entrée de gestion de la sécurité</a></h2>
 <p>Sélectionnez « Sécurité » dans la navigation supérieure pour ouvrir la gestion de la sécurité. Utilisez le Guide de sécurité TianshanOS pour les clés SSH, les hôtes distants, les empreintes d'hôte connu, les certificats HTTPS, les packages de configuration et la gestion des comptes. Ces procédures ne sont pas répétées ici.</p>
 <h3 id="fr-section-48" data-heading-key="section-48"><a href="#fr-section-48">Échec ou opérations non confirmées</a></h3>
-<p>Lisez le message, puis vérifiez le périphérique ou le fichier. Un délai d'attente ou une perte de connexion ne signifie pas que l'opération n'a pas pu s'exécuter. Ne répétez pas immédiatement les opérations de mise sous tension, de suppression, de démarrage de tâche ou de mise à niveau.</p>
+<p>Un formulaire peut signaler un champ en rouge et afficher une erreur à côté. Corrigez ce champ selon les indications, puis enregistrez. La disparition du signalement ne confirme pas l’enregistrement ; vérifiez aussi le message et la liste.</p>
+<p>Identifiez l’opération qui a échoué, puis lisez le motif et l’étape suivante. Si le message ne donne aucun motif, ne le devinez pas.</p>
+<p>Si « Détails » est proposé, sélectionnez-le pour consulter les informations supplémentaires. « Masquer » referme les détails. Si un bouton × est affiché, utilisez-le pour fermer le message. Pour demander de l’aide, conservez le message et ses détails afin qu’un utilisateur root puisse les vérifier.</p>
+<p>Si le résultat n’est pas confirmé, actualisez et vérifiez l’état de l’appareil, du fichier ou de la tâche. Un délai expiré ou une déconnexion ne signifie pas que l’opération n’a pas été exécutée. Ne répétez pas aussitôt une opération d’alimentation, de suppression, de lancement de tâche ou de mise à jour. Demandez à un utilisateur root de vérifier si le résultat reste inconnu.</p>
 <p>Pour les actions par lots, vérifiez séparément les éléments réussis, échoués et non confirmés. Confirmez les fichiers téléchargés dans la liste de téléchargement du navigateur.</p>
 
           </article>

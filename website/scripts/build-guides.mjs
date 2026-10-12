@@ -483,9 +483,9 @@ function siteNavigationTemplate() {
 }
 
 function pageTemplate(config, rendered) {
-  const guideAssetVersion = config.accent === 'network' ? 'stage3-1' : 'docs-20261011';
-  const catalogVersion = config.accent === 'network' ? 'catalogs-20261004' : 'docs-20261011';
-  const scFontVersion = config.accent === 'network' ? '' : '?v=docs-20261011';
+  const guideAssetVersion = config.accent === 'network' ? 'stage3-1' : 'docs-20261013';
+  const catalogVersion = config.accent === 'network' ? 'catalogs-20261004' : 'docs-20261013';
+  const scFontVersion = config.accent === 'network' ? '' : '?v=docs-20261013';
   const pageData = JSON.stringify({
     title: config.title,
     copy: { zh: '已复制', en: 'Copied' },

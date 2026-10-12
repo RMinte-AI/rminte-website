@@ -116,6 +116,15 @@ Un usuario root configura las tarjetas de acciones rápidas. Mostrar una tarjeta
 3. Las tareas en segundo plano pueden proporcionar controles de registro, verificación de estado o detención. Lea el registro para ver el resultado de la tarea. Después de seleccionar detener, verifique que la tarea se haya detenido.
 4. Si el estado es desconocido o el inicio está bloqueado, utilice el control de verificación disponible o verifique la regla, el comando remoto y la conexión del host como se describe en los capítulos 11 y 12.
 
+Si no puede iniciar la tarea, siga las indicaciones del mensaje. No pulse Inicio repetidamente:
+
+- Regla deshabilitada o ejecución manual no permitida: revise los ajustes en «Automatización» (capítulo 12). Que la tarjeta sea visible no autoriza a ejecutar la tarea.
+- Tarea en ejecución, iniciándose, verificándose o deteniéndose: espere a que se actualice el estado.
+- Servicio vinculado en ejecución: no lo inicie otra vez. Para reiniciarlo, deténgalo primero y confirme el resultado.
+- Parada del servicio sin confirmar: verifique su estado. Si sigue sin poder confirmarlo, revise la conexión al host en «Seguridad» (capítulo 11).
+- Regla sin cargar o pendiente de eliminar tras el reinicio: revise su versión y el mensaje de reinicio pendiente en «Automatización» (capítulo 12).
+- La automatización no acepta solicitudes de inicio: revise el motor y la configuración en «Automatización». Siga el mensaje y compruebe las tareas en curso antes de reiniciar el dispositivo.
+
 <!-- operational-note -->
 Confirme que un servicio se haya detenido antes de reiniciarlo. Es posible que aún esté en curso una solicitud de inicio o detención aceptada; esperar el estado final. Después de activar una acción, espere unos segundos antes de iniciar otra.
 
@@ -127,7 +136,7 @@ Si no hay tarjetas disponibles, verifique qué mensaje muestra la página:
 - “Acciones rápidas no disponibles”: seleccione “Ir a Automatización” para verificar el estado. Abra "Registros del sistema" en la Terminal para encontrar la causa. Restaurar la configuración antes de utilizar las tarjetas; No sigas seleccionando inicio.
 - No hay acciones rápidas configuradas: seleccione "Ir a automatización" para crear una regla o verifique la configuración "Mostrar en panel" de una regla existente.
 
-Después de una actualización de reglas, es posible que una tarjeta aún ejecute la tarea anterior hasta que se reinicie el dispositivo. Es posible que las reglas recién importadas o las reglas en espera de eliminación no se inicien. Si una tarea se cambió recientemente, verifique la versión en ejecución en la lista de reglas antes de usarla.
+Tras importar un paquete de reglas, una tarjeta puede seguir ejecutando la tarea anterior hasta que se reinicie el dispositivo. Las reglas nuevas o pendientes de eliminar pueden no permitir el inicio. Si la tarea acaba de cambiar, compruebe la versión en ejecución en la lista de reglas antes de usarla.
 
 No reinicie un dispositivo que proporciona servicios activos solo para restaurar una tarjeta.
 
@@ -306,7 +315,9 @@ La tarjeta SD es un almacenamiento extraíble y SPIFFS es un almacenamiento de a
 
 ### Cargar archivos
 
-1. Abra el directorio de destino.
+Los archivos solo se pueden subir a la tarjeta SD, no a SPIFFS. Compruebe primero que la tarjeta SD esté montada.
+
+1. Seleccione «Tarjeta SD» y abra la carpeta donde desea subir los archivos.
 2. Seleccione "Cargar archivos".
 3. Seleccione uno o más archivos o arrastre archivos al área de carga.
 4. Revise la lista de carga y elimine archivos no deseados.
@@ -383,7 +394,13 @@ Seleccione "Seguridad" en la navegación superior para abrir la administración 
 
 ### Operaciones fallidas o no confirmadas
 
-Lea el mensaje, luego verifique el dispositivo o archivo. Un tiempo de espera agotado o una conexión perdida no significa que la operación no se haya ejecutado. No repita inmediatamente las operaciones de encendido, eliminación, inicio de tareas o actualización.
+Un formulario puede marcar un campo en rojo y mostrar el error a su lado. Corrija ese campo según las indicaciones y guarde. Que desaparezca la marca no confirma el guardado; compruebe también el mensaje y la lista.
+
+Compruebe qué operación falló y lea el motivo y el siguiente paso. Si el mensaje no da un motivo, no lo suponga.
+
+Si aparece «Detalles», selecciónelo para ver más información. «Ocultar» cierra los detalles. Si hay un botón ×, puede cerrar el mensaje con él. Para seguir investigando, conserve el mensaje y los detalles y abra «Registros del sistema» en Terminal.
+
+Si el resultado no está confirmado, actualice y compruebe el estado del dispositivo, archivo o tarea. Un tiempo de espera agotado o una desconexión no significa que la operación no se haya ejecutado. No repita de inmediato las operaciones de alimentación, eliminación, inicio de tareas o actualización. Si sigue sin poder confirmarlo, abra «Registros del sistema» en Terminal para investigar.
 
 Para acciones por lotes, verifique los elementos exitosos, fallidos y no confirmados por separado. Confirme los archivos descargados en la lista de descargas del navegador.
 
@@ -441,6 +458,16 @@ Si el filtrado no produce resultados, borre TAG y Buscar primero, luego cambie e
 
 «Comandos» guarda comandos SSH reutilizables y los ejecuta en el host remoto seleccionado. Los hosts y sus datos de autenticación se gestionan en «Seguridad». Consulte la guía de seguridad para esos pasos.
 
+### Compruebe la huella del host antes de conectar
+
+La huella ayuda a identificar el host al que se conecta. Estos pasos corresponden a las pruebas de hosts SSH en la página web «Seguridad», no al flujo de confirmación de SSH Shell en Terminal. Si la huella no está registrada o ha cambiado, no siga ejecutando el comando. Abra «Seguridad», busque el host SSH y seleccione «Probar».
+
+En la primera conexión, el diálogo muestra la dirección y la huella del host. Contrástelas con el administrador por un canal de confianza. Seleccione «Confiar y conectar» solo después de confirmar que coinciden.
+
+Si la huella ha cambiado, el diálogo muestra la guardada y la actual, con «Cancelar» seleccionado. Reinstalar el host puede cambiar su huella, pero también puede tratarse de otro host o de una suplantación.
+
+Compruebe la dirección y confirme el motivo del cambio por un canal de confianza. Si no puede confirmarlo, seleccione «Cancelar». No elimine la huella antigua para saltarse la comprobación. Seleccione «Actualizar clave del host» solo cuando haya confirmado que la nueva huella es fiable.
+
 ### Seleccionar un host y ver comandos
 
 1. Seleccione "Comandos" en la navegación superior.
@@ -495,6 +522,8 @@ Después de habilitar "Ejecutar en segundo plano (nohup)", puede usar:
 - “Stop Tail”: deja de actualizar la página sin detener la tarea remota.
 - “Verificar proceso”: verifique si la tarea en segundo plano todavía se está ejecutando.
 - “Detener proceso”: Solicita la finalización de la tarea en segundo plano y luego verifica su estado.
+
+Si falla «Ver registro» o «Comprobar proceso», lea el motivo y revise la conexión al host. Un fallo de lectura no significa que el registro esté vacío ni que el proceso haya terminado. Compruebe de nuevo tras recuperar la conexión. No reinicie una tarea porque haya fallado la consulta de su estado.
 
 «Modo servicio» supervisa una tarea en segundo plano hasta que está disponible. Complete «Criterio de disponibilidad» y «Nombre de variable». Ajuste el patrón de fallo y los tiempos si lo necesita:
 - “Ready match”: Marca el servicio listo cuando aparece el texto configurado. Utilice `|` para separar varios patrones.
@@ -630,6 +659,8 @@ Si al guardar una regla se informa que ya no existe una plantilla, el guardado n
 5. Agregue plantillas y establezca retrasos de acción, repeticiones y condiciones a nivel de acción.
 6. Configure "Mostrar en panel" y "Permitir activación manual". El primero controla la visibilidad de la tarjeta en el Sistema; el segundo controla la ejecución manual.
 7. Revise, guarde y luego habilite la regla. Deje desactivado "Habilitar inmediatamente" mientras lo configura por primera vez.
+
+Si al guardar, habilitar o deshabilitar aparece «La copia de seguridad no está sincronizada», la operación ha terminado, pero la copia no se ha sincronizado. No es un fallo de guardado ni exige reiniciar. No retire ni cambie la tarjeta SD. Actualice la lista y compruebe el contenido y el estado de la regla; no la cree otra vez. Si el aviso persiste, abra «Registros del sistema» en Terminal para comprobar el almacenamiento.
 
 <!-- operational-note -->
 Haga coincidir el valor con el tipo seleccionado. Para un número, ingrese un valor específico, no infinito o NaN (un número no válido). Ingrese texto, un valor booleano (verdadero o falso) o nulo para los otros tipos. No ingrese un objeto o matriz JSON completo. Si la página informa un error, verifique la variable, la comparación y el valor antes de guardar nuevamente.

@@ -4031,5 +4031,19 @@
   {
     "zh": "获取 RM-01 产品资料、TianshanOS 固件、设备使用指南及配套软件，查看当前公开的下载资源与工具。",
     "en": "Download available RM-01 product documents, TianshanOS firmware, user guides, product materials and related software tools."
+  },
+  {
+    "zh": "Admin 用户日常操作指南 · 中英双语 · 27 页 · PDF · 664 KB · 2026-10-13",
+    "en": "Daily operations guide for Admin users · Chinese and English · 27 pages · PDF · 664 KB · 2026-10-13",
+    "sources": [
+      "downloads/index.html"
+    ]
+  },
+  {
+    "zh": "root 用户运维操作指南 · 中英双语 · 54 页 · PDF · 821 KB · 2026-10-13",
+    "en": "Operations guide for root users · Chinese and English · 54 pages · PDF · 821 KB · 2026-10-13",
+    "sources": [
+      "downloads/index.html"
+    ]
   }
 ]

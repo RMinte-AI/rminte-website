@@ -116,6 +116,15 @@ Un utilisateur root configure les cartes d’actions rapides. Leur affichage et 
 3. Les tâches en arrière-plan peuvent fournir des contrôles de journal, de vérification de l'état ou d'arrêt. Lisez le journal pour voir le résultat de la tâche. Après avoir sélectionné stop, vérifiez que la tâche s'est arrêtée.
 4. Si l'état est inconnu ou si le démarrage est bloqué, utilisez le contrôle de vérification disponible ou vérifiez la règle, la commande à distance et la connexion hôte comme décrit dans les chapitres 11 et 12.
 
+Si la tâche ne peut pas démarrer, suivez le motif affiché. N’appuyez pas plusieurs fois sur Démarrer :
+
+- Règle désactivée ou lancement manuel non autorisé : vérifiez les réglages dans « Automatisation » (chapitre 12). Une carte visible ne vaut pas autorisation de lancer la tâche.
+- Tâche en cours d’exécution, de démarrage, de vérification ou d’arrêt : attendez la mise à jour de son état.
+- Service associé en fonctionnement : ne le relancez pas. Pour le redémarrer, arrêtez-le d’abord et confirmez le résultat.
+- Arrêt du service non confirmé : vérifiez son état. S’il reste inconnu, vérifiez la connexion à l’hôte dans « Sécurité » (chapitre 11).
+- Règle non chargée ou en attente de suppression après redémarrage : vérifiez sa version et le message de redémarrage en attente dans « Automatisation » (chapitre 12).
+- L’automatisation n’accepte pas les demandes de démarrage : vérifiez le moteur et la configuration dans « Automatisation ». Suivez le message et vérifiez les tâches en cours avant de redémarrer l’appareil.
+
 <!-- operational-note -->
 Confirmez qu'un service s'est arrêté avant de le redémarrer. Une demande de démarrage ou d'arrêt acceptée peut être encore en cours ; attendre l'état final. Après avoir déclenché une action, attendez quelques secondes avant d’en lancer une autre.
 
@@ -127,7 +136,7 @@ Si aucune carte n'est disponible, vérifiez quel message la page affiche :
 - « Actions rapides indisponibles » : sélectionnez « Aller à l'automatisation » pour vérifier l'état. Ouvrez « Journaux système » sur le terminal pour trouver la cause. Restaurer la configuration avant d'utiliser les cartes ; ne continuez pas à sélectionner Démarrer.
 - Aucune action rapide configurée : sélectionnez « Aller à l'automatisation » pour créer une règle ou vérifiez le paramètre « Afficher sur le panneau » d'une règle existante.
 
-Après une mise à jour des règles, une carte peut toujours exécuter l'ancienne tâche jusqu'au redémarrage de l'appareil. Les règles récemment importées ou celles en attente de suppression peuvent ne pas démarrer. Si une tâche a été récemment modifiée, vérifiez la version en cours d'exécution dans la liste des règles avant de l'utiliser.
+Après l’importation d’un paquet de règles, une carte peut encore exécuter l’ancienne tâche jusqu’au redémarrage de l’appareil. Les nouvelles règles ou celles en attente de suppression peuvent ne pas démarrer. Si la tâche vient de changer, vérifiez la version en cours dans la liste des règles avant de la lancer.
 
 Ne redémarrez pas un appareil fournissant des services actifs uniquement pour restaurer une carte.
 
@@ -304,17 +313,19 @@ La carte SD est un stockage amovible et SPIFFS est un stockage de fichiers inter
 - Sélectionnez « Nouveau dossier », saisissez un nom de dossier et créez-le.
 - Sélectionnez le bouton d'actualisation pour recharger le répertoire actuel et l'état de stockage.
 
-### Télécharger des fichiers
+### Envoyer des fichiers
 
-1. Ouvrez le répertoire cible.
-2. Sélectionnez « Télécharger des fichiers ».
-3. Sélectionnez un ou plusieurs fichiers ou faites glisser les fichiers dans la zone de téléchargement.
-4. Consultez la liste de téléchargement et supprimez les fichiers indésirables.
-5. Sélectionnez « Télécharger » et attendez que chaque fichier soit terminé.
+Les fichiers peuvent être envoyés uniquement sur la carte SD, pas dans SPIFFS. Vérifiez d’abord que la carte SD est montée.
+
+1. Sélectionnez « Carte SD » et ouvrez le dossier où vous souhaitez envoyer les fichiers.
+2. Sélectionnez « Envoyer des fichiers ».
+3. Sélectionnez un ou plusieurs fichiers, ou faites-les glisser dans la zone d’envoi.
+4. Vérifiez la liste des fichiers à envoyer et retirez ceux dont vous n’avez pas besoin.
+5. Sélectionnez « Envoyer » et attendez la confirmation pour chaque fichier.
 
 L’envoi d’un paquet `.tscfg` ouvre les étapes de vérification et d’application. Cette page de fichiers n’applique pas encore les réglages du paquet. Un envoi ou une vérification réussi ne signifie pas que les réglages sont actifs.
 
-Importez des packages de règles sur Automation, comme décrit dans le chapitre 12. Le téléchargement de fichiers ordinaire ne remplace pas l’importation de règles. Consultez le Guide de sécurité pour obtenir des conseils sur la source et la signature des autres packages.
+Importez les paquets de règles depuis « Automatisation », selon le chapitre 12. Un simple envoi de fichiers ne remplace pas l’importation de règles. Pour l’origine et la signature des autres paquets, consultez le Guide de sécurité.
 
 ### Opérations par lots
 
@@ -383,7 +394,13 @@ Sélectionnez « Sécurité » dans la navigation supérieure pour ouvrir la g
 
 ### Échec ou opérations non confirmées
 
-Lisez le message, puis vérifiez le périphérique ou le fichier. Un délai d'attente ou une perte de connexion ne signifie pas que l'opération n'a pas pu s'exécuter. Ne répétez pas immédiatement les opérations de mise sous tension, de suppression, de démarrage de tâche ou de mise à niveau.
+Un formulaire peut signaler un champ en rouge et afficher une erreur à côté. Corrigez ce champ selon les indications, puis enregistrez. La disparition du signalement ne confirme pas l’enregistrement ; vérifiez aussi le message et la liste.
+
+Identifiez l’opération qui a échoué, puis lisez le motif et l’étape suivante. Si le message ne donne aucun motif, ne le devinez pas.
+
+Si « Détails » est proposé, sélectionnez-le pour consulter les informations supplémentaires. « Masquer » referme les détails. Si un bouton × est affiché, utilisez-le pour fermer le message. Pour poursuivre les vérifications, conservez le message et ses détails, puis ouvrez « Journaux système » dans Terminal.
+
+Si le résultat n’est pas confirmé, actualisez et vérifiez l’état de l’appareil, du fichier ou de la tâche. Un délai expiré ou une déconnexion ne signifie pas que l’opération n’a pas été exécutée. Ne répétez pas aussitôt une opération d’alimentation, de suppression, de lancement de tâche ou de mise à jour. Si le résultat reste inconnu, ouvrez « Journaux système » dans Terminal pour vérifier la cause.
 
 Pour les actions par lots, vérifiez séparément les éléments réussis, échoués et non confirmés. Confirmez les fichiers téléchargés dans la liste de téléchargement du navigateur.
 
@@ -441,6 +458,16 @@ Si le filtrage ne produit aucune sortie, effacez d'abord TAG et Search, puis mod
 
 « Commandes » enregistre des commandes SSH réutilisables et les exécute sur l’hôte distant choisi. Les hôtes et leurs données d’authentification se gèrent dans « Sécurité ». Consultez le guide de sécurité pour ces étapes.
 
+### Vérifier l’empreinte de l’hôte avant la connexion
+
+L’empreinte aide à identifier l’hôte auquel vous vous connectez. Ces étapes concernent les tests d’hôtes SSH dans la page Web « Sécurité », pas la confirmation de SSH Shell dans Terminal. Si le message indique une empreinte non enregistrée ou modifiée, ne répétez pas la commande. Ouvrez « Sécurité », trouvez l’hôte SSH et sélectionnez « Tester ».
+
+Lors de la première connexion, la boîte de dialogue affiche l’adresse et l’empreinte de l’hôte. Comparez-les avec l’administrateur par un canal fiable. Sélectionnez « Faire confiance et se connecter » uniquement après avoir confirmé leur correspondance.
+
+Si l’empreinte a changé, la boîte de dialogue affiche l’ancienne et l’actuelle, avec « Annuler » sélectionné par défaut. Une réinstallation peut modifier l’empreinte, mais le changement peut aussi signaler un autre hôte ou une usurpation.
+
+Vérifiez l’adresse et confirmez la cause du changement par un canal fiable. Si vous ne pouvez pas la confirmer, sélectionnez « Annuler ». Ne supprimez pas l’ancienne empreinte pour contourner la vérification. Sélectionnez « Mettre à jour la clé de l’hôte » seulement après avoir confirmé la fiabilité de la nouvelle empreinte.
+
 ### Sélectionnez un hôte et affichez les commandes
 
 1. Sélectionnez « Commandes » dans la navigation supérieure.
@@ -495,6 +522,8 @@ Après avoir activé « Exécuter en arrière-plan (nohup) », vous pouvez uti
 - « Stop Tail » : Arrête de rafraîchir la page sans arrêter la tâche distante.
 - « Vérifier le processus » : vérifiez si la tâche en arrière-plan est toujours en cours d'exécution.
 - « Arrêter le processus » : demander l'arrêt de la tâche en arrière-plan, puis vérifier son état.
+
+Si « Voir le journal » ou « Vérifier le processus » échoue, lisez le motif et vérifiez la connexion à l’hôte. Un échec de lecture ne signifie ni que le journal est vide ni que le processus est terminé. Vérifiez à nouveau après avoir rétabli la connexion. Ne relancez pas une tâche parce que la vérification de son état a échoué.
 
 « Mode service » surveille une tâche en arrière-plan jusqu’à sa disponibilité. Renseignez « Critère de disponibilité » et « Nom de variable ». Ajustez si nécessaire le critère d’échec et les délais :
 - « Ready match » : marque le service prêt lorsque le texte configuré apparaît. Utilisez `|` pour séparer plusieurs modèles.
@@ -630,6 +659,8 @@ Si l'enregistrement d'une règle signale qu'un modèle n'existe plus, l'enregist
 5. Ajoutez des modèles et définissez les délais d'action, la répétition et les conditions au niveau de l'action.
 6. Définissez « Afficher sur le panneau » et « Autoriser le déclenchement manuel ». Le premier contrôle la visibilité de la carte sur le système ; le second contrôle l’exécution manuelle.
 7. Vérifiez, enregistrez, puis activez la règle. Laissez « Activer immédiatement » désactivé lors de la configuration pour la première fois.
+
+Si l’enregistrement, l’activation ou la désactivation signale « La copie de sauvegarde n’est pas synchronisée », l’opération a réussi, mais la sauvegarde ne s’est pas synchronisée. Ce n’est ni un échec d’enregistrement ni une demande de redémarrage. Ne retirez pas et ne remplacez pas la carte SD. Actualisez la liste, puis vérifiez le contenu et l’état de la règle ; ne la créez pas à nouveau. Si l’avertissement persiste, ouvrez « Journaux système » dans Terminal pour vérifier le stockage.
 
 <!-- operational-note -->
 Faites correspondre la valeur au type sélectionné. Pour un nombre, saisissez une valeur spécifique, pas l'infini ou NaN (un nombre non valide). Saisissez du texte, un booléen (vrai ou faux) ou null pour les autres types. N'entrez pas un objet ou un tableau JSON entier. Si la page signale une erreur, vérifiez la variable, la comparaison et la valeur avant de réenregistrer.

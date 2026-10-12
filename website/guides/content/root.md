@@ -116,6 +116,15 @@ root 可使用以下入口：
 3. 后台任务可能提供日志、核验状态或停止按钮。查看日志可了解任务输出。点击停止后，检查任务是否已停止。
 4. 状态未知或启动被阻止时，先使用页面提供的核验功能，或检查规则、远程指令和主机连接，方法见第 11、12 章。
 
+无法启动时，按提示处理，不要连续点击：
+
+- 规则已停用，或不允许手动触发：在“自动化”检查规则设置（见第 12 章），不要把看到卡片当作运行许可。
+- 任务正在执行、启动、核验或停止：等待状态更新。
+- 关联服务已在运行：无需再启动。需要重启服务时，先停止并确认结果。
+- 服务是否停止尚未确认：先核验状态。无法确认时，在“安全”检查主机连接（见第 11 章）。
+- 规则尚未加载，或等待重启移除：在“自动化”核对规则版本和待重启提示（见第 12 章）。
+- 自动化暂不接受启动请求：在“自动化”检查引擎和配置状态。按提示处理；重启前检查正在运行的任务。
+
 重新启动服务前，先确认它已停止。页面接受启动或停止请求后，任务可能仍在处理中；等待最终状态。完成一次点击后，等待几秒再启动其他操作。
 
 长按卡片，出现排序提示后拖动，可以调整显示顺序。
@@ -126,7 +135,7 @@ root 可使用以下入口：
 - “快捷操作暂不可用”：点击“前往自动化”，检查状态；在“终端”打开“系统日志”查找原因。恢复配置后再使用卡片，不要反复点击启动。
 - 没有已配置的快捷操作：可点击“前往自动化”，新建规则或检查已有规则的“显示在面板”设置。
 
-规则更新后，卡片可能仍运行旧任务，直到设备重启。新导入或待移除的规则也可能无法启动。任务刚被调整时，先核对规则列表中的当前运行版本，再执行。
+导入规则包后，卡片可能仍运行旧任务，直到设备重启。新导入或待移除的规则也可能无法启动。任务刚被调整时，先核对规则列表中的当前运行版本，再执行。
 
 不要为了恢复卡片，自行重启正在提供服务的设备。
 
@@ -302,7 +311,9 @@ SD 卡是可插拔存储，SPIFFS 是设备内部文件存储。点击“SD 卡�
 
 ### 上传文件
 
-1. 进入目标目录。
+文件只能上传到 SD 卡，不能上传到 SPIFFS。先确认 SD 卡已挂载。
+
+1. 点击“SD 卡”，进入要上传文件的目录。
 2. 点击“上传文件”。
 3. 点击上传区域选择一个或多个文件，或将文件拖入该区域。
 4. 检查上传列表，移除不需要的文件。
@@ -378,7 +389,13 @@ SD 卡未挂载时，页面会显示“挂载 SD”。点击该按钮，等待�
 
 ### 遇到失败或结果未确认
 
-先阅读提示，再检查设备或文件。超时或断开连接不代表操作没有执行；不要立即重复断电、删除、启动任务或升级。
+填写表单时，字段旁可能出现红色标记和错误说明。先按说明修正该字段，再保存。标记消失不代表已经保存成功；还要检查保存提示和列表。
+
+先看哪项操作失败，再阅读原因和下一步。提示没有说明原因时，不要猜测。
+
+如果提示提供“详情”，点击后可查看更多信息。点击“收起”可隐藏详情。页面提供 × 时，可点击它关闭提示。需要进一步检查时，保留提示和详情，在“终端”打开“系统日志”检查。
+
+出现“结果未确认”时，先刷新并检查设备、文件或任务状态。超时或断开连接不代表操作没有执行；不要立即重复断电、删除、启动任务或升级。仍无法确认时，在“终端”打开“系统日志”查看原因。
 
 批量操作后，分别检查成功、失败和未确认的项目。下载文件后，在浏览器下载列表中确认文件已保存。
 
@@ -436,6 +453,16 @@ SSH Shell 会把后续键盘输入发送到远程主机。连接前应确认目�
 
 “指令”用于保存可重复使用的 SSH 命令，并在选定的远程主机上运行。远程主机及其认证信息在“安全”页面管理；具体操作请查看安全指南。
 
+### 连接前核对主机指纹
+
+指纹用于核对你连接的是哪台主机。以下步骤适用于网页“安全”中的 SSH 主机测试，不是终端 SSH Shell 的确认流程。提示主机指纹未登记或发生变化时，不要反复执行指令。进入“安全”，找到目标 SSH 主机，点击“测试”。
+
+首次连接时，确认框会显示主机地址和指纹。通过可信渠道向主机管理员核对，确认一致后才点击“信任并连接”。
+
+指纹变化时，确认框会显示已保存的指纹和当前指纹，默认选中“取消”。重装系统可能改变指纹，也可能是连接到了其他主机或有人冒充主机。
+
+核对地址，并通过可信渠道确认变化原因。不能确认时，点击“取消”。不要删除旧指纹来跳过核对。确认新指纹可信后，才点击“更新主机密钥”。
+
 ### 选择主机并查看指令
 
 1. 点击顶部导航中的“指令”。
@@ -489,6 +516,8 @@ nohup 表示命令在远程主机后台继续运行，SSH 断开后仍可继续�
 - “停止跟踪”：停止页面刷新，不停止远程任务。
 - “检查进程”：查看后台任务是否仍在运行。
 - “停止进程”：请求结束对应后台任务，随后检查进程状态。
+
+“查看日志”或“检查进程”失败时，先阅读原因并检查主机连接。读取失败不等于日志没有内容，也不代表进程已经退出。恢复连接后再检查；不要因为检查失败而重新启动任务。
 
 “服务模式”用于持续观察后台任务是否进入可用状态。启用后，必须填写“就绪匹配”和“变量名”；失败匹配和等待设置可按需要调整：
 
@@ -624,6 +653,8 @@ nohup 表示命令在远程主机后台继续运行，SSH 断开后仍可继续�
 5. 添加动作模板，并设置顺序所需的延迟、重复和动作条件。
 6. 决定是否开启“显示在面板”及“允许手动触发”。前者控制系统页是否出现卡片，后者控制能否手动运行。
 7. 检查后保存，再启用。初次配置可先关闭“立即启用”。
+
+保存、启用或停用后，若提示“备用副本未同步”，本次操作已经成功，但备用副本还未同步。这不是保存失败，也不表示必须重启。不要移除或更换 SD 卡。刷新规则列表，确认内容和启用状态；不要重复创建规则。提示持续出现时，在“终端”打开“系统日志”检查存储问题。
 
 比较值要符合所选类型。数字填写具体数值，不要填写无穷大或 NaN（无效数字）。文本、布尔值（真或假）和空值按对应类型填写。不要把整段 JSON 对象或数组作为比较值。页面报错时，检查变量、比较方式和值，修正后再保存。
 
@@ -844,6 +875,15 @@ A root user configures Quick Action cards. Card visibility and manual execution 
 3. Background tasks may provide log, status-verification, or stop controls. Read the log to see task output. After selecting stop, check that the task has stopped.
 4. If the state is unknown or starting is blocked, use the available verification control, or check the rule, remote command, and host connection as described in Chapters 11 and 12.
 
+If starting is blocked, follow the reason shown. Do not keep selecting start:
+
+- Rule disabled or manual triggering not allowed: Check the rule settings on “Automation” (Chapter 12). A visible card is not permission to run it.
+- Task executing, starting, verifying, or stopping: Wait for the state to update.
+- Linked service already running: Do not start it again. To restart it, stop it first and confirm the result.
+- Service not confirmed stopped: Verify its state. If it remains unclear, check the host connection on “Security” (Chapter 11).
+- Rule not loaded or awaiting removal after restart: Check the rule version and pending-restart message on “Automation” (Chapter 12).
+- Automation not accepting start requests: Check the engine and configuration state on “Automation.” Follow the message; check active tasks before restarting the device.
+
 Confirm that a service has stopped before restarting it. An accepted start or stop request may still be in progress; wait for the final state. After triggering one action, wait a few seconds before starting another.
 
 Press and hold a card until the reorder indicator appears, then drag it to change the display order.
@@ -854,7 +894,7 @@ If no cards are available, check which message the page shows:
 - “Quick actions unavailable”: Select “Go to Automation” to check status. Open “System Logs” on Terminal to find the cause. Restore configuration before using the cards; do not keep selecting start.
 - No configured Quick Actions: Select “Go to Automation” to create a rule or check an existing rule’s “Show on panel” setting.
 
-After a rule update, a card may still run the old task until the device restarts. Newly imported rules or rules awaiting removal may not start. If a task was recently changed, check the running version in the rule list before using it.
+After importing a rule package, a card may still run the old task until the device restarts. Newly imported rules or rules awaiting removal may not start. If a task was recently changed, check the running version in the rule list before using it.
 
 Do not restart a device providing active services just to restore a card.
 
@@ -1030,7 +1070,9 @@ The SD Card is removable storage, and SPIFFS is internal device file storage. Se
 
 ### Upload Files
 
-1. Open the target directory.
+Files can only be uploaded to the SD Card, not SPIFFS. Confirm that the SD Card is mounted first.
+
+1. Select “SD Card” and open the folder where you want to upload the files.
 2. Select “Upload Files.”
 3. Select one or more files, or drag files into the upload area.
 4. Review the upload list and remove unwanted files.
@@ -1106,7 +1148,13 @@ Select “Security” in the top navigation to open security management. Use the
 
 ### Failed or Unconfirmed Operations
 
-Read the message, then check the device or file. A timeout or lost connection does not mean the operation failed to run. Do not immediately repeat power, delete, task-start, or upgrade operations.
+Forms may mark a field in red and show an error beside it. Correct that field as instructed, then save. A cleared error mark does not confirm a successful save; check the save message and list too.
+
+Check which operation failed, then read the reason and next step. If the message gives no reason, do not guess.
+
+If “Details” is available, select it to see more information. Select “Hide” to hide the details. If a × button is shown, select it to dismiss the message. For further checks, keep a record of the message and details, then open “System Logs” on Terminal to investigate.
+
+If the result is unconfirmed, refresh and check the device, file, or task state. A timeout or lost connection does not mean the operation failed to run. Do not immediately repeat power, delete, task-start, or upgrade operations. If the result remains unclear, open “System Logs” on Terminal to investigate.
 
 For batch actions, check successful, failed, and unconfirmed items separately. Confirm downloaded files in the browser’s download list.
 
@@ -1164,6 +1212,16 @@ If filtering produces no output, clear TAG and Search first, then change Level. 
 
 “Commands” stores reusable SSH commands and runs them on a selected remote host. Remote hosts and their authentication information are managed on the “Security” page. See the Security Guide for those procedures.
 
+### Check the Host Fingerprint Before Connecting
+
+A fingerprint helps identify the host you are connecting to. These steps apply to SSH host tests on the web “Security” page, not to the Terminal SSH Shell confirmation flow. If the message says that the fingerprint is unregistered or has changed, do not keep executing the command. Open “Security,” find the target SSH host, and select “Test.”
+
+For a first connection, the confirmation dialog shows the host address and fingerprint. Check them with the host administrator through a trusted channel. Select “Trust & connect” only after confirming a match.
+
+If the fingerprint has changed, the dialog shows both the stored and current fingerprints, with “Cancel” selected by default. Reinstalling the host can change its fingerprint, but a change may also mean that you have reached another host or an impersonator.
+
+Check the address and confirm the reason through a trusted channel. Select “Cancel” if you cannot confirm it. Do not delete the old fingerprint to skip this check. Select “Update Host Key” only after confirming that the new fingerprint is trusted.
+
 ### Select a Host and View Commands
 
 1. Select “Commands” in the top navigation.
@@ -1217,6 +1275,8 @@ After enabling “Run in background (nohup),” you can use:
 - “Stop Tail”: Stop refreshing the page without stopping the remote task.
 - “Check Process”: Check whether the background task is still running.
 - “Stop Process”: Request termination of the background task, then check its state.
+
+If “View Log” or “Check Process” fails, read the reason and check the host connection. A failed read does not mean the log is empty or the process has exited. Check again after restoring the connection; do not restart a task because its status check failed.
 
 “Service Mode” watches a background task until it becomes available. Provide “Ready match” and “Variable Name.” Adjust the optional failure pattern and timing settings as needed:
 - “Ready match”: Marks the service ready when the configured text appears. Use `|` to separate multiple patterns.
@@ -1351,6 +1411,8 @@ If saving a rule reports that a template no longer exists, the save did not succ
 5. Add templates and set any action delays, repetition, and action-level conditions.
 6. Set “Show on panel” and “Allow manual trigger.” The first controls card visibility on System; the second controls manual execution.
 7. Review, save, and then enable the rule. Leave “Enable immediately” off while configuring it for the first time.
+
+If saving, enabling, or disabling reports that the “backup copy is not synced,” the operation succeeded, but the backup copy did not sync. This is not a failed save or a requirement to restart. Do not remove or replace the SD card. Refresh the rule list and check its content and enable state; do not create the rule again. If the warning persists, open “System Logs” on Terminal to check for storage problems.
 
 Match the value to the selected type. For a number, enter a specific value, not infinity or NaN (an invalid number). Enter text, a boolean (true or false), or null for the other types. Do not enter a whole JSON object or array. If the page reports an error, check the variable, comparison, and value before saving again.
 

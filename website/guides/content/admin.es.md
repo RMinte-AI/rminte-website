@@ -111,6 +111,15 @@ Un usuario root configura las tarjetas de acciones rápidas. Mostrar una tarjeta
 3. Las tareas en segundo plano pueden proporcionar controles de registro, verificación de estado o detención. Lea el registro para ver el resultado de la tarea. Después de seleccionar detener, verifique que la tarea se haya detenido.
 4. Si el estado es desconocido o el inicio está bloqueado, utilice el control de verificación disponible o solicite a un usuario de root que verifique la regla, el comando remoto y la conexión del host.
 
+Si no puede iniciar la tarea, siga las indicaciones del mensaje. No pulse Inicio repetidamente:
+
+- Regla deshabilitada o ejecución manual no permitida: pida a un usuario root que revise los ajustes. Que la tarjeta sea visible no autoriza a ejecutar la tarea.
+- Tarea en ejecución, iniciándose, verificándose o deteniéndose: espere a que se actualice el estado.
+- Servicio vinculado en ejecución: no lo inicie otra vez. Para reiniciarlo, deténgalo primero y confirme el resultado.
+- Parada del servicio sin confirmar: verifique su estado. Si sigue sin poder confirmarlo, pida a un usuario root que revise la conexión al host.
+- Regla sin cargar o pendiente de eliminar tras el reinicio: pida a un usuario root que revise la versión de la regla y el mensaje de reinicio pendiente.
+- La automatización no acepta solicitudes de inicio: pida a un usuario root que revise el motor y la configuración. No reinicie el dispositivo por su cuenta.
+
 <!-- operational-note -->
 Confirme que un servicio se haya detenido antes de reiniciarlo. Es posible que aún esté en curso una solicitud de inicio o detención aceptada; esperar el estado final. Después de activar una acción, espere unos segundos antes de iniciar otra.
 
@@ -123,7 +132,7 @@ Si no hay tarjetas disponibles, verifique qué mensaje muestra la página:
 - No hay acciones rápidas configuradas: si necesita una, solicite a un usuario de root que verifique la configuración "Mostrar en panel" de las reglas.
 
 <!-- operational-note -->
-Después de una actualización de reglas, es posible que una tarjeta aún ejecute la tarea anterior hasta que se reinicie el dispositivo. Es posible que las reglas recién importadas o las reglas en espera de eliminación no se inicien. Si una tarea se cambió recientemente, solicite a un usuario de root que confirme qué versión está en uso antes de ejecutarla.
+Tras importar un paquete de reglas, una tarjeta puede seguir ejecutando la tarea anterior hasta que se reinicie el dispositivo. Las reglas nuevas o pendientes de eliminar pueden no permitir el inicio. Si la tarea acaba de cambiar, pida a un usuario root que confirme la versión en uso antes de ejecutarla.
 
 No reinicie un dispositivo que proporciona servicios activos solo para restaurar una tarjeta.
 
@@ -302,7 +311,9 @@ La tarjeta SD es un almacenamiento extraíble y SPIFFS es un almacenamiento de a
 
 ### Cargar archivos
 
-1. Abra el directorio de destino.
+Los archivos solo se pueden subir a la tarjeta SD, no a SPIFFS. Compruebe primero que la tarjeta SD esté montada.
+
+1. Seleccione «Tarjeta SD» y abra la carpeta donde desea subir los archivos.
 2. Seleccione "Cargar archivos".
 3. Seleccione uno o más archivos o arrastre archivos al área de carga.
 4. Revise la lista de carga y elimine archivos no deseados.
@@ -379,6 +390,12 @@ Seleccione "Seguridad" en la navegación superior para abrir la administración 
 
 ### Operaciones fallidas o no confirmadas
 
-Lea el mensaje, luego verifique el dispositivo o archivo. Un tiempo de espera agotado o una conexión perdida no significa que la operación no se haya ejecutado. No repita inmediatamente las operaciones de encendido, eliminación, inicio de tareas o actualización.
+Un formulario puede marcar un campo en rojo y mostrar el error a su lado. Corrija ese campo según las indicaciones y guarde. Que desaparezca la marca no confirma el guardado; compruebe también el mensaje y la lista.
+
+Compruebe qué operación falló y lea el motivo y el siguiente paso. Si el mensaje no da un motivo, no lo suponga.
+
+Si aparece «Detalles», selecciónelo para ver más información. «Ocultar» cierra los detalles. Si hay un botón ×, puede cerrar el mensaje con él. Cuando pida ayuda, conserve el mensaje y los detalles para que un usuario root los revise.
+
+Si el resultado no está confirmado, actualice y compruebe el estado del dispositivo, archivo o tarea. Un tiempo de espera agotado o una desconexión no significa que la operación no se haya ejecutado. No repita de inmediato las operaciones de alimentación, eliminación, inicio de tareas o actualización. Pida ayuda a un usuario root si sigue sin poder confirmar el resultado.
 
 Para acciones por lotes, verifique los elementos exitosos, fallidos y no confirmados por separado. Confirme los archivos descargados en la lista de descargas del navegador.
