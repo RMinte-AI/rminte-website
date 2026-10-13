@@ -4045,5 +4045,19 @@
     "sources": [
       "downloads/index.html"
     ]
+  },
+  {
+    "zh": "Admin 用户日常操作指南 · 中英双语 · 27 页 · PDF · 580 KB · 2026-10-13",
+    "en": "Daily operations guide for Admin users · Chinese and English · 27 pages · PDF · 580 KB · 2026-10-13",
+    "sources": [
+      "downloads/index.html"
+    ]
+  },
+  {
+    "zh": "root 用户运维操作指南 · 中英双语 · 54 页 · PDF · 737 KB · 2026-10-13",
+    "en": "Operations guide for root users · Chinese and English · 54 pages · PDF · 737 KB · 2026-10-13",
+    "sources": [
+      "downloads/index.html"
+    ]
   }
 ]
