@@ -28,7 +28,10 @@ const context={window:{}}; vm.runInNewContext(readFileSync(join(site,'assets/sit
 for(const [file,start,end,names] of [
  ['assets/gallery.js','  const galleryItems =','  const $ =',['galleryItems']],
  ['models/models.js','      const cases =','      function bilingual(',['cases','optimizationItems']],
- ['scripts/build-guides.mjs','const guideConfig =','extendPairs(guideConfig);',['guideConfig']]
+ ['scripts/build-guides.mjs','const guideConfig =','extendPairs(guideConfig);',['guideConfig']],
+ ['cases/cases.js','  const groups =','  const caseIds =',['groups','cases']],
+ ['cases/cases.js','  const COPY =','  const esc =',['COPY']],
+ ['assets/case-auth.js',' const PANEL=',' async function api(',['PANEL']]
 ]) {
  const code=readFileSync(join(site,file),'utf8');
  const block=code.slice(code.indexOf(start),code.indexOf(end));
@@ -37,7 +40,7 @@ for(const [file,start,end,names] of [
  walk(data,file);
 }
 function decode(text){return text.replace(/&(?:amp|quot|lt|gt|apos|#39|#x27);/g,x=>({'&amp;':'&','&quot;':'"','&lt;':'<','&gt;':'>','&apos;':"'",'&#39;':"'",'&#x27;':"'"}[x]));}
-const pages=['index.html','models/index.html','gallery/index.html','downloads/index.html','guides/index.html',...['admin','root','network','security'].map(x=>`guides/${x}.html`)];
+const pages=['index.html','models/index.html','gallery/index.html','downloads/index.html','guides/index.html',...['admin','root','network','security'].map(x=>`guides/${x}.html`),'cases/index.html'];
 for(const file of [...pages, 'scripts/build-guides.mjs']) {
  const html=readFileSync(join(site,file),'utf8');
  for(const tag of html.matchAll(/<[a-zA-Z][^>]*>/g)) {

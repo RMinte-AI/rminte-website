@@ -451,7 +451,7 @@ function siteNavigationTemplate() {
       <a href="../gallery/index.html" data-guide-text data-zh="图册" data-en="Gallery">图册</a>
       <a href="../models/index.html" data-guide-text data-zh="模型" data-en="Models">模型</a>
       <a href="../index.html#engine" data-guide-text data-zh="产品" data-en="Product">产品</a>
-      <a href="../index.html#teardown" data-guide-text data-zh="架构" data-en="Architecture">架构</a>
+      <a href="../cases/index.html" data-guide-text data-zh="案例" data-en="Application cases">案例</a>
       <a class="active" href="index.html" aria-current="page" data-guide-text data-zh="指南" data-en="Guides">指南</a>
       <a href="../downloads/index.html" data-guide-text data-zh="下载" data-en="Downloads">下载</a>
     </nav>
@@ -474,7 +474,7 @@ function siteNavigationTemplate() {
         <a href="../gallery/index.html" data-guide-text data-zh="图册" data-en="Gallery">图册</a>
         <a href="../models/index.html" data-guide-text data-zh="模型" data-en="Models">模型</a>
         <a href="../index.html#engine" data-guide-text data-zh="产品" data-en="Product">产品</a>
-        <a href="../index.html#teardown" data-guide-text data-zh="架构" data-en="Architecture">架构</a>
+        <a href="../cases/index.html" data-guide-text data-zh="案例" data-en="Application cases">案例</a>
         <a class="active" href="index.html" aria-current="page" data-guide-text data-zh="指南" data-en="Guides">指南</a>
         <a href="../downloads/index.html" data-guide-text data-zh="下载" data-en="Downloads">下载</a>
       </nav>
@@ -484,8 +484,8 @@ function siteNavigationTemplate() {
 
 function pageTemplate(config, rendered) {
   const guideAssetVersion = config.accent === 'network' ? 'stage3-1' : 'docs-20261013';
-  const catalogVersion = config.accent === 'network' ? 'catalogs-20261004' : 'docs-20261013';
-  const scFontVersion = config.accent === 'network' ? '' : '?v=docs-20261013';
+  const catalogVersion = 'cases-20261013';
+  const scFontVersion = '?v=cases-20261013';
   const pageData = JSON.stringify({
     title: config.title,
     copy: { zh: '已复制', en: 'Copied' },
@@ -507,7 +507,7 @@ function pageTemplate(config, rendered) {
   <link rel="preload" href="../assets/fonts/Geist-latin-v1800.woff2" as="font" type="font/woff2" crossorigin>
   <script src="../assets/motion.js?v=stage2-2" defer></script>
   <link rel="stylesheet" href="../assets/brand.css?v=v2-core-2">
-  <link rel="stylesheet" href="../assets/styles.css?v=stage3-1">
+  <link rel="stylesheet" href="../assets/styles.css?v=cases-20261013">
   <link rel="stylesheet" href="../assets/guides.css?v=stage3-1">
   <script id="guidePageData" type="application/json">${pageData}</script>
   <script>
@@ -536,7 +536,7 @@ function pageTemplate(config, rendered) {
   </script>
   <script src="../assets/i18n.js?v=catalogs-20261004" defer></script>
   <script src="../assets/guides.js?v=${guideAssetVersion}" defer></script>
-  <script src="../assets/site-data.js?v=inference-specs-20261007" defer></script>
+  <script src="../assets/site-data.js?v=cases-20261013" defer></script>
   <script src="../assets/footer.js?v=d9-nav-1" defer></script>
 </head>
 <body class="guide-body guide-doc-body guide-accent-${config.accent}">

@@ -1,5 +1,8 @@
 {
   "version": 1,
-  "include": ["/visitor-language.js"],
+  "include": [
+    "/visitor-language.js",
+    "/api/*"
+  ],
   "exclude": []
 }

@@ -1,0 +1,134 @@
+import {digest,passwordMac,hashAdminPassword,verifyPassword,encryptPassword,decryptPassword,randomString,randomPassword} from './crypto.mjs';
+import {resources} from './resources.mjs';
+const H={'Content-Type':'application/json; charset=utf-8','Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff','Referrer-Policy':'no-referrer'};
+const json=(data,status=200,extra={})=>new Response(JSON.stringify(data),{status,headers:{...H,...extra}});
+class HttpError extends Error{constructor(status,message){super(message);this.status=status;}}
+const fail=(status,message)=>{throw new HttpError(status,message)};
+const now=()=>Math.floor(Date.now()/1000);
+const cookieName=request=>new URL(request.url).protocol==='https:'?'__Host-rminte_session':'rminte_local_session';
+function cookie(request,value,age){return `${cookieName(request)}=${value}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${age}${new URL(request.url).protocol==='https:'?'; Secure':''}`;}
+async function payload(request){
+ if(!request.headers.get('content-type')?.startsWith('application/json'))fail(415,'需要 JSON 请求');
+ const reader=request.body?.getReader();if(!reader)fail(400,'缺少请求内容');let chunks=[],size=0;
+ while(true){const {done,value}=await reader.read();if(done)break;size+=value.length;if(size>16384){await reader.cancel();fail(413,'内容过长');}chunks.push(value);}
+ let value;try{const all=new Uint8Array(size);let offset=0;for(const c of chunks){all.set(c,offset);offset+=c.length;}value=JSON.parse(new TextDecoder().decode(all));}catch{fail(400,'内容格式不正确');}
+ if(!value||typeof value!=='object'||Array.isArray(value))fail(400,'内容格式不正确');return value;
+}
+function field(data,key,max){const v=data[key];if(typeof v!=='string'||!v.trim()||v.length>max)fail(400,`${key} 未填写或过长`);return v.trim();}
+function passwordField(data,key){const value=data[key];if(typeof value!=='string'||!value.length||value.length>128)fail(400,'密码未填写或过长');return value;}
+function permissions(data){if(typeof data.can_demo!=='boolean'||typeof data.can_download!=='boolean')fail(400,'请分别指定演示和下载权限');return [+data.can_demo,+data.can_download];}
+export async function session(request,env){
+ const raw=(request.headers.get('cookie')||'').split(';').map(x=>x.trim()).find(x=>x.startsWith(cookieName(request)+'='))?.split('=')[1];
+ if(!raw||!/^[A-Za-z0-9]{48}$/.test(raw))return null;
+ return env.CASE_DB.prepare('SELECT u.id,u.username,u.role,u.can_demo,u.can_download FROM sessions s JOIN users u ON u.id=s.user_id WHERE s.token_hash=? AND s.expires_at>?').bind(await digest(raw),now()).first();
+}
+function publicUser(u){return u?{id:u.id,username:u.username,role:u.role,can_demo:u.role==='admin'||!!u.can_demo,can_download:u.role==='admin'||!!u.can_download}:null;}
+async function limit(env,key,max,seconds){
+ const t=now();const row=await env.CASE_DB.prepare('INSERT INTO rate_limits(key,hits,expires_at) VALUES(?,1,?) ON CONFLICT(key) DO UPDATE SET hits=CASE WHEN expires_at<=? THEN 1 ELSE hits+1 END,expires_at=CASE WHEN expires_at<=? THEN excluded.expires_at ELSE expires_at END RETURNING hits').bind(key,t+seconds,t,t).first();
+ if(row.hits>max)fail(429,'尝试过于频繁，请稍后再试');
+}
+function ipOf(request){return request.headers.get('CF-Connecting-IP')||'本地开发';}
+export async function handleApi(request,env){
+ try{
+ if(!env.CASE_DB||!env.CASE_SECRET)fail(503,'账号服务尚未配置');
+ const url=new URL(request.url),path=url.pathname,method=request.method;
+ if(!['GET','HEAD'].includes(method)){
+  if(request.headers.get('origin')!==url.origin)fail(403,'请求来源不正确');
+ }
+ if(method==='POST'&&path==='/api/login'){
+  const data=await payload(request),username=field(data,'username',80),password=passwordField(data,'password');
+  await limit(env,'login-ip:'+await digest(ipOf(request)),30,900);
+  await limit(env,'login-user:'+await digest(username),15,900);
+  const u=await env.CASE_DB.prepare('SELECT * FROM users WHERE username=?').bind(username).first();
+  if(!u||!await verifyPassword(env.CASE_SECRET,username,password,u.password_mac))fail(401,'用户名或密码不正确');
+  const token=randomString(48),t=now(),cf=request.cf||{};
+  const created=await env.CASE_DB.batch([
+   env.CASE_DB.prepare('INSERT INTO sessions(token_hash,user_id,expires_at) SELECT ?,id,? FROM users WHERE id=? AND password_mac=?').bind(await digest(token),t+86400,u.id,u.password_mac),
+   env.CASE_DB.prepare('INSERT INTO login_events(user_id,occurred_at,ip,country,region,city) VALUES(?,?,?,?,?,?)').bind(u.id,t,ipOf(request),cf.country||'',cf.region||'',cf.city||''),
+   env.CASE_DB.prepare('DELETE FROM sessions WHERE expires_at<=?').bind(t),
+   env.CASE_DB.prepare('DELETE FROM rate_limits WHERE expires_at<=?').bind(t),
+   env.CASE_DB.prepare('DELETE FROM login_events WHERE occurred_at<?').bind(t-90*86400)
+  ]);
+  if(!created[0].meta.changes)fail(401,'密码已更新，请重新登录');
+  return json({user:publicUser(u)},200,{'Set-Cookie':cookie(request,token,86400)});
+ }
+ if(method==='POST'&&path==='/api/logout'){
+  const raw=(request.headers.get('cookie')||'').split(';').map(x=>x.trim()).find(x=>x.startsWith(cookieName(request)+'='))?.split('=')[1];
+  if(raw)await env.CASE_DB.prepare('DELETE FROM sessions WHERE token_hash=?').bind(await digest(raw)).run();
+  return json({ok:true},200,{'Set-Cookie':cookie(request,'',0)});
+ }
+ if(method==='POST'&&path==='/api/applications'){
+  const d=await payload(request);const values=['name','company','email','message','experience'].map(k=>field(d,k,k==='message'||k==='experience'?3000:200));
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values[2]))fail(400,'邮箱格式不正确');
+  await limit(env,'application:'+await digest(ipOf(request)),5,3600);
+  await env.CASE_DB.prepare('INSERT INTO applications(id,kind,name,company,email,message,experience,created_at) VALUES(?,?,?,?,?,?,?,?)').bind(crypto.randomUUID(),'software',...values,now()).run();
+  return json({ok:true},201);
+ }
+ const user=await session(request,env);
+ if(method==='GET'&&path==='/api/session')return json({user:publicUser(user)});
+ if(!user)fail(401,'请先登录');
+ const resource=path.match(/^\/api\/resources\/([a-z0-9-]+)\/(demo|download)(\/.*)?$/);
+ if(resource&&['GET','HEAD'].includes(method)){
+  const [,id,kind,tail='']=resource;
+  if(user.role!=='admin'&&!user[kind==='demo'?'can_demo':'can_download'])fail(403,kind==='demo'?'此账号没有查看演示权限':'此账号没有下载资料权限');
+  const r=resources[id];if(!r)fail(503,'该案例的演示或资料尚未接入');
+  if(kind==='demo'){
+   if(!r.demoPath||!env.CASE_DEMOS)fail(503,'该案例的演示尚未接入');
+   const upstream=new URL(r.demoPath+tail.replace(/^\//,''),'https://private-demo.internal');upstream.search=url.search;
+   const headers=new Headers({'X-RMinte-User':user.id,'X-RMinte-Role':user.role});
+   const response=await env.CASE_DEMOS.fetch(new Request(upstream,{method,headers,redirect:'manual'}));
+   if(response.status>=300&&response.status<400)fail(502,'演示服务返回了未配置的跳转');
+   const h=new Headers(response.headers);h.set('Cache-Control','private, no-store');h.delete('set-cookie');
+   return new Response(response.body,{status:response.status,headers:h});
+  }
+  if(tail||!r.fileKey||!env.CASE_FILES)fail(503,'该案例的资料尚未接入');
+  const object=await env.CASE_FILES.get(r.fileKey);if(!object)fail(404,'资料不存在');
+  return new Response(method==='HEAD'?null:object.body,{headers:{'Content-Type':object.httpMetadata?.contentType||'application/octet-stream','Content-Disposition':`attachment; filename*=UTF-8''${encodeURIComponent(r.fileName||'document.pdf')}`,'Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff'}});
+ }
+ if(user.role!=='admin')fail(403,'仅管理员可操作');
+ if(path==='/api/admin/password'&&method==='POST'){
+  await limit(env,'password-change:'+user.id,5,900);
+  const data=await payload(request),current=passwordField(data,'current_password'),next=passwordField(data,'new_password');
+  if(next.length<15)fail(400,'新密码至少需要 15 个字符');
+  if(next===current)fail(400,'新密码不能与当前密码相同');
+  const record=await env.CASE_DB.prepare('SELECT password_mac FROM users WHERE id=?').bind(user.id).first();
+  if(!await verifyPassword(env.CASE_SECRET,user.username,current,record.password_mac))fail(400,'当前密码不正确');
+  const hash=await hashAdminPassword(env.CASE_SECRET,user.username,next);
+  const result=await env.CASE_DB.batch([
+   env.CASE_DB.prepare("UPDATE users SET password_mac=?,password_cipher=NULL WHERE id=? AND role='admin' AND password_mac=?").bind(hash,user.id,record.password_mac),
+   env.CASE_DB.prepare('DELETE FROM sessions WHERE user_id=? AND EXISTS (SELECT 1 FROM users WHERE id=? AND password_mac=?)').bind(user.id,user.id,hash)
+  ]);
+  if(!result[0].meta.changes)fail(409,'密码已被更新，请重新登录');
+  return json({ok:true},200,{'Set-Cookie':cookie(request,'',0)});
+ }
+
+ if(path==='/api/admin/users'&&method==='GET'){
+  const offset=Math.max(0,Math.min(100000,Number(url.searchParams.get('offset'))||0));
+  const {results}=await env.CASE_DB.prepare(`SELECT u.id,u.username,u.role,u.password_cipher,u.can_demo,u.can_download,u.created_at,e.occurred_at,e.ip,e.country,e.region,e.city FROM users u LEFT JOIN login_events e ON e.id=(SELECT id FROM login_events WHERE user_id=u.id ORDER BY occurred_at DESC,id DESC LIMIT 1) WHERE u.role='user' ORDER BY u.created_at DESC,u.id LIMIT 51 OFFSET ?`).bind(offset).all();
+  return json({users:results.slice(0,50).map(({password_cipher,...u})=>u),more:results.length>50});
+ }
+ if(path==='/api/admin/users'&&method==='POST'){
+  await payload(request);
+  const demo=0,download=0,username='rminte-'+randomString(10,'abcdefghijklmnopqrstuvwxyz0123456789'),password=randomPassword(),id=crypto.randomUUID();
+  await env.CASE_DB.prepare('INSERT INTO users(id,username,role,password_mac,password_cipher,can_demo,can_download,created_at) VALUES(?,?,?,?,?,?,?,?)').bind(id,username,'user',await passwordMac(env.CASE_SECRET,username,password),await encryptPassword(env.CASE_SECRET,username,password),demo,download,now()).run();
+  return json({id,username,password},201);
+ }
+ const match=path.match(/^\/api\/admin\/users\/([a-f0-9-]+)(?:\/(password|logins))?$/);
+ if(match){
+  const [,id,sub]=match;const u=await env.CASE_DB.prepare("SELECT * FROM users WHERE id=? AND role='user'").bind(id).first();if(!u)fail(404,'账号不存在');
+  if(method==='GET'&&sub==='password')return json({password:await decryptPassword(env.CASE_SECRET,u.username,u.password_cipher)});
+  if(method==='GET'&&sub==='logins'){
+   const offset=Math.max(0,Number(url.searchParams.get('offset'))||0);
+   const {results}=await env.CASE_DB.prepare('SELECT occurred_at,ip,country,region,city FROM login_events WHERE user_id=? ORDER BY occurred_at DESC,id DESC LIMIT 51 OFFSET ?').bind(id,offset).all();return json({events:results.slice(0,50),more:results.length>50});
+  }
+  if(method==='PATCH'&&!sub){const [a,b]=permissions(await payload(request));await env.CASE_DB.prepare("UPDATE users SET can_demo=?,can_download=? WHERE id=? AND role='user'").bind(a,b,id).run();return json({ok:true});}
+  if(method==='DELETE'&&!sub){await env.CASE_DB.prepare("DELETE FROM users WHERE id=? AND role='user'").bind(id).run();return json({ok:true});}
+ }
+ if(path==='/api/admin/inbox'&&method==='GET'){
+  const offset=Math.max(0,Number(url.searchParams.get('offset'))||0);const {results}=await env.CASE_DB.prepare('SELECT * FROM applications ORDER BY created_at DESC,id LIMIT 51 OFFSET ?').bind(offset).all();return json({messages:results.slice(0,50),more:results.length>50});
+ }
+ const message=path.match(/^\/api\/admin\/inbox\/([a-f0-9-]+)$/);
+ if(message&&method==='PATCH'){await env.CASE_DB.prepare('UPDATE applications SET read_at=? WHERE id=?').bind(now(),message[1]).run();return json({ok:true});}
+ fail(404,'接口不存在');
+ }catch(e){if(e instanceof HttpError)return json({error:e.message},e.status);console.error('case_access_error',e.name);return json({error:'服务暂时不可用，请稍后重试'},500);}
+}

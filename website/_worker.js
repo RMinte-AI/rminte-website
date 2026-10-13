@@ -1,5 +1,7 @@
+import { handleApi } from '../services/case-access/api.mjs';
 export default {
   fetch(request, env) {
+    if (new URL(request.url).pathname.startsWith('/api/')) return handleApi(request, env);
     if (new URL(request.url).pathname !== '/visitor-language.js') {
       return env.ASSETS.fetch(request);
     }
