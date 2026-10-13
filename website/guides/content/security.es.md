@@ -1,299 +1,347 @@
-# Guía completa de la página de seguridad de TianShanOS
+# TianShanOS
 
-Los nombres de botones y secciones se conservan en inglés para que puedas localizarlos en el dispositivo. La WebUI del dispositivo admite chino e inglés; cambiar el idioma de este sitio no cambia los idiomas del dispositivo.
+Esta guía describe las características y la interfaz de TianShanOS 0.6.1. Puede seguir siendo útil para versiones posteriores en las que esas características no hayan cambiado. Un número de versión diferente no hace que la guía quede obsoleta automáticamente. Si la interfaz, los pasos o los mensajes de resultados difieren, consulte las notas de la versión de su versión instalada antes de continuar.
 
-Utiliza esta guía para cambiar las contraseñas del dispositivo, gestionar el acceso SSH y configurar certificados. Si estás preparando el dispositivo por primera vez, comienza por los capítulos 1 y 2. Los procedimientos de certificados y Config Pack se dirigen a los administradores responsables de la seguridad del dispositivo.
+Utilice esta guía para cambiar las contraseñas del dispositivo, configurar el acceso al SSH, verificar las identidades del servidor y administrar certificados. Para la configuración inicial, comience con los capítulos 1, 2 y 3. Los procedimientos de certificado y Config Pack están destinados a los administradores responsables de esas funciones.
 
-Versión comprobada: copia de trabajo revisada el 7 de septiembre de 2026, basada en el commit `d6ed947`. Esta guía refleja una revisión del código fuente, no pruebas en tu dispositivo. Realiza las comprobaciones de cada apartado en tu propio entorno.
+> Utilice una red de administración confiable. Actualmente, la interfaz web completa utiliza HTTP y la mayoría de las operaciones API carecen de inicio de sesión centralizado y aplicación de permisos. Mantenga el dispositivo en una red de administración controlada. La instalación de un certificado HTTPS no cambia la interfaz web completa a HTTPS.
 
-> Utiliza una red de gestión aislada. La interfaz web completa utiliza actualmente HTTP y la mayoría de las operaciones de API carecen de comprobaciones centralizadas y obligatorias de inicio de sesión y permisos. No expongas el dispositivo a internet ni a una red de invitados. Instalar un certificado HTTPS no cambia la interfaz web completa a HTTPS.
+## 1. Antes de comenzar
 
-## 1. Antes de empezar
+### 1.1 Encuentra la tarea que necesitas Tarea
 
-### 1.1 Encontrar la tarea que necesitas
-
-| Tarea | Dónde acudir |
-| --- | --- |
-| Cambiar la contraseña de root o admin del dispositivo | Account Security; capítulo 2 |
-| Conectarse a un servidor con una clave SSH | Key Management y Deployed Hosts; capítulo 3 |
-| Copiar claves o comprobar la identidad de un servidor | Key Management y huellas de host; capítulo 4 |
-| Configurar certificados y autenticación mutua | HTTPS Certificate; capítulo 5 |
-| Intercambiar paquetes de configuración cifrados | Config Pack; capítulo 6. La aplicación general de configuraciones aún no está implementada |
+| Tarea | Dónde ir |
+|---|---|
+| Cambiar la contraseña root o admin del dispositivo Seguridad de la cuenta | ; Capítulo 2 |
+| Conéctese a un servidor usando una clave SSH | Gestión de claves y hosts con claves desplegadas; capítulo 3 |
+| Copiar claves o verificar la identidad de un servidor Gestión de claves | Gestión de claves y huellas de hosts conocidos; capítulo 4 |
+| Configurar certificados y autenticación mutua Certificado | HTTPS; Capítulo 5 Paquetes de configuración cifrados de |
+| Exchange | Config Pack; Capítulo 6. La aplicación de configuración general aún está sin terminar |
 
 ### 1.2 Cuentas e identidad del dispositivo
 
-- admin puede abrir Security y ver las claves, los hosts, los certificados y los controles de Config Pack, pero no Account Security.
-- root también puede establecer las contraseñas de root y admin, o restablecer la contraseña predeterminada de admin. El servidor exige autorización root para estas operaciones de gestión de contraseñas.
-- Un dispositivo Developer se identifica por el campo OU de su certificado. No es una cuenta de usuario. Actualmente, solo estos dispositivos pueden exportar Config Packs y configuraciones de hosts SSH; iniciar sesión como root no cambia la identidad del dispositivo.
+- **admin** puede abrir Seguridad y ver claves, hosts, certificados y controles Config Pack, pero no Seguridad de cuenta.
+- **root** también puede configurar las contraseñas de root y admin o restablecer admin a su contraseña predeterminada. Estas operaciones de administración de contraseñas verifican la autorización root.
+- Un dispositivo **Developer** se identifica mediante la unidad organizativa (OU) en su certificado de dispositivo. Esta es una identidad de dispositivo. Actualmente, solo estos dispositivos pueden exportar paquetes de configuración y configuraciones de host SSH; iniciar sesión como root no lo cambia.
 
-Salvo operaciones que comprueban por sí mismas la autorización, como la gestión de contraseñas, una pantalla de inicio de sesión no impide acceder directamente a las API. El aislamiento de red sigue siendo necesario.
+Un botón visible no establece que su API aplique permisos de acceso. Aparte de operaciones como la gestión de contraseñas que comprueban por sí mismas la autorización, actualmente el acceso debe limitarse a través de una red de gestión fiable.
 
-### 1.3 Preparar la operación
+### 1.3 Prepárese para la operación
 
-1. Comprueba que la dirección IP del navegador corresponde al dispositivo previsto y que tu ordenador está en una red de gestión de confianza.
-2. Confirma con el administrador del servidor SSH la dirección, el puerto y el nombre de usuario.
-3. Para instalar o revocar una clave pública desde esta página, necesitas la contraseña de la cuenta remota y esa cuenta debe admitir autenticación por contraseña. No dejes relajadas las restricciones del servidor solo para resolver un problema.
-4. Antes de eliminar claves, revocar accesos o sustituir certificados, asegúrate de disponer de otra vía de acceso: una consola del servidor, otra clave de administrador o la interfaz HTTP de gestión del dispositivo.
+1. Verifique que la dirección IP del navegador pertenezca al dispositivo deseado y que su computadora esté en una red de administración confiable.
+2. Confirme la dirección, el puerto y el nombre de usuario de SSH con el administrador del servidor.
+3. La implementación o revocación de una clave pública a través de la página requiere la contraseña de la cuenta remota y la autenticación de contraseña. El administrador del servidor decide si deja habilitada la autenticación de contraseña después.
+4. Antes de revocar el acceso, eliminar claves o reemplazar certificados, asegúrese de que funcione otra conexión de administración: una consola del servidor, otra clave de administrador o la interfaz HTTP del dispositivo.
 
-## 2. Cambiar las contraseñas del dispositivo
+## 2. Cambiar contraseñas del dispositivo
 
-Estos controles modifican las contraseñas de inicio de sesión de TianShanOS, no la contraseña SSH de un servidor remoto.
+Estos controles cambian las contraseñas de inicio de sesión de TianShanOS. No cambian la contraseña de SSH en un servidor remoto.
 
-### 2.1 El aviso de contraseña tras iniciar sesión
+### 2.1 El mensaje después del primer inicio de sesión
 
-Si una cuenta sigue marcada como contraseña sin cambiar, aparece un aviso después de iniciar sesión. Establece una contraseña larga y única. Elegir cambiarla más tarde cierra el aviso; no hace seguro conservar la predeterminada.
+Si una cuenta todavía está marcada con una contraseña sin cambios, aparece un mensaje de cambio de contraseña después de iniciar sesión. Establezca una contraseña larga y única. Si elige cambiarlo más tarde, se descarta el mensaje sin cambiar la contraseña.
 
-Este aviso no es una pantalla de ajustes de cuenta que puedas reabrir en cualquier momento. Si admin ya cambió su contraseña y necesita volver a hacerlo, root puede establecerla desde Security.
+El mensaje no es una pantalla de configuración de cuenta que pueda volver a abrir en cualquier momento. Si admin ya cambió su contraseña y necesita otro cambio, root puede configurarla desde Seguridad.
 
 ### 2.2 Establecer una contraseña como root
 
-1. Inicia sesión como root y abre Security.
-2. En Account Security, selecciona Set root password o Set admin password.
-3. Introduce dos veces la misma contraseña nueva y envíala. La interfaz admite 4-64 caracteres; cuatro caracteres son un mínimo técnico, no una recomendación de seguridad.
+1. Inicie sesión como root y abra Seguridad en la barra de navegación.
+2. Busque los controles de contraseña root o admin en Seguridad de la cuenta. Complete la nueva contraseña y su confirmación.
+3. Seleccione Establecer contraseña root o Establecer contraseña admin. La interfaz acepta caracteres 4-64; cuatro caracteres es un mínimo técnico. Utilice una contraseña larga y única.
 
-Comprueba el resultado: inicia sesión con la contraseña nueva en una ventana de navegación privada antes de cerrar la sesión original. Cambiar una contraseña no cierra automáticamente las sesiones existentes.
+**Compruebe el resultado:** inicie sesión con la nueva contraseña en una ventana de navegación privada antes de cerrar sesión en la sesión original. Establecer una nueva contraseña no finaliza automáticamente las sesiones existentes.
 
-Si no puedes iniciar sesión, comprueba primero la cuenta y la dirección del dispositivo. Cinco intentos fallidos consecutivos provocan un bloqueo de unos cinco minutos. Evita probar contraseñas repetidamente.
+**Si falla el inicio de sesión:** verifique primero la cuenta y la dirección del dispositivo. Cinco intentos fallidos consecutivos provocan un bloqueo de unos cinco minutos. Evite conjeturas repetidas.
 
 ### 2.3 Restablecer la contraseña de admin
 
-root puede restablecer la contraseña predeterminada de admin, `rm01`, y quitar su bloqueo de inicio de sesión. Después, inicia una sesión nueva como admin y establece una contraseña nueva de inmediato. El restablecimiento es una medida temporal de recuperación. No conserves la contraseña predeterminada ni supongas que cambiarla cierra todas las sesiones existentes.
+Root puede seleccionar Restablecer admin a los valores predeterminados para restaurar la contraseña a `rm01` y borrar el bloqueo de inicio de sesión. Inicie sesión como admin en una nueva sesión y establezca una contraseña única inmediatamente después.
 
-## 3. Conectarse a un servidor con una clave SSH
+> Utilice la contraseña predeterminada solo para recuperar el acceso temporalmente. Cámbielo de inmediato y cierre sesión en cualquier sesión que ya no necesite.
 
-En la primera configuración, crea una clave RSA, instala su clave pública, prueba la conexión y comprueba la huella del servidor. Para retirar una clave, revoca primero el acceso en los servidores, confirma que ya no funciona y solo entonces elimina la clave local.
+## 3. Conéctese a un servidor con una clave SSH
+
+Para la configuración inicial, cree una clave RSA, implemente su clave pública, revise el resultado y pruebe la conexión. Verifique la huella digital del servidor como parte de este proceso. Al retirar una clave, primero revoque el acceso a todos los servidores, confirme que la clave anterior ya no funciona y solo luego elimínela del dispositivo.
 
 ### 3.1 Crear una clave
 
-1. En Key Management, selecciona Generate New Key.
-2. Revisa la lista y elige un ID de clave sin utilizar, como `backup01`. No reutilices un ID: la API de generación no rechaza duplicados y puede sobrescribir la clave existente.
-3. Elige RSA 2048 o RSA 4096. RSA 2048 es la opción predeterminada de la interfaz. Se muestran opciones ECDSA, pero la vía actual de autenticación SSH por clave pública no las admite.
-4. Añade un comentario o alias si resulta útil. Permite exportar la clave privada solo si lo necesitas para copias de seguridad o migración; no hay una interfaz para cambiar este ajuste más adelante.
-5. Selecciona Generate, espera a que termine y actualiza la lista.
+1. En Administración de claves, seleccione Generar nueva clave.
+2. Elija una ID de clave no utilizada, como `backup01`. Utilice una combinación corta de letras y números en inglés, no más de caracteres 10, sin comas. El límite real es 10 UTF-8 bytes; Los caracteres que no son ASCII pueden utilizar más de un byte cada uno.
+3. Elija RSA 2048 o RSA 4096. RSA 2048 es el valor predeterminado. Se muestran las opciones de ECDSA, pero el flujo de trabajo actual de SSH no las admite; Elija RSA para SSH.
+4. Agregue un comentario o alias si es útil. Active Exportable solo si necesita realizar una copia de seguridad o migrar la clave privada. No hay ningún control de página para cambiar esta opción más adelante.
+5. Establezca Oculto si es necesario, luego seleccione Generar. Esta opción afecta la visualización de la lista; no mantiene en secreto el ID de la clave real.
 
-Comprueba el resultado: localiza el ID previsto y el tipo RSA. Abre Public Key y comprueba que el texto completo empieza por `ssh-rsa`.
+**Compruebe el resultado:** una vez finalizado, la ventana se cierra y la lista se actualiza. Busque el ID deseado y el tipo de RSA, luego abra la clave pública. Compruebe que el texto completo comience por `ssh-rsa`.
 
-Ten en cuenta que la lista admite ocho entradas. Si está llena, retira una clave que ya no utilices antes de generar otra. El almacenamiento de la clave y su registro en la lista pueden completarse o fallar por separado; comprueba la lista incluso tras un mensaje de éxito. Hide Key ID no impide que la API exponga el ID real.
+**Mientras espera:** no vuelva a enviar la solicitud. Cerrar la ventana no cancela la generación en el dispositivo.
 
-### 3.2 Instalar la clave pública
+| Mensaje o situación | Qué hacer |
+|---|---|
+| El ID ya está en uso | Elija otra ID. El flujo de trabajo de clave nueva ahora rechaza las identificaciones existentes en lugar de sobrescribir sus claves. |
+| Se ha alcanzado el límite de recuento de claves. | Se pueden guardar hasta ocho claves SSH. Antes de retirar una clave que ya no use, revoque su acceso siguiendo el procedimiento. |
+| El almacenamiento o la memoria son insuficientes | Resuelva el problema de recursos del dispositivo antes de volver a intentarlo. No trates el fracaso como una creación exitosa. |
+| Se generó la clave, pero la lista no se pudo actualizar | Actualice manualmente y verifique la clave; no lo vuelvas a generar La generación |
+| La generación no está confirmada | Es posible que el dispositivo aún esté funcionando. Espere y verifique el registro; no vuelva a enviar la misma identificación La limpieza de |
+| La limpieza no se completó | Verifique el almacenamiento del dispositivo, involucre a un administrador si es necesario y detenga la creación de claves adicionales |
 
-La instalación añade la clave pública a `~/.ssh/authorized_keys` de la cuenta remota y permite que esa cuenta acepte la clave privada correspondiente. No cambia la contraseña del servidor.
+Encontrar un registro con el mismo ID solo prueba que existe un registro. Si el resultado no está confirmado, verifique que sea la clave deseada antes de considerar la operación como completa.
 
-1. Selecciona Deploy en la fila de la nueva clave.
-2. Introduce la dirección del servidor, el usuario, el puerto SSH y la contraseña de esa cuenta.
-3. Revisa los datos y selecciona Start Deploy.
-4. Comprueba que el servidor aparece en Deployed Hosts y pruébalo como se describe a continuación.
+### 3.2 Implementar la clave pública
 
-La implementación actual se autentica con la contraseña antes de comprobar la huella del host y confía automáticamente en los hosts desconocidos. No garantiza que la identidad del servidor se verifique antes de enviar la contraseña. Realiza la primera conexión en una red controlada; comprobar la huella después no revierte la exposición de la contraseña. Si la instalación indica éxito, pero falta el registro o falla la prueba, no vuelvas a instalarla de inmediato. La clave pública puede estar instalada aunque haya fallado la prueba posterior con la clave o el guardado del registro local. Comprueba `authorized_keys` mediante otra conexión de gestión. Repetir la instalación puede añadir entradas duplicadas.
+El despliegue añade la clave pública a `~/.ssh/authorized_keys` de la cuenta remota. Esa cuenta podrá aceptar la clave privada correspondiente. La contraseña del servidor no cambia.
 
-### 3.3 Probar la conexión
+1. Seleccione Implementar en la fila de la clave deseada.
+2. Ingrese la dirección del servidor, el nombre de usuario, el puerto SSH y la contraseña de inicio de sesión de SSH.
+3. Revise la dirección y la cuenta, luego seleccione Iniciar implementación.
+4. Lea el resultado y verifique el registro correspondiente en Hosts implementados.
 
-1. En Deployed Hosts, comprueba la dirección, el puerto, el usuario y el ID de clave.
-2. Selecciona Test. El dispositivo intenta ejecutar echo "TianshanOS SSH Test OK".
-3. Tras la primera conexión, comprueba la huella guardada del host siguiendo el apartado 4.3.
+> La nueva versión comprueba la huella del host antes de autenticar con contraseña y rechaza los cambios en hosts conocidos. Sin embargo, al desplegar una clave pública por primera vez, guarda y confía en la huella de un host desconocido sin pedirle que la compruebe. Realice el primer despliegue en una red controlada y contraste la huella completa por un canal de confianza.
 
-Qué significa el éxito: la página comprueba si la operación de API se completó, pero no verifica el código de salida ni la salida del comando remoto. Es una comprobación básica de conexión, no una prueba de aceptación completa. No demuestra que sudo ni los comandos de tu aplicación funcionen. Para una tarea importante, verifica la salida, el código de salida y los permisos del comando real.
+### 3.3 Comprender el resultado de la implementación
 
-Si falla, comprueba la conectividad, el servicio SSH, la cuenta y la autorización remota. Deja de reintentar si la huella ha cambiado o la identidad del servidor es incierta; sigue el apartado 4.3.
+| Lo que te dice el resultado | Qué hacer a continuación |
+|---|---|
+| Se implementó la clave, se registró el host y se verificó el inicio de sesión con clave pública | Verifique los detalles del host y luego pruebe la tarea real que necesita ejecutar |
+| Se implementó la clave y se registró el host, pero el inicio de sesión no está confirmado | Seleccione Prueba. Si falla, verifique la autorización remota y la configuración de la cuenta a través de otra conexión de administración |
+| La clave se implementó, pero el registro falló o no está confirmado | Verifique la lista local y la autorización remota antes de implementar nuevamente |
+| Implementación completada, pero la lista no se pudo actualizar | Actualizar manualmente. Una actualización fallida de la lista no significa que la clave remota no se haya instalado |
 
-### 3.4 Revocar el acceso antes de eliminar la clave local
+**No implementar repetidamente porque el resultado está incompleto.** Cada implementación agrega la clave y puede crear entradas duplicadas. Utilice otra conexión de administración para inspeccionar `authorized_keys` cuando necesite confirmar el resultado remoto.
 
-1. Confirma que funciona otra conexión de gestión al servidor y que la clave original sigue en el dispositivo.
-2. Selecciona Revoke en la fila del host, introduce la contraseña del servidor y confirma Revoke & Remove. También puedes empezar desde la fila de la clave e introducir los datos del destino.
-3. Revisa el resultado y utiliza una conexión de gestión de confianza para comprobar que la clave pública y sus posibles duplicados han desaparecido de `authorized_keys`.
-4. Confirma que la clave antigua ya no permite iniciar sesión. La revocación deja una copia `authorized_keys.bak`; gestiónala conforme a la política de copias de seguridad del servidor para no restaurar después una autorización antigua.
-5. Actualiza la lista local de hosts. La página intenta eliminar el registro, pero no comprueba el resultado de esa solicitud. Si sigue presente, elimínalo manualmente.
-6. Solo después de atender todos los servidores de destino, elimina la clave antigua del dispositivo y las copias de la clave privada que ya no necesites.
+### 3.4 Pruebe la conexión
 
-Si no se encuentra una clave pública coincidente, confirma en el servidor que has elegido la cuenta correcta y que la clave no está presente antes de optar por eliminar solo el registro local.
+1. En Hosts implementados, verifique la dirección, el puerto, el nombre de usuario y la ID de clave, luego seleccione Probar.
+2. Si aparece una confirmación de la huella digital del Host, obtenga y compare una huella digital confiable como se describe en la Sección 4.3 antes de elegir Confiar y conectar.
+3. Después de conectarse, el dispositivo intenta el comando de eco fijo `echo "TianshanOS SSH Test OK"`.
 
-Si la revocación falla o el servidor parece sospechoso, conserva la clave local y utiliza una consola de confianza u otra conexión de administrador. No sigas enviando una contraseña a un servidor de identidad dudosa.
+**Qué significa éxito:** la página de prueba aún verifica si la solicitud se realizó correctamente, no el estado de salida o la salida del comando remoto. Úselo como verificación de conexión básica. Para una tarea importante, verifique la salida real, el estado de salida y los permisos. Esta prueba tampoco establece que sudo u otros comandos de la aplicación funcionarán.
 
-## 4. Gestionar claves, hosts y huellas
+**Si falla:** verifique la conectividad, el servicio SSH, la cuenta y la autorización remota de clave pública. Deje de volver a intentarlo si la huella digital cambia o la identidad del servidor es incierta.
 
-### 4.1 Copiar una clave pública o exportar una privada
+### 3.5 Revocar el acceso antes de eliminar la clave local
 
-Clave pública: selecciona Public Key y copia el valor completo en una sola línea para el administrador del servidor. Una clave pública no es secreta. Enviarla a la persona equivocada no expone por sí solo la clave privada ni exige sustituir el par. El acceso solo se concede cuando un administrador la añade a la lista de autorizaciones de una cuenta.
+1. Confirme que otra conexión de administración del servidor funcione y que la clave original permanezca en el dispositivo.
+2. Seleccione Revocar en la fila del host, ingrese la contraseña del servidor y confirme Revocar y eliminar. También puede comenzar desde la fila de claves e ingresar los detalles del objetivo.
+3. Lea el resultado, luego use una conexión confiable para verificar que la clave pública y cualquier duplicado desaparezcan de `authorized_keys`. Confirme que la clave anterior ya no funciona.
+4. La revocación deja una copia de seguridad `authorized_keys.bak`. Gestiónela según la política de copias de seguridad del servidor para evitar restaurar una autorización antigua.
+5. Compruebe que se haya eliminado el registro del host local. La página ahora verifica esta solicitud. Si la revocación remota tuvo éxito pero la eliminación local falló, actualice y realice la limpieza local por separado.
+6. Solo después de que se haya manejado cada servidor de destino se debe eliminar la clave antigua y las copias de clave privada innecesarias.
 
-Clave privada: solo puede exportarse si se permitió al crearla. Utiliza un ordenador de confianza en una red aislada, guárdala en un almacén de secretos aprobado y elimina las copias temporales del portapapeles y de la carpeta de descargas. No la pegues en chats, incidencias ni registros.
+**Si no se encuentra ninguna clave pública coincidente:** confirme que la cuenta sea correcta y que la clave no esté en el servidor antes de elegir eliminar solo el registro local.
 
-Si Copy no hace nada, puede que el navegador bloquee el portapapeles en una página HTTP. Selecciona y copia el texto visible manualmente; comprueba que el principio, el final y todo el contenido estén intactos. No reduzcas la seguridad del navegador solo para habilitar la copia.
+**Si no se puede eliminar el host:** es posible que un servicio esté usando o protegiendo el registro. Verifique el estado del servicio y las referencias en Comandos SSH o las configuraciones de automatización relevantes. Termina de detener el servicio o de resolver sus referencias antes de volver a intentarlo. Pídale a un administrador que verifique un estado incierto.
 
-### 4.2 Revocar, quitar y eliminar son operaciones distintas
+**Si la revocación informa un error:** identifique qué paso falló. Es posible que la clave remota ya haya desaparecido aunque haya fallado la limpieza local. Utilice la autorización del servidor y una verificación de inicio de sesión real para establecer el resultado remoto. Conserve la clave local hasta que esto se resuelva.
+
+## 4. Administrar claves, hosts y huellas digitales
+
+### 4.1 Copiar una clave pública o exportar una clave privada
+
+**Clave pública:** seleccione Clave pública y copie el valor completo de una sola línea para el administrador del servidor. Este es material público; enviarlo a la persona equivocada no expone la clave privada. El acceso se otorga cuando un administrador lo agrega a la lista de autorización de una cuenta.
+
+**Clave privada:** la exportación está disponible solo si se habilitó Exportable durante la creación. Seleccione Clave privada en una computadora confiable y una red de administración aislada. Guárdelo en un almacén secreto aprobado, borre el portapapeles temporal y descargue copias. Nunca lo pegues en chats, tickets o registros.
+
+**Si Copiar no hace nada:** los navegadores pueden restringir el acceso al portapapeles en una página HTTP. Seleccione y copie el texto manualmente, luego verifique sus marcadores de límites y su integridad. No debilite la configuración de seguridad del navegador para permitir la copia.
+
+### 4.2 Revocar, eliminar y eliminar Acción
 
 | Acción | Efecto |
-| --- | --- |
-| Revocar una clave pública | Intenta quitar la autorización del servidor; requiere la contraseña remota |
-| Quitar un host | Elimina el registro local de conexión del dispositivo, no la autorización remota |
-| Eliminar una clave | Elimina el material de clave local; no contacta con el servidor ni revoca accesos |
-| Eliminar una huella de host | Elimina el registro de identidad guardado del servidor, no el registro de conexión ni la autorización remota |
+|---|---|
+| Revocar una clave pública | Intenta eliminar la autorización del servidor; requiere la contraseña remota |
+| Eliminar un host | Elimina un registro de conexión local sin revocar el acceso al servidor |
+| Eliminar una clave | Elimina el material de claves local sin contactar al servidor ni revocar el acceso. |
+| Eliminar una huella digital del host | Elimina un registro de identidad del servidor guardado, no su registro de conexión o autorización remota Los hosts implementados de |
 
-Deployed Hosts es una lista local, no una vista en tiempo real de las autorizaciones del servidor. Una lista vacía no demuestra que se haya retirado el acceso remoto, ni la presencia de un host garantiza que sea accesible.
+«Hosts con claves desplegadas» es una lista local; no muestra en directo las autorizaciones del servidor. Que esté vacía no confirma que se haya retirado el acceso. Que un host aparezca tampoco garantiza que pueda conectarse a él.
 
-### 4.3 Comprobar la huella del servidor SSH
+### 4.3 Verifique la huella digital del servidor SSH
 
-Una huella identifica el servidor al que te conectas. Esta página guarda el resumen SHA-256 como 64 caracteres hexadecimales. Las herramientas OpenSSH suelen mostrar `SHA256:base64`. Pide al administrador el mismo formato antes de comparar; las cadenas no son directamente intercambiables.
+Una huella digital identifica el servidor al que se está conectando. Esta página almacena un resumen SHA-256 como caracteres hexadecimales 64. Las herramientas OpenSSH suelen mostrar `SHA256:base64`. Solicite al administrador el mismo formato antes de comparar; las cadenas no se pueden comparar directamente.
 
-Tras la primera conexión, abre la huella completa con View en la sección de huellas de host. Compárala con un valor obtenido desde una consola del servidor, un inventario de activos u otro canal de confianza. La tabla solo muestra los primeros 32 caracteres, insuficientes para una comprobación completa. Si difieren, deja de conectarte e investiga en un entorno aislado. Si introdujiste una contraseña SSH, trátala como posiblemente expuesta. Utiliza una conexión de confianza para cambiarla, revisar los registros de acceso y quitar autorizaciones de clave pública no deseadas. No uses la conexión sospechosa para revocar el acceso desde esta página.
+**Después de la implementación inicial:** seleccione Ver en Huellas digitales de host conocidas y compare el valor total con uno obtenido de una consola de servidor, inventario de activos u otro canal confiable. La tabla muestra solo los primeros caracteres 32, lo que no es suficiente para una verificación completa.
 
-Si cambia una huella guardada:
+**Cuando la prueba solicita confirmación:** el cuadro de diálogo muestra la huella digital completa actual. Verifíquelo de forma independiente antes de seleccionar Confiar y conectar. Si ha cambiado, verifique también la identidad del servidor, IP, puerto y registro de mantenimiento. No lo apruebe simplemente porque apareció el cuadro de diálogo.
 
-1. Deja de reintentar. No te limites a eliminar la entrada antigua.
-2. Utiliza una consola de confianza para verificar la nueva huella, la dirección IP, el puerto, la identidad del activo y el registro de mantenimiento.
-3. Elimina la huella antigua solo después de confirmar una reinstalación autorizada del servidor o un cambio autorizado de su clave de host.
-4. Vuelve a conectarte en una red controlada y consulta y comprueba la nueva huella guardada.
+**Si la huella digital difiere o su origen no está claro:** cancele la conexión e investigue. Si anteriormente utilizó una contraseña en una conexión que no es de confianza, trátela como potencialmente expuesta. Cámbielo a través de una conexión confiable, revise los registros de inicio de sesión y elimine la autorización no deseada. No envíe una contraseña a través de la conexión sospechosa para revocar el acceso.
 
-La página actual puede mostrar un error genérico de conexión en lugar de un cuadro específico de comparación de huellas.
+**Después de una reconstrucción autorizada o un cambio de clave de host:** verifique primero la nueva huella digital completa y el registro de mantenimiento. Una vez verificado, acéptelo en el cuadro de diálogo de confirmación de prueba. Alternativamente, elimine la entrada anterior, pruebe nuevamente y confirme la huella digital verificada. La ruta de prueba ahora requiere confirmación explícita; No asuma que la reconexión confiará automáticamente en la nueva clave.
 
-Protege la tarjeta SD: las huellas se almacenan localmente y se sincronizan en archivos JSON en texto claro en la tarjeta. Al arrancar, las configuraciones de huellas disponibles en SD sustituyen los registros NVS correspondientes. Estos archivos no están firmados; impide su modificación por fuentes no fiables.
+**Proteja la tarjeta SD:** las huellas digitales del host conocido se sincronizan con el texto sin formato JSON en la tarjeta. Al inicio, las configuraciones de huellas digitales SD disponibles reemplazan los registros locales correspondientes. Estos archivos no están firmados; no permita cambios que no sean de confianza en ellos.
 
-### 4.4 Importar y exportar configuraciones de hosts SSH
+### 4.4 Importar y exportar configuraciones de host SSH
 
-Este flujo específico de `.tscfg` es independiente de la aplicación general de configuraciones aún incompleta del capítulo 6. Un paquete de host contiene dirección, puerto, usuario, tipo de autenticación e ID de clave. No contiene la contraseña SSH ni la clave privada y no concede acceso en el servidor.
+Este flujo de trabajo dedicado `.tscfg` almacena la dirección, el puerto, el nombre de usuario, el tipo de autenticación y la ID de clave. No contiene contraseña SSH ni clave privada y no otorga acceso remoto. Está separada de la solicitud general inacabada del Capítulo 6.
 
-Para exportar, selecciona Export en la fila del host desde un dispositivo Developer. Si el destino es otro dispositivo, facilita y verifica su certificado y descarga el paquete. Un dispositivo normal puede mostrar el botón, pero el backend rechaza su solicitud de exportación.
+**Para exportar:** en un dispositivo Developer, seleccione Exportar en la fila del host. Para otro dispositivo, proporcione y verifique su certificado, genere el paquete y seleccione Descargar. Compruebe que el archivo se haya guardado. Un dispositivo normal puede mostrar el control, pero se rechaza su solicitud de exportación.
 
-Para importar:
+**Para importar:**
 
-1. Confirma que el paquete se creó para este dispositivo, que la tarjeta SD admite escritura y que el origen se ha verificado por un canal de confianza.
-2. Asegúrate de que este dispositivo ya dispone de la clave correcta referenciada por el paquete. Un ID coincidente no basta; el material de clave debe corresponder a la autorización del servidor.
-3. Selecciona Import Host, elige el archivo y revisa la vista previa. Activa la sobrescritura solo si pretendes sustituir una configuración existente con el mismo nombre.
-4. Confirma y reinicia cuando se indique. La importación guarda el paquete en SD; la carga y el descifrado se intentan al reiniciar.
-5. Comprueba la dirección, el usuario, el puerto y el ID de clave cargados y prueba la conexión. Una vista previa correcta no demuestra que el paquete vaya a funcionar. No establece confianza en el firmante ni comprueba la huella del destinatario. La comprobación del destino se realiza al cargar tras el reinicio. Elimina un registro incorrecto y su paquete SD correspondiente para impedir que vuelva a cargarse. Antes de sustituir el certificado del dispositivo, lee también el apartado 5.5.
+1. Confirme que el paquete se creó para este dispositivo, que se puede escribir en la tarjeta SD y que la fuente se ha verificado a través de un canal confiable.
+2. Asegúrese de que este dispositivo tenga la clave de referencia correcta. Una identificación coincidente por sí sola no es suficiente; el material clave debe coincidir con la autorización del servidor.
+3. Seleccione Importar host, elija el archivo y revise la vista previa. Habilite la sobrescritura solo cuando desee reemplazar una configuración con el mismo nombre.
+4. Confirme y reinicie según se le solicite. La importación primero guarda el paquete en la tarjeta SD; La carga y el descifrado se intentan al reiniciar.
+5. Permita que finalice la carga de inicio, actualice la lista de hosts, verifique la dirección, la cuenta, el puerto y la clave, luego pruebe.
 
-## 5. Configurar certificados HTTPS y mTLS
+Que la vista previa se complete no confirma que el firmante sea de confianza ni que el paquete esté destinado a este dispositivo. La huella del destinatario se comprueba al cargarlo. Al iniciar, se combinan las configuraciones de host y se conservan los registros locales ajenos al paquete. Importar un paquete no borra toda la lista anterior.
 
-Este capítulo se dirige a los administradores de certificados. El servicio actual del puerto 443 solo ofrece endpoints de salud, identidad y pruebas de permisos, no la interfaz web completa. Con sus ajustes predeterminados, el arranque requiere una clave privada de dispositivo, un certificado de dispositivo y una cadena de CA de clientes.
+Elimine un registro incorrecto y verifique que se haya borrado su configuración SD correspondiente. Un paquete restante se puede cargar nuevamente después del reinicio. Resolver referencias de servicios si el registro está en uso. Lea también la sección 5.6 antes de reemplazar el certificado del dispositivo.
 
-### 5.1 Función de cada certificado
+## 5. Configurar los certificados HTTPS y mTLS
 
-- El certificado y la clave privada del dispositivo le permiten demostrar su identidad al cliente que se conecta.
-- El certificado y la clave privada del cliente, en poder de un ordenador o servicio, permiten que ese cliente demuestre su identidad al dispositivo.
-- La cadena de CA instalada en el dispositivo verifica los certificados de los clientes. No hace que un ordenador o navegador confíe automáticamente en el certificado del dispositivo.
+El servicio actual en el puerto 443 proporciona puntos finales de prueba de permisos, identidad y estado, no la interfaz web completa. El inicio predeterminado requiere una clave de dispositivo, un certificado de dispositivo, una cadena de CA de cliente y un reloj de dispositivo válido.
 
-Este intercambio de certificados en ambos sentidos se denomina TLS mutuo o mTLS. El cliente debe además confiar en la CA que emitió el certificado del dispositivo y comprobar su nombre y usos permitidos.
+### 5.1 Sepa qué certificado hace qué
 
-### 5.2 Generar una clave de dispositivo y una solicitud de certificado
+- El **certificado del dispositivo y la clave privada** permiten que el dispositivo demuestre su identidad a los clientes.
+- Un **certificado de cliente y clave privada**, mantenidos por una computadora o servicio, permiten al cliente probar su identidad en el dispositivo.
+- La **CA de verificación del cliente en el dispositivo** valida los certificados del cliente. No hace que una computadora o un navegador confíen automáticamente en el certificado del dispositivo.
 
-1. En HTTPS Certificate, selecciona Generate Key Pair. Se crea una clave privada ECDSA P-256 independiente de las claves SSH. No puede exportarse mediante esta interfaz.
-2. Si ya existe una clave, detente y revisa el apartado 5.5 antes de continuar. Generar otra sobrescribe la anterior.
-3. Selecciona Generate CSR. Introduce el ID del dispositivo (CN), la organización (O) y la unidad organizativa (OU), o deja todos los campos vacíos.
-4. Envía el texto completo de la CSR al administrador de tu CA. Una CSR solicita un certificado; no contiene la clave privada ni instala un certificado.
+Esta autenticación bidireccional se llama TLS mutua o mTLS. Los clientes aún deben confiar en la CA emisora ​​del certificado del dispositivo y verificar su nombre de acceso, usos permitidos y validez.
 
-Comprueba los nombres antes de la emisión: el flujo con campos personalizados no genera un SAN. Con todos los campos vacíos, el CN queda fijado en `TIANSHAN-DEVICE-001`; la IP actual solo se incluye como SAN de tipo IP si puede obtenerse. No se añade ningún SAN DNS. Pide al administrador de la CA que inspeccione la CSR y utilice un proceso de emisión controlado para incluir en el SAN del certificado final las IP o los nombres DNS necesarios. Este formulario no permite editar los SAN. Comprueba el resultado: actualiza la página para confirmar que existe la clave privada. El administrador de la CA debe inspeccionar la clave pública, el sujeto y el SAN de la CSR, y comprobar que el certificado emitido tiene el uso requerido de autenticación de servidor (EKU).
+### 5.2 Lea el estado y configure la hora del dispositivo
 
-### 5.3 Instalar el certificado del dispositivo
+Guardado, Dentro del período de validez y HTTPS: En ejecución describen el almacenamiento, la validez del tiempo y la operación del servicio por separado. Uno no establece los demás.
 
-1. Obtén un certificado PEM que corresponda a la clave privada actual del dispositivo.
-2. Selecciona Install Cert, pega el texto completo con sus delimitadores y envíalo.
-3. Consulta el certificado y comprueba su sujeto, emisor y fechas de validez.
+| Estado o situación | Qué hacer |
+|---|---|
+| Falta el certificado del dispositivo, la clave privada o la CA de verificación del cliente | Instale las credenciales que faltan utilizando las siguientes secciones |
+| Esperando la hora del dispositivo | Verifique que el reloj de su computadora sea correcto, luego seleccione Establecer la hora del dispositivo desde esta computadora (fuente del navegador) |
+| Aún no válido o caducado | Verifique el reloj del dispositivo y las fechas del certificado; concertar la renovación si ha caducado |
+| Dentro del período de validez, pero HTTPS no se está ejecutando | Lea el error de inicio, falta de coincidencia de clave o credencial que se muestra; resolverlo y actualizar |
+| El servicio en ejecución todavía usa credenciales anteriores | Guarde otros trabajos y reinicie el dispositivo. Confirme que las nuevas credenciales cumplan con los requisitos de inicio y estén en uso |
+| El almacenamiento o el estado no están confirmados | Actualizar y comprobar. Reinicie si se le indica; evitar la instalación o eliminación repetida |
 
-El mensaje de éxito solo indica que el certificado puede analizarse y que su clave pública corresponde a la clave privada actual. La instalación no valida por completo la cadena de confianza, SAN, EKU, la vigencia actual ni la política del sujeto.
+Después de configurar la hora, verifique la hora del dispositivo que se muestra y el estado de sincronización. Cuando el servicio no se está ejecutando, el sistema intenta iniciarse una vez que se cumplen los requisitos de tiempo y credenciales. Si permanece detenido, investigue el motivo que se muestra en lugar de tratar la instalación como prueba de que está lista.
 
-El cliente real debe comprobar la cadena, el nombre de acceso, los usos y la validez. Si la instalación indica que la clave no coincide, localiza el certificado emitido para la CSR actual. No generes otra clave privada solo para eliminar el error.
+### 5.3 Generar una clave de dispositivo y una solicitud de certificado
 
-### 5.4 Instalar la cadena de CA de clientes y probar
+1. Seleccione Generar par de claves. Esto crea una clave privada ECDSA P-256 separada, no relacionada con las claves SSH. No se puede exportar a través de esta interfaz.
+2. Si ya existe una clave, lea primero la sección 5.6. El procedimiento lo sobrescribe.
+3. Seleccione Generar CSR. Ingrese el ID del dispositivo (CN), la organización y el departamento, o deje todos los campos en blanco. El departamento corresponde a la unidad organizativa (OU) del certificado.
+4. Seleccione Generar solicitud de firma de certificado y envíe el texto CSR completo a su administrador de CA.
 
-1. Selecciona Install CA y pega uno o varios certificados CA PEM utilizados para confiar en tus clientes.
-2. Mantén disponible la interfaz HTTP de gestión y programa un reinicio antes de probar. La instalación actualiza el almacenamiento, pero no reinicia activamente el servicio del puerto 443.
-3. Accede a los endpoints de prueba pertinentes con un certificado de cliente de confianza, con el uso y rol correctos.
-4. Repite con un certificado no fiable o sin certificado y confirma que se rechaza la conexión.
+**Utilice una ID de dispositivo breve y estable.** Las letras y números en inglés son más fáciles de mantener dentro del límite UTF-8 de 63 bytes. Los caracteres que no son ASCII pueden utilizar varios bytes. Acorte los campos si la interfaz informa un error de longitud.
 
-Comprueba que el dispositivo presenta el nuevo certificado previsto, que los clientes de confianza solo acceden a los endpoints permitidos por su rol y que los demás no pueden conectarse. La negociación y los roles deben probarse en el dispositivo, no deducirse de un mensaje de instalación.
+**Verifique los nombres antes de la emisión:** la ruta del campo personalizado no genera un SAN. Con todos los campos en blanco, CN se fija en `TIANSHAN-DEVICE-001`; la IP actual se agrega como IP SAN solo si está disponible. No se agrega ningún SAN DNS. Haga que el administrador de la CA utilice un proceso de emisión controlado para incluir los nombres reales de IP o DNS y los propósitos de autenticación requeridos en el certificado final. Este formulario no puede editar SAN.
 
-### 5.5 Renovar certificados o eliminar todas las credenciales
+Una CSR no contiene ninguna clave privada y no instala un certificado. Haga que el administrador de la CA inspeccione su clave pública, asunto y SAN antes de la emisión.
 
-<!-- operational-note -->
+### 5.4 Instalar el certificado del dispositivo
 
-Si solo caduca el certificado, puedes reutilizar una clave privada no comprometida para solicitar uno nuevo, instalarlo y repetir las pruebas. Sin embargo, los Config Packs están vinculados a la huella del certificado del destinatario. Aunque se conserve la clave privada, una huella distinta hace que, tras reinicializar o reiniciar, los paquetes antiguos se rechacen por pertenecer a otro destinatario. Prepara paquetes de sustitución antes de cambiar el certificado.
+1. Obtenga un certificado PEM que coincida con la clave privada del dispositivo actual.
+2. Seleccione Instalar certificado, pegue el texto completo, incluidos sus marcadores de límites, y seleccione Instalar.
+3. Verifique el resultado guardado, la validez del certificado y el estado real de HTTPS. Revise el tema, el emisor y las fechas.
 
-Al sustituir la clave privada, la CSR y el certificado anteriores dejan de corresponder a la nueva clave. Eso no revoca el certificado antiguo en la CA. Si la clave anterior estuvo expuesta, gestiona por separado la revocación y la respuesta al incidente. Los paquetes que dependan de una clave privada perdida pueden ser irrecuperables. Para eliminar todas las credenciales PKI, Delete Credentials en la sección de certificados borra conjuntamente la clave privada, el certificado del dispositivo y la cadena de CA de clientes. Verifica tu acceso de recuperación HTTP y prepara paquetes de sustitución antes de confirmar. Una copia del certificado público no puede restaurar una clave privada.
+La instalación comprueba el formato y el par de claves. El estado también informa de la vigencia y de lo necesario para iniciar el servicio. Los clientes deben verificar la cadena de confianza, el nombre usado para conectarse y los usos permitidos.
 
-Después de eliminar, actualiza la página y comprueba que aparece un estado sin inicializar. Reinicia y verifica que el puerto 443 ya no utiliza las credenciales antiguas. Para restablecer el servicio, genera una clave nueva, obtén e instala el certificado del dispositivo, instala la cadena de CA y repite las pruebas.
+Si la clave no coincide, busque el certificado emitido para el CSR actual. No vuelva a generar una clave privada para eliminar el error. Si el resultado no está confirmado, actualice y verifique lo que se guardó antes de decidir si desea volver a intentarlo.
+
+### 5.5 Instale la cadena de CA del cliente y pruebe
+
+1. Seleccione Instalar CA, pegue uno o más certificados de CA PEM utilizados para confiar en sus clientes y seleccione Instalar.
+2. Verifique el estado. Un servicio detenido intentará iniciarse cuando las credenciales y la hora estén listas. Si un servicio en ejecución informa cambios de credenciales, reinicie según las instrucciones para aplicarlas.
+3. Acceda a los puntos finales de prueba adecuados utilizando un certificado de cliente confiable con el propósito y la función correctos.
+4. Repita con un certificado que no sea de confianza o sin certificado y confirme el rechazo.
+
+**Compruebe el resultado:** HTTPS se está ejecutando y utiliza el certificado previsto. Si se muestra el certificado activo SHA-256, compare su huella digital. Los clientes confiables deben acceder solo a los puntos finales que sus roles permitan; Los clientes que no son de confianza no deben conectarse. Verifique estos resultados en el dispositivo real.
+
+### 5.6 Renovar certificados o eliminar todas las credenciales
+
+**Caducidad del certificado:** reutilice una clave no comprometida para solicitar un nuevo certificado, instálelo, siga las instrucciones de estado para aplicarlo y vuelva a realizar la prueba. Los paquetes de configuración están vinculados a la huella digital del certificado del destinatario. Incluso con la misma clave, un paquete antiguo puede rechazarse después de la reinicialización o reinicio porque el certificado ha cambiado. Organice paquetes de reemplazo de antemano.
+
+**Reemplazo de clave privada:** la CSR y el certificado antiguos ya no coinciden con la nueva clave. Esto no revoca el certificado antiguo en la CA. Maneje una clave expuesta con el administrador de CA por separado. Los paquetes que dependen de una clave perdida pueden ser irrecuperables.
+
+**Eliminar todas las credenciales:** Eliminar credenciales elimina la clave del dispositivo, el certificado del dispositivo y la cadena de CA del cliente juntos. Verifique que el acceso de administración HTTP funcione y organice primero los paquetes de reemplazo. Una copia de seguridad de un certificado público no puede restaurar una clave privada.
+
+Después de la eliminación, verifique que no haya certificado de dispositivo y que falten credenciales. Es posible que un servicio HTTPS en ejecución aún contenga las credenciales anteriores; La eliminación de los datos almacenados no constituye una revocación inmediata. Reinicie según las instrucciones y confirme que las credenciales antiguas ya no se utilizan. Restaure el servicio con una nueva clave, un certificado de dispositivo emitido, una cadena de CA del cliente y pruebas de conexión.
 
 ## 6. Comprender las limitaciones de Config Pack
 
-Un Config Pack es un paquete `.tscfg` cifrado y firmado. La implementación actual permite crear e inspeccionar paquetes, pero la aplicación general de configuraciones está incompleta. No dependas de ella para configurar flotas en producción, recuperar el sistema ante desastres ni demostrar que los ajustes han cambiado.
+A Config Pack es un paquete `.tscfg` cifrado y firmado. Actualmente se pueden crear e inspeccionar paquetes, pero la aplicación de configuración general no está terminada. No confíe en él para la configuración de la flota de producción, la recuperación ante desastres o las comprobaciones de aceptación de cambios en la configuración.
 
-### 6.1 Qué hacen actualmente los controles
+### 6.1 Qué hacen los controles
 
-| Acción | Resultado actual |
-| --- | --- |
-| Export Device Certificate | Muestra el certificado público para que un remitente cree un paquete destinado a este dispositivo; no exporta la clave privada |
-| Verify | Comprueba la estructura y la firma del texto cifrado con el certificado incluido; no establece confianza en el firmante ni la identidad del destinatario |
-| Import tras seleccionar o pegar un paquete | Los parámetros del frontend y del backend no coinciden; este flujo no puede completarse |
-| Import desde la lista de paquetes | Valida un archivo existente en el dispositivo; no lo copia, descifra ni aplica |
-| Apply | Descifra y enumera los nombres de módulos sin escribir sus ajustes; aun así puede indicar éxito |
-| Export Config Pack en un dispositivo Developer | Crea un paquete cifrado y firmado descargable e intenta guardarlo en la tarjeta SD |
+| Acción | Resultado actual Certificado de dispositivo de exportación |
+|---|---|
+| Exportar certificado del dispositivo | Proporciona el certificado público para que un remitente pueda crear un paquete para este dispositivo; no exporta su clave privada |
+| Verificar solo | Comprueba la estructura y la firma del texto cifrado con el certificado incluido; no establece la confianza del firmante ni la identidad del destinatario |
+| Importar después de seleccionar o pegar un paquete | Los parámetros de la página y los del dispositivo todavía no coinciden. Este procedimiento no puede completarse. |
+| Importar desde la lista de paquetes | Valida un archivo de dispositivo existente sin copiarlo, descifrarlo ni aplicarlo |
+| Aplicar | Descifra y enumera los nombres de los módulos sin escribir su configuración; todavía puede reportar éxito |
+| Exportar Config Pack en un dispositivo Developer | Crea un paquete descargable e intenta guardarlo en la tarjeta SD. |
 
-### 6.2 Verificar el origen, no solo la firma
+### 6.2 Verifique el origen y el destinatario Actualmente,
 
-Actualmente, el destinatario comprueba la firma con el certificado incluido en el paquete. No está implementada la validación de confianza de la cadena del certificado firmante. La firma cubre el texto cifrado; no supongas que por ello todos los metadatos mostrados están autenticados. La etiqueta Official tampoco demuestra un origen de confianza.
+La verificación utiliza el certificado del firmante incluido en el paquete, pero no establece la confianza de su cadena de certificados. La firma cubre el texto cifrado; no dé por autenticados todos los campos mostrados. Una etiqueta «Official» no demuestra que el origen sea fiable.
 
-Antes de importar o inspeccionar un paquete, utiliza un sistema de activos o un canal independiente y aprobado para confirmar la huella del certificado firmante, el certificado de destino y el cambio previsto. Recibir un certificado y su huella en el mismo correo no es una comprobación independiente. El nombre de destino de la vista previa no sustituye la verificación de la huella del certificado.
+Utilice un sistema de activos o un canal confiable independiente para confirmar la huella digital del firmante, el certificado del dispositivo de destino y el propósito del paquete. El nombre de destino de la vista previa no reemplaza la verificación de huellas digitales del certificado. Recibir un certificado y una huella digital en el mismo mensaje no es una verificación independiente.
 
 ### 6.3 Compartir el certificado del dispositivo e inspeccionar un paquete
 
-Para facilitar el certificado de este dispositivo, selecciona Export Device Certificate, copia el PEM completo y la huella mostrada, y envía el certificado público al remitente. Confirma la huella por otro canal de confianza.
+**Para proporcionar el certificado de este dispositivo:** seleccione Exportar certificado de dispositivo y copie el PEM completo y la huella digital que se muestra. Envía el certificado público al remitente y confirma su huella digital a través de otro canal confiable.
 
-Para inspeccionar un paquete recibido, abre Import Config Pack, selecciona o pega el archivo `.tscfg` y selecciona Verify. Revisa los datos del firmante y comprueba el origen. La verificación no aplica ajustes ni demuestra que este dispositivo sea el destinatario. Detente si el origen, el destino o la finalidad no están claros.
+**Para inspeccionar un paquete recibido:** abra Importar Config Pack, seleccione o pegue el archivo `.tscfg`, luego seleccione Verificar únicamente. Revise los detalles del firmante y confirme la fuente. La verificación no aplica la configuración ni prueba que este dispositivo sea el destinatario. Deténgase si la fuente, el objetivo o el propósito no están claros.
 
-Aunque la verificación sea correcta, no dependas de los controles generales Import y Apply actuales para configurar el dispositivo. Utiliza los controles admitidos de las páginas de cada función y comprueba después los ajustes reales.
+Incluso después de pasar la verificación, no se puede confiar en los controles generales actuales de Importar y Aplicar para configurar el dispositivo. Utilice los controles compatibles en las páginas de funciones relevantes y verifique la configuración resultante.
 
-### 6.4 Exportar un paquete desde un dispositivo Developer
+### 6.4 Exportar desde un dispositivo Developer
 
-1. Prepara archivos de configuración JSON válidos en la tarjeta SD y obtén un certificado verificado del dispositivo de destino.
-2. Selecciona Export Config Pack, elige los archivos, introduce un nombre y una descripción y pega el certificado de destino.
-3. Genera y descarga el archivo `.tscfg`.
-4. Comprueba por separado la descarga del navegador y el archivo guardado en `/sdcard/output_config/`. Si falla la escritura en SD, la API puede devolver aun así el paquete para descargarlo.
+1. Prepare archivos de configuración JSON válidos en la tarjeta SD y obtenga un certificado de destino verificado.
+2. Seleccione Exportar Config Pack, elija archivos, ingrese un nombre y una descripción y pegue el certificado del dispositivo del destinatario.
+3. Genere el paquete, seleccione Descargar y verifique que el navegador haya guardado el archivo `.tscfg`.
+4. Verifique la descarga y el archivo en `/sdcard/output_config/` por separado. El paquete puede permanecer disponible para su descarga incluso si falla la escritura en SD.
 
-La exportación no modifica los ajustes de origen. Vuelve a generar un paquete creado para un destino incorrecto o un certificado de destinatario obsoleto. Exportar correctamente no demuestra que funcione toda la distribución: la aplicación general en el dispositivo receptor sigue incompleta.
+Exportar no modifica los ajustes de origen. Genere de nuevo un paquete si se creó para otro destinatario o si cambió el certificado del destinatario. Una exportación correcta no confirma que la aplicación general funcione en el dispositivo receptor.
 
-## 7. Resolución de problemas y respuesta a incidentes
+## 7. Solución de problemas y respuesta a incidentes
 
-### 7.1 Problemas frecuentes
+### 7.1 Problemas comunes Síntoma de
 
-| Síntoma | Qué hacer |
-| --- | --- |
-| No aparece Account Security | Inicia sesión como root; admin no ve esta sección |
-| La creación indica éxito, pero la clave no aparece | Actualiza la lista y comprueba su capacidad; no reutilices ID ni generes claves repetidamente |
-| Falla la instalación de ECDSA | Crea una clave RSA con otro ID; no relajes repetidamente la política del servidor |
-| La instalación funciona, pero Test falla | Comprueba la autorización remota por otra conexión antes de reinstalar |
-| El acceso sigue funcionando tras quitar un host | Remove solo afecta al registro local; revoca la clave pública remota por separado |
-| Cambia una huella o la identidad del servidor no está clara | Deja de conectarte y verifica mediante una consola de confianza; consulta el apartado 4.3 |
-| El puerto 443 falla tras instalar certificados | Comprueba la clave, el certificado y la cadena de CA de clientes; reinicia y prueba con un certificado de cliente adecuado |
-| Un cliente sigue rechazando el certificado | Comprueba su almacén de confianza, SAN, EKU, validez y cadena; el almacén CA del dispositivo no es el almacén de confianza del navegador |
-| Apply indica éxito, pero los ajustes no cambian | La implementación actual no escribe los ajustes de módulos; utiliza las páginas de cada función |
+| Falta la seguridad de la cuenta | Qué hacer |
+|---|---|
+| No aparece la sección de seguridad de la cuenta | Se muestra sólo a root |
+| Se toma una ID de clave o es demasiado larga | Elija una identificación corta y no utilizada; ver Sección 3.1 |
+| La generación de la clave no está confirmada | Espere e inspeccione el registro; no vuelva a enviar la misma identificación |
+| El despliegue termina, pero falta un registro o falla la prueba | Verifique la autorización remota, el registro local e inicie sesión por separado; ver Sección 3.3 |
+| Aparece una confirmación o cambio de huella digital | Verifique a través de un canal confiable antes de decidir confiar en él; ver Sección 4.3 |
+| Queda un registro local después de la revocación | Verifique el resultado remoto, luego maneje la falla de eliminación local y las referencias de servicio |
+| El acceso aún funciona después de eliminar un host | Eliminar afecta sólo al registro local; revocar la clave pública remota por separado |
+| Se guarda un certificado, pero se detiene HTTPS | Verifique la hora del dispositivo, luego la credencial mostrada o el problema de inicio |
+| El servicio en ejecución todavía usa el certificado anterior. | Reinicie según las instrucciones, luego verifique el certificado activo |
+| Un cliente rechaza el certificado. | Verifique la confianza del cliente, el nombre de acceso, los usos permitidos y la validez. |
+| La aplicación se realiza correctamente, pero la configuración no cambia La aplicación general | La aplicación general todavía no guarda los ajustes de los módulos. Configúrelos desde sus páginas de funciones. |
 
-### 7.2 Posible exposición de una clave privada SSH
+### 7.2 Sospecha de exposición de clave o contraseña
 
-1. Restringe el acceso al dispositivo y a sus registros. Los registros actuales pueden contener el principio de una clave privada.
-2. Revoca la clave pública en todos los servidores afectados mediante conexiones de confianza. Comprueba las copias de seguridad y confirma que la clave antigua ya no funciona.
-3. Crea e instala una nueva clave RSA con otro ID. Cuando funcione, elimina la clave antigua y sus copias exportadas.
-4. Revisa los registros de acceso. La lista local del dispositivo puede no incluir todos los servidores donde se autorizó la clave.
+1. Restringir el acceso al dispositivo y al material afectado; mantener los registros necesarios para la investigación.
+2. Para una clave privada SSH expuesta, revoque su clave pública en cada servidor afectado a través de conexiones confiables. Verifique las copias de seguridad y confirme que la clave anterior ya no funciona.
+3. Cree e implemente una nueva clave RSA con una nueva ID. Verifíquelo, luego elimine la clave anterior y las copias exportadas.
+4. Para una contraseña SSH expuesta, cámbiela a través de una conexión de administración confiable y revise los registros de inicio de sesión.
+5. Para una clave HTTPS expuesta, reemplace las credenciales como se describe en la sección 5.6 y trabaje con el administrador de CA en la revocación y los paquetes antiguos.
 
-Si la expuesta es la clave privada HTTPS, sustituye las credenciales del dispositivo según el apartado 5.5 y coordina con el administrador de la CA la revocación del certificado y el tratamiento de los paquetes antiguos.
+Es posible que la lista de hosts locales no cubra todos los servidores que otorgaron acceso; También verifique los registros del servidor y de los activos. Antes de compartir registros, revíselos en busca de contraseñas, claves u otro contenido confidencial ingresado por los usuarios.
 
-### 7.3 Otros riesgos de seguridad actuales
+### 7.3 Límites operativos actuales Cuenta
 
-Además de las limitaciones de HTTP, autorización, confianza en la primera conexión y paquetes ya descritas, la configuración de compilación inspeccionada no activa NVS Encryption, Flash Encryption ni Secure Boot. No afirmes que estos mecanismos protegen las claves privadas almacenadas o la integridad del arranque. El firmware realmente grabado y los ajustes eFuse de cada dispositivo requieren comprobaciones aparte.
+Tenga en cuenta la gestión por HTTP, las limitaciones de autorización centralizada, la confianza automática en el primer despliegue y las limitaciones de Config Pack. «Oculto» no controla el acceso.
 
-Si tu uso no admite estas limitaciones, mantén el dispositivo fuera de esa red o entorno de confianza hasta que el responsable de seguridad apruebe medidas de aislamiento o una corrección del producto. Las comprobaciones de una guía no sustituyen controles de seguridad ausentes en el producto.
+La configuración de compilación revisada no habilita el cifrado NVS, el cifrado Flash ni el arranque seguro. No asuma que esto protege las claves almacenadas o la integridad del inicio. La configuración del firmware actualizado y la configuración de seguridad del hardware requieren comprobaciones por separado. Solicite al propietario de la seguridad que disponga un aislamiento o una solución si el entorno previsto no puede tolerar estos límites.
 
-## 8. Alcance de la revisión y glosario
+## 8. Notas de versión y glosario
 
-### 8.1 Base de esta guía
+### 8.1 Alcance de esta edición
 
-La revisión utilizó la copia de trabajo actual basada en `d6ed947`. El comportamiento y los mensajes de la página están en `components/ts_webui/web/js/app.js`; el comportamiento de las API, en `components/ts_api/src/`; el almacenamiento de claves y hosts, en `components/ts_security/src/`. Los certificados, el servicio del puerto 443 y los paquetes se implementan en `components/ts_cert/`, `components/ts_https/` y `components/ts_config_pack/`.
+Esta guía se basa en el código y las interfaces en chino e inglés de TianShanOS 0.6.1, revisados el 9 de octubre de 2026. Puede seguir consultándola en versiones posteriores para las funciones que no hayan cambiado. Si los controles, pasos o mensajes difieren, revise las notas de su versión antes de continuar.
 
-Se comprobaron en particular los ID de clave duplicados, el tratamiento del código de salida de la prueba SSH, la limpieza local tras revocar, las huellas del certificado del destinatario y la lógica incompleta de importación y aplicación de paquetes. Fue una revisión estática: no se conectó a servidores remotos, no cambió credenciales de dispositivos ni realizó pruebas de aceptación de seguridad en hardware.
+La revisión cubrió el código fuente y una interfaz simulada local. La simulación no se trató como una prueba de aceptación del hardware. Verifique el acceso a SSH, los protocolos de enlace TLS, los reinicios y la autorización remota en su propio entorno como se describe aquí.
 
-### 8.2 Términos utilizados
+### 8.2 Términos utilizados en esta guía
 
-- Clave pública / privada: comparte la pública con un administrador que conceda acceso; mantén la privada en secreto. La autenticación utiliza el par correspondiente.
-- NVS: área de almacenamiento Flash para ajustes y claves del dispositivo. El nombre no implica cifrado.
-- CSR / CA: solicitud de firma de certificado y autoridad de certificación o su certificado.
-- CN / O / OU: campos de nombre común, organización y unidad organizativa del sujeto de un certificado.
-- SAN / EKU: nombres o direcciones IP cubiertos por el certificado y usos de autenticación que permite.
-- PEM: formato de texto con delimitadores BEGIN/END, utilizado para certificados, CSR y claves.
-- PKI / mTLS: sistema de gestión de certificados y confianza, y TLS mutuo, en el que cliente y servidor presentan certificados.
+- **Clave pública/clave privada:** comparte la clave pública con el administrador que otorga acceso; mantener la clave privada en secreto. La autenticación utiliza el par coincidente.
+- **Huella digital:** un resumen utilizado para comparar identidades de servidores o certificados. Convierta diferentes formatos de visualización antes de comparar.
+- **CSR/CA:** una solicitud de firma de certificado y una autoridad de certificación o su certificado.
+- **CN/O/OU:** nombre común, organización y unidad organizativa en un asunto de certificado. El departamento en forma corresponde a OU.
+- **SAN / EKU:** los nombres de acceso o direcciones IP que cubre un certificado y sus propósitos de autenticación permitidos.
+- **PEM:** un formato de texto con marcadores de INICIO/FIN para certificados, CSR y claves.
+- **mTLS / PKI:** autenticación de certificados mutuos y el sistema de gestión de confianza y certificados.
+- **NVS:** un área de almacenamiento Flash para configuraciones y claves del dispositivo; su nombre no implica cifrado.

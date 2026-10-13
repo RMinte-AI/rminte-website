@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { seoHead } from './seo.mjs';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const siteDir = join(scriptDir, '..');
@@ -482,6 +483,9 @@ function siteNavigationTemplate() {
 }
 
 function pageTemplate(config, rendered) {
+  const guideAssetVersion = config.accent === 'network' ? 'stage3-1' : 'docs-20261013';
+  const catalogVersion = config.accent === 'network' ? 'catalogs-20261004' : 'docs-20261013';
+  const scFontVersion = config.accent === 'network' ? '' : '?v=docs-20261013';
   const pageData = JSON.stringify({
     title: config.title,
     copy: { zh: '已复制', en: 'Copied' },
@@ -497,12 +501,8 @@ function pageTemplate(config, rendered) {
     document.addEventListener('DOMContentLoaded', () => document.documentElement.classList.remove('i18n-loading'), { once: true });
   </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="description" content="${escapeHtml(config.description.zh)}" data-i18n-attr="content" data-zh="${escapeHtml(config.description.zh)}" data-en="${escapeHtml(config.description.en)}">
-  <meta property="og:title" content="${escapeHtml(config.title.zh)}" data-i18n-attr="content" data-zh="${escapeHtml(config.title.zh)}" data-en="${escapeHtml(config.title.en)}">
-  <meta property="og:description" content="${escapeHtml(config.description.zh)}" data-i18n-attr="content" data-zh="${escapeHtml(config.description.zh)}" data-en="${escapeHtml(config.description.en)}">
-  <meta property="og:image" content="../assets/images/img4.png">
+  ${seoHead(config.accent)}
   <meta name="theme-color" content="#0d0f12">
-  <title data-zh="${escapeHtml(config.title.zh)}" data-en="${escapeHtml(config.title.en)}">${escapeHtml(config.title.zh)}</title>
   <link rel="icon" type="image/png" sizes="512x512" href="../assets/images/favicon.png?v=20261009"><link rel="icon" type="image/svg+xml" sizes="any" href="../assets/images/favicon.svg?v=20261009">
   <link rel="preload" href="../assets/fonts/Geist-latin-v1800.woff2" as="font" type="font/woff2" crossorigin>
   <script src="../assets/motion.js?v=stage2-2" defer></script>
@@ -513,7 +513,7 @@ function pageTemplate(config, rendered) {
   <script>
     // ja/ko/es/fr carry their own catalog file; zh and en need none. Resolve the language the way i18n.js does and load only that file.
     (function (up) {
-      var ok = /^(zh|en|ja|ko|es|fr)$/, c = window.RM_CATALOG = { base: up + 'assets/translations/', v: 'catalogs-20261004' };
+      var ok = /^(zh|en|ja|ko|es|fr)$/, c = window.RM_CATALOG = { base: up + 'assets/translations/', v: '${catalogVersion}' };
       c.load = function () {
         var s; try { s = localStorage.getItem('rm-soft-lang'); } catch (e) {}
         var l = [new URLSearchParams(location.search).get('lang'), (location.hash.match(/^#(zh|en|ja|ko|es|fr)-/) || [])[1], s, window.RM_DEFAULT_LANG].filter(function (x) { return ok.test(x); })[0];
@@ -524,7 +524,7 @@ function pageTemplate(config, rendered) {
       // Each CJK face is requested only when its language is shown: every page used to ask for Noto Sans SC, JP and KR (about 0.9 MB of fonts and
       // 210 KB of stylesheet that English, Spanish and French visitors never use). While the head is parsing, document.write keeps the link
       // render-blocking like a static one; i18n.js calls this again (late) when the visitor switches language.
-      var cjk = { zh: 'assets/fonts/noto-sans-sc.css', ja: 'https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&display=swap', ko: 'https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap' };
+      var cjk = { zh: 'assets/fonts/noto-sans-sc.css${scFontVersion}', ja: 'https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&display=swap', ko: 'https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap' };
       c.fonts = function (l, late) {
         if (!cjk[l] || document.querySelector('link[data-cjk="' + l + '"]')) return;
         var h = /^https:/.test(cjk[l]) ? cjk[l] : up + cjk[l];
@@ -535,7 +535,7 @@ function pageTemplate(config, rendered) {
     })('../');
   </script>
   <script src="../assets/i18n.js?v=catalogs-20261004" defer></script>
-  <script src="../assets/guides.js?v=stage3-1" defer></script>
+  <script src="../assets/guides.js?v=${guideAssetVersion}" defer></script>
   <script src="../assets/site-data.js?v=inference-specs-20261007" defer></script>
   <script src="../assets/footer.js?v=d9-nav-1" defer></script>
 </head>

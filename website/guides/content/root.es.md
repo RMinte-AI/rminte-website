@@ -1,650 +1,765 @@
-# Guía de operaciones de TianshanOS para root
+# TianshanOS
 
-Los nombres de botones y secciones se conservan en inglés para que puedas localizarlos en el dispositivo. La WebUI del dispositivo admite chino e inglés; cambiar el idioma de este sitio no cambia los idiomas del dispositivo.
+Esta guía está basada en TianshanOS 0.6.2. Todavía se puede utilizar con versiones posteriores donde las funciones y los pasos permanecen sin cambios. Si los controles, mensajes o resultados difieren, consulte la guía para su versión instalada.
 
-Esta guía se dirige a quienes administran TianshanOS con la cuenta root. La parte I explica las tareas habituales compartidas por admin y root. La parte II describe las páginas «Terminal», «Commands» y «Automation», exclusivas de root. Para gestionar la seguridad, consulta la Guía de seguridad de TianshanOS.
+Esta guía cubre las funciones de rutina en la Parte I y el acceso al terminal, los comandos remotos y la Automatización en la Parte II. Las operaciones de raíz pueden afectar el dispositivo y los hosts remotos; Verifique las tareas objetivo y activas antes de continuar. Consulte la Guía de seguridad separada para conocer la gestión de la seguridad.
 
-<!-- operational-note -->
+Utilice los controles que se muestran en su dispositivo. Algunos necesitan hardware o configuración específicos. En una computadora, coloque el cursor sobre un botón con un ícono para ver su nombre.
 
-root puede realizar operaciones de gran impacto que modifican el dispositivo, los hosts remotos y los flujos de automatización. Confirma el dispositivo actual, el host de destino y las tareas en curso antes de continuar.
+## Parte I: Funciones de rutina
 
-Los controles disponibles dependen del dispositivo y de su configuración. Algunos solo aparecen cuando está conectado el hardware necesario o se ha configurado la función correspondiente.
+## 1. Empezando
 
-## Parte I: tareas habituales de admin y root
+### Abra la interfaz de usuario web
 
-## 1. Primeros pasos
+1. Abra la interfaz web del dispositivo (WebUI) utilizando la dirección proporcionada por su administrador.
+2. Seleccione "Iniciar sesión" en la esquina superior derecha.
+3. Ingrese `root` y la contraseña root proporcionada con el dispositivo.
+4. Seleccione "Iniciar sesión". Después de iniciar sesión correctamente, el nombre de usuario actual aparece en la esquina superior derecha.
 
-### Abrir la interfaz web
+Al iniciar sesión con la contraseña predeterminada se abre un "Recordatorio de seguridad". Ingrese la contraseña actual, luego ingrese la nueva contraseña dos veces y seleccione "Cambiar ahora". Ambas entradas de nueva contraseña deben coincidir. Seleccione "Más tarde" para cerrar el recordatorio.
 
-1. Abre la interfaz web del dispositivo (WebUI) en la dirección facilitada por tu administrador.
-2. Selecciona «Login» en la esquina superior derecha.
-3. Introduce `root` y la contraseña de root suministrada con el dispositivo.
-4. Selecciona «Login». Tras iniciar sesión, el nombre del usuario actual aparecerá en la esquina superior derecha.
+Cuando haya terminado, seleccione "Cerrar sesión" en la esquina superior derecha. Deberá iniciar sesión nuevamente para usar el dispositivo.
 
-Si todavía se utiliza la contraseña predeterminada, al iniciar sesión aparece «Security Reminder». Introduce la contraseña actual y la nueva y selecciona «Change Now». Escribe la nueva contraseña dos veces; ambas entradas deben coincidir. «Change Later» cierra el recordatorio.
+### Cambiar idioma
 
-Cuando termines, selecciona «Logout» en la esquina superior derecha. Tendrás que volver a iniciar sesión para utilizar el dispositivo.
+Seleccione el botón de idioma en la parte superior de la página, luego elija chino o inglés. El contenido de la página y las etiquetas de control cambian inmediatamente.
 
-### Cambiar de idioma
+### Navegación por las páginas
 
-Selecciona el botón de idioma situado en la parte superior de la página y elige chino o inglés. El contenido y las etiquetas de los controles cambian al instante.
+Los usuarios root pueden acceder a estas páginas:
 
-### Navegar por las páginas
+- “Sistema”: vea el estado del dispositivo, los módulos de control, los ventiladores y los LED, y abra la actualización OTA.
+- “Red”: Verifique el estado de Ethernet y los clientes DHCP, configure WiFi y administre el reenvío de NAT.
+- “Archivos”: Administre archivos en la tarjeta SD y SPIFFS.
+- “Terminal”: ejecuta comandos del dispositivo y ve registros del sistema.
+- “Comandos”: Administra y ejecuta comandos remotos SSH.
+- “Automatización”: Configura fuentes, reglas y plantillas.
+- “Seguridad”: abra la página de administración de seguridad separada. Consulte la Guía de seguridad para obtener instrucciones.
 
-root tiene acceso a estas páginas:
+## 2. Estado del sistema y operaciones de rutina
 
-- «System»: consultar el estado del dispositivo, controlar módulos, ventiladores y LED, y abrir la actualización OTA.
-- «Network»: consultar el estado de Ethernet y los clientes DHCP, configurar WiFi y gestionar el reenvío NAT.
-- «Files»: gestionar los archivos de la tarjeta SD y de SPIFFS.
-- «Terminal»: utilizar la consola del dispositivo y consultar los registros del sistema.
-- «Automation»: gestionar fuentes de datos, variables, plantillas de acciones y reglas.
-- «Commands»: gestionar y ejecutar comandos SSH remotos.
-- «Security»: abrir la página de gestión de seguridad. Consulta las instrucciones en la Guía de seguridad.
+Seleccione "Sistema" en la navegación superior.
 
-## 2. Estado del sistema y operaciones habituales
+### Ver el estado de los recursos y servicios
 
-Selecciona «System» en la navegación superior.
+«Recursos del chip de administración» muestra el uso de CPU, DRAM y PSRAM de ese chip. Los valores no corresponden a AGX ni a LPMU.
 
-### Consultar los recursos y los servicios
+- Seleccione "Detalles" para ver la memoria total, utilizada y libre y otra información de la memoria.
+- “Servicios” muestra el número de servicios en ejecución y el total. Selecciónelo para ver el estado y la etapa de inicio de cada servicio.
+- Si un servicio informa un problema, actualice su estado. Para reiniciarlo, siga "Reiniciar un servicio" a continuación.
 
-«Resource Monitor» muestra el uso de CPU, DRAM y PSRAM. DRAM y PSRAM son memorias que el dispositivo utiliza para ejecutar programas.
+### Ver información del sistema y de energía La “Descripción general del sistema” de
 
-- Selecciona «Details» para consultar la memoria total, utilizada y libre, así como su fragmentación.
-- La cifra junto a «Services» indica los servicios en ejecución y el total de servicios.
-- Selecciona «Services» para consultar el estado, la fase y el estado de funcionamiento de cada servicio.
+«Vista general del sistema» muestra el chip, la versión del firmware, la versión de ESP-IDF y el tiempo de funcionamiento. Para el uso diario, compruebe la versión del firmware. ESP-IDF es el marco de software que utiliza el dispositivo.
 
-Si un servicio indica «Failed» o un estado anómalo, actualiza primero la página para comprobar su situación actual.
+El lado derecho de la tarjeta muestra el voltaje de entrada, el voltaje interno, la corriente, la potencia y el estado de protección.
 
-### Consultar el sistema y la alimentación
+El interruptor al lado del estado de protección habilita o deshabilita la protección de bajo voltaje. Cuando está habilitado, el dispositivo utiliza los voltajes y retrasos guardados para apagarse a bajo voltaje y reiniciarse después de que se recupera la energía.
 
-«System Overview» muestra el chip, la versión del firmware, el tiempo de funcionamiento y la fecha de compilación. «Power Status» muestra la tensión de entrada, la tensión interna, la corriente, la potencia y el estado de protección.
+### Ver red y hora
 
-El interruptor junto al estado de protección activa o desactiva la protección por baja tensión. Si está activada, cuando la tensión de entrada cae demasiado se ejecuta el proceso de apagado y recuperación configurado.
+“Red y hora” muestra Ethernet, WiFi, dirección IP, hora actual, estado de sincronización, fuente horaria y zona horaria.
 
-### Consultar la red y la hora
-
-«Network & Time» muestra Ethernet, WiFi, la dirección IP, la hora actual, el estado de sincronización, la fuente de hora y la zona horaria.
-
-- Selecciona «Sync Time» para copiar la hora actual del navegador al dispositivo.
-- Selecciona «Timezone», elige una opción predefinida o introduce una configuración de zona horaria admitida y guarda los cambios.
-- Selecciona «OTA Update» para abrir la página de actualización del firmware.
+- Seleccione “Sincronizar hora” para copiar la hora actual del navegador al dispositivo.
+- Seleccione "Zona horaria", elija un ajuste preestablecido o ingrese una configuración de zona horaria compatible, luego guarde.
+- Seleccione “Actualización OTA” para abrir la página de actualización del firmware.
 
 ### Operaciones avanzadas
 
 #### Reiniciar TianshanOS
 
-El reinicio interrumpe temporalmente la interfaz web, Terminal, Automation y la gestión del dispositivo. Termina las tareas en curso antes de seleccionar «Reboot» y confirmar. La página indica que el sistema se está reiniciando. Vuelve a abrir la interfaz cuando el dispositivo esté disponible.
+Un reinicio interrumpe temporalmente la WebUI y la administración del dispositivo. Finalice las operaciones activas, luego seleccione "Reiniciar" y confirme. Espere a que el dispositivo se recupere y luego vuelva a abrir la WebUI.
 
 #### Reiniciar un servicio
 
-Reiniciar un servicio interrumpe temporalmente la función que ofrece. Abre «Service Status», busca el servicio afectado y selecciona «Reboot» en su fila. Al terminar, comprueba de nuevo su estado y su funcionamiento.
+Reiniciar un servicio interrumpe temporalmente la función que proporciona. Abra "Estado del servicio", busque el servicio afectado y seleccione "Reiniciar" en esa fila. Verifique su estado nuevamente cuando finalice la operación.
 
-#### Cambiar la configuración de apagado
+#### Cambiar configuración de apagado
 
-Estos ajustes determinan cuándo se apaga el dispositivo tras una caída de tensión y cuándo vuelve a arrancar al recuperarse la alimentación. Utiliza valores adecuados para los requisitos eléctricos del dispositivo.
+Estas configuraciones controlan cuándo el dispositivo se apaga después de una caída de voltaje y cuándo se reinicia después de que se recupera la energía. Utilice valores que coincidan con los requisitos de energía de su dispositivo.
 
-Selecciona «Shutdown Settings» para cambiar:
+Seleccione "Configuración de apagado" para cambiar:
 
-- «Low Voltage Threshold»: tensión por debajo de la cual comienza la cuenta atrás de apagado.
-- «Recovery Threshold»: tensión por encima de la cual comienza la recuperación.
-- «Shutdown Countdown»: tiempo hasta el apagado desde que se detecta una tensión baja.
-- «Recovery Stabilization»: tiempo de espera para confirmar que la alimentación se ha estabilizado.
-- «Fan Stop Delay»: demora antes de detener los ventiladores tras el apagado.
+- “Umbral de Bajo Voltaje”: Inicia la cuenta regresiva de apagado por debajo de este voltaje.
+- “Umbral de voltaje de recuperación”: Inicia la recuperación por encima de este voltaje.
+- “Cuenta regresiva de apagado”: ​​establece el retraso antes del apagado después de que se detecta bajo voltaje.
+- “Tiempo de espera de recuperación”: establece el tiempo de espera utilizado para confirmar la recuperación de energía estable.
+- “Retraso de parada del ventilador”: establece el retraso antes de que los ventiladores se detengan después del apagado.
 
-Guarda el formulario para aplicar los nuevos ajustes de protección.
+Guarde el formulario para aplicar la configuración de protección actualizada.
 
-#### Cambiar el destino del USB superior
+#### Cambia el objetivo superior USB
 
-Cambiar el destino USB puede desconectar temporalmente un dispositivo conectado. Confirma el destino y termina el trabajo en curso antes de continuar.
+Cambiar el objetivo USB puede desconectar temporalmente un dispositivo conectado. Confirme el objetivo y finalice el trabajo activo antes de continuar.
 
-Cuando esta función está disponible, cada pulsación del botón «USB» cambia el puerto USB superior al siguiente destino: ESP, AGX y LPMU, en ese orden. El botón muestra el destino actual y la página confirma el cambio cuando se realiza correctamente.
+Los dispositivos que admiten la conmutación USB muestran un botón "USB". Cada clic cambia el puerto USB superior al siguiente destino: ESP, AGX y luego LPMU. Verifique el objetivo que se muestra en el botón y el mensaje de la página para confirmar el resultado.
 
-## 3. Panel del dispositivo
+## 3. Panel de dispositivos
 
-«Device Panel», en la página «System», contiene los controles de alimentación de los módulos, las acciones rápidas y los widgets de datos.
+El "Panel de dispositivos" está en la página "Sistema". Contiene controles de energía del módulo, acciones rápidas y widgets de datos.
 
-### Controlar AGX y LPMU
+### Controla AGX y LPMU
 
-Los botones AGX y LPMU muestran el estado actual. El verde indica que el dispositivo está en funcionamiento; el rojo, que está apagado. Durante la detección se muestra un estado de espera.
+Guarde el trabajo en el módulo y complete su proceso de apagado normal antes de desconectar la alimentación. El apagado forzado puede provocar la pérdida de datos no guardados.
 
-Un apagado forzado puede causar la pérdida de datos sin guardar. Guarda el trabajo del módulo y completa su apagado normal antes de cortar la alimentación.
+- “AGX Power” muestra el estado de control de energía. Selecciónelo para encender o apagar, luego espere la confirmación.
+- “LPMU Power” muestra “En línea”, “Fuera de línea” o “Desconocido”. Estos estados provienen de una verificación de red. En línea significa que se puede acceder al módulo; fuera de línea significa que no lo es. Ninguno de los estados por sí solo confirma si el módulo está encendido o apagado.
+- Seleccionar el botón LPMU desencadena la misma acción que presionar su botón de encendido físico. Espere la verificación y el resultado mostrado. Si desconoce el resultado, verifique el módulo y la red antes de presionar el botón nuevamente.
 
-- Selecciona el botón de estado de AGX para encenderlo o apagarlo. Espera al resultado final que muestra la página.
-- Selecciona el botón de estado de LPMU para ejecutar la misma acción que con su botón físico de encendido. La página continúa comprobando el estado de LPMU. Si se agota el tiempo de detección, sigue el mensaje mostrado y evita pulsar repetidamente.
+### Usar acciones rápidas
 
-### Utilizar las acciones rápidas
+Un usuario root configura las tarjetas de acciones rápidas. Mostrar una tarjeta y permitir su ejecución manual son ajustes distintos. Una tarjeta visible puede no permitir iniciar la tarea.
 
-«Quick Actions» muestra las reglas de automatización configuradas como «Manual Trigger Only».
+1. Verifique el nombre de la tarjeta, el estado y los controles disponibles para identificar la tarea.
+2. Seleccione una tarjeta disponible y espere a que cambie su estado. No vuelva a iniciar la tarea mientras se esté procesando.
+3. Las tareas en segundo plano pueden proporcionar controles de registro, verificación de estado o detención. Lea el registro para ver el resultado de la tarea. Después de seleccionar detener, verifique que la tarea se haya detenido.
+4. Si el estado es desconocido o el inicio está bloqueado, utilice el control de verificación disponible o verifique la regla, el comando remoto y la conexión del host como se describe en los capítulos 11 y 12.
 
-1. Selecciona una tarjeta para ejecutar su acción.
-2. Espera mientras la tarjeta indica que se está procesando.
-3. Las tarjetas que admiten tareas en segundo plano muestran el estado de ejecución y los controles «Log» y «Stop».
-4. Selecciona «Log» para ver la salida actual. Selecciona «Stop» para detener una tarea en ejecución.
+Si no puede iniciar la tarea, siga las indicaciones del mensaje. No pulse Inicio repetidamente:
+
+- Regla deshabilitada o ejecución manual no permitida: revise los ajustes en «Automatización» (capítulo 12). Que la tarjeta sea visible no autoriza a ejecutar la tarea.
+- Tarea en ejecución, iniciándose, verificándose o deteniéndose: espere a que se actualice el estado.
+- Servicio vinculado en ejecución: no lo inicie otra vez. Para reiniciarlo, deténgalo primero y confirme el resultado.
+- Parada del servicio sin confirmar: verifique su estado. Si sigue sin poder confirmarlo, revise la conexión al host en «Seguridad» (capítulo 11).
+- Regla sin cargar o pendiente de eliminar tras el reinicio: revise su versión y el mensaje de reinicio pendiente en «Automatización» (capítulo 12).
+- La automatización no acepta solicitudes de inicio: revise el motor y la configuración en «Automatización». Siga el mensaje y compruebe las tareas en curso antes de reiniciar el dispositivo.
 
 <!-- operational-note -->
+Confirme que un servicio se haya detenido antes de reiniciarlo. Es posible que aún esté en curso una solicitud de inicio o detención aceptada; esperar el estado final. Después de activar una acción, espere unos segundos antes de iniciar otra.
 
-Debes detener una tarea en ejecución antes de volver a iniciarla. Tras activar una acción, espera unos segundos antes de iniciar otra.
+Mantenga presionada una tarjeta hasta que aparezca el indicador de reorden, luego arrástrela para cambiar el orden de visualización.
 
-Mantén pulsada una tarjeta hasta que aparezca el indicador de reordenación y arrástrala para cambiar su posición. «No Quick Actions» significa que no hay reglas manuales configuradas. Consulta «Gestión de la automatización» en la parte II para configurar reglas.
+Si no hay tarjetas disponibles, verifique qué mensaje muestra la página:
 
-### Gestionar los widgets de datos
+- “Cargando acciones rápidas”: Espere a que la configuración termine de cargarse. Si el mensaje persiste, seleccione "Ir a Automatización" y verifique los Registros del sistema en la Terminal.
+- “Acciones rápidas no disponibles”: seleccione “Ir a Automatización” para verificar el estado. Abra "Registros del sistema" en la Terminal para encontrar la causa. Restaurar la configuración antes de utilizar las tarjetas; No sigas seleccionando inicio.
+- No hay acciones rápidas configuradas: seleccione "Ir a automatización" para crear una regla o verifique la configuración "Mostrar en panel" de una regla existente.
 
-Los widgets muestran datos del dispositivo de forma continua en «Device Panel».
+Tras importar un paquete de reglas, una tarjeta puede seguir ejecutando la tarea anterior hasta que se reinicie el dispositivo. Las reglas nuevas o pendientes de eliminar pueden no permitir el inicio. Si la tarea acaba de cambiar, compruebe la versión en ejecución en la lista de reglas antes de usarla.
 
-1. Selecciona «Widget Manager».
-2. Elige un intervalo de actualización o desactiva la actualización automática.
-3. Añade un widget predefinido o elige uno de los estilos de componente y fuentes de datos que ofrece la página.
-4. Ajusta su etiqueta, estilo de visualización y unidad según necesites, y guarda los cambios.
+No reinicie un dispositivo que proporciona servicios activos solo para restaurar una tarjeta.
 
-Puedes editar, eliminar y reordenar los widgets existentes. También puedes seleccionar una tarjeta de widget para editarla. Mantén pulsado un widget y arrástralo a otra posición.
+### Administrar widgets de datos
 
-## 4. Gestión de ventiladores
+Los widgets de datos muestran los datos del dispositivo en el «Panel de dispositivos» y los actualizan durante el uso.
 
-«Fan Control» se encuentra en «System». La página solo muestra los ventiladores que ofrece el dispositivo en ese momento.
+1. Seleccione "Administrador de widgets".
+2. Elija un intervalo de actualización o desactive la actualización automática.
+3. Agregue un widget preestablecido o elija un estilo de componente y fuente de datos ofrecidos por la página.
+4. Edite su etiqueta, estilo de visualización y unidad según sea necesario y luego guárdelo.
 
-### Consultar el estado de los ventiladores
+Los widgets existentes se pueden editar, eliminar y reordenar. También puede seleccionar una tarjeta de widget para editarla. Mantenga presionado un widget y luego arrástrelo a una nueva posición.
 
-La barra de estado muestra «Effective Temp» y «Target Speed». En los modos Auto y Curve, el porcentaje de la tarjeta de cada ventilador es el valor de control objetivo. En el modo Manual, es el ajuste actual. RPM es la velocidad medida en revoluciones por minuto y solo aparece cuando hay una lectura válida. El porcentaje no es una lectura de RPM.
+## 4. Gestión de fans
 
-En el modo Auto, la tarjeta también puede mostrar el estado de control, una temperatura de referencia de seguridad, una previsión de temperatura a 45 segundos y la tasa de variación de la temperatura. La previsión permite que el ventilador responda antes de que aumente la temperatura. Si la lectura deja de ser válida, comprueba que su fuente sigue actualizándose; el dispositivo adopta un ajuste de protección del ventilador. Selecciona el botón de información de la tarjeta para conocer el modo Auto.
+<!-- operational-note -->
+"Control del ventilador" está en la página "Sistema". Las tarjetas de fans muestran los fans proporcionados por su dispositivo. Verifique el número del ventilador antes de cambiar una curva.
 
-Selecciona el botón de actualización de la esquina superior derecha para volver a cargar el estado actual.
+### Ver estado del ventilador
 
-### Seleccionar un modo de funcionamiento
+La barra de estado muestra «Temperatura efectiva» y «Salida actual». El porcentaje grande es el ajuste de regulación confirmado por el dispositivo, no la velocidad medida. RPM indica las revoluciones por minuto medidas y no aparece si no hay una lectura válida. Si el porcentaje muestra `--`, la salida actual no está confirmada.
 
-| Modo | Función |
+Al mover el deslizador manual, el valor situado a su lado muestra el ajuste que va a solicitar. El porcentaje grande sigue mostrando la salida actual. Suelte el deslizador y compruebe el mensaje y el valor actualizado. Si el valor solicitado no coincide con la salida actual, no dé el ajuste por aplicado.
+
+El modo inteligente muestra su estado: «Modo inteligente», «Siguiendo la curva», protección o temperatura no válida. También muestra la temperatura de referencia de seguridad, la prevista dentro de 45 segundos y la velocidad de cambio de temperatura.
+
+Si la temperatura deja de ser válida, verifique que su fuente aún se esté actualizando. El dispositivo cambia al control de protección en caso de pérdida de temperatura. Seleccione “TTI” para obtener una explicación del control térmico inteligente.
+
+Utilice el botón de actualización en el encabezado de la sección para obtener el estado actual. Si el ajuste falla o la salida no está confirmada, verifique el dispositivo antes de decidir si desea volver a intentarlo.
+
+### Seleccione un modo de funcionamiento
+
+| Propósito de | Función |
 | --- | --- |
-| «Off» | Detiene el ventilador. |
-| «Manual» | Utiliza un porcentaje de control fijo, ajustado con el deslizador de 0-100%. |
-| «Auto» | Parte de la curva del ventilador y responde también a las tendencias de temperatura y los estados de protección. |
-| «Curve» | Sigue los puntos de temperatura y velocidad configurados. |
+| “Apagado” | Detiene el ventilador. |
+| “Manual” | Utiliza un porcentaje de control fijo establecido con el control deslizante 0-100%. |
+| “Curva” | Sigue la curva de porcentaje de temperatura a control configurada. |
+| “inteligente” | Utiliza la curva base, las tendencias de temperatura y los ajustes anteriores para controlar el enfriamiento. Utiliza control protector cuando es necesario. |
 
-<!-- operational-note -->
-
-Apagar un ventilador o utilizar una velocidad manual baja reduce la refrigeración. Comprueba la carga y la temperatura del dispositivo antes de cambiar de modo y sigue vigilando la temperatura después.
-
-En el modo «Manual», utiliza «Speed Adjust» para ajustar la velocidad. El deslizador no está disponible en los demás modos.
+Detener un ventilador o establecer un valor manual bajo reduce la refrigeración. Primero verifique la carga y la temperatura y siga monitoreándolas. El control deslizante solo está disponible en el modo Manual cuando se confirma la salida actual.
 
 ### Configurar una curva de ventilador
 
-Selecciona «Curve» en la cabecera de Fan Control para abrir «Fan Curve Management». El botón «Curve» de una tarjeta de ventilador cambia su modo de funcionamiento.
+Seleccione "Curva" en el encabezado de la sección Control del ventilador para abrir "Gestión de la curva del ventilador". El botón “Curva” dentro de una tarjeta solo cambia el modo de funcionamiento.
 
-1. En «Select Fan», elige el número del ventilador que deseas ajustar. Compruébalo con las tarjetas de la página System.
-2. En «Bind Temperature Variable», añade una o varias fuentes de temperatura y asigna sus ponderaciones.
-3. Selecciona el control de vinculación para aplicar las fuentes. Los ventiladores en modo Auto y Curve comparten estas fuentes; un cambio afecta a todos los que las utilicen.
-4. Añade o edita puntos en «Temperature-Speed Curve». Una curva requiere al menos 2 puntos y admite hasta 10.
-5. Ajusta «Min Duty Cycle» y «Max Duty Cycle». El mínimo no puede superar el máximo.
-6. Ajusta «Temperature Hysteresis» y «Min Interval» según necesites. La histéresis admite 0-20°C y el intervalo mínimo, 500-30000 ms.
-7. Selecciona «Apply Curve». Se guardan los ajustes y el ventilador seleccionado pasa al modo «Curve».
+1. En "Ventilador", elija el número que desea ajustar y compárelo con la página Sistema.
+2. En “Enlace de variable de temperatura”, agregue variables de temperatura y asigne pesos.
+3. Seleccione "Enlazar". La fuente de temperatura es compartida por los ventiladores en los modos Curva e Inteligente, por lo que cambiarla afecta a los ventiladores que usan esa fuente.
+4. Agregue o edite “Nodos de curva”. Cada curva necesita al menos nodos 2 y admite hasta 10.
+5. Establezca “Velocidad mínima” y “Velocidad máxima” como porcentajes de control. El mínimo no debe exceder el máximo.
+6. Ajuste «Histéresis de temperatura» e «Intervalo mínimo». La histéresis admite 0-20°C y evita ajustes frecuentes ante pequeños cambios de temperatura. El intervalo admite 500-30000 ms. 1000 ms equivalen a 1 segundo.
+7. Seleccione "Guardar curva". Después de guardar correctamente, el ventilador seleccionado cambia al modo Curva. Para utilizar el control térmico inteligente, regrese a la tarjeta y seleccione "Inteligente".
 
-«Min Duty Cycle» y «Max Duty Cycle» definen el rango de control en porcentajes. «Temperature Hysteresis» reduce los ajustes frecuentes provocados por pequeñas variaciones de temperatura. «Min Interval» establece el tiempo mínimo entre ajustes; 1000 ms equivalen a 1 segundo.
-
-Aplicar una curva activa el modo Curve. Para seguir utilizando el control automático, vuelve a la tarjeta del ventilador y selecciona «Auto».
+Si falla el guardado, lea el mensaje y verifique el estado actual antes de volver a intentarlo. Después de desvincular las variables de temperatura, verifique también la temperatura efectiva y el estado del ventilador.
 
 ### Importar y exportar una curva
 
-- Selecciona «Import Config» y elige un archivo JSON de curva válido. Revisa la curva y los parámetros cargados y selecciona «Apply Curve».
-- Selecciona «Export Config» para descargar la curva actual desde el navegador. La página también intenta guardar una copia en `/sdcard/config` e informa del resultado en la tarjeta SD.
+- Seleccione "Importar configuración" y elija un archivo de curva JSON. JSON es el formato de archivo utilizado para almacenar datos de curvas. Revise los nodos, los límites y el número de ventilador, luego seleccione "Guardar curva" para aplicarlos.
+- Seleccione "Exportar configuración" para descargar la curva actual. La página también intenta guardar una copia en `/sdcard/config` en la tarjeta SD. Verifique la descarga del navegador y el resultado informado de la tarjeta SD por separado.
 
-### Utilizar una temperatura de prueba
+### Utilice una temperatura de prueba
 
-La temperatura de prueba sustituye temporalmente a la fuente de temperatura habitual y afecta al control Auto o Curve. Supervisa el ventilador y el estado del dispositivo durante toda la prueba.
+Una temperatura de prueba reemplaza temporalmente la fuente normal y afecta el control Curve o Smart. Supervise el ventilador y el dispositivo durante toda la prueba.
 
-1. Introduce un valor de 0-100°C en «Test Temp».
-2. Selecciona «Test» y observa la velocidad objetivo y la respuesta del ventilador.
-3. Al terminar, selecciona de inmediato «Clear Test» para restablecer la fuente de temperatura habitual.
+1. Ingrese 0-100°C en "Temperatura de prueba".
+2. Seleccione "Prueba" y observe la salida actual, el estado y la respuesta del ventilador.
+3. Al terminar, seleccione «Borrar prueba». Compruebe que la temperatura efectiva vuelva a obtenerse de la fuente habitual.
 
 ## 5. Gestión de LED
 
-«LED Control» se encuentra en «System» y solo muestra los LED que ofrece el dispositivo en ese momento.
+“Control LED” está en la página “Sistema” y muestra los LED proporcionados por el dispositivo. Las funciones disponibles varían según el LED.
 
 ### Controles habituales
 
-- Utiliza el interruptor de una tarjeta para encender o apagar ese LED.
-- Utiliza «Brightness» para ajustar el brillo del dispositivo actual.
-- Selecciona un color o un color predefinido en los dispositivos que admitan control de color.
-- Elige una opción de «Effects» para iniciarla y selecciona «Stop Effect» para detener el efecto actual.
-- Selecciona «Save Config» para guardar los ajustes actuales de LED.
-- Selecciona «All Off» para apagar todos los LED que aparecen en la página.
+- Utilice el botón de la bombilla en la parte inferior de una tarjeta para encender o apagar el LED.
+- Mueva el control deslizante "Brillo" o elija un color o ajuste preestablecido.
+- Utilice el botón de animación para abrir "Configuración de LED". Seleccione una animación en "Animación programática" y luego use su control de reproducción o detención.
+- Seleccione el icono de guardar en la parte inferior derecha de la tarjeta para guardar la configuración de LED actual.
+- Seleccione "Todo apagado" para apagar todos los LED y verificar el resultado informado. Si algunos fallan, verifique esos dispositivos.
 
-Los colores, controles de brillo y efectos disponibles varían según el LED. Utiliza las opciones de su tarjeta y de su cuadro de ajustes.
+### Las tarjetas Matrix
 
-### Funciones avanzadas de la matriz LED
+Las tarjetas de la matriz tienen iconos para las funciones disponibles. Abra una función y cambie de grupo en «Ajustes LED»:
 
-Si el dispositivo dispone de una matriz LED, su cuadro de ajustes también puede incluir:
+- “Animación programática”: seleccione y ejecute una animación.
+- “Imagen/Código QR”: elija una imagen de la tarjeta SD o ingrese el contenido para un código QR.
+- “Visualización de texto”: establece texto, fuente, alineación, desplazamiento, primer plano y fondo.
+- “Filtro de posprocesamiento”: elija un filtro y parámetros, luego aplíquelos o deténgalos.
+- “Corrección de color”: ajuste la pantalla y utilice los controles de reinicio, importación o exportación disponibles.
 
-- «Display Image»: seleccionar y mostrar una imagen de la tarjeta SD.
-- «Generate QR»: introducir contenido y elegir los colores y el nivel de corrección de errores.
-- «Display Text»: introducir texto y ajustar la fuente, la alineación, la velocidad de desplazamiento y los colores del texto y del fondo.
-- «Post-processing Filter»: aplicar un filtro disponible en la página o detenerlo con el control correspondiente.
-- «Color Correction»: ajustar la salida de la matriz y restablecer, importar o exportar los ajustes de corrección con los controles disponibles.
-
-Las dimensiones de la matriz, los efectos y los filtros dependen del dispositivo. Sigue los controles que muestra la interfaz web.
+Verifique la luz real o la visualización de la matriz después de aplicar un cambio. Utilice únicamente las funciones que se muestran. Si falla una configuración, siga el mensaje para verificar el archivo, la entrada o el estado del dispositivo.
 
 ## 6. Gestión de red
 
 <!-- operational-note -->
+Seleccione "Red" en la navegación superior para abrir "Configuración de red". Cambiar el modo de red, el punto de acceso o la configuración de NAT puede interrumpir la conexión WebUI actual. Antes de guardar, asegúrese de poder volver a conectarse a través de la nueva dirección de red.
 
-Selecciona «Network» en la navegación superior para abrir «Network Settings». Cambiar el modo de red, el punto de acceso o NAT puede interrumpir las conexiones de la interfaz web, Terminal y Automation. Antes de guardar, asegúrate de que podrás volver a conectarte mediante la nueva dirección de red.
+### Ver el estado de la red
 
-### Consultar el estado de la red
+La parte superior de la página muestra el estado de Ethernet, el cliente WiFi y el AP WiFi. Abra el panel relacionado para ver la dirección IP, la máscara de subred, la puerta de enlace, DNS, la dirección MAC, SSID, la señal y los recuentos de dispositivos conectados cuando estén disponibles.
 
-La parte superior de la página muestra el estado de Ethernet, del cliente WiFi y del punto de acceso WiFi. Abre el panel correspondiente para consultar, cuando estén disponibles, la dirección IP, la máscara de subred, la puerta de enlace, DNS, la dirección MAC, el SSID, la señal y el número de dispositivos conectados.
+El panel Ethernet muestra el enlace actual y la información de la dirección. No proporciona controles de edición de direcciones.
 
-El panel Ethernet muestra el enlace y las direcciones actuales. No permite editar las direcciones.
+### Seleccione un modo WiFi
 
-### Seleccionar un modo WiFi
-
-| Modo | Función |
+| Propósito de | Función |
 | --- | --- |
-| «Off» | Desactiva WiFi. |
-| «Station (STA)» | Conecta el dispositivo a una red WiFi existente. |
-| «Access Point (AP)» | Hace que el dispositivo ofrezca un punto de acceso WiFi. |
-| «STA+AP» | Conecta el dispositivo a una red WiFi y mantiene disponible su punto de acceso. |
+| “Apagado” | Desactiva WiFi. |
+| “Estación (STA)” | Conecta el dispositivo a una red WiFi existente. |
+| “Punto de acceso (AP)” | Hace que el dispositivo proporcione un punto de acceso WiFi. |
+| “STA+AP” | Se conecta a una red WiFi existente mientras mantiene disponible el punto de acceso del dispositivo. |
 
-Después de elegir un modo, espera a que se actualice el estado en la página. La conexión inalámbrica actual puede interrumpirse durante el cambio.
+Después de elegir un modo, espere a que la página actualice el estado. La conexión inalámbrica actual puede interrumpirse durante el cambio.
 
-### Conectarse a WiFi
+### Conectar a WiFi
 
-1. Selecciona el modo «Station (STA)» o «STA+AP».
-2. En «Station», selecciona «Scan».
-3. Elige una red de la lista, que muestra el SSID, la intensidad de señal, el canal y el tipo de autenticación.
-4. Introduce la contraseña y confirma. Déjala en blanco si la red es abierta.
-5. Espera a que el estado cambie a «Connected» y comprueba la nueva dirección IP.
+1. Configure el modo WiFi en “Estación (STA)” o “STA+AP”.
+2. En "Estación", seleccione "Escanear".
+3. Elija una red de la lista. La lista muestra SSID, intensidad de la señal, canal y tipo de autenticación.
+4. Introduzca la contraseña y confirme. Deje la contraseña en blanco para una red abierta.
+5. Espere a que el estado cambie a "Conectado" y luego confirme la nueva dirección IP.
 
-Selecciona «Disconnect» para finalizar la conexión del cliente WiFi actual.
+Seleccione "Desconectar" para finalizar la conexión actual del cliente WiFi.
 
-### Configurar el punto de acceso WiFi
+### Configurar el AP WiFi
 
-1. Selecciona el modo «Access Point (AP)» o «STA+AP».
-2. En «Hotspot», selecciona «Config».
-3. Introduce el SSID. Si dejas la contraseña en blanco, se crea un punto de acceso abierto; para protegerlo se requieren al menos 8 caracteres.
-4. Selecciona un canal y activa «Hidden SSID» si lo necesitas.
-5. Selecciona «Apply» y espera a que se actualice el estado.
+1. Configure el modo WiFi en “Punto de acceso (AP)” o “STA+AP”.
+2. En "Hotspot", seleccione "Configuración".
+3. Introduzca el SSID. Una contraseña en blanco crea un punto de acceso abierto; un punto de acceso protegido requiere al menos caracteres 8.
+4. Seleccione un canal y habilite “Ocultar SSID” si es necesario.
+5. Seleccione "Aplicar" y espere a que se actualice el estado del punto de acceso.
 
-Selecciona «Devices» para consultar los clientes conectados al punto de acceso.
+Seleccione "Dispositivos" para ver los clientes actualmente conectados al punto de acceso.
 
 ### Establecer el nombre de host
 
-Introduce un nombre nuevo en «Hostname», dentro de «Network Services», y selecciona «Set». La página muestra el nombre de host actual una vez actualizado.
+Ingrese un nuevo nombre en la sección "Nombre de host" en "Servicios de red", luego seleccione "Establecer". La página muestra el nombre de host actual después de actualizarse.
 
-### Consultar los clientes DHCP
+### Ver clientes DHCP
 
-DHCP asigna direcciones de red a los dispositivos conectados. Selecciona «Clients», elige «WiFi AP» o «Ethernet» y consulta las concesiones actuales. Utiliza el botón de actualización para recargar la lista.
+DHCP asigna automáticamente direcciones de red a los dispositivos conectados. Seleccione "Clientes", elija "WiFi AP" o "Ethernet" y vea los arrendamientos actuales. Utilice el botón de actualización para recargar la lista.
 
 ### Operaciones de red avanzadas
 
-#### Configurar la pasarela NAT
+#### Configurar la puerta de enlace NAT
 
-NAT reenvía tráfico entre las interfaces de red del dispositivo. Activa o desactiva NAT y selecciona «Save» para conservar el ajuste. Comprueba después el estado de WiFi y Ethernet.
+NAT reenvía el tráfico de red entre las interfaces de red del dispositivo. Habilite o deshabilite NAT, luego seleccione "Guardar" para conservar la configuración. Verifique el estado del WiFi y de Ethernet luego.
 
-#### Acceder a la red ascendente mediante LPMU
+#### Acceda a la red ascendente a través de LPMU
 
-Cuando aparezca «Upstream Network Access», selecciona «Access via LPMU». Espera a que el estado pase de «Processing» a «Success» o «Failed». No vuelvas a iniciarlo mientras se procesa. Si falla, lee el error y la salida que muestra la página.
+<!-- operational-note -->
+Esta operación utiliza el host LPMU configurado para configurar el acceso a la red. Antes de comenzar, confirme que se pueda acceder a LPMU y que los cables de red estén conectados. Obtenga la contraseña sudo para la cuenta SSH en ese host. Esta contraseña autoriza cambios en el sistema y puede diferir de la contraseña de WebUI.
+
+1. En "Acceso a la red ascendente", seleccione "Acceso a través de LPMU".
+2. Ingrese la contraseña sudo LPMU y seleccione el botón de acceso. La contraseña se utiliza sólo para esta ejecución y no se guarda; ingréselo nuevamente para una ejecución posterior.
+3. Espere a que finalice la operación. No lo inicie nuevamente mientras procesa.
+4. El acceso se confirma solo cuando el resultado informa tanto una conexión a Internet como una configuración de red completa.
+5. Si falla o el resultado no está confirmado, lea primero el motivo. Expanda "Registro de ejecución" para obtener más detalles. Verifique la contraseña para ver si hay un error de contraseña, o el cableado y la red ascendente si no se encuentra una conexión a Internet.
+
+Una solicitud de estado fallida no significa que el script se haya detenido. Utilice el control "Actualizar estado" disponible para verificar la ejecución actual antes de decidir si desea volver a intentarlo.
 
 ## 7. Gestión de archivos
 
-Selecciona «Files» en la navegación superior para abrir «File Manager».
+Seleccione "Archivos" en la navegación superior para abrir el "Administrador de archivos".
 
-La tarjeta SD es almacenamiento extraíble y SPIFFS es el almacenamiento interno de archivos del dispositivo. Selecciona «SD Card» o «SPIFFS» para cambiar de ubicación. La ruta superior indica la carpeta actual. Selecciona el nombre de una carpeta en la ruta para volver a ella.
+La tarjeta SD es un almacenamiento extraíble y SPIFFS es un almacenamiento de archivos interno del dispositivo. Seleccione “Tarjeta SD” o “SPIFFS” para cambiar de ubicación. La ruta en la parte superior muestra su carpeta actual. Seleccione un nombre de carpeta en la ruta para volver a ella.
 
-### Explorar y gestionar archivos
+### Explorar y administrar archivos
 
-- Selecciona el nombre de una carpeta para abrirla.
-- Selecciona el botón de descarga junto a un archivo para guardarlo en la ubicación de descargas del navegador.
-- Selecciona el botón de cambio de nombre, introduce el nuevo nombre y confirma.
-- Selecciona «New Folder», introduce un nombre y crea la carpeta.
-- Selecciona el botón de actualización para recargar el directorio y el estado del almacenamiento.
+- Seleccione un nombre de carpeta para abrirla.
+- Seleccione el botón de descarga al lado de un archivo para guardarlo en la ubicación de descarga del navegador.
+- Seleccione el botón de cambio de nombre, ingrese un nuevo nombre y confirme.
+- Seleccione “Nueva carpeta”, ingrese un nombre de carpeta y créela.
+- Seleccione el botón Actualizar para recargar el directorio actual y el estado de almacenamiento.
 
-### Subir archivos
+### Cargar archivos
 
-1. Abre el directorio de destino.
-2. Selecciona «Upload Files».
-3. Selecciona uno o varios archivos o arrástralos al área de subida.
-4. Revisa la lista y retira los archivos que no quieras subir.
-5. Selecciona «Upload» y espera a que todos indiquen que han terminado.
+Los archivos solo se pueden subir a la tarjeta SD, no a SPIFFS. Compruebe primero que la tarjeta SD esté montada.
 
-Subir un paquete de configuración `.tscfg` inicia su flujo de verificación y aplicación. Consulta la Guía de seguridad para conocer los requisitos de origen, firma y aplicación de los paquetes.
+1. Seleccione «Tarjeta SD» y abra la carpeta donde desea subir los archivos.
+2. Seleccione "Cargar archivos".
+3. Seleccione uno o más archivos o arrastre archivos al área de carga.
+4. Revise la lista de carga y elimine archivos no deseados.
+5. Seleccione "Cargar" y espere a que cada archivo muestre su finalización.
+
+Al subir un paquete `.tscfg`, se abren los pasos de verificación y aplicación. Esta página de archivos todavía no aplica los ajustes del paquete. Que la carga o la verificación se complete no significa que los ajustes estén activos.
+
+Importe paquetes de reglas en Automatización, como se describe en el Capítulo 12. La carga normal de archivos no sustituye a la importación de reglas. Consulte la Guía de seguridad para obtener orientación sobre fuentes y firmas para otros paquetes.
 
 ### Operaciones por lotes
 
-Al seleccionar archivos o carpetas aparece la barra de operaciones por lotes.
+Después de seleccionar archivos o carpetas, aparece la barra de herramientas por lotes.
 
-- «Batch Download» descarga los archivos seleccionados. No incluye las carpetas.
-- «Batch Delete» elimina los archivos y las carpetas seleccionados.
-- «Clear Selection» borra la selección actual.
+- «Descarga por lotes» descarga los archivos seleccionados. No incluye las carpetas.
+- “Eliminar por lotes” elimina los archivos y carpetas seleccionados.
+- “Borrar selección” borra la selección actual.
 
-### Eliminar un archivo o una carpeta
+### Eliminar un archivo o carpeta
 
-La eliminación no se puede deshacer desde la interfaz web. Eliminar una carpeta también elimina todo su contenido. Comprueba el nombre y la ruta antes de seleccionar «Delete» o «Batch Delete» y aceptar la confirmación.
+La eliminación no se puede deshacer en la WebUI. Al eliminar una carpeta también elimina su contenido. Compruebe el nombre y la ruta antes de seleccionar «Eliminar» o «Eliminar por lotes» y confirmar.
 
 ### Montar y desmontar la tarjeta SD
 
-Desmontar la tarjeta SD deja sus archivos temporalmente inaccesibles. Comprueba que no hay subidas, descargas ni otras operaciones de archivos en curso y selecciona «Unmount SD».
+Al desmontar la tarjeta SD, sus archivos dejan de estar disponibles hasta volver a montarla. Termine las cargas, descargas y otras operaciones de archivos antes de seleccionar «Desmontar SD».
 
-Cuando la tarjeta no está montada, aparece «Mount SD». Selecciónalo, espera al estado «Mounted» y vuelve a abrir el directorio de la tarjeta SD.
+Si retira o cambia la tarjeta que guarda la configuración de automatización, esta puede no cargarse tras el reinicio. Compruebe que puede desmontarla sin afectar a la configuración ni a las tareas en curso. No la desmonte ni la retire cuando la página indique que debe permanecer insertada.
 
-## 8. Actualizaciones OTA
+Cuando la tarjeta SD no está montada, la página muestra "Montar SD". Selecciónelo, espere a que el estado cambie a "Montado" y luego abra nuevamente el directorio de la tarjeta SD.
 
-En «System», selecciona «OTA Update» dentro de «Network & Time» para abrir «Firmware Upgrade».
+## 8. Actualizaciones de OTA
+
+En la página "Sistema", seleccione "Actualización OTA" en la sección "Red y hora" para abrir "Actualización de firmware".
 
 <!-- operational-note -->
+El dispositivo se reinicia durante una actualización, desconectando temporalmente la WebUI. Guarde el trabajo activo y mantenga estable la energía del dispositivo antes de comenzar. No apague el dispositivo mientras el progreso de la actualización esté incompleto.
 
-El dispositivo se reinicia durante la actualización y se desconectan temporalmente la interfaz web, Terminal y Automation. Guarda el trabajo en curso y asegura una alimentación estable antes de empezar. No apagues el dispositivo mientras la actualización no haya terminado.
+### Buscar actualizaciones desde un servidor OTA
 
-### Buscar actualizaciones en un servidor OTA
+1. Revise la “Versión actual”.
+2. Introduzca la dirección del servidor OTA proporcionada por un administrador o editor.
+3. Seleccione "Guardar" y luego seleccione "Verificar actualización".
+4. La página informa "Actualización disponible", "Ya actualizado", una versión anterior del servidor o un error.
+5. Confirme la versión de destino, luego seleccione "Actualizar ahora" o el control de actualización que se muestra en la página.
+6. Espere a que finalice la descarga, la instalación y el reinicio. Para cancelar, utilice el botón “Abortar” cuando esté disponible. No todas las etapas admiten la cancelación.
+7. Vuelva a conectarse a la WebUI después de que el dispositivo vuelva a estar en línea y verifique la "Versión actual".
 
-1. Revisa «Current Version».
-2. Introduce la dirección del servidor OTA facilitada por un administrador o por quien publica el firmware.
-3. Selecciona «Save» y después «Check Update».
-4. La página indicará «Update Available», «Already up to date», una versión anterior en el servidor o un error.
-5. Confirma la versión de destino y selecciona «Upgrade Now» o el control de actualización que aparezca.
-6. Espera a que terminen la descarga, la instalación y el reinicio. Si aparece «Abort», permite detener las fases que admiten cancelación.
-7. Vuelve a conectarte a la interfaz web cuando el dispositivo esté disponible y comprueba «Current Version».
-
-Con «Include WebUI» activado, el firmware y la interfaz web se actualizan de forma secuencial. Ambos deben pertenecer a la misma versión publicada.
+Cuando está habilitado “Actualizar también www”, el firmware y la WebUI se actualizan en secuencia. Para 0.6.2, utilice el firmware principal coincidente y los recursos WebUI proporcionados por el editor, ambos de la misma versión. Si la interfaz anterior permanece después de la actualización, fuerce la actualización del navegador y verifique la versión y la página nuevamente.
 
 ### Actualización manual
 
-Despliega «Manual Upgrade» y elige un método:
+Expanda “Actualización manual” y elija uno de estos métodos:
 
-- «Upgrade from URL»: introduce la URL del firmware, ajusta «Include WebUI» según las instrucciones de la versión y selecciona «Upgrade».
-- «Upgrade from SD Card»: introduce una ruta de firmware, como `/sdcard/firmware.bin`. Con «Include WebUI» activado, también se procesa el archivo de la interfaz web situado en el mismo directorio.
+- “Actualizar desde URL”: Ingrese la URL del firmware, configure “Actualizar también www” de acuerdo con las instrucciones de la versión y luego seleccione “Actualizar”. Aquí, www se refiere a los recursos de la interfaz web del dispositivo.
+- “Actualización desde tarjeta SD”: Ingrese una ruta de firmware como `/sdcard/firmware.bin`. Si está habilitado "Actualizar también www", asegúrese de que `www.bin` de la misma versión esté en ese directorio.
 
-En las actualizaciones desde URL, «Skip Verify» omite la verificación del certificado del servidor HTTPS. Se elimina así la comprobación que confirma la identidad del servidor de descarga. Mantén esta opción desmarcada en las actualizaciones habituales. Si aparece un error de certificado, pide al administrador que revise la dirección y el certificado del servidor.
+Para una actualización desde una URL, "Omitir verificación de certificado" omite la verificación del certificado del servidor HTTPS. Esto elimina la verificación del certificado utilizada para confirmar la identidad del servidor de descarga. Déjelo sin marcar para actualizaciones de rutina. Si ve un error de certificado, solicite a su administrador que verifique la dirección del servidor y el certificado.
 
-### Gestionar particiones y volver a una versión anterior
+### Gestión de particiones y reversión
 
-«Partition Management» muestra la partición en ejecución y las demás particiones disponibles.
+“Administración de particiones” muestra la partición en ejecución y otras particiones disponibles.
 
-- «Mark Valid» confirma la versión en ejecución y desactiva su protección de reversión automática. Utilízalo después de comprobar que la versión funciona correctamente.
-- «Rollback to This Version» selecciona otra versión arrancable y cambia a ella mediante un reinicio. La reversión interrumpe los servicios actuales. Confirma primero la versión de destino y la compatibilidad de los datos.
+- “Marcar válido” confirma la versión en ejecución y deshabilita la protección de reversión automática para esa versión. Úselo después de confirmar que la versión actual funciona correctamente.
+- “Revertir a esta versión” selecciona otra versión de arranque y cambia mediante un reinicio. La reversión interrumpe los servicios actuales. Primero confirme la versión de destino y la compatibilidad de datos.
 
-Tras finalizar la operación y el reinicio, abre de nuevo la interfaz web y comprueba la versión actual y el estado del dispositivo.
+Una vez completada la operación y el reinicio, vuelva a abrir la WebUI y verifique la versión actual y el estado del dispositivo.
 
-## 9. Acceso a la gestión de seguridad
+La versión 0.6.2 cambia la forma de guardar la configuración de automatización. Antes de volver a un firmware anterior, compruebe si puede leerla y consulte al proveedor si necesita confirmación. Prepare una copia de seguridad y un método de recuperación.
 
-Selecciona «Security» en la navegación superior para abrir la gestión de seguridad. Consulta la Guía de seguridad de TianshanOS para gestionar claves SSH, hosts remotos, huellas de hosts conocidos, certificados HTTPS, paquetes de configuración y cuentas. Esos procedimientos no se repiten aquí.
+Rollback cambia el firmware, no el formato de configuración. Es posible que las reglas existentes ya no funcionen después de una degradación.
 
-## Parte II: operaciones exclusivas de root
+## 9. Entrada de gestión de seguridad
 
-## 10. Terminal y registros del sistema
+Seleccione "Seguridad" en la navegación superior para abrir la administración de seguridad. Utilice la Guía de seguridad TianshanOS para claves SSH, hosts remotos, huellas digitales de host conocidos, certificados HTTPS, paquetes de configuración y administración de cuentas. Estos procedimientos no se repiten aquí.
 
-«Terminal» solo se muestra a root. Permite ejecutar comandos de la consola del dispositivo y consultar sus registros. Un comando puede cambiar el estado del dispositivo de inmediato. Confirma su origen, sus parámetros y sus efectos antes de introducirlo.
+### Operaciones fallidas o no confirmadas
 
-### Conectar y utilizar Terminal
+Un formulario puede marcar un campo en rojo y mostrar el error a su lado. Corrija ese campo según las indicaciones y guarde. Que desaparezca la marca no confirma el guardado; compruebe también el mensaje y la lista.
 
-1. Selecciona «Terminal» en la navegación superior.
-2. Espera al mensaje «Connected to device» y al indicador `tianshan>`.
-3. Introduce `help` para consultar los comandos del firmware actual.
-4. Introduce un comando y pulsa Intro. Espera a que termine la salida y vuelva a aparecer el indicador.
+Compruebe qué operación falló y lea el motivo y el siguiente paso. Si el mensaje no da un motivo, no lo suponga.
 
-Mientras la página indique «Not connected to device», la entrada no se ejecuta. Tras una desconexión, espera al mensaje de reconexión antes de enviar de nuevo un comando para evitar ejecutarlo dos veces.
+Si aparece «Detalles», selecciónelo para ver más información. «Ocultar» cierra los detalles. Si hay un botón ×, puede cerrar el mensaje con él. Para seguir investigando, conserve el mensaje y los detalles y abra «Registros del sistema» en Terminal.
 
-Terminal admite estos controles de teclado:
+Si el resultado no está confirmado, actualice y compruebe el estado del dispositivo, archivo o tarea. Un tiempo de espera agotado o una desconexión no significa que la operación no se haya ejecutado. No repita de inmediato las operaciones de alimentación, eliminación, inicio de tareas o actualización. Si sigue sin poder confirmarlo, abra «Registros del sistema» en Terminal para investigar.
+
+Para acciones por lotes, verifique los elementos exitosos, fallidos y no confirmados por separado. Confirme los archivos descargados en la lista de descargas del navegador.
+
+## Parte II: Funciones solo raíz
+
+## 10. Registros de terminal y sistema
+
+“Terminal” se muestra únicamente a root. Puede ejecutar comandos de la consola del dispositivo directamente y mostrar registros del dispositivo. Un comando puede cambiar el estado del dispositivo inmediatamente. Confirme su fuente, parámetros e impacto antes de ingresar.
+
+### Conexión y uso del terminal
+
+1. Seleccione "Terminal" en la navegación superior.
+2. Espere "Conectado al dispositivo" y el mensaje `tianshan>`.
+3. Ingrese `help` para ver los comandos proporcionados por el firmware actual.
+4. Ingrese un comando y presione Enter. Espere a que finalice su salida y regrese el mensaje.
+
+Los comandos no se ejecutan mientras la página muestra «Sin conexión al dispositivo». Tras una desconexión, espere el mensaje de reconexión antes de enviar otra vez el comando. Así evita ejecutarlo dos veces.
+
+El terminal admite estos controles de teclado:
 
 | Control | Función |
 | --- | --- |
-| Ctrl+C | Borra la entrada actual y solicita una interrupción. El comando solo se detendrá si admite interrupciones. |
-| Ctrl+L | Limpia la pantalla. |
-| ↑ / ↓ | Recorre el historial de comandos de la sesión actual de la página. |
-| ← / → | Desplaza el cursor dentro de la entrada actual. |
+| Ctrl+C | Borra la entrada actual y solicita una interrupción. El comando debe soportar la interrupción para que se detenga. |
+| Ctrl+L | Borra la pantalla. |
+| ↑ / ↓ | Explora el historial de comandos desde la sesión de la página actual. |
+| ← / → | Mueve el cursor dentro de la entrada actual. |
 
-«Clear», en la parte superior, solo limpia la pantalla. No deshace los comandos ya ejecutados. «Disconnect» cierra la conexión actual de Terminal.
+“Borrar” en la parte superior de la página solo borra la pantalla. No deshace los comandos que ya se han ejecutado. “Desconectar” finaliza la conexión actual del Terminal.
 
-### Abrir una sesión de shell SSH remota
+### Abrir un Shell SSH remoto
 
-Una sesión de shell SSH envía las siguientes entradas de teclado a un host remoto. Confirma la dirección de destino, el usuario y el método de autenticación, y completa la preparación SSH descrita en la Guía de seguridad antes de conectarte.
+Un Shell SSH envía entradas de teclado posteriores a un host remoto. Confirme la dirección de destino, el usuario y el método de autenticación, y complete la preparación de SSH descrita en la Guía de seguridad antes de conectarse.
 
-1. Introduce `ssh --help` para consultar las opciones del comando SSH.
-2. Introduce `ssh --host <host> --user <user> --shell`, sustituyendo cada marcador, incluidos los signos angulares, por su valor real. Para especificar un puerto, añade `--port <port>` antes de --shell.
-3. Espera a que se confirme la conexión remota antes de introducir comandos remotos.
-4. Pulsa Ctrl+\ para salir de la sesión SSH y volver al indicador tianshan>.
+1. Ingrese `ssh --help` para ver las opciones del comando SSH.
+2. Ingrese `ssh --host <host> --user <user> --shell`, reemplazando cada marcador de posición, incluidos sus corchetes angulares, con el valor real. Para especificar un puerto, agregue `--port <port>` antes de --shell.
+3. Espere la confirmación de la conexión remota antes de ingresar comandos remotos.
+4. Presione Ctrl+\ para salir del shell SSH y regresar al indicador tianshan>.
 
-No introduzcas credenciales en texto claro mientras compartes o grabas el terminal, o si otra persona puede verlo.
+No ingrese credenciales en texto sin formato mientras otra persona comparte, graba o ve el terminal.
 
-### Consultar los registros del sistema
+### Ver registros del sistema
 
-Selecciona «System Logs» en la parte superior de Terminal para abrir la ventana de registros.
+Seleccione "Registros del sistema" en la parte superior de la Terminal para abrir la ventana de registro.
 
-- «Level» establece el nivel mínimo mostrado. Utiliza ERROR, WARN+, INFO+ o DEBUG+ para acotar la salida.
-- «TAG» filtra por origen del registro.
-- «Search» filtra los registros actuales por palabra clave.
-- «Auto Scroll» sigue las nuevas entradas cuando está activado.
-- El botón de actualización vuelve a cargar los registros históricos.
-- El botón de limpieza solo borra los registros mostrados en la ventana.
+- “Nivel” establece el nivel mínimo mostrado. Utilice ERROR, WARN+, INFO+ o DEBUG+ para limitar la salida.
+- Filtros “TAG” por fuente de registro.
+- “Buscar” filtra los registros actuales por palabra clave.
+- “Desplazamiento automático” sigue las nuevas entradas de registro cuando está habilitado.
+- El botón de actualización recarga los registros históricos.
+- El botón borrar borra solo los registros que se muestran actualmente en la ventana.
 
-Si los filtros no devuelven resultados, borra primero TAG y Search y después cambia Level. Cerrar la ventana de registros no detiene los servicios del dispositivo.
+Si el filtrado no produce resultados, borre TAG y Buscar primero, luego cambie el Nivel. Cerrar la ventana de registro no detiene los servicios del dispositivo.
 
-## 11. Gestionar y ejecutar comandos remotos
+## 11. Administrar y ejecutar comandos remotos Los “Comandos”
 
-«Commands» almacena comandos SSH reutilizables y los ejecuta en el host remoto seleccionado. Los hosts y sus datos de autenticación se gestionan en «Security». Consulta los procedimientos en la Guía de seguridad.
+«Comandos» guarda comandos SSH reutilizables y los ejecuta en el host remoto seleccionado. Los hosts y sus datos de autenticación se gestionan en «Seguridad». Consulte la guía de seguridad para esos pasos.
 
-### Seleccionar un host y consultar sus comandos
+### Compruebe la huella del host antes de conectar
 
-1. Selecciona «Commands» en la navegación superior.
-2. Elige uno de los hosts de «Select Host».
-3. Revisa sus elementos guardados en «Command List».
+La huella ayuda a identificar el host al que se conecta. Estos pasos corresponden a las pruebas de hosts SSH en la página web «Seguridad», no al flujo de confirmación de SSH Shell en Terminal. Si la huella no está registrada o ha cambiado, no siga ejecutando el comando. Abra «Seguridad», busque el host SSH y seleccione «Probar».
 
-Los comandos de «Orphan Commands» hacen referencia a hosts que ya no existen y no pueden ejecutarse. Elimina el comando huérfano o utiliza la vinculación de host durante la importación para asociarlo a uno válido.
+En la primera conexión, el diálogo muestra la dirección y la huella del host. Contrástelas con el administrador por un canal de confianza. Seleccione «Confiar y conectar» solo después de confirmar que coinciden.
+
+Si la huella ha cambiado, el diálogo muestra la guardada y la actual, con «Cancelar» seleccionado. Reinstalar el host puede cambiar su huella, pero también puede tratarse de otro host o de una suplantación.
+
+Compruebe la dirección y confirme el motivo del cambio por un canal de confianza. Si no puede confirmarlo, seleccione «Cancelar». No elimine la huella antigua para saltarse la comprobación. Seleccione «Actualizar clave del host» solo cuando haya confirmado que la nueva huella es fiable.
+
+### Seleccionar un host y ver comandos
+
+1. Seleccione "Comandos" en la navegación superior.
+2. Elija un host que se muestra actualmente en "Seleccionar host".
+3. Revise sus elementos guardados en "Lista de comandos".
+
+“Orphan Commands” hace referencia a hosts que ya no existen y no se pueden ejecutar. Elimine un comando huérfano o utilice la opción de enlace de host durante la importación para asociarlo con un host válido.
 
 ### Crear o editar un comando
 
 <!-- operational-note -->
+Un comando guardado se ejecuta en un host remoto. Verifique el comando y los permisos requeridos en ese host antes de guardarlo. Tenga especial cuidado con los comandos que eliminan datos, apagan o reinician un host o sobrescriben archivos.
 
-Un comando guardado se ejecuta en un host remoto. Verifica el comando y los permisos necesarios en ese host antes de guardarlo. Extrema el cuidado con comandos que eliminen datos, apaguen o reinician un host o sobrescriban archivos.
+1. Seleccione un host, luego seleccione "Nuevo comando". Utilice el botón de edición en un comando existente para cambiarlo.
+2. Ingrese un "ID de comando" único. Puede contener letras, números, guiones bajos y guiones, y no puede comenzar ni terminar con un guión bajo o un guión.
+3. Ingrese "Nombre del comando" y "Comando". Coloque cada comando en una línea separada cuando utilice varias líneas.
+4. Agregue una descripción y elija un ícono o una imagen de la tarjeta SD si es necesario.
+5. Revise el modo de ejecución y las opciones de coincidencia de salida, luego seleccione "Guardar".
 
-1. Selecciona un host y después «New Command». Para modificar un comando existente, utiliza su botón de edición.
-2. Introduce un «Command ID» único. Admite letras, números, guiones bajos y guiones; no puede empezar ni terminar con un guion bajo o un guion.
-3. Introduce «Command Name» y «Command». Si utilizas varias líneas, escribe un comando por línea.
-4. Añade una descripción y elige un icono o una imagen de la tarjeta SD si lo necesitas.
-5. Revisa las opciones avanzadas y selecciona «Save». El nombre sirve para reconocer el comando; Automation utiliza su ID para referenciarlo. Al editar un comando, el ID es de solo lectura. Para utilizar otro ID, crea un comando nuevo y actualiza las plantillas de acciones o fuentes de datos que deban utilizarlo.
+El nombre le ayuda a reconocer un comando; La automatización usa su ID para encontrarlo. No puede cambiar el ID de un comando existente. Para usar una nueva ID, cree un comando y actualice las plantillas y fuentes que lo usan.
 
 ### Ejecutar un comando y revisar el resultado
 
-1. Selecciona el control de ejecución de una tarjeta de comando.
-2. Observa la salida y el estado en «Execution Result».
-3. Si aparece «Cancel», utilízalo para finalizar la sesión de ejecución actual.
-4. Selecciona «Clear» para borrar la visualización del resultado actual.
+1. Seleccione el control de ejecución en una tarjeta de comando.
+2. Observe el resultado y el estado en "Resultado de la ejecución".
+3. Cuando se muestre “Cancelar”, utilícelo para solicitar la interrupción de la sesión actual. Verifique el estado y la salida para confirmar si se detuvo. Las operaciones remotas completadas no se deshacen.
+4. Seleccione “Borrar” para eliminar la visualización del resultado actual.
 
-«Clear» no deshace las tareas ya completadas en el host remoto. El éxito, el fallo, el contenido extraído y el estado final dependen de los ajustes de coincidencia del comando.
+«Borrar» no deshace lo que ya se ha ejecutado en el host remoto. La clasificación como éxito o fallo, el contenido extraído y el estado final dependen de los criterios configurados para el comando.
 
-### Configurar la evaluación del resultado
+### Configurar la coincidencia de resultados
 
-La búsqueda de coincidencias convierte la salida remota en un estado más fácil de utilizar.
+La coincidencia de resultados convierte la salida remota en un estado que es más fácil de usar.
 
-- «Success Pattern»: marca el resultado como correcto si la salida contiene el texto configurado.
-- «Fail Pattern»: marca el resultado como fallido si la salida contiene el texto configurado.
-- «Extract Pattern»: utiliza un grupo de captura `(.*)` para guardar una parte de la salida.
-- «Stop on Match»: finaliza un comando continuo cuando encuentra una coincidencia correcta.
-- «Timeout»: deja de esperar si no hay coincidencias en el tiempo configurado. Solo se aplica si hay un patrón de éxito o fallo, o si «Stop on Match» está activado.
-- «Variable Name»: guarda el estado y la salida extraída para utilizarlos en Automation.
+- “Coincidencia esperada”: Marca el resultado exitoso cuando la salida contiene el texto configurado.
+- “Fail Match”: Marca el resultado fallido cuando la salida contiene el texto configurado.
+- “Extraer expresión regular”: utiliza un grupo de captura `(.*)` para guardar la salida seleccionada.
+- “Detener en la coincidencia”: finaliza un comando continuo después de una coincidencia exitosa.
+- “Tiempo de espera (s)”: Establece cuánto tiempo esperar para una coincidencia, en segundos. Se aplica solo cuando se establece un patrón de éxito o fracaso, o cuando está habilitado "Detener al coincidir".
+- “Nombre de variable”: guarda el estado y la salida extraída para usar en la página de Automatización.
 
-Elige textos de éxito y fallo estables y específicos. Los textos demasiado generales pueden producir coincidencias incorrectas. Ejecuta el comando una vez y revisa «Match Results» antes de utilizar sus variables en una regla.
+Elija texto estable y específico de éxito y fracaso. El texto amplio puede producir coincidencias incorrectas. Ejecute el comando una vez y revise "Resultados de la coincidencia" antes de usar sus variables en una regla.
 
-### Utilizar la ejecución en segundo plano y el modo de servicio
+### Utilice el modo de servicio y ejecución en segundo plano
 
-nohup permite que un comando siga ejecutándose en segundo plano en el host remoto después de cerrar la conexión SSH. Cerrar la interfaz web no detiene una tarea en segundo plano.
+nohup significa que un comando continúa ejecutándose en segundo plano del host remoto después de que se cierra la conexión SSH. Cerrar la WebUI no detiene una tarea en segundo plano.
 
-Tras activar «Background (nohup)», puedes utilizar:
+Después de habilitar "Ejecutar en segundo plano (nohup)", puede usar:
 
-- «View Log»: consultar el registro actual de la tarea en segundo plano.
-- «Tail Log»: actualizar el registro de forma continua.
-- «Stop Tail»: detener la actualización de la página sin detener la tarea remota.
-- «Check Process»: comprobar si la tarea sigue en ejecución.
-- «Stop Process»: finalizar la tarea correspondiente.
+- “Ver registro”: lee el registro de tareas en segundo plano actual.
+- “Tail Log”: Actualiza continuamente el registro.
+- “Stop Tail”: deja de actualizar la página sin detener la tarea remota.
+- “Verificar proceso”: verifique si la tarea en segundo plano todavía se está ejecutando.
+- “Detener proceso”: Solicita la finalización de la tarea en segundo plano y luego verifica su estado.
 
-«Service Mode (monitor ready state)» supervisa una tarea en segundo plano hasta que está disponible. Debes indicar Ready Pattern y Variable Name. Ajusta el patrón de fallo opcional y los tiempos según necesites:
-- «Ready Pattern»: marca el servicio como listo cuando aparece el texto configurado. Utiliza `|` para separar varios patrones.
-- «Fail Pattern»: marca el servicio como fallido cuando aparece el texto configurado.
-- «Timeout»: establece el tiempo máximo de espera hasta el estado listo.
-- «Check Interval»: establece la frecuencia de consulta del registro.
-- «Variable Name»: almacena estados como checking, ready y timeout.
+Si falla «Ver registro» o «Comprobar proceso», lea el motivo y revise la conexión al host. Un fallo de lectura no significa que el registro esté vacío ni que el proceso haya terminado. Compruebe de nuevo tras recuperar la conexión. No reinicie una tarea porque haya fallado la consulta de su estado.
 
-Stop Tail y Stop Process tienen efectos distintos. Utiliza «Stop Tail» si solo quieres dejar de ver las actualizaciones. Utiliza «Stop Process» únicamente después de confirmar que la tarea remota puede terminarse.
+«Modo servicio» supervisa una tarea en segundo plano hasta que está disponible. Complete «Criterio de disponibilidad» y «Nombre de variable». Ajuste el patrón de fallo y los tiempos si lo necesita:
+- “Ready match”: Marca el servicio listo cuando aparece el texto configurado. Utilice `|` para separar varios patrones.
+- “Fail Match”: Marca el servicio fallido cuando aparece el texto configurado.
+- “Tiempo de espera(s) de listo”: Establece la espera más larga para el estado listo, en segundos.
+- “Intervalo de verificación (ms)”: establece con qué frecuencia se verifica el registro, en milisegundos; 1000 ms es el segundo 1.
+- “Nombre de variable”: almacena estados como comprobación, listo y tiempo de espera.
 
-### Importar y exportar comandos
+<!-- operational-note -->
+«Detener seguimiento» solo detiene las actualizaciones del registro en la página. «Detener proceso» solicita terminar la tarea en segundo plano; compruebe su estado después. Las tareas en modo servicio pueden estar iniciándose, verificándose, deteniéndose o sin confirmar. Una solicitud aceptada no es un resultado final. Si el estado es desconocido, verifíquelo. Confirme que la tarea se ha detenido antes de volver a iniciarla.
 
-- Utiliza el botón de exportación de un comando para exportarlo e incluir, si seleccionas la opción, la configuración del host del que depende.
-- Selecciona «Import Command», elige un paquete de configuración `.tscfg`, revisa su contenido y decide si quieres sobrescribir una configuración existente o vincularlo a un host de la página.
+### Comandos de importación y exportación
 
-La importación puede sobrescribir un elemento con el mismo ID e incluir información de hosts remotos. Sigue la Guía de seguridad para evaluar las firmas, la confianza de los certificados y el origen de los paquetes. Si la página exige un reinicio, termina las tareas de Terminal y Automation antes de programarlo.
+- Utilice el botón exportar en un comando para exportarlo y, cuando lo seleccione, incluya su configuración de host dependiente.
+- Seleccione "Importar comando", elija un paquete de configuración `.tscfg`, obtenga una vista previa de su contenido y elija si desea sobrescribir una configuración existente o vincularla a un host que se muestra actualmente en la página.
 
-Antes de eliminar un comando, comprueba que ninguna fuente de datos ni plantilla de acción de Automation lo referencia. La eliminación no se puede deshacer en Commands.
+La importación puede reemplazar una configuración con el mismo ID e incluir datos de un host remoto. Consulte la guía de seguridad para comprobar el origen y la firma. Si se requiere un reinicio, termine las tareas del terminal y de automatización antes de reiniciar.
 
-## 12. Gestión de la automatización
+### Compruebe qué reglas utilizan un comando antes de eliminarlo
 
-«Automation» conecta los datos del dispositivo con operaciones repetibles. La relación principal es:
+Eliminar un comando no deshace las operaciones completadas en el host remoto y no se puede deshacer desde la página Comandos. Primero compruebe si las fuentes, plantillas o reglas todavía lo necesitan.
+
+- Servicio en ejecución o estado desconocido: seleccione el icono de actualización del comando para verificar su estado. Deténgalo si es necesario y confirme el resultado. Espere a que finalice cualquier inicio, parada o verificación. El botón Eliminar no detiene la tarea remota.
+- El servicio se detuvo pero la eliminación se bloqueó: verifique qué reglas importadas aún usan el comando. Actualice esas reglas primero. Detener un servicio o el motor de automatización deja el comando en esas reglas. También se puede bloquear el cambio del host del comando o el reemplazo de la configuración del host.
+- Regla de solo lectura o en espera de reinicio: siga el capítulo 12. No elimine los archivos SD para evitar la protección. Verifique las reglas y conexiones revisadas antes de eliminar configuraciones innecesarias.
+
+## 12. Gestión de automatización
+
+"Automatización" conecta datos y operaciones en flujos de trabajo repetibles. Cree fuentes de datos y plantillas de acciones, luego use reglas para decidir cuándo ejecutarlas.
 
 ```text
-Automática: Fuente de datos → Variable → Regla → Acción
-Manual: Acción rápida del sistema → Acción
+Automatic: Data source → Variable → Rule evaluation → Actions
+Manual: System-page Quick Action → Actions
 ```
 
-- Una fuente de datos lee datos externos o del dispositivo.
-- Una variable almacena un valor que se puede evaluar.
-- Una regla decide cuándo se ejecuta el trabajo.
-- Una plantilla de acción define el trabajo que se realiza.
-- Una regla Manual Trigger Only aparece en «Quick Actions» de la página «System».
+Las fuentes leen datos, las variables contienen valores, las reglas evalúan condiciones y las plantillas definen tareas. Mostrar una regla en el panel y permitir la ejecución manual son configuraciones independientes. Las reglas automáticas también pueden aparecer en el panel.
 
-### Consultar y controlar el motor de automatización
+### Ver y controlar el motor de automatización
 
-Las tarjetas de estado muestran el estado del motor, el número de reglas, variables, fuentes de datos y activaciones, y el tiempo de funcionamiento.
+La parte superior de la página muestra el estado del motor, las reglas, las variables y los recuentos de fuentes, el recuento de activadores y el tiempo de ejecución.
 
 | Control | Efecto |
 | --- | --- |
-| «Start» | Inicia un motor detenido y comienza a procesar las reglas habilitadas. |
-| «Pause» | Suspende las siguientes evaluaciones automáticas. Las acciones en curso pueden continuar. Para reanudar, selecciona «Stop» y después «Start». |
-| «Stop» | Detiene el procesamiento de reglas y la actualización de las fuentes de datos. Conserva la configuración guardada. |
-| «Reload» | Vuelve a cargar la configuración guardada del motor. Si estaba en ejecución, se reanuda después. Guarda primero los cambios. |
+| “Inicio” | Inicia un motor detenido y comienza a procesar reglas habilitadas. |
+| “Pausa” | Detiene la evaluación automática adicional. Las acciones existentes pueden continuar. Para continuar a través de la página, pare el motor y luego enciéndalo. |
+| “Parar” | Intenta detener las comprobaciones de reglas, la lectura de datos y la programación de acciones posteriores, manteniendo la configuración. Espere la confirmación; un tiempo de espera no significa que el motor se haya parado. |
+| “Recargar” | Lee nuevamente la configuración guardada; un motor que estaba funcionando se reanuda después de la carga. Guarde las ediciones primero. Bloqueado mientras las reglas esperan el reinicio; no puede reemplazar el reinicio de un dispositivo. |
 
-<!-- operational-note -->
+Compruebe si la refrigeración, las alertas u otras tareas en curso dependen de la automatización. Detener el motor no detiene un proceso remoto en segundo plano. Detenga las tareas remotas desde Comandos o la tarjeta de servicio correspondiente y confirme el resultado.
 
-Antes de cambiar el estado del motor, comprueba si la refrigeración, las alertas u otras tareas en curso dependen de Automation. Pause y Stop no garantizan que terminen las acciones asíncronas en cola ni los procesos remotos en segundo plano. Comprueba esas tareas por separado y actualiza después el estado del motor.
+### Cree un flujo de trabajo de automatización mínimo
 
-### Crear un flujo de automatización mínimo
+1. Cree una fuente y use su prueba para verificar la conexión y los campos seleccionados.
+2. Habilítelo, luego use el ícono “Ver variables” de la fila para verificar los valores y actualizar los tiempos.
+3. Cree una plantilla, revise sus parámetros y seleccione "Probar". Las pruebas ejecutan la acción inmediatamente; confirme que el dispositivo y el host puedan aceptarlo.
+4. Cree una regla con "Habilitar inmediatamente" desactivado. Establece condiciones, tiempo de reutilización, orden de acción, retrasos y repetición.
+5. Configure “Mostrar en panel” y “Permitir activación manual” según sea necesario.
+6. Guarde y luego habilite la regla. Verifique las variables, los recuentos de activadores y los resultados reales.
 
-Para un flujo nuevo, sigue este orden:
+### Administrar fuentes de datos
 
-1. Crea una fuente de datos y comprueba la conexión con su control de prueba.
-2. Habilita la fuente, confirma que el valor necesario aparece en «Variables» y comprueba su hora de actualización.
-3. Crea una plantilla de acción, revisa sus parámetros y selecciona «Test». La prueba ejecuta la acción de inmediato; confirma primero que el dispositivo y el host remoto pueden recibirla.
-4. Crea una regla con «Enable immediately» desmarcado.
-5. Revisa las condiciones, el tiempo entre activaciones, el orden de las acciones, las demoras y las repeticiones.
-6. Guarda y habilita la regla; observa las variables, el contador de activaciones y el resultado real.
-
-### Gestionar las fuentes de datos
-
-Selecciona «Add» en «Data Sources» y elige un tipo admitido por la página:
+Seleccione "Agregar" en "Fuentes de datos" y elija un tipo: Tipo
 
 | Tipo | Función |
 | --- | --- |
-| «REST API» | Lee periódicamente los datos devueltos por una dirección HTTP. |
-| «WebSocket» | Recibe datos enviados mediante una conexión persistente. |
-| «Socket.IO» | Recibe eventos enviados por un servicio Socket.IO. |
-| «Command Variable» | Lee los resultados guardados de Commands. |
+| “API DE RESTO” | Lee periódicamente datos de una dirección HTTP. |
+| “WebSocket” | Recibe datos enviados a través de una conexión persistente. |
+| “Socket.IO” | Recibe eventos de un servicio Socket.IO. |
+| “Variable de comando” | Lee los resultados de un comando remoto configurado. |
 
-REST API lee datos mediante una URL. WebSocket y Socket.IO reciben actualizaciones continuas. Command Variable procede del resultado de un comando SSH configurado.
+1. Ingrese una identificación única, una etiqueta para mostrar y la información de conexión requerida.
+2. Utilice la prueba para comprobar la conexión. Obtenga direcciones, detalles de autenticación e información de campo del proveedor de datos.
+3. Para los primeros tres tipos, seleccione campos de la respuesta de prueba. Dejar el nombre de un evento Socket.IO en blanco permite que la prueba intente descubrir el evento.
+4. Para una variable de comando, seleccione el host y un comando con un nombre de variable configurado, luego establezca el intervalo de sondeo.
+5. Guarde y habilite la fuente. Utilice su control “Ver variables” para comprobar el resultado.
 
-1. Introduce el ID, la etiqueta visible y los datos de conexión exigidos por el tipo de fuente.
-2. Utiliza «Test Connection» o el control de prueba de ese tipo.
-3. En REST API, WebSocket o Socket.IO, selecciona en el resultado de la prueba los campos que deseas guardar. Si dejas vacío el nombre de evento de Socket.IO, la prueba intenta descubrir un evento enviado por el servicio.
-4. En «Command Variable», selecciona un host y un comando que tenga Variable Name y ajusta el intervalo de sondeo.
-5. Guarda y habilita la fuente y comprueba el resultado en «Variables».
+Cada fila de fuente ofrece un interruptor de activación y controles para ver variables, exportar y eliminar. Antes de deshabilitar o eliminar una fuente, compruebe qué reglas la usan para evitar interrumpir sus tareas.
 
-La lista muestra el tipo, el estado y el intervalo de actualización de cada fuente. Puedes habilitarla o deshabilitarla, consultar sus variables, exportarla o eliminarla. Deshabilitar o eliminar una fuente puede impedir la evaluación de las reglas que dependen de ella. Comprueba las referencias antes de eliminarla.
+Importar y exportar paquetes de configuración de uso. Obtenga una vista previa de los ID, tipos y reemplazos antes de importarlos y siga la Guía de seguridad para conocer los requisitos de origen y confianza.
 
-La importación y exportación de fuentes utilizan paquetes de configuración. Revisa el ID, el tipo y la configuración de destino antes de importar. Comprueba las dependencias de las reglas existentes antes de sobrescribir una fuente con el mismo ID. Sigue la Guía de seguridad para evaluar la confianza del paquete.
+### Ver variables
 
-### Consultar las variables
+Seleccione el icono con forma de ojo "Ver variables" en una fila de origen. La ventana muestra nombres, tipos, valores y tiempos de actualización. Las variables de comando remoto también se pueden ver desde el control de variables del comando.
 
-«Variables» muestra los datos disponibles para Automation. Utiliza el campo de búsqueda para filtrar por nombre.
+- Confirme los nombres y la fuente, y verifique que los valores y tipos se ajusten a las comparaciones de la regla.
+- Compruebe si los tiempos de actualización coinciden con la frecuencia de datos esperada.
+- Si no hay datos disponibles, verifique que la fuente esté habilitada y luego pruebe la conexión y los campos. Para las variables de comando, verifique también el resultado de la ejecución del comando.
 
-Comprueba:
+### Crear y probar plantillas de acción
 
-- Que el nombre y el origen sean los esperados.
-- Que el valor y el tipo de dato sean adecuados para la comparación.
-- Que la hora de actualización siga cambiando.
-- Si la página señala datos obsoletos o no válidos.
-
-Si una variable deja de actualizarse, comprueba primero que su fuente esté habilitada. Después utiliza la prueba de la fuente para verificar la conexión y el campo seleccionado.
-
-### Crear y probar plantillas de acciones
-
-Una plantilla de acción define el trabajo que se realiza al activarse una regla. Selecciona «Add» en «Action Templates» y elige un tipo admitido:
+Seleccione "Agregar" en "Plantillas de acción" y elija un tipo de tarea:
 
 | Tipo | Función |
 | --- | --- |
-| «CLI Command» | Ejecuta un comando local de la consola de TianshanOS. |
-| «SSH Command» | Ejecuta un comando remoto ya configurado en Commands. |
-| «LED Control» | Controla los LED y las funciones de visualización disponibles en la página. |
-| «Log» | Escribe un mensaje de registro con el nivel seleccionado. |
-| «Set Variable» | Asigna un valor a una variable de Automation. |
-| «Webhook» | Envía una solicitud a una dirección HTTP. |
+| “Comando CLI” | Ejecuta un comando de consola de dispositivo local. |
+| “Comando SSH” | Ejecuta un comando remoto guardado en la página Comandos. |
+| “Control LED” | Controla los colores, efectos o contenido de la matriz del LED. |
+| “Registro” | Escribe un mensaje en el nivel seleccionado. |
+| “Establecer variable” | Asigna un valor a una variable de automatización. |
+| “Webhook” | La opción permanece visible, pero no se implementa la ejecución de la acción. Actualmente no puede enviar una solicitud. |
 
-CLI es un comando local del dispositivo. SSH Command se ejecuta en un host remoto. Webhook notifica o llama a un servicio externo.
+Introduzca un ID único, un nombre y los parámetros específicos del tipo. Establezca un retraso o "Ejecución asíncrona" si es necesario. Una acción asincrónica continúa en segundo plano; verifique su resultado final a través de registros, variables o el dispositivo de destino.
 
-Cada plantilla necesita un ID único. Puedes añadir un nombre visible, una descripción y una demora de ejecución, y activar «Async execution» si lo necesitas. Una acción asíncrona continúa en segundo plano tras enviarse. Comprueba su estado posterior en el registro, la variable o el dispositivo de destino correspondiente.
+- CLI: introduzca el comando. Puede añadir una variable de resultado y un tiempo de espera.
+- SSH: elija un host y un comando configurados y verifique la vista previa.
+- LED: seleccione el dispositivo y una operación compatible de color, efecto, brillo, texto, imagen, código QR o filtro.
+- Registro: seleccione el nivel y el mensaje. El mensaje puede hacer referencia a variables.
+- Establecer variable: ingrese el nombre y el valor de la variable.
+- Webhook: Actualmente no disponible. Elija una acción admitida en su lugar. Los paquetes de reglas que contienen acciones Webhook tampoco se pueden importar.
 
-Cada tipo requiere además:
+“Prueba” ejecuta la acción. Verifique el efecto de las operaciones de encendido, reinicio, comando remoto o solicitud externa antes de realizar la prueba.
 
-- CLI Command: una línea de comandos, con variable de resultado y tiempo de espera opcionales.
-- SSH Command: un host y un comando disponibles en la página. Revisa la vista previa antes de guardar.
-- LED Control: un dispositivo y las operaciones de color, efectos, brillo, texto, imagen, código QR o filtro que admita.
-- Log: un nivel y un mensaje. El mensaje puede referenciar variables.
-- Set Variable: un nombre de variable y un valor.
-- Webhook: un método, una URL y el contenido de solicitud exigido por la página. JSON es el formato de texto utilizado para el contenido estructurado de las solicitudes.
+Después de editar, guarde y verifique los parámetros. Si no se puede guardar, conserve el borrador y corrija el problema informado. Las importaciones pueden reemplazar las plantillas; compruebe qué reglas utilizan una plantilla antes de eliminarla. Si no se confirma la detención de un servicio vinculado, verifíquelo. Deténgalo si es necesario y confirme el resultado.
 
-«Test» ejecuta la acción de inmediato. Confirma sus efectos antes de probar controles de alimentación, reinicios, comandos remotos, salida LED o solicitudes externas. Añade una acción a una regla solo después de comprender el resultado de la prueba. Antes de eliminar una plantilla, comprueba que ninguna regla la referencia. Una importación puede sobrescribir una acción con el mismo ID. Sigue los requisitos de confianza de la Guía de seguridad al importar o exportar paquetes de configuración.
+### Seguir mensajes de eliminación de plantilla de acción
+
+Si aparece "No se puede eliminar la plantilla de acción", lea primero el motivo. La plantilla no ha sido eliminada: Las reglas
+
+1. Hay reglas que usan la plantilla: seleccione «Ver reglas». Retire la plantilla de esas reglas o elimine las que ya no necesite y permitan eliminarse. Después elimine la plantilla. Deshabilitar una regla o detener el motor no retira la plantilla de la regla.
+2. El servicio no está detenido: seleccione «Ver comandos». Compruebe su estado, deténgalo y confirme el resultado antes de volver a eliminar la plantilla.
+3. Actualización o carga de configuración: Esperar a que finalice. Se necesita recuperación o verificación de uso no disponible: abra "Registros del sistema" en la Terminal, encuentre la causa y restaure la configuración. No sigas seleccionando eliminar.
+
+No puede editar directamente una regla de solo lectura importada. Pídale al proveedor de configuración que revise su paquete y elimine la plantilla innecesaria.
+
+Si al guardar una regla se informa que ya no existe una plantilla, el guardado no se realizó correctamente. Seleccione una plantilla existente, revísela y guárdela nuevamente.
 
 ### Crear una regla
 
-Una regla vincula condiciones sobre variables con plantillas de acciones.
+1. Seleccione "Agregar" en "Reglas" e ingrese una identificación, nombre e ícono únicos.
+2. Elija “Lógica”: Y requiere todas las condiciones; O requiere cualquier condición.
+3. Establece el tiempo de reutilización para activadores automáticos. Los valores están en ms; 1000 ms es el segundo 1.
+4. Agregue condiciones y elija una variable, comparación y valor. Las comparaciones incluyen igual, no igual, mayor que, mayor o igual, menor que, menor o igual, valor cambiado y contiene. Haga coincidir el tipo de valor con la variable.
+5. Agregue plantillas y establezca retrasos de acción, repeticiones y condiciones a nivel de acción.
+6. Configure "Mostrar en panel" y "Permitir activación manual". El primero controla la visibilidad de la tarjeta en el Sistema; el segundo controla la ejecución manual.
+7. Revise, guarde y luego habilite la regla. Deje desactivado "Habilitar inmediatamente" mientras lo configura por primera vez.
 
-1. Selecciona «Add» en «Rules».
-2. Introduce un «Rule ID» único, un nombre y un icono.
-3. Elige «Logic»:
-- AND activa la regla cuando se cumplen todas las condiciones.
-- OR la activa cuando se cumple cualquiera de ellas.
-4. Ajusta «Cooldown (ms)» para limitar la frecuencia de activación.
-5. Añade condiciones y selecciona una variable, una comparación y un valor.
-6. Añade una o varias plantillas de acciones y las demoras necesarias para su secuencia.
-7. Revisa y guarda la regla. Habilítala solo cuando esté preparada para ejecutarse.
+Si al guardar, habilitar o deshabilitar aparece «La copia de seguridad no está sincronizada», la operación ha terminado, pero la copia no se ha sincronizado. No es un fallo de guardado ni exige reiniciar. No retire ni cambie la tarjeta SD. Actualice la lista y compruebe el contenido y el estado de la regla; no la cree otra vez. Si el aviso persiste, abra «Registros del sistema» en Terminal para comprobar el almacenamiento.
 
-Las comparaciones actuales son «Equal», «Not Equal», «Greater Than», «Greater or Equal», «Less Than», «Less or Equal», «Value Changed» y «Contains». Utiliza un valor de comparación compatible con el tipo de dato de la variable.
+<!-- operational-note -->
+Haga coincidir el valor con el tipo seleccionado. Para un número, ingrese un valor específico, no infinito o NaN (un número no válido). Ingrese texto, un valor booleano (verdadero o falso) o nulo para los otros tipos. No ingrese un objeto o matriz JSON completo. Si la página informa un error, verifique la variable, la comparación y el valor antes de guardar nuevamente.
 
-### Configurar repeticiones y condiciones de las acciones
+### Configurar condiciones de repetición y acción Significado de
 
-Cada acción admite:
+| Propósito de | Significado |
+| --- | --- |
+| “Una vez” | Se ejecuta una vez por activador. |
+| “Repetir mientras sea cierto” | Se repite mientras se mantiene la condición de la acción, hasta 100 veces por ejecución. |
+| “Recuento fijo” | Se repite para el conteo e intervalo configurados, verificando la condición de la acción antes de cada ejecución. |
 
-- «Once»: se ejecuta una vez por cada activación de la regla.
-- «Repeat while true»: se repite al intervalo configurado mientras se cumpla la condición propia de la acción, hasta 100 ejecuciones por ciclo.
-- «Fixed count»: se repite con el número de veces y el intervalo configurados.
+Las condiciones de acción son independientes de las condiciones de activación de reglas. Sin una condición de acción, "Repetir mientras sea verdadero" continúa hasta el límite por ejecución. La regla puede desencadenar otra ejecución más adelante.
 
-La condición de ejecución de una acción es independiente de las condiciones de activación de la regla. Define una condición de acción antes de utilizar «Repeat while true». Si no la hay, la acción se repite hasta alcanzar el límite por ciclo. Después la regla puede iniciar otro ciclo.
-
-Deshabilitar una regla impide futuras activaciones automáticas; una secuencia de repeticiones en curso puede continuar. Deshabilita primero la regla y comprueba después las acciones activas. Si se trata de una tarea remota en segundo plano, detén su proceso en Commands y confirma que ha terminado.
+Deshabilitar una regla evita nuevos desencadenantes; una ejecución ya iniciada puede continuar. Para dejar de programar acciones posteriores, seleccione el control “Parar” del motor y espere la confirmación. Verifique las acciones ya enviadas y los procesos remotos por separado. Las operaciones completadas no se deshacen.
 
 ### Crear una acción rápida
 
-Con «Manual Trigger Only» activado, la regla no necesita condiciones de activación y aparece como tarjeta en «System».
+“Solo activación manual”, “Mostrar en panel” y “Permitir activación manual” controlan si una regla se ejecuta solo manualmente, si su tarjeta está visible y si los usuarios pueden ejecutarla.
 
-1. Introduce el ID, el nombre y el icono de la regla.
-2. Activa «Manual Trigger Only».
-3. Añade las plantillas de acciones que se ejecutarán.
-4. Guarda y habilita la regla para que su tarjeta aparezca en System.
-5. Vuelve a «System», busca la tarjeta en «Quick Actions», ejecútala una vez y comprueba el resultado.
+1. Ingrese el ID, el nombre y el ícono, luego habilite "Solo disparo manual". Una regla de este tipo no necesita condiciones de activación automática.
+2. Agregue plantillas y revise retrasos, repeticiones y condiciones de acción.
+3. Habilite “Mostrar en panel” y “Permitir activación manual”, luego guarde y habilite la regla.
+4. Regrese al Panel de dispositivos del sistema. Verifique el nombre y el estado de la tarjeta, ejecútela una vez y revise el resultado.
 
-Una regla manual conserva todas sus acciones, demoras y repeticiones configuradas. Antes de ofrecer una acción rápida a los usuarios admin, asígnale un nombre claro, asegura que sus efectos sean previsibles y facilita un registro o un método de parada utilizable.
+Las reglas automáticas también pueden aparecer en el panel. Mostrar una tarjeta no convierte su regla en una regla solo manual. Una regla deshabilitada puede seguir visible, pero no permite iniciar la tarea. Use nombres claros para las acciones de admin y proporcione controles de registro o parada cuando corresponda.
 
-### Mantener las reglas y la configuración
+### Importar un paquete de configuración de reglas
 
-La lista Rules permite habilitar, deshabilitar, activar manualmente, editar, exportar y eliminar reglas.
+Importe paquetes de reglas en Automatización, no a través de “Solo verificar” de Seguridad o carga de archivos. Este control verifica si el firmante es confiable, si el paquete pertenece a este dispositivo y si la configuración requerida está presente. El resultado de su verificación no se aplica a otros tipos de paquetes.
 
-- Manual Trigger ejecuta las acciones sin comprobar si la regla está habilitada ni esperar su tiempo entre activaciones. No es una vista previa, aunque la regla esté deshabilitada.
-- Deshabilitar una regla impide futuras activaciones automáticas. No deshace las acciones completadas.
-- La eliminación de una regla no se puede deshacer en la página.
-- Antes de editar una regla, confirma que sus variables y plantillas de acciones siguen existiendo.
-- Antes de importar una regla, revisa su ID, sus condiciones y sus referencias a acciones. Confirma los efectos antes de sobrescribir un elemento con el mismo ID.
+Antes de importar, prepare:
 
-Después de importar o cambiar fuentes, acciones o reglas, comprueba el estado del motor y el estado habilitado de cada lista. Si la página exige Reload o un reinicio, termina las tareas remotas en curso antes de programarlo.
+- Compruebe que la tarjeta SD esté montada y permita escribir. Los paquetes se guardan en ella. Déjela insertada tras la importación y no la retire ni la cambie mientras haya un reinicio pendiente.
+- El dispositivo tiene un certificado válido, su clave privada correspondiente y una cadena de CA; su tiempo está verificado. Una cadena de CA verifica los orígenes de los certificados. Consulte la Guía de seguridad para conocer los pasos de instalación.
+- Compruebe que el administrador del despliegue haya elegido un firmante de confianza. Iniciar sesión como root o instalar certificados HTTPS no completa este ajuste. Si falta, pida al administrador que lo configure.
+- Las plantillas, los comandos y los hosts de la regla están listos. Importar no los instala por usted. Agregue primero cualquier configuración que falte. Si la regla está habilitada, verifique también el estado de habilitación de la configuración que utiliza.
+
+Un reinicio interrumpe la WebUI y los servicios de administración de dispositivos. Compruebe si la regla está habilitada y se ejecutará automáticamente. Confirme que puede ejecutarse después del reinicio antes de importarlo. Si debe permanecer inactivo, solicite al proveedor una versión deshabilitada. Reiniciar TianshanOS no detiene los procesos en segundo plano en hosts remotos.
+
+1. Seleccione el icono de importación en "Reglas" para abrir "Importar configuración de reglas", luego elija el archivo `.tscfg`. La verificación comienza y la página muestra una vista previa.
+2. Espere a "Firmar confianza, dispositivo de destino y contenido de regla verificado". Verifique el nombre, el ID de la regla y el "Resumen de la regla". Expanda "Ver contenido de la regla" para revisar condiciones, acciones, objetivos y estado de habilitación; no confíe en el nombre del archivo.
+3. Si existe el mismo ID, lea "Impacto de sobrescritura". Seleccione "Sobrescribir configuración existente" solo si desea reemplazar la versión guardada. Si el archivo, las credenciales o la configuración cambian después de la vista previa, seleccione el archivo nuevamente y verifíquelo nuevamente.
+4. Seleccione "Confirmar importación" y espere. "Guardado; entra en vigor después del reinicio. La versión en ejecución no ha cambiado". confirma el almacenamiento, no que la nueva regla se esté ejecutando. Si la página dice que la configuración ya está guardada y activa, esa importación repetida no requiere otro reinicio.
+5. Si es necesario reiniciar, guarde otros trabajos y revise la Automatización y las tareas remotas, luego reinicie TianshanOS desde Sistema. Mantenga instalada la misma tarjeta SD y espere a que regrese WebUI.
+6. Regrese a Automatización y confirme que la etiqueta de reinicio pendiente de la regla haya desaparecido. Verifique su estado de habilitación, las variables requeridas y los registros. Si la regla permite una verificación manual segura, ejecútela una vez y verifique el resultado del dispositivo o del host remoto. Para las reglas que no se pueden ejecutar manualmente, observe los registros y los resultados después de un desencadenador normal. No confíe únicamente en el mensaje de guardado.
+
+Los paquetes de reglas importados son de solo lectura. No puede editarlos, habilitarlos, deshabilitarlos ni eliminarlos desde la página. Pida al proveedor un paquete actualizado para este dispositivo e impórtelo siguiendo estos pasos. Para deshabilitar una regla, obtenga una versión deshabilitada y reinicie según las indicaciones. La versión anterior puede seguir ejecutándose hasta el reinicio.
+
+El control “Stop” del motor deja de programar acciones posteriores. No cambia las reglas ni deshace las operaciones completadas. Detenga las tareas remotas en segundo plano por separado y confirme el resultado.
+
+Después de editar o importar, verifique el motor, las reglas y los resultados de las tareas. Vuelva a cargar o reinicie según las instrucciones, luego confirme que las tareas funcionan. La siguiente tabla explica las restricciones de solo lectura y de reinicio pendiente.
+
+### Distinga la versión guardada de la versión en ejecución
+
+| Mensaje o estado de página | Qué hacer |
+| --- | --- |
+| "Guardado; es necesario reiniciar" | La nueva configuración está guardada pero aún no está en uso. Las ediciones normales, los cambios de habilitación y la eliminación no están disponibles. Organice un reinicio del dispositivo. |
+| Ya se está ejecutando una versión anterior | Hasta el reinicio, es posible que la regla anterior aún se ejecute. El botón del manual dice "Ejecutar la versión anterior actual"; compruebe su efecto antes de ejecutarlo. Exportar devuelve la versión actual en ejecución, no el nuevo paquete pendiente. |
+| Nueva regla aún no cargada | La ejecución manual no está disponible. Reinicie, luego verifique su estado de habilitación y permisos manuales. |
+| "Eliminación guardada; la eliminación requiere reiniciar" | La regla abandona la lista en ejecución después del reinicio. No se puede iniciar ninguna nueva ejecución manual o automática. Verifique las acciones ya enviadas y las tareas remotas por separado. Confirme la eliminación después del reinicio. |
+| Regla de solo lectura | Los controles ordinarios de edición, habilitación, deshabilitación y eliminación no están disponibles después de que desaparece la etiqueta de reinicio pendiente. Obtenga e importe un paquete revisado como se describe anteriormente. |
+
+No todos los guardados necesitan reiniciarse. Al crear, editar o habilitar una regla editable se actualiza la regla actual cuando la operación se realiza correctamente. Desactivarlo también lo hace. Verifique el resultado de la operación y el estado de la regla.
+
+“Recargar” no está disponible mientras las reglas esperan el reinicio. Detener y arrancar el motor no cambia esas versiones; reinicie el dispositivo.
+
+### Si la importación no se completa
+
+#### La verificación no se ha completado
+
+| Mensaje o problema | Siguiente paso |
+| --- | --- |
+| Raíz de confianza de firma sin seleccionar, firmante no fiable o sin autorización | Solicite al administrador de implementación o al proveedor de configuración que verifique la fuente de firma y los permisos del certificado. No sustituya la opción "Solo verificar" de Seguridad ni desactive la verificación. |
+| El paquete está destinado a otro dispositivo | Solicite al proveedor que lo exporte utilizando el certificado de este dispositivo; no cambie el nombre dentro del paquete. Organice paquetes de reemplazo coincidentes antes de cambiar también el certificado de este dispositivo. |
+| La hora del dispositivo no está verificada | Verifique y sincronice la hora en “Red y hora” en Sistema, luego verifique el archivo nuevamente. |
+| Configuración en proceso de carga | Espere a que finalice y luego verifique el paquete nuevamente. |
+| No se pudo cargar la configuración | Verifique los registros del sistema, resuelva la causa y restaure la configuración antes de volver a verificar. |
+| Falta la configuración requerida | Agregue la plantilla, el comando o el host nombrado por la página y luego verifique nuevamente. |
+| Configuración requerida deshabilitada | Compruebe si debe estar habilitado. Una vez que sea seguro ejecutarlo, habilítelo y verifique nuevamente. |
+| Se está ejecutando un servicio vinculado o su estado no está confirmado | Verifique el servicio en Comandos. Deténgalo si es necesario y confirme el resultado. Espere a que finalice cualquier inicio, detención o verificación en curso, luego seleccione el archivo nuevamente y vuelva a verificarlo. |
+| Acción no admitida | Solicite al proveedor que revise el paquete. La importación de paquetes de reglas actualmente rechaza las acciones Webhook; su presencia en el selector de plantillas no significa que el paquete pueda importarse. |
+| El archivo, las credenciales o la configuración cambiaron después de la vista previa | Seleccione el archivo nuevamente, verifíquelo nuevamente y revise el impacto de la sobrescritura antes de confirmar. |
+
+#### Guardar incompleto Tarjeta
+
+| Mensaje o problema | Siguiente paso |
+| --- | --- |
+| SD no disponible | Verifique que la tarjeta esté insertada, montada y que se pueda escribir, luego verifique nuevamente. |
+| Fuente de configuración de solo lectura | Restaurar una fuente grabable. No elimine archivos para evitar la protección. |
+| Guardar no confiable | Verifique el almacenamiento, resuelva el problema y verifique nuevamente. |
+| El resultado del guardado no está confirmado | Actualice la lista de reglas y verifique la regla y el estado de reinicio pendiente. Si sigue sin estar seguro, inspeccione los registros del sistema. Conserve el archivo original y no repita la importación. |
+
+A una variable de condición sin una muestra no necesariamente le falta configuración; comprueba cuándo se actualizará. Si es necesario limpiar los objetos de almacenamiento antiguos, mantenga instalada la tarjeta SD y verifíquela después de reiniciar.
+
+### Mantener reglas y configuración
+
+- La ejecución manual requiere una regla habilitada que permita activadores manuales, sin que la misma regla ya esté en progreso. Omite las condiciones de activación automática y el tiempo de reutilización, pero aún aplica condiciones de acción, retrasos y repeticiones.
+- La desactivación no deshace las acciones completadas. La eliminación no se puede deshacer de la página.
+- Antes de editar fuentes, plantillas o comandos, verifique qué reglas los utilizan. Verifique o detenga cualquier servicio vinculado que se esté ejecutando, desconozca o aún esté procesando una operación. Si una regla todavía usa la configuración, revísela también; Detener el servicio no elimina ese uso.
+- Utilice el flujo dedicado de este capítulo para paquetes de reglas. Siga la Guía de seguridad para otros paquetes; el resultado de la verificación del paquete de reglas no se aplica a ellos.
+- Si falla al guardar, lea el mensaje y conserve el borrador. Si el guardado se realizó correctamente pero la actualización falló, actualice y verifique la lista antes de crear otro elemento.
