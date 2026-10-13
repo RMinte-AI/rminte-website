@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="zh-CN" class="product-theme">
+<head>
+  <meta charset="utf-8">
+  <script>
+    // Reveal after deferred localization; without JavaScript the source page stays readable.
+    document.documentElement.classList.add('i18n-loading');
+    document.addEventListener('DOMContentLoaded', () => document.documentElement.classList.remove('i18n-loading'), { once: true });
+  </script>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>应用案例 · RMinte</title>
+  <link rel="icon" type="image/png" sizes="512x512" href="../assets/images/favicon.png?v=20261009"><link rel="icon" type="image/svg+xml" sizes="any" href="../assets/images/favicon.svg?v=20261009">
+  <script src="../assets/motion.js?v=stage2-2" defer></script>
+  <link rel="stylesheet" href="../assets/brand.css?v=d10-1">
+  <link rel="stylesheet" href="../assets/styles.css?v=cases-20261013">
+  <link rel="stylesheet" href="../assets/case-ui.css?v=d10-1">
+  <link rel="stylesheet" href="cases.css?v=cases-align-20261013">
+  <script>
+    // ja/ko/es/fr carry their own catalog file; zh and en need none. Resolve the language the way i18n.js does and load only that file.
+    (function (up) {
+      var ok = /^(zh|en|ja|ko|es|fr)$/, c = window.RM_CATALOG = { base: up + 'assets/translations/', v: 'catalogs-d10-1' };
+      c.load = function () {
+        var s; try { s = localStorage.getItem('rm-soft-lang'); } catch (e) {}
+        var l = [new URLSearchParams(location.search).get('lang'), (location.hash.match(/^#(zh|en|ja|ko|es|fr)-/) || [])[1], s, window.RM_DEFAULT_LANG].filter(function (x) { return ok.test(x); })[0];
+        if (l && l !== 'zh' && l !== 'en') document.write('<script src="' + c.base + l + '.js?v=' + c.v + '" defer><\/script>');
+        if (l) c.fonts(l);
+        return l;
+      };
+      // Each CJK face is requested only when its language is shown: every page used to ask for Noto Sans SC, JP and KR (about 0.9 MB of fonts and
+      // 210 KB of stylesheet that English, Spanish and French visitors never use). While the head is parsing, document.write keeps the link
+      // render-blocking like a static one; i18n.js calls this again (late) when the visitor switches language.
+      var cjk = { zh: 'assets/fonts/noto-sans-sc.css?v=cases-20261013', ja: 'https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&display=swap', ko: 'https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap' };
+      c.fonts = function (l, late) {
+        if (!cjk[l] || document.querySelector('link[data-cjk="' + l + '"]')) return;
+        var h = /^https:/.test(cjk[l]) ? cjk[l] : up + cjk[l];
+        if (late || document.readyState !== 'loading') { var k = document.createElement('link'); k.rel = 'stylesheet'; k.href = h; k.setAttribute('data-cjk', l); document.head.appendChild(k); }
+        else document.write('<link rel="stylesheet" href="' + h + '" data-cjk="' + l + '">');
+      };
+      if (!c.load()) document.write('<script src="' + up + 'visitor-language.js"><\/script><script>RM_CATALOG.load()<\/script>');
+    })('../');
+  </script>
+  <script src="../assets/i18n.js?v=catalogs-20261004" defer></script>
+  <script src="../assets/case-auth.js?v=d10-1" defer></script>
+  <script src="../assets/site-data.js?v=cases-20261013" defer></script>
+  <script src="../assets/footer.js?v=d9-nav-1" defer></script>
+  <script src="cases.js?v=cases-align-20261013" defer></script>
+</head>
+<body class="brand-page cases-body">
+  <header class="site-shell" aria-label="主导航" data-i18n-aria-label-zh="主导航" data-i18n-aria-label-en="Main navigation">
+    <a class="brand-mark" href="../index.html#hero" aria-label="RMinte 首页" data-i18n-aria-label-zh="RMinte 首页" data-i18n-aria-label-en="RMinte home">
+      <img src="../assets/images/logo-white.svg" alt="RMinte">
+    </a>
+    <nav class="nav-island" data-bevel aria-label="页面导航" data-i18n-aria-label-zh="页面导航" data-i18n-aria-label-en="Page navigation">
+      <a href="../gallery/index.html" data-case-text data-zh="图册" data-en="Gallery">图册</a>
+      <a href="../models/index.html" data-case-text data-zh="模型" data-en="Models">模型</a>
+      <a href="../index.html#engine" data-case-text data-zh="产品" data-en="Product">产品</a>
+
+      <a href="#cases" class="active" aria-current="page" data-case-text data-zh="案例" data-en="Application cases">案例</a>
+      <a href="../guides/index.html" data-case-text data-zh="指南" data-en="Guides">指南</a>
+      <a href="../downloads/index.html" data-case-text data-zh="下载" data-en="Downloads">下载</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="language-toggle" type="button" data-lang-toggle aria-label="语言">中文</button>
+      <button class="menu-button" type="button" aria-label="打开菜单" aria-controls="mobileOverlay" aria-expanded="false" data-menu-toggle data-i18n-aria-label-zh="打开菜单" data-i18n-aria-label-en="Open menu">
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <div class="mobile-overlay" id="mobileOverlay" aria-hidden="true" inert>
+    <div class="mobile-overlay-panel">
+      <div class="mobile-overlay-top">
+        <img class="mobile-menu-logo" src="../assets/images/logo-white.svg" alt="RMinte">
+        <button class="menu-close" type="button" aria-label="关闭" data-menu-close data-i18n-aria-label-zh="关闭" data-i18n-aria-label-en="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+      </div>
+      <nav class="mobile-links" aria-label="移动导航" data-i18n-aria-label-zh="移动导航" data-i18n-aria-label-en="Mobile navigation">
+        <a href="../gallery/index.html" data-case-text data-zh="图册" data-en="Gallery">图册</a>
+      <a href="../models/index.html" data-case-text data-zh="模型" data-en="Models">模型</a>
+      <a href="../index.html#engine" data-case-text data-zh="产品" data-en="Product">产品</a>
+
+      <a href="#cases" aria-current="page" data-case-text data-zh="案例" data-en="Application cases">案例</a>
+      <a href="../guides/index.html" data-case-text data-zh="指南" data-en="Guides">指南</a>
+      <a href="../downloads/index.html" data-case-text data-zh="下载" data-en="Downloads">下载</a>
+      </nav>
+    </div>
+  </div>
+
+  <main class="cs-main" id="main">
+    <section class="cs-hero">
+      <img class="cs-hero-art" src="intent.svg" alt="" aria-hidden="true">
+      <p class="cs-eyebrow" data-case-text data-zh="应用案例" data-en="Application cases">应用案例</p>
+      <h1><span data-case-text data-zh="让 AI 走进" data-en="Bringing AI into">让 AI 走进</span><span data-case-text data-zh="具体的工作。" data-en="real work.">具体的工作。</span></h1>
+      <p class="cs-lead" data-case-text data-zh="从日常事务到工业研发，探索 AI 在真实业务中的应用。找到与你相关的场景，进一步了解资料与演示。" data-en="From everyday tasks to industrial R&amp;D, explore how AI is used in real business. Find the scenarios relevant to you and learn more about materials and demos.">从日常事务到工业研发，探索 AI 在真实业务中的应用。找到与你相关的场景，进一步了解资料与演示。</p>
+    </section>
+    <div id="cases"></div>
+    <section class="cs-band">
+      <div>
+        <h2 data-case-text data-zh="让你的应用，被更多人看见。" data-en="Let more people see your application.">让你的应用，被更多人看见。</h2>
+        <p class="sub" data-case-text data-zh="与我们共同探索基于 RM-01 的软件应用与交付。" data-en="Explore software applications and delivery built on RM-01 with us.">与我们共同探索基于 <span class="rm-mark">RM-01</span> 的软件应用与交付。</p>
+        <button class="cs-pill primary" type="button" data-action="partner"><span data-case-text data-zh="成为软件合作伙伴" data-en="Become a software partner">成为软件合作伙伴</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></button>
+      </div>
+      <div class="cs-access" id="access" aria-live="polite"></div>
+    </section>
+  </main>
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <img src="../assets/images/logo-white.svg" alt="RMinte">
+        <div>
+        <p data-footer-text="footer">泛灵（成都）人工智能科技有限公司</p>
+        <span data-footer-text="copyright">© 2026 <span class="rm-mark">RMinte</span> ( Chengdu ) Artificial Intelligence Technology Co., Ltd. · <span class="rm-mark">RM-01</span> Portable AI Supercomputer</span>
+        </div>
+      </div>
+      <div class="footer-actions">
+        <button class="footer-contact" type="button" aria-expanded="false" aria-controls="contactPopover" data-contact-toggle>
+          <span data-footer-text="contactButton">联系我们</span>
+        </button>
+        <a class="footer-github" href="https://github.com/RMinte-AI" target="_blank" rel="noreferrer" aria-label="GitHub">
+          <svg class="github" viewBox="0 0 24 24" fill="currentColor" fill-rule="evenodd" aria-hidden="true" focusable="false" style="display:inline-block;width:18px;height:18px;flex:none;vertical-align:middle"><path d="M12 0c6.63 0 12 5.276 12 11.79-.001 5.067-3.29 9.567-8.175 11.187-.6.118-.825-.25-.825-.56 0-.398.015-1.665.015-3.242 0-1.105-.375-1.813-.81-2.181 2.67-.295 5.475-1.297 5.475-5.822 0-1.297-.465-2.344-1.23-3.169.12-.295.54-1.503-.12-3.125 0 0-1.005-.324-3.3 1.209a11.32 11.32 0 00-3-.398c-1.02 0-2.04.133-3 .398-2.295-1.518-3.3-1.209-3.3-1.209-.66 1.622-.24 2.83-.12 3.125-.765.825-1.23 1.887-1.23 3.169 0 4.51 2.79 5.527 5.46 5.822-.345.294-.66.81-.765 1.577-.69.31-2.415.81-3.495-.973-.225-.354-.9-1.223-1.845-1.209-1.005.015-.405.56.015.781.51.28 1.095 1.327 1.23 1.666.24.663 1.02 1.93 4.035 1.385 0 .988.015 1.916.015 2.196 0 .31-.225.664-.825.56C3.303 21.374-.003 16.867 0 11.791 0 5.276 5.37 0 12 0z"/></svg>
+          <span><svg class="github-text" viewBox="0 0 78 24" fill="currentColor" fill-rule="evenodd" aria-hidden="true" focusable="false" style="display:inline-block;width:42.25px;height:13px;flex:none;vertical-align:middle"><path d="M16.598 10.836v9.48c0 .066-.017.181-.1.214 0 0-2.07 1.47-5.484 1.47C6.888 22 2 20.712 2 12.223 2 3.734 6.275 1.983 10.45 2c3.613 0 5.07.81 5.303.958.066.083.1.149.1.231l-.697 2.94c0 .149-.149.33-.331.28-.597-.18-1.491-.544-3.596-.544-2.435 0-5.053.693-5.053 6.16 0 5.466 2.485 6.11 4.275 6.11 1.524 0 2.07-.181 2.07-.181v-3.799h-2.435c-.182 0-.315-.132-.315-.28v-3.04c0-.148.133-.28.315-.28h6.197c.182 0 .315.132.315.28zM76 14.684c0 5.664-1.84 7.283-5.054 7.283-2.717 0-4.175-1.37-4.175-1.37s-.067.759-.15.858c-.05.1-.132.132-.231.132h-2.453c-.165 0-.315-.132-.315-.28l.034-18.349a.29.29 0 01.281-.28h3.53a.29.29 0 01.281.28v6.226s1.359-.875 3.347-.875l-.016-.033c1.988 0 4.921.743 4.921 6.408zM47.865 2.71a.29.29 0 01.281.281V21.34a.29.29 0 01-.281.281h-3.53a.29.29 0 01-.281-.28l.033-7.845h-5.485v7.844a.29.29 0 01-.281.281h-3.53c-.132 0-.281-.132-.281-.28V2.99a.29.29 0 01.281-.28h3.53a.29.29 0 01.281.28v6.755h5.485V2.99a.29.29 0 01.282-.28h3.496zM61.55 8.722c.183 0 .315.132.315.28l-.033 12.337c0 .149-.1.281-.282.281h-2.22c-.116 0-.232-.066-.265-.148-.05-.1-.133-.744-.133-.744S57.061 22 54.758 22c-2.8 0-4.839-.908-4.839-4.542V9.02a.29.29 0 01.282-.28h3.546a.29.29 0 01.282.28v7.845c0 1.238.364 1.8 1.607 1.8 1.243 0 2.154-.644 2.154-.644V9.036c0-.182.1-.314.282-.314h3.48zm-28.84 9.861h.007c.14.029.239.154.234.296v2.477c0 .116-.05.231-.149.264-.166.083-1.226.363-2.104.363-1.922 0-4.74-.412-4.74-4.442v-5.417H24.12c-.149 0-.281-.132-.281-.314V9.564c0-.132.083-.248.215-.28.116-.017 1.922-.463 1.922-.463V5.237c0-.132.083-.215.232-.215h3.58c.148 0 .231.083.231.215v3.485h2.635c.132 0 .265.132.265.28v2.808c0 .182-.116.314-.265.314h-2.635v5.17c0 .777.448 1.372 1.74 1.372.41 0 .797-.081.951-.083zM22.28 8.705a.29.29 0 01.282.281v12.172c0 .297-.083.446-.414.446h-3.182c-.281 0-.497-.116-.497-.446V9.036c0-.182.133-.33.282-.33h3.53zm49.693 6.243c0-2.99-1.21-3.386-2.486-3.253-.994.066-1.79.561-1.79.561v5.813s.813.562 2.022.595c1.707.05 2.254-.562 2.254-3.716zM20.54 3.123a2.26 2.26 0 012.254 2.28A2.26 2.26 0 0120.54 7.68a2.266 2.266 0 01-2.286-2.279c0-1.271 1.01-2.279 2.286-2.279z"/></svg></span>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <div class="contact-popover" id="contactPopover" role="dialog" aria-labelledby="contactTitle" aria-hidden="true" data-contact-popover>
+    <div class="contact-card" data-bevel>
+      <div class="contact-card-core">
+        <div class="contact-top">
+          <div>
+
+            <h2 id="contactTitle" data-footer-text="contactTitle">联系我们</h2>
+          </div>
+          <button class="contact-close" type="button" aria-label="关闭" data-contact-close data-i18n-aria-label-zh="关闭" data-i18n-aria-label-en="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;flex-shrink:0;pointer-events:none" aria-hidden="true" focusable="false"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+        </div>
+        <div class="contact-links">
+          <a href="mailto:jiezhu@rminte.com">
+            <span data-footer-text="salesContact">销售与渠道合作</span>
+            <strong>jiezhu@rminte.com</strong><svg class="contact-link-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg>
+          </a>
+          <a href="mailto:yishi@rminte.com">
+            <span data-footer-text="manufacturingContact">制造与供应链合作</span>
+            <strong>yishi@rminte.com</strong><svg class="contact-link-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg>
+          </a>
+          <a href="mailto:support@rminte.com">
+            <span data-footer-text="supportContact">售前与售后服务</span>
+            <strong>support@rminte.com</strong><svg class="contact-link-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg>
+          </a>
+          <a href="https://github.com/orgs/RMinte-AI/discussions" target="_blank" rel="noopener noreferrer">
+            <span data-footer-text="communityContact">产品与技术交流</span>
+            <strong>GitHub Discussions</strong><svg class="contact-link-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <dialog class="cs-dialog" data-bevel aria-labelledby="dialog-title"><div class="cs-dialog-core"><div class="cs-dialog-top"><span class="e"><span class="rm-mark">RMinte</span> · <span data-case-text data-zh="应用案例" data-en="Application cases">应用案例</span></span><button class="contact-close" type="button" aria-label="关闭" data-dialog-close data-i18n-aria-label-zh="关闭" data-i18n-aria-label-en="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div><div id="dialog-body"></div></div></dialog>
+</body>
+</html>

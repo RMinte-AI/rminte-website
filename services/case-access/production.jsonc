@@ -1,0 +1,12 @@
+{
+  "name": "rminte-case-access-production",
+  "compatibility_date": "2026-09-26",
+  "d1_databases": [
+    {
+      "binding": "CASE_DB",
+      "database_name": "rminte-case-access",
+      "database_id": "bdb55da4-1628-4f03-b672-2dbb0606fc3c",
+      "migrations_dir": "migrations"
+    }
+  ]
+}

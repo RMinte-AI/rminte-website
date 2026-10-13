@@ -4059,5 +4059,569 @@
     "sources": [
       "downloads/index.html"
     ]
+  },
+  {
+    "zh": "案例",
+    "en": "Application cases",
+    "sources": [
+      "assets/site-data.js.nav.3.1",
+      "models/index.html:39",
+      "models/index.html:227",
+      "gallery/index.html:72",
+      "gallery/index.html:95",
+      "downloads/index.html:71",
+      "downloads/index.html:94",
+      "guides/index.html:70",
+      "guides/index.html:93",
+      "guides/admin.html:70",
+      "guides/admin.html:93",
+      "guides/root.html:70",
+      "guides/root.html:93",
+      "guides/network.html:70",
+      "guides/network.html:93",
+      "guides/security.html:70",
+      "guides/security.html:93",
+      "cases/index.html:59",
+      "cases/index.html:83",
+      "cases/index.html:93",
+      "cases/index.html:160",
+      "scripts/build-guides.mjs:454",
+      "scripts/build-guides.mjs:477"
+    ],
+    "zhVariants": [
+      "应用案例"
+    ]
+  },
+  {
+    "zh": "交通服务",
+    "en": "Transport",
+    "sources": [
+      "cases/cases.js.groups.0"
+    ]
+  },
+  {
+    "zh": "企业运营",
+    "en": "Enterprise operations",
+    "sources": [
+      "cases/cases.js.groups.1"
+    ]
+  },
+  {
+    "zh": "公共事务",
+    "en": "Public affairs",
+    "sources": [
+      "cases/cases.js.groups.2"
+    ]
+  },
+  {
+    "zh": "文档与知识",
+    "en": "Documents and knowledge",
+    "sources": [
+      "cases/cases.js.groups.3"
+    ]
+  },
+  {
+    "zh": "工业研发",
+    "en": "Industrial R&D",
+    "sources": [
+      "cases/cases.js.groups.4"
+    ]
+  },
+  {
+    "zh": "AI 数字收费员",
+    "en": "AI Digital Toll Operator",
+    "sources": [
+      "cases/cases.js.cases.0.name"
+    ]
+  },
+  {
+    "zh": "面向收费业务的 AI 应用，探索数字收费员参与业务服务的方式。",
+    "en": "An AI application for toll operations, exploring how a digital operator can take part in the service.",
+    "sources": [
+      "cases/cases.js.cases.0.desc"
+    ]
+  },
+  {
+    "zh": "AI 信息资产审计",
+    "en": "AI Information Asset Audit",
+    "sources": [
+      "cases/cases.js.cases.1.name"
+    ]
+  },
+  {
+    "zh": "围绕信息资产开展 AI 审计，辅助审阅与整理相关材料。",
+    "en": "AI-assisted audit of information assets, helping review and organise the related materials.",
+    "sources": [
+      "cases/cases.js.cases.1.desc"
+    ]
+  },
+  {
+    "zh": "基层事务 AI 助理",
+    "en": "Community Affairs AI Assistant",
+    "sources": [
+      "cases/cases.js.cases.2.name"
+    ]
+  },
+  {
+    "zh": "面向基层日常事务，探索 AI 辅助处理与信息整理。",
+    "en": "Exploring AI support for everyday community affairs, from handling to organising information.",
+    "sources": [
+      "cases/cases.js.cases.2.desc"
+    ]
+  },
+  {
+    "zh": "AI 节能调度专家",
+    "en": "AI Energy Dispatch Expert",
+    "sources": [
+      "cases/cases.js.cases.3.name"
+    ]
+  },
+  {
+    "zh": "将 AI 应用于节能与调度场景，辅助分析业务中的能源使用与调度问题。",
+    "en": "AI for energy saving and dispatch, helping analyse energy use and scheduling in the business.",
+    "sources": [
+      "cases/cases.js.cases.3.desc"
+    ]
+  },
+  {
+    "zh": "AI 文档识别与翻译知识库",
+    "en": "AI Document Recognition, Translation and Knowledge Base",
+    "sources": [
+      "cases/cases.js.cases.4.name"
+    ]
+  },
+  {
+    "zh": "结合 OCR、翻译与知识库，衔接文档识别、语言转换和知识查询。",
+    "en": "Combines OCR, translation and a knowledge base, linking document recognition, language conversion and lookup.",
+    "sources": [
+      "cases/cases.js.cases.4.desc"
+    ]
+  },
+  {
+    "zh": "AI 公文写作助手",
+    "en": "AI Official Writing Assistant",
+    "sources": [
+      "cases/cases.js.cases.5.name"
+    ]
+  },
+  {
+    "zh": "面向公文写作场景，提供 AI 辅助写作的应用入口。",
+    "en": "An entry point for AI-assisted writing of official documents.",
+    "sources": [
+      "cases/cases.js.cases.5.desc"
+    ]
+  },
+  {
+    "zh": "AI 企业档案管理",
+    "en": "AI Enterprise Archive Management",
+    "sources": [
+      "cases/cases.js.cases.6.name"
+    ]
+  },
+  {
+    "zh": "结合 OCR 与知识库，让企业档案进入可识别、可查询的工作流程。",
+    "en": "Uses OCR and a knowledge base to bring enterprise archives into a searchable workflow.",
+    "sources": [
+      "cases/cases.js.cases.6.desc"
+    ]
+  },
+  {
+    "zh": "无人机机场 AI 分析师",
+    "en": "Drone Airport AI Analyst",
+    "sources": [
+      "cases/cases.js.cases.7.name"
+    ]
+  },
+  {
+    "zh": "面向森林防火误报与户外活动人员探测，开展无人机影像分析。",
+    "en": "Drone imagery analysis for false fire alarms in forests and detection of people in outdoor activity.",
+    "sources": [
+      "cases/cases.js.cases.7.desc"
+    ]
+  },
+  {
+    "zh": "AI 汽车研发与工业建模",
+    "en": "AI Automotive R&D and Industrial Modelling",
+    "sources": [
+      "cases/cases.js.cases.8.name"
+    ]
+  },
+  {
+    "zh": "覆盖零件平面图转 3D、装配建模、工业焊接机器人编程与汽车安全检测。",
+    "en": "Covers part drawings to 3D, assembly modelling, industrial welding-robot programming and automotive safety inspection.",
+    "sources": [
+      "cases/cases.js.cases.8.desc"
+    ]
+  },
+  {
+    "zh": "刑事律师材料与线索 AI 整理师",
+    "en": "AI Organiser for Criminal Defence Materials and Leads",
+    "sources": [
+      "cases/cases.js.cases.9.name"
+    ]
+  },
+  {
+    "zh": "面向刑事律师工作中的材料与线索整理，辅助组织已有信息。",
+    "en": "Helps criminal defence lawyers organise case materials and leads from existing information.",
+    "sources": [
+      "cases/cases.js.cases.9.desc"
+    ]
+  },
+  {
+    "zh": "AI 汽车功能安全检测",
+    "en": "AI Automotive Functional Safety Inspection",
+    "sources": [
+      "cases/cases.js.cases.10.name"
+    ]
+  },
+  {
+    "zh": "聚焦汽车功能安全检测场景，展示 AI 在专业检测工作中的应用。",
+    "en": "Focused on functional safety inspection of vehicles, showing AI in professional inspection work.",
+    "sources": [
+      "cases/cases.js.cases.10.desc"
+    ]
+  },
+  {
+    "zh": "需登录后演示",
+    "en": "Sign in to view demo",
+    "sources": [
+      "cases/cases.js.COPY.signToDemo"
+    ]
+  },
+  {
+    "zh": "演示已授权",
+    "en": "Demo authorised",
+    "sources": [
+      "cases/cases.js.COPY.demoOn"
+    ]
+  },
+  {
+    "zh": "演示未授权",
+    "en": "Demo not authorised",
+    "sources": [
+      "cases/cases.js.COPY.demoOff"
+    ]
+  },
+  {
+    "zh": "演示",
+    "en": "Demo",
+    "sources": [
+      "cases/cases.js.COPY.demo"
+    ]
+  },
+  {
+    "zh": "资料与联系",
+    "en": "Materials and contact",
+    "sources": [
+      "cases/cases.js.COPY.more"
+    ]
+  },
+  {
+    "zh": "下载相关资料",
+    "en": "Related materials",
+    "sources": [
+      "cases/cases.js.COPY.materials"
+    ]
+  },
+  {
+    "zh": "登录后下载",
+    "en": "Sign in to download",
+    "sources": [
+      "cases/cases.js.COPY.signToDownload"
+    ]
+  },
+  {
+    "zh": "资料待接入",
+    "en": "Document not yet connected",
+    "sources": [
+      "cases/cases.js.COPY.docPending"
+    ]
+  },
+  {
+    "zh": "联系供应商",
+    "en": "Contact the supplier",
+    "sources": [
+      "cases/cases.js.COPY.contact"
+    ]
+  },
+  {
+    "zh": "供应商信息待公布",
+    "en": "Supplier details to be announced",
+    "sources": [
+      "cases/cases.js.COPY.contactPending"
+    ]
+  },
+  {
+    "zh": "1 个场景",
+    "en": "1 scenario",
+    "sources": [
+      "cases/cases.js.COPY.one"
+    ]
+  },
+  {
+    "zh": "{n} 个场景",
+    "en": "{n} scenarios",
+    "sources": [
+      "cases/cases.js.COPY.many"
+    ]
+  },
+  {
+    "zh": "授权登录",
+    "en": "Sign in",
+    "sources": [
+      "cases/cases.js.COPY.signIn",
+      "cases/cases.js.COPY.signInSubmit",
+      "assets/case-auth.js.PANEL.signIn"
+    ],
+    "zhVariants": [
+      "登录"
+    ]
+  },
+  {
+    "zh": "使用官方分发的账号登录。登录后，可直接进入获准的演示或下载资料。",
+    "en": "Sign in with the account we issued. Afterwards you can open the demos and materials you are authorised to use.",
+    "sources": [
+      "cases/cases.js.COPY.loginLead"
+    ]
+  },
+  {
+    "zh": "用户名",
+    "en": "Username",
+    "sources": [
+      "cases/cases.js.COPY.username"
+    ]
+  },
+  {
+    "zh": "密码",
+    "en": "Password",
+    "sources": [
+      "cases/cases.js.COPY.password"
+    ]
+  },
+  {
+    "zh": "未能登录",
+    "en": "COULD NOT SIGN IN",
+    "sources": [
+      "cases/cases.js.COPY.loginFailed"
+    ]
+  },
+  {
+    "zh": "用户名或密码不正确",
+    "en": "The username or password is incorrect",
+    "sources": [
+      "cases/cases.js.COPY.badLogin"
+    ]
+  },
+  {
+    "zh": "成为软件合作伙伴",
+    "en": "Become a software partner",
+    "sources": [
+      "cases/cases.js.COPY.partner",
+      "cases/index.html:102"
+    ]
+  },
+  {
+    "zh": "介绍你的应用，以及它与 RM-01 结合的构想。我们将在审核后通过邮箱联系你。",
+    "en": "Tell us about your application and how you would combine it with RM-01. We will contact you by email after review.",
+    "sources": [
+      "cases/cases.js.COPY.partnerLead"
+    ]
+  },
+  {
+    "zh": "姓名",
+    "en": "Name",
+    "sources": [
+      "cases/cases.js.COPY.name"
+    ]
+  },
+  {
+    "zh": "公司／机构",
+    "en": "Company / organisation",
+    "sources": [
+      "cases/cases.js.COPY.company"
+    ]
+  },
+  {
+    "zh": "工作邮箱",
+    "en": "Work email",
+    "sources": [
+      "cases/cases.js.COPY.email"
+    ]
+  },
+  {
+    "zh": "你的应用解决什么问题？如何与 RM-01 结合？",
+    "en": "What problem does your application solve, and how would it combine with RM-01?",
+    "sources": [
+      "cases/cases.js.COPY.reason"
+    ]
+  },
+  {
+    "zh": "你如何理解 RM-01？团队有哪些模型与应用开发经验？",
+    "en": "How do you understand RM-01? What model and application development experience does your team have?",
+    "sources": [
+      "cases/cases.js.COPY.ability"
+    ]
+  },
+  {
+    "zh": "提交申请",
+    "en": "Submit",
+    "sources": [
+      "cases/cases.js.COPY.submit"
+    ]
+  },
+  {
+    "zh": "提交后由团队审核，并通过你填写的邮箱联系。合作申请不自动获得演示与下载权限。",
+    "en": "The team reviews every application and replies by email. An application does not grant access to demos or downloads.",
+    "sources": [
+      "cases/cases.js.COPY.review"
+    ]
+  },
+  {
+    "zh": "申请已收到。团队将通过邮箱与你联系。",
+    "en": "Application received. The team will contact you by email.",
+    "sources": [
+      "cases/cases.js.COPY.received"
+    ]
+  },
+  {
+    "zh": "此账号尚未获得查看演示权限，请联系账号发放人。",
+    "en": "This account is not yet authorised to view demos. Please contact whoever issued it.",
+    "sources": [
+      "cases/cases.js.COPY.noDemo"
+    ]
+  },
+  {
+    "zh": "此账号尚未获得下载资料权限，请联系账号发放人。",
+    "en": "This account is not yet authorised to download materials. Please contact whoever issued it.",
+    "sources": [
+      "cases/cases.js.COPY.noDownload"
+    ]
+  },
+  {
+    "zh": "该案例的演示或资料尚未接入。",
+    "en": "The demo or materials for this case are not connected yet.",
+    "sources": [
+      "cases/cases.js.COPY.notConnected"
+    ]
+  },
+  {
+    "zh": "尚未接入",
+    "en": "NOT YET CONNECTED",
+    "sources": [
+      "cases/cases.js.COPY.notConnectedLabel"
+    ]
+  },
+  {
+    "zh": "此账号没有访问权限。",
+    "en": "This account has no access.",
+    "sources": [
+      "cases/cases.js.COPY.noAccess"
+    ]
+  },
+  {
+    "zh": "暂时无法打开，请稍后重试。",
+    "en": "Cannot be opened right now. Please try again later.",
+    "sources": [
+      "cases/cases.js.COPY.tryLater"
+    ]
+  },
+  {
+    "zh": "账号服务暂时不可用",
+    "en": "The account service is temporarily unavailable",
+    "sources": [
+      "cases/cases.js.COPY.serviceDown",
+      "assets/case-auth.js.PANEL.unavailable"
+    ]
+  },
+  {
+    "zh": "授权访问",
+    "en": "AUTHORISED ACCESS",
+    "sources": [
+      "assets/case-auth.js.PANEL.label"
+    ]
+  },
+  {
+    "zh": "已有官方分发的账号？登录后可进入获准的演示与下载资料。",
+    "en": "Have an account issued by us? Sign in to open the demos and materials you are authorised to use.",
+    "sources": [
+      "assets/case-auth.js.PANEL.hint"
+    ]
+  },
+  {
+    "zh": "查看演示",
+    "en": "View demos",
+    "sources": [
+      "assets/case-auth.js.PANEL.demos"
+    ]
+  },
+  {
+    "zh": "下载相关资料",
+    "en": "Download materials",
+    "sources": [
+      "assets/case-auth.js.PANEL.downloads"
+    ]
+  },
+  {
+    "zh": "已授权",
+    "en": "Authorised",
+    "sources": [
+      "assets/case-auth.js.PANEL.on"
+    ]
+  },
+  {
+    "zh": "未授权",
+    "en": "Not authorised",
+    "sources": [
+      "assets/case-auth.js.PANEL.off"
+    ]
+  },
+  {
+    "zh": "管理后台",
+    "en": "Admin console",
+    "sources": [
+      "assets/case-auth.js.PANEL.admin"
+    ]
+  },
+  {
+    "zh": "退出登录",
+    "en": "Sign out",
+    "sources": [
+      "assets/case-auth.js.PANEL.signOut"
+    ]
+  },
+  {
+    "zh": "让 AI 走进",
+    "en": "Bringing AI into",
+    "sources": [
+      "cases/index.html:94"
+    ]
+  },
+  {
+    "zh": "具体的工作。",
+    "en": "real work.",
+    "sources": [
+      "cases/index.html:94"
+    ]
+  },
+  {
+    "zh": "从日常事务到工业研发，探索 AI 在真实业务中的应用。找到与你相关的场景，进一步了解资料与演示。",
+    "en": "From everyday tasks to industrial R&D, explore how AI is used in real business. Find the scenarios relevant to you and learn more about materials and demos.",
+    "sources": [
+      "cases/index.html:95"
+    ]
+  },
+  {
+    "zh": "让你的应用，被更多人看见。",
+    "en": "Let more people see your application.",
+    "sources": [
+      "cases/index.html:100"
+    ]
+  },
+  {
+    "zh": "与我们共同探索基于 RM-01 的软件应用与交付。",
+    "en": "Explore software applications and delivery built on RM-01 with us.",
+    "sources": [
+      "cases/index.html:101"
+    ]
   }
 ]

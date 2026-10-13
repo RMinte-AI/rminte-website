@@ -3,7 +3,7 @@ window.RM_SOFT = {
     ['gallery', { zh: '图册', en: 'Gallery' }, { href: 'gallery/index.html' }],
     ['models', { zh: '模型', en: 'Models' }, { href: 'models/index.html' }],
     ['engine', { zh: '产品', en: 'Product' }],
-    ['teardown', { zh: '架构', en: 'Architecture' }],
+    ['cases', { zh: '案例', en: 'Application cases' }, { href: 'cases/index.html' }],
     ['guides', { zh: '指南', en: 'Guides' }, { href: 'guides/index.html' }],
     ['downloads', { zh: '下载', en: 'Downloads' }, { href: 'downloads/index.html' }]
   ],

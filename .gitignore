@@ -4,3 +4,7 @@
 outputs/
 rm01-website/images/hardware-scroll.mp4
 .font-cache/
+
+# Private case access initialization
+services/case-access/.dev.vars
+services/case-access/.local/
