@@ -29,6 +29,9 @@ test('production Markdown, shared dependencies and new production files cannot u
   assert.equal(classify([{status:'M',paths:['website/guides/content/admin.md']}]).guides,true);
   assert.equal(classify([{status:'M',paths:['website/assets/brand.css']}]).pages.length,12);
   assert.equal(classify([{status:'A',paths:['website/new-feature/unknown.js']}]).pages.length,12);
+  const translated=classify([{status:'M',paths:['website/assets/translations/fr.js']}]);
+  assert.ok(translated.languages.includes('fr'));
+  assert.deepEqual(translated.pages.find(page=>page.id==='lamp').languages,['zh','en']);
   assert.equal(classify([{status:'M',paths:['docs/example.md']}]).pages.length,0);
   assert.throws(()=>classify([{status:'A',paths:['unclassified-code.py']}]),/No CI scope/);
 });

@@ -12,7 +12,7 @@ export const pages = [
   {id:'downloads', path:'/downloads/', file:'website/downloads/index.html', regions:['main']},
   {id:'guides', path:'/guides/', file:'website/guides/index.html', regions:['main']},
   ...['admin','root','security','network'].map(id => ({id:`guide-${id}`,path:`/guides/${id}`,file:`website/guides/${id}.html`,regions:['main']})),
-  {id:'lamp', path:'/tools/emoji2pixel/', file:'website/tools/emoji2pixel/index.html', regions:['body']}
+  {id:'lamp', path:'/tools/emoji2pixel/', file:'website/tools/emoji2pixel/index.html', regions:['body'],languages:['zh','en']}
 ];
 
 export function git(root, ...args) {
