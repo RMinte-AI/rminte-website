@@ -62,6 +62,11 @@ for(const descriptor of run.scope.pages)for(const language of languages(descript
         await page.locator('[data-gallery-next]').click();await expect(count).toHaveText('02');
         await settled();await page.keyboard.press('ArrowLeft');await expect(count).toHaveText('01');
         await settled();
+        const total=(await page.locator('.gallery-count span').last().textContent()).trim();
+        await page.locator('[data-gallery-previous]').click();await expect(count).toHaveText(total);
+        await settled();await layout(page);
+        await page.locator('[data-gallery-next]').click();await expect(count).toHaveText('01');
+        await settled();
         if(width===390) {
           await stage.scrollIntoViewIfNeeded();const box=await stage.boundingBox();
           const cdp=await context.newCDPSession(page),y=box.y+box.height/2;
