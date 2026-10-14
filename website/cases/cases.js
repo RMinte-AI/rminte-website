@@ -165,7 +165,7 @@
   function action(type, selected) {
     const item = selected === undefined ? null : cases[Number(selected)];
     if (type === 'demo' || type === 'download') {
-      pendingResource = {kind: type, id: caseIds[Number(selected)], item};
+      pendingResource = {kind: type, id: caseIds[Number(selected)], item, trigger: document.activeElement};
       if (CASE_AUTH.user) { enterResource(); return; }
     }
     if (type === 'login' || type === 'demo' || type === 'download') {
@@ -186,7 +186,13 @@
       const check = await fetch(url, {method: 'HEAD', credentials: 'same-origin'}).catch(() => { throw fail(COPY.tryLater); });
       if (!check.ok) throw fail(check.status === 503 ? COPY.notConnected : check.status === 403 ? COPY.noAccess : COPY.tryLater);
       dialog.close();
-      location.assign(url);
+      if (resource.kind === 'demo' && resource.id === 'industrial-modeling') {
+        const title = document.getElementById('case-demo-title');
+        setPair(title, resource.item.name);
+        title.setAttribute('data-case-text', '');
+        paint(title.parentElement);
+        CASE_DEMO.open(`${url}/index.html?embed=1`, resource.trigger);
+      } else location.assign(url);
     } catch (error) {
       open(`${heading(resource.item.name)}${status}`);
       say(body.querySelector('[role=status]'), explain(error), error.pair === COPY.notConnected ? COPY.notConnectedLabel : undefined);
@@ -210,7 +216,7 @@
     if (event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom) dialog.close();
   });
   // A close event can arrive after the dialog was opened again (a quick answer to the resource check): leave the new content alone.
-  dialog.addEventListener('close', () => { if (dialog.open) return; body.innerHTML = ''; opener?.focus(); });
+  dialog.addEventListener('close', () => { if (dialog.open) return; body.innerHTML = ''; if (!document.getElementById('case-demo-modal').open) opener?.focus(); });
   dialog.addEventListener('submit', async (event) => {
     event.preventDefault();
     const form = event.target, button = form.querySelector('[type=submit]'), slot = form.querySelector('[role=status]');
