@@ -1,0 +1,89 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {mkdtempSync,writeFileSync,mkdirSync,rmSync,cpSync,readFileSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {join,resolve} from 'node:path';
+import {execFileSync,spawnSync} from 'node:child_process';
+import {createHash} from 'node:crypto';
+import {changedPaths,classify,checkDescription,git} from './scope.mjs';
+import {checkHtml,checkCss,syntax,generatedCheck} from './static.mjs';
+import {validateEvidence,gateResult} from './report.mjs';
+
+test('real divergent history classifies only the PR change, including renames and deletion',()=>{
+  const root=mkdtempSync(join(tmpdir(),'rminte-git-'));
+  try {
+    git(root,'init','-b','main');git(root,'config','user.name','CI Fixture');git(root,'config','user.email','ci@example.invalid');
+    writeFileSync(join(root,'README.md'),'initial\n');mkdirSync(join(root,'website/assets'),{recursive:true});writeFileSync(join(root,'website/assets/brand.css'),'a{color:white}\n');
+    git(root,'add','README.md','website');git(root,'commit','-m','base');const common=git(root,'rev-parse','HEAD').trim();
+    writeFileSync(join(root,'website/assets/main.js'),'console.log("main only")');git(root,'add','website');git(root,'commit','-m','main advances');const base=git(root,'rev-parse','HEAD').trim();
+    git(root,'switch','-c','contributor',common);writeFileSync(join(root,'README.md'),'docs PR\n');git(root,'add','README.md');git(root,'commit','-m','docs');
+    const changes=changedPaths(root,base,'HEAD');assert.deepEqual(changes,[{status:'M',paths:['README.md']}]);assert.equal(classify(changes).pages.length,0);
+    git(root,'mv','website/assets/brand.css','website/assets/other.css');git(root,'commit','-m','rename');
+    const renamed=changedPaths(root,base,'HEAD');assert.ok(renamed.some(c=>c.status.startsWith('R')&&c.paths.includes('website/assets/brand.css')));assert.equal(classify(renamed).brand,true);
+    git(root,'rm','website/assets/other.css');git(root,'commit','-m','delete');assert.equal(classify(changedPaths(root,base,'HEAD')).brand,true);
+    assert.throws(()=>changedPaths(root,'missing-ref','HEAD'));
+  }finally{rmSync(root,{recursive:true,force:true});}
+});
+
+test('production Markdown, shared dependencies and new production files cannot use the documentation exemption',()=>{
+  assert.equal(classify([{status:'M',paths:['website/guides/content/admin.md']}]).guides,true);
+  assert.equal(classify([{status:'M',paths:['website/assets/brand.css']}]).pages.length,12);
+  assert.equal(classify([{status:'A',paths:['website/new-feature/unknown.js']}]).pages.length,12);
+  assert.equal(classify([{status:'M',paths:['docs/example.md']}]).pages.length,0);
+  assert.throws(()=>classify([{status:'A',paths:['unclassified-code.py']}]),/No CI scope/);
+});
+
+test('Owner has no mandatory review material; an empty contributor description is rejected',()=>{
+  assert.doesNotThrow(()=>checkDescription({author:'massif-01',body:''}));
+  assert.throws(()=>checkDescription({author:'contributor',body:'## 问题与原因\n<!-- comment only -->'}),/missing/);
+  assert.doesNotThrow(()=>checkDescription({author:'contributor',body:['问题与原因','影响范围','验证结果','依据与限制'].map(s=>`## ${s}\n真实说明\n`).join('\n')}));
+});
+
+test('actual malformed JavaScript, CSS and missing referenced resources are rejected',()=>{
+  assert.throws(()=>syntax('function broken(', 'bad.js'));
+  const root=mkdtempSync(join(tmpdir(),'rminte-resources-'));
+  try {
+    mkdirSync(join(root,'website'));writeFileSync(join(root,'website/index.html'),'<script src="missing.js"></script>');assert.throws(()=>checkHtml(root,'website/index.html'),/missing local resource/);
+    writeFileSync(join(root,'website/index.html'),'<script>function broken(</script>');assert.throws(()=>checkHtml(root,'website/index.html'));
+    writeFileSync(join(root,'website/bad.css'),'a { color: red;');assert.throws(()=>checkCss(root,'website/bad.css'));
+  }finally{rmSync(root,{recursive:true,force:true});}
+});
+
+test('the real font checker rejects a newly introduced Chinese character',()=>{
+  const root=mkdtempSync(join(tmpdir(),'rminte-font-'));
+  try {
+    mkdirSync(join(root,'website/scripts'),{recursive:true});mkdirSync(join(root,'website/assets'),{recursive:true});
+    cpSync('website/assets/fonts',join(root,'website/assets/fonts'),{recursive:true});cpSync('website/scripts/build-fonts.py',join(root,'website/scripts/build-fonts.py'));
+    const have=readFileSync('website/assets/fonts/noto-sans-sc.chars.txt','utf8');let cp=0x4e00;while(have.includes(String.fromCodePoint(cp)))cp++;
+    writeFileSync(join(root,'website/index.html'),`<p>${String.fromCodePoint(cp)}</p>`);
+    const result=spawnSync('python3',['website/scripts/build-fonts.py','--check'],{cwd:root,encoding:'utf8'});
+    assert.equal(result.status,1);assert.match(result.stdout,/not in the subset/);assert.ok(result.stdout.includes(String.fromCodePoint(cp)));
+  }finally{rmSync(root,{recursive:true,force:true});}
+});
+
+test('generated-output check detects stale files without changing the checkout',()=>{
+  const root=mkdtempSync(join(tmpdir(),'rminte-derived-'));
+  try {
+    mkdirSync(join(root,'website'));writeFileSync(join(root,'website/generate.mjs'),'import {writeFileSync} from "node:fs";writeFileSync(new URL("output.js",import.meta.url),"fresh");');
+    writeFileSync(join(root,'website/output.js'),'stale');
+    assert.throws(()=>generatedCheck(root,'website/generate.mjs',['website/output.js']),/stale generated/);assert.equal(readFileSync(join(root,'website/output.js'),'utf8'),'stale');
+  }finally{rmSync(root,{recursive:true,force:true});}
+});
+
+test('evidence for another Head, missing screenshots and altered image bytes fail the gate',()=>{
+  const root=mkdtempSync(join(tmpdir(),'rminte-evidence-')),directory=join(root,'output/ci/evidence');
+  try {
+    mkdirSync(join(directory,'records'),{recursive:true});
+    const context={baseSha:'base',headSha:'head',testSha:'merge',scope:{pages:[{id:'gallery',regions:['main']}],languages:['en'],widths:[390]}};
+    writeFileSync(join(directory,'manifest.json'),JSON.stringify({...context,headSha:'old'}));assert.throws(()=>validateEvidence(root,context),/headSha/);
+    writeFileSync(join(directory,'manifest.json'),JSON.stringify(context));assert.throws(()=>validateEvidence(root,context),/Required screenshot missing/);
+    const bytes=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aK1cAAAAASUVORK5CYII=','base64');
+    writeFileSync(join(directory,'image.png'),bytes);
+    const records=['before','after'].map(phase=>({phase,page:'gallery',language:'en',width:390,region:'main',file:'image.png',sha256:createHash('sha256').update(bytes).digest('hex')}));
+    writeFileSync(join(directory,'records/gallery.json'),JSON.stringify(records));assert.equal(validateEvidence(root,context).screenshots,2);
+    writeFileSync(join(directory,'image.png'),Buffer.concat([bytes,Buffer.from('altered')]));assert.throws(()=>validateEvidence(root,context),/checksum/);
+    assert.throws(()=>gateResult([{name:'browser',required:true,status:'cancelled'}]),/did not pass/);
+    assert.throws(()=>gateResult([{name:'browser',required:true,status:'skipped'}]),/did not pass/);
+    assert.doesNotThrow(()=>gateResult([{name:'browser',required:false,status:'not-applicable'}]));
+  }finally{rmSync(root,{recursive:true,force:true});}
+});

@@ -1,0 +1,71 @@
+name: Website PR checks
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, reopened, synchronize, edited, ready_for_review]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: website-pr-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Website verification
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+          cache: npm
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.13'
+      - name: Install locked development tools
+        run: npm ci
+      - name: Determine browser scope
+        id: scope
+        run: node scripts/ci/scope.mjs
+      - name: Install Chromium
+        if: ${{ steps.scope.outputs.browser == 'true' }}
+        run: npx playwright install --with-deps chromium
+      - name: Verify the PR merge result and collect evidence
+        run: npm run verify
+      - name: Preserve results and diagnostic evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: website-pr-${{ github.event.pull_request.head.sha || github.sha }}-${{ github.run_id }}
+          retention-days: 30
+          if-no-files-found: error
+          path: |
+            output/ci/report.json
+            output/ci/report.md
+            output/ci/*.log
+            output/ci/browser-results.json
+            output/ci/evidence/
+            output/ci/playwright-report/
+            output/ci/test-results/
+
+  pr-gate:
+    name: pr-gate
+    needs: verify
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require successful verification
+        env:
+          VERIFY_RESULT: ${{ needs.verify.result }}
+        run: |
+          if [ "$VERIFY_RESULT" != success ]; then
+            echo "Required verification did not succeed: $VERIFY_RESULT"
+            exit 1
+          fi
