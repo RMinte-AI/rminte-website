@@ -28,7 +28,10 @@ test('real divergent history classifies only the PR change, including renames an
 test('production Markdown, shared dependencies and new production files cannot use the documentation exemption',()=>{
   assert.equal(classify([{status:'M',paths:['website/guides/content/admin.md']}]).guides,true);
   assert.equal(classify([{status:'M',paths:['website/assets/brand.css']}]).pages.length,12);
-  assert.equal(classify([{status:'A',paths:['website/new-feature/unknown.js']}]).pages.length,12);
+  const unknown=classify([{status:'A',paths:['website/new-feature/unknown.js']}]);
+  assert.equal(unknown.pages.length,12);assert.equal(unknown.homeMotion,true);
+  const wave=classify([{status:'M',paths:['website/assets/wave.js']}]);
+  assert.deepEqual(wave.pages.map(page=>page.id),['home']);assert.equal(wave.homeMotion,true);
   const translated=classify([{status:'M',paths:['website/assets/translations/fr.js']}]);
   assert.ok(translated.languages.includes('fr'));
   assert.deepEqual(translated.pages.find(page=>page.id==='lamp').languages,['zh','en']);

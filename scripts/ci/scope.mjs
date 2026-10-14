@@ -81,8 +81,8 @@ export function classify(changes,{all=false}={}) {
     if(file.startsWith('website/admin/')) {ids.add('admin');continue;}
     if(/website\/assets\/case-(?:ui|auth)/.test(file)) {ids.add('cases');ids.add('admin');continue;}
     if(file.startsWith('website/tools/emoji2pixel/')) {ids.add('lamp');continue;}
-    if(file==='website/index.html'||/website\/assets\/(?:main\.js|engine|system|images\/|videos\/|teardown-frames)/.test(file)) {ids.add('home');scope.homeMotion=true;continue;}
-    addAll(); // Unknown production assets can affect more than one entry page.
+    if(file==='website/index.html'||/website\/assets\/(?:main\.js|wave\.js|engine|system|images\/|videos\/|teardown-frames)/.test(file)) {ids.add('home');scope.homeMotion=true;continue;}
+    addAll();scope.homeMotion=true; // Unknown production assets can also affect normal homepage motion.
   }
   if(all) {addAll();Object.assign(scope,{fonts:true,brand:true,exif:true,guides:true,translations:true,seo:true,caseService:true,ota:true,homeMotion:true,infrastructure:true});}
   scope.pages=pages.filter(page=>ids.has(page.id));scope.languages=[...languages];
