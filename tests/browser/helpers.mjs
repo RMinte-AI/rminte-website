@@ -81,7 +81,8 @@ export async function layout(page) {
 
 export async function screenshotRegion(page,region,file) {
   const target=page.locator(region).first();await expect(target).toBeVisible();
-  await target.scrollIntoViewIfNeeded();
+  if(region==='body')await page.evaluate(()=>scrollTo({top:0,left:0,behavior:'instant'}));
+  else await target.scrollIntoViewIfNeeded();
   await target.locator('img[src]:not([src=""])').evaluateAll(async images=>{
     for(const image of images){image.loading='eager';await image.decode();}
   });
@@ -90,7 +91,8 @@ export async function screenshotRegion(page,region,file) {
     for(const video of document.querySelectorAll('video')){video.pause();if(video.readyState>0)video.currentTime=0;}
   });
   await layout(page);
-  await target.screenshot({path:file,animations:'disabled'});
+  if(region==='body')await page.screenshot({path:file,fullPage:true,animations:'disabled'});
+  else await target.screenshot({path:file,animations:'disabled'});
 }
 
 export async function capture(page,testInfo,descriptor,language,width,phase,region,audit) {

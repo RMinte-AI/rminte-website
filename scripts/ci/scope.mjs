@@ -5,13 +5,13 @@ import {fileURLToPath} from 'node:url';
 export const owner = 'massif-01';
 export const pages = [
   {id:'home', path:'/', file:'website/index.html', regions:['#hero','#engine','#teardown','#thermal','#sapphire','#craft']},
-  {id:'gallery', path:'/gallery/', file:'website/gallery/index.html', regions:['main']},
-  {id:'models', path:'/models/', file:'website/models/index.html', regions:['main']},
-  {id:'cases', path:'/cases/', file:'website/cases/index.html', regions:['main']},
+  {id:'gallery', path:'/gallery/', file:'website/gallery/index.html', regions:['body']},
+  {id:'models', path:'/models/', file:'website/models/index.html', regions:['body']},
+  {id:'cases', path:'/cases/', file:'website/cases/index.html', regions:['body']},
   {id:'admin', path:'/admin/', file:'website/admin/index.html', regions:['main'],languages:['zh']},
-  {id:'downloads', path:'/downloads/', file:'website/downloads/index.html', regions:['main']},
-  {id:'guides', path:'/guides/', file:'website/guides/index.html', regions:['main']},
-  ...['admin','root','security','network'].map(id => ({id:`guide-${id}`,path:`/guides/${id}`,file:`website/guides/${id}.html`,regions:['main']})),
+  {id:'downloads', path:'/downloads/', file:'website/downloads/index.html', regions:['body']},
+  {id:'guides', path:'/guides/', file:'website/guides/index.html', regions:['body']},
+  ...['admin','root','security','network'].map(id => ({id:`guide-${id}`,path:`/guides/${id}`,file:`website/guides/${id}.html`,regions:['body']})),
   {id:'lamp', path:'/tools/emoji2pixel/', file:'website/tools/emoji2pixel/index.html', regions:['body'],languages:['zh','en']}
 ];
 
