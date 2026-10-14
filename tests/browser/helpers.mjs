@@ -55,9 +55,23 @@ export async function layout(page) {
       const box=el.getBoundingClientRect(),style=getComputedStyle(el);
       if(!box.width||!box.height||style.visibility==='hidden'||Number(style.opacity)===0)continue;
       if(el.scrollWidth>el.clientWidth+3)errors.push(`text overflow: ${el.textContent.trim().slice(0,70)}`);
-      for(const node of el.childNodes)if(node.nodeType===Node.TEXT_NODE&&node.textContent.trim()) {
-        const range=document.createRange();range.selectNodeContents(node);
-        for(const r of range.getClientRects())if(r.left<-2||r.right>innerWidth+2)errors.push(`text clipped at viewport: ${node.textContent.trim().slice(0,70)}`);
+      const range=document.createRange();range.selectNodeContents(el);
+      for(const r of range.getClientRects()) {
+        if(r.left<-2||r.right>innerWidth+2)errors.push(`text clipped at viewport: ${el.textContent.trim().slice(0,70)}`);
+        for(let parent=el.parentElement;parent&&parent!==document.body;parent=parent.parentElement) {
+          const s=getComputedStyle(parent),clip=parent.getBoundingClientRect();
+          if(['hidden','clip'].includes(s.overflowX)&&(r.left<clip.left-2||r.right>clip.right+2))errors.push(`text clipped by ${parent.className||parent.tagName}: ${el.textContent.trim().slice(0,70)}`);
+          if(['hidden','clip'].includes(s.overflowY)&&(r.top<clip.top-2||r.bottom>clip.bottom+2))errors.push(`text clipped by ${parent.className||parent.tagName}: ${el.textContent.trim().slice(0,70)}`);
+        }
+      }
+    }
+    for(const image of document.querySelectorAll('.visual-stage .product-image')) {
+      const r=image.getBoundingClientRect();
+      if(!r.width||!r.height)continue;
+      for(let parent=image.parentElement;parent&&parent!==document.body;parent=parent.parentElement) {
+        const s=getComputedStyle(parent),clip=parent.getBoundingClientRect();
+        if(['hidden','clip'].includes(s.overflowX)&&(r.left<clip.left-2||r.right>clip.right+2))errors.push('gallery image clipped horizontally');
+        if(['hidden','clip'].includes(s.overflowY)&&(r.top<clip.top-2||r.bottom>clip.bottom+2))errors.push('gallery image clipped vertically');
       }
     }
     return errors;
