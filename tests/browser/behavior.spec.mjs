@@ -51,13 +51,19 @@ for(const descriptor of run.scope.pages)for(const language of languages(descript
         await expect(page.locator('html')).toHaveAttribute('lang',language==='zh'?'zh-CN':'en');
       }
       if(descriptor.id==='gallery') {
+        const stage=page.locator('.visual-stage');
+        const settled=async()=>{
+          await page.locator('.product-image').evaluate(image=>image.decode());
+          await expect(stage).not.toHaveClass(/is-changing/);
+          // The gallery releases its input lock 420ms after the decoded image is shown.
+          await page.waitForTimeout(450);
+        };
         const count=page.locator('.gallery-count strong');await expect(count).toHaveText('01');
         await page.locator('[data-gallery-next]').click();await expect(count).toHaveText('02');
-        await expect.poll(()=>page.locator('.product-image').evaluate(e=>e.complete&&e.naturalWidth>0)).toBe(true);
-        await page.waitForTimeout(450);await page.keyboard.press('ArrowLeft');await expect(count).toHaveText('01');
-        await page.waitForTimeout(450);
+        await settled();await page.keyboard.press('ArrowLeft');await expect(count).toHaveText('01');
+        await settled();
         if(width===390) {
-          const stage=page.locator('.visual-stage');await stage.scrollIntoViewIfNeeded();const box=await stage.boundingBox();
+          await stage.scrollIntoViewIfNeeded();const box=await stage.boundingBox();
           const cdp=await context.newCDPSession(page),y=box.y+box.height/2;
           await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:box.x+box.width*.8,y}]});
           await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:box.x+box.width*.3,y}]});
