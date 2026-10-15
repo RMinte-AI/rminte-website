@@ -31,7 +31,7 @@ export function resourceFile(root,from,reference) {
 export function syntax(source,file,type='classic') {
   if(type==='json'){JSON.parse(source);return;}
   try {execFileSync(process.execPath,['--check',`--input-type=${type==='module'?'module':'commonjs'}`],{input:source,encoding:'utf8',stdio:['pipe','pipe','pipe']});}
-  catch(e){throw new Error(`${file}: ${e.stderr||e.message}`);}
+  catch(e){throw new Error(`${file}: ${String(e.stderr||e.message).slice(-2000)}`);}
 }
 
 export function checkHtml(root,file) {
@@ -72,7 +72,13 @@ export function staticChecks(root,scope) {
     else if(file.endsWith('.css'))checkCss(root,file);
     else if(/\.(?:js|mjs|cjs)$/.test(file)) {
       const source=readFileSync(join(root,file),'utf8');
-      syntax(source,file,file.endsWith('.mjs')||/^(?:import|export)\s/m.test(source)?'module':'classic');
+      if(file.endsWith('.mjs'))syntax(source,file,'module');
+      else if(file.endsWith('.cjs'))syntax(source,file,'classic');
+      else {
+        // A .js asset may be a script or an ES module, including minified modules.
+        // Parse both grammars rather than guessing from the first token on a line.
+        try{syntax(source,file,'classic');}catch{syntax(source,file,'module');}
+      }
     }
     else if(file.endsWith('.json'))syntax(readFileSync(join(root,file),'utf8'),file,'json');
     else if(file.endsWith('.md')) {

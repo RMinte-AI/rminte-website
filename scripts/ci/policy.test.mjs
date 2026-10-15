@@ -6,7 +6,7 @@ import {join,resolve} from 'node:path';
 import {execFileSync,spawnSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {changedPaths,classify,checkDescription,git} from './scope.mjs';
-import {checkHtml,checkCss,syntax,generatedCheck} from './static.mjs';
+import {checkHtml,checkCss,syntax,generatedCheck,staticChecks} from './static.mjs';
 import {validateEvidence,gateResult} from './report.mjs';
 
 test('real divergent history classifies only the PR change, including renames and deletion',()=>{
@@ -66,6 +66,17 @@ test('private demo resources resolve within the private asset root and missing f
     assert.throws(()=>checkCss(root,'services/case-demos/assets/industrial-modeling/style.css'),/missing local resource/);
     rmSync(join(directory,'app.js'));
     assert.throws(()=>checkHtml(root,'services/case-demos/assets/industrial-modeling/index.html'),/missing local resource/);
+  }finally{rmSync(root,{recursive:true,force:true});}
+});
+
+test('minified ES modules are parsed as JavaScript while malformed bundles still fail',()=>{
+  const root=mkdtempSync(join(tmpdir(),'rminte-module-'));
+  const file='bundle.js';
+  try {
+    writeFileSync(join(root,file),'const value=1;export{value};');
+    assert.doesNotThrow(()=>staticChecks(root,{files:[file],pages:[]}));
+    writeFileSync(join(root,file),'const value=;export{value};');
+    assert.throws(()=>staticChecks(root,{files:[file],pages:[]}),/SyntaxError/);
   }finally{rmSync(root,{recursive:true,force:true});}
 });
 
