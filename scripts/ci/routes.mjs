@@ -1,7 +1,13 @@
+import {origin} from '../../website/scripts/seo.mjs';
 // One HTTP observation is shared by navigation checks, browser checks and the evidence report.
 export const operationName=(page,language,width)=>`operations ${page.id} ${language} ${width}px`;
 export const operationLanguages=(page,languages)=>languages.filter(language=>(!page.languages||page.languages.includes(language))&&(page.generic||['zh','en'].includes(language)));
 const redirects=new Set([301,302,303,307,308]);
+export function navigationPath(reference,base) {
+  if(!reference||reference.startsWith('#'))return null;
+  const url=new URL(reference,base);
+  return [new URL(base).origin,origin].includes(url.origin)&&!url.pathname.startsWith('/api/')?url.pathname+url.search:null;
+}
 
 export function routeEvidence(expected,response,phase='after') {
   const {status,location,finalStatus,external}=response;

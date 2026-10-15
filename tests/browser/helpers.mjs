@@ -56,7 +56,7 @@ export async function createBrowserAccount(base=afterURL) {
 export async function openPage(page,descriptor,language,base=afterURL) {
   const response=await page.goto(`${base}${descriptor.path}?lang=${language}`,{waitUntil:'domcontentloaded'});
   expect(response.status()).toBe(200);
-  await expect(page.locator('main').first()).toBeVisible();
+  await expect(page.locator(descriptor.contentRoot||'main').first()).toBeVisible();
   await page.evaluate(()=>document.fonts.ready);
   if(descriptor.id!=='lamp')await expect(page.locator('html')).toHaveAttribute('lang',{zh:'zh-CN',en:'en',ja:'ja',ko:'ko',es:'es-ES',fr:'fr-FR'}[language]);
   else await expect(page.locator('#langSelect')).toHaveValue(language==='zh'?'zh-CN':'en-US');

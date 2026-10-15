@@ -62,8 +62,8 @@ export function classify(changes,{all=false,staticRoutes=[],workerRoutes=[]}={})
   const guidePages=()=>pages.filter(page=>page.id.startsWith('guide')).forEach(page=>ids.add(page.id));
   if(changes.some(change=>/^[DR]/.test(change.status)&&/\.html?$/i.test(change.paths[0])))scope.navigationAll=true;
   for(const file of files) {
-    for(const page of catalog)if(page.dependencies?.some(input=>input.endsWith('/')?file.startsWith(input):file===input))ids.add(page.id);
-    if(file===workerPageManifest) {workerRoutes.forEach(route=>ids.add(catalog.find(page=>page.path===route.path).id));scope.navigationAll=true;continue;}
+    for(const page of catalog)if(page.dependencies?.some(input=>input.endsWith('/')?file.startsWith(input):file===input)){ids.add(page.id);scope.fonts=true;}
+    if(file===workerPageManifest) {workerRoutes.forEach(route=>ids.add(catalog.find(page=>page.path===route.path).id));scope.fonts=true;scope.navigationAll=true;continue;}
     if(document(file)) continue;
     if(infrastructure(file)) {scope.infrastructure=true;addAll();Object.assign(scope,{fonts:true,brand:true,exif:true,guides:true,translations:true,seo:true,caseService:true,caseMigrations:true,ota:true,homeMotion:true,navigationAll:true});continue;}
     if(destinations.has(file)&&(configuredFiles.has(file)||/(?:^|\/)wrangler\.(?:jsonc?|toml)$/.test(file)))scope.configurationFiles.push(file);
@@ -76,7 +76,7 @@ export function classify(changes,{all=false,staticRoutes=[],workerRoutes=[]}={})
     }
     if(file==='DESIGN.md'||file==='website/DESIGN.md') {addAll();continue;}
     if(file.startsWith('services/tianshanos-ota/')||file==='scripts/sync-tianshanos-release.mjs') {scope.ota=true;scope.fonts=true;continue;}
-    if(file.startsWith('services/case-access/')) {scope.caseService=true;if(file.startsWith('services/case-access/migrations/'))scope.caseMigrations=true;ids.add('cases');ids.add('admin');continue;}
+    if(file.startsWith('services/case-access/')||file.startsWith('services/case-demos/')) {scope.caseService=true;if(file.startsWith('services/case-access/migrations/'))scope.caseMigrations=true;ids.add('cases');ids.add('admin');continue;}
     if(file==='scripts/build-service-brand.mjs') {scope.brand=true;scope.ota=true;continue;}
     if(/(?:seo|_worker\.js|_routes\.json|_headers|_redirects|404\.html|robots\.txt|sitemap\.xml)/.test(file)) {scope.seo=true;scope.navigationAll=true;addAll();if(file.endsWith('_worker.js'))scope.caseService=true;continue;}
     if(file.startsWith('website/scripts/')) {
@@ -140,6 +140,8 @@ export function context(root,{base,head,all=false}={}) {
     const sourceExists={before:page.file!==null&&baseFiles.has(page.file),after:page.file!==null&&existsSync(join(root,page.file))};
     return {...page,sourceExists,expected:{before:sourceExists.before||beforeRoutes.some(route=>route.path===page.path),after:sourceExists.after||afterRoutes.some(route=>route.path===page.path)}};
   });
+  scope.caseService ||= scope.pages.some(page=>['cases','admin'].includes(page.id));
+  scope.caseDemos=scope.caseService&&existsSync(join(root,'services/case-demos/wrangler.jsonc'));
   scope.pagePaths=[...new Set([...currentFiles.map(file=>htmlPage(file).path),...afterRoutes.map(route=>route.path)])];
   scope.navigationFiles=scope.navigationAll?[...new Set(currentFiles)]:[];
   return {schema:1,baseSha,headSha:git(root,'rev-parse',head).trim(),testSha:git(root,'rev-parse','HEAD').trim(),local:!process.env.CI,prNumber:pr?.number||null,author:pr?.user?.login||null,body:pr?.body||'',scope};
@@ -158,5 +160,5 @@ export function checkDescription({author,body}) {
 if(process.argv[1]===fileURLToPath(import.meta.url)) {
   const run=context(process.cwd());
   console.log(JSON.stringify({pages:run.scope.pages.map(p=>p.path),languages:run.scope.languages,widths:run.scope.widths,reason:run.scope.reason}));
-  if(process.env.GITHUB_OUTPUT)writeFileSync(process.env.GITHUB_OUTPUT,`browser=${run.scope.pages.length>0}\ncounterexamples=${run.scope.infrastructure}\n`,{flag:'a'});
+  if(process.env.GITHUB_OUTPUT)writeFileSync(process.env.GITHUB_OUTPUT,`browser=${run.scope.pages.length>0}\n`,{flag:'a'});
 }

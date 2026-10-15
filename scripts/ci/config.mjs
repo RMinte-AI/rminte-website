@@ -8,7 +8,8 @@ export const configurationProfiles={
     {file:'services/case-access/wrangler.jsonc',kind:'pages'}
   ],
   caseMigrations:[{file:'services/case-access/production.jsonc',kind:'d1',binding:'CASE_DB'}],
-  ota:[{file:'services/tianshanos-ota/wrangler.jsonc',kind:'worker'}]
+  ota:[{file:'services/tianshanos-ota/wrangler.jsonc',kind:'worker'}],
+  caseDemos:[{file:'services/case-demos/wrangler.jsonc',kind:'worker'}]
 };
 export const configuredFiles=new Map(Object.values(configurationProfiles).flat().map(profile=>[profile.file,profile]));
 
@@ -28,5 +29,13 @@ export function caseConfiguration(root,relative=configurationProfiles.caseServic
   if(!existsSync(entry)||!existsSync(assets))throw new Error('Case-access deployment entry/assets do not exist.');
   const database=config.d1_databases?.find(database=>database.binding==='CASE_DB');
   if(!database)throw new Error('Case-access configuration is missing CASE_DB.');
-  return {...config,entry,assets,database,migrations:resolve(dirname(file),database.migrations_dir||'migrations')};
+  const demoFile='services/case-demos/wrangler.jsonc',binding=config.services?.find(service=>service.binding==='CASE_DEMOS');
+  let demo;
+  if(existsSync(join(root,demoFile))||binding) {
+    demo=readJsonc(root,demoFile);
+    if(binding?.service!==demo.name)throw new Error('CASE_DEMOS must bind to the case-demos Worker declared in its configuration.');
+    if(demo.workers_dev!==false||demo.preview_urls!==false||!Array.isArray(demo.routes)||demo.routes.length)throw new Error('Case demos must remain private: disable workers.dev, preview URLs and public routes.');
+    demo={...demo,main:resolve(root,'services/case-demos',demo.main),assets:{...demo.assets,directory:resolve(root,'services/case-demos',demo.assets.directory)}};
+  }
+  return {...config,entry,assets,database,demo,migrations:resolve(dirname(file),database.migrations_dir||'migrations')};
 }

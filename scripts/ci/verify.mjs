@@ -14,7 +14,7 @@ import {checkNavigation} from './routes.mjs';
 const root=process.cwd(),output=join(root,'output/ci');mkdirSync(output,{recursive:true});
 const option=name=>process.argv.find(value=>value.startsWith(`--${name}=`))?.slice(name.length+3);
 const run=context(root,{base:option('base'),head:option('head'),all:process.argv.includes('--all')});
-for(const artifact of ['evidence','playwright-report','test-results','browser-results.json','secrets.json','counterexamples.json','counterexamples'])rmSync(join(output,artifact),{recursive:true,force:true});
+for(const artifact of ['evidence','playwright-report','test-results','browser-results.json','secrets.json'])rmSync(join(output,artifact),{recursive:true,force:true});
 writeFileSync(join(output,'context.json'),JSON.stringify(run,null,2));
 const checks=[];
 function requirePassing(stage) {
@@ -81,7 +81,8 @@ try {
     if(!after)throw new Error('Local Pages runtime did not start.');
     await command(process.execPath,['services/case-access/tests/integration.mjs'],'case-integration',after.runtime,after.env);
     await command(process.execPath,['services/case-access/tests/admin-password.mjs',join(root,'node_modules/wrangler/bin/wrangler.js')],'admin-password',after.runtime,after.env);
-    return 'Existing integration and password tests ran against temporary local data.';
+    if(run.scope.caseDemos)await command(process.execPath,['services/case-access/tests/cad-demo.mjs'],'case-demos',after.runtime,after.env);
+    return 'Account and connected demo tests ran against temporary local data.';
   },'No case-access API dependency changed.');
   await check('SEO HTTP',run.scope.seo,()=>{
     if(!after)throw new Error('Local Pages runtime did not start.');

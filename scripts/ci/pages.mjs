@@ -5,7 +5,8 @@ export const workerPageManifest='tests/browser/worker-pages.json';
 
 export function htmlPage(file) {
   const path='/'+file.slice('website/'.length).replace(/(^|\/)index\.html$/,'$1').replace(/\.html$/,'').split('/').map(encodeURIComponent).join('/');
-  return {id:'route-'+encodeURIComponent(file.slice('website/'.length)),path,file,regions:['body'],generic:true};
+  const standalone=file.startsWith('website/tianshanos-demo/');
+  return {id:'route-'+encodeURIComponent(file.slice('website/'.length)),path,file,regions:['body'],generic:true,...(standalone?{languages:['zh'],contentRoot:'body'}:{})};
 }
 
 // A Worker can compute arbitrary URLs: its HTML entry points and their inputs must be declared.

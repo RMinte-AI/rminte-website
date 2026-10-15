@@ -5,33 +5,31 @@ import {execFileSync} from 'node:child_process';
 import {parse} from 'parse5';
 import postcss from 'postcss';
 import {readJsonc} from './config.mjs';
-import {origin} from '../../website/scripts/seo.mjs';
+import {navigationPath} from './routes.mjs';
 
 export function markup(source) {
   const elements=[];
   function visit(node) {if(node.tagName) elements.push(node);for(const child of node.childNodes||[])visit(child);if(node.content)visit(node.content);}
   visit(parse(source));return elements;
 }
+const assetRoot=file=>file.startsWith('services/case-demos/assets/')?'services/case-demos/assets':'website';
 const attr=(node,key)=>node.attrs?.find(a=>a.name===key)?.value;
 function navigationURL(file,reference) {
-  if(!reference||reference.startsWith('#'))return null;
-  const url=new URL(reference,new URL('/'+file.replace(/^website\//,''),'https://ci.invalid'));
-  if(!['https://ci.invalid',origin].includes(url.origin))return null;
-  return url.pathname.startsWith('/api/')?null:url.pathname+url.search;
+  if(!file.startsWith('website/')||!reference||reference.startsWith('#'))return null;
+  return navigationPath(reference,new URL('/'+file.slice('website/'.length),'https://ci.invalid'));
 }
 
 export function resourceFile(root,from,reference,{navigation=false}={}) {
   if(!reference||/^(?:[a-z][a-z0-9+.-]*:|\/\/|#)/i.test(reference)) return null;
-  const url=new URL(reference,new URL('/'+from.replace(/^website\//,''),'https://ci.invalid'));
+  const directory=assetRoot(from),base=resolve(root,directory);
+  const url=new URL(reference,new URL('/'+from.slice(directory.length+1),'https://ci.invalid'));
   if(url.pathname==='/visitor-language.js'||url.pathname.startsWith('/api/')) return null;
-  let file=resolve(root,'website','.'+decodeURIComponent(url.pathname));
-  if(file!==resolve(root,'website')&&!file.startsWith(resolve(root,'website')+'/')) throw new Error(`${from}: reference outside website: ${reference}`);
+  if(navigation)return null; // Navigation is an HTTP contract, independent of the URL's suffix or producer.
+  let file=resolve(base,'.'+decodeURIComponent(url.pathname));
+  if(file!==base&&!file.startsWith(base+'/'))throw new Error(`${from}: reference outside deployed assets: ${reference}`);
   if(existsSync(file)&&statSync(file).isDirectory())file=join(file,'index.html');
   if(!existsSync(file)&&!extname(file))file+='.html';
-  if(!existsSync(file)) {
-    if(navigation&&(!extname(file)||/\.html?$/i.test(file)))return null;
-    throw new Error(`${from}: missing local resource ${reference}`);
-  }
+  if(!existsSync(file))throw new Error(`${from}: missing local resource ${reference}`);
   return file;
 }
 
@@ -88,7 +86,7 @@ export function staticChecks(root,scope) {
     else if(file.endsWith('.css'))checkCss(root,file);
     else if(/\.(?:js|mjs|cjs)$/.test(file)) {
       const source=readFileSync(join(root,file),'utf8');
-      syntax(source,file,file.endsWith('.mjs')||/^(?:import|export)\s/m.test(source)?'module':'classic');
+      syntax(source,file,file.endsWith('.cjs')?'classic':'module');
     }
     else if(file.endsWith('.json'))syntax(readFileSync(join(root,file),'utf8'),file,'json');
     else if(/\.jsonc$/i.test(file))readJsonc(root,file);
