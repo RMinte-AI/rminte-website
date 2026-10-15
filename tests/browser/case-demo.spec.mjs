@@ -1,5 +1,17 @@
-import {test,expect} from '@playwright/test';
+import {test as base,expect} from '@playwright/test';
 import {active,afterURL,loginFixture,setup} from './helpers.mjs';
+
+// Reuse one real local session per worker instead of repeatedly logging in
+// for every locale and viewport (which would test the login rate limit).
+const test=base.extend({
+  demoSession:[async({playwright},use)=>{
+    const request=await playwright.request.newContext();
+    await loginFixture({request},afterURL,'after');
+    await use(await request.storageState());
+    await request.dispose();
+  },{scope:'worker'}],
+  storageState:async({demoSession},use)=>use(demoSession)
+});
 
 const titles={zh:'CAD 互动演示',en:'CAD interactive demo',ja:'CAD インタラクティブデモ',ko:'CAD 인터랙티브 데모',es:'Demostración interactiva de CAD',fr:'Démonstration interactive de CAO'};
 
@@ -10,10 +22,9 @@ for(const [language,title] of Object.entries(titles))for(const width of [1440,39
     test.skip(!active('cases'),'Cases page is outside this change');
     await page.setViewportSize({width,height:900});
     const audit=await setup(page,language);
-    await loginFixture(page,afterURL,'after');
     await page.route('**/api/resources/industrial-modeling/demo',route=>route.fulfill({status:200,contentType:'text/html',body:''}));
     await page.route('**/api/resources/industrial-modeling/demo/index.html?embed=1',route=>route.fulfill({contentType:'text/html',body:'<!doctype html><html><body>Modal test fixture<script>parent.postMessage({type:"case-demo-height",height:600},location.origin)</script></body></html>'}));
-    await page.goto(`${afterURL}/cases/?lang=${language}`);
+    await page.goto(`${afterURL}/cases/?lang=${language}`,{waitUntil:'domcontentloaded'});
     const opener=page.locator('[data-action="demo"][data-selected="8"]');
     // Safari pointer clicks do not necessarily focus buttons. Suppress that
     // browser default so the test requires the delegated click target itself.
