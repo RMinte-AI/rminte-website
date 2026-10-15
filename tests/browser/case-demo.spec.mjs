@@ -13,7 +13,7 @@ const test=base.extend({
   storageState:async({demoSession},use)=>use(demoSession)
 });
 
-const titles={zh:'CAD 互动演示',en:'CAD interactive demo',ja:'CAD インタラクティブデモ',ko:'CAD 인터랙티브 데모',es:'Demostración interactiva de CAD',fr:'Démonstration interactive de CAO'};
+const titles={zh:'演示',en:'Demo',ja:'デモ',ko:'데모',es:'Demo',fr:'Démo'};
 
 // This fixture isolates the website's modal contract. The actual CAD resource
 // gateway is exercised separately by the case's real HTTP integration test.
