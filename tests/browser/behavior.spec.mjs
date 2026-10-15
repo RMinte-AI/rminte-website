@@ -1,8 +1,9 @@
 import {test,expect} from '@playwright/test';
 import {readFileSync} from 'node:fs';
 import {join} from 'node:path';
+import {pathToFileURL} from 'node:url';
 import {operationName,operationLanguages,navigationPath,checkNavigation} from '../../scripts/ci/routes.mjs';
-import {run,setup,openPage,inspectRoute,layout,afterURL,loginFixture,createBrowserAccount} from './helpers.mjs';
+import {run,setup,openPage,inspectRoute,layout,afterURL,createBrowserAccount} from './helpers.mjs';
 
 for(const descriptor of run.scope.pages)for(const language of operationLanguages(descriptor,run.scope.languages))for(const width of [1440,390]) {
   test.describe(operationName(descriptor,language,width),()=>{
@@ -16,9 +17,9 @@ for(const descriptor of run.scope.pages)for(const language of operationLanguages
       }
       await openPage(page,descriptor,language);
       await layout(page);
+      const links=(await page.locator('a[href],area[href]').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('href')))).map(link=>navigationPath(link,page.url())).filter(Boolean);
+      await checkNavigation(afterURL,[...new Set(links)],run.scope.pagePaths);
       if(descriptor.generic) {
-        const links=(await page.locator('a[href],area[href]').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('href')))).map(link=>navigationPath(link,page.url())).filter(Boolean);
-        await checkNavigation(afterURL,links,run.scope.pagePaths);
         expect(audit.problems).toEqual([]);return;
       }
       if(descriptor.id==='admin') {
@@ -118,6 +119,10 @@ for(const descriptor of run.scope.pages)for(const language of operationLanguages
       if(descriptor.id==='cases') {
         const card=page.locator('.cs-card').first();const more=card.locator('.cs-more');await more.click();await expect(more).toHaveAttribute('aria-expanded','true');
         const demo=page.locator('[data-action="demo"]').first();await demo.click();await expect(page.locator('dialog[open]')).toBeVisible();await page.keyboard.press('Escape');await expect(page.locator('dialog[open]')).toHaveCount(0);
+        const assetURLs=run.scope.demos.flatMap(item=>[item.route,...item.files.map(file=>item.route+'/'+file.split('/').map(encodeURIComponent).join('/'))]);
+        for(const url of assetURLs)expect((await page.request.get(afterURL+url)).status(),url).toBe(401);
+        for(const item of run.scope.demos)expect((await page.request.get(afterURL+item.assetPath+'index.html')).status(),item.id+' stays private').toBe(404);
+        const missing=afterURL+'/api/resources/ci-unregistered';
         const account=await createBrowserAccount();
         try {
           await account.setPermissions({can_demo:true,can_download:false});
@@ -131,42 +136,52 @@ for(const descriptor of run.scope.pages)for(const language of operationLanguages
           await page.locator('#login-form [type=submit]').click();expect((await accepted).status()).toBe(200);
           await expect(page.locator('#access .who')).toHaveText(account.username);
           await expect(page.locator('#access li').first()).toHaveAttribute('data-state','ok');
-          const resource=page.waitForResponse(r=>r.url()===afterURL+'/api/resources/digital-toll/demo',{timeout:10000});
-          await demo.click();expect((await resource).status()).toBe(503);
-          await expect(page.locator('#dialog-body [role=status]')).toContainText(language==='zh'?'演示或资料尚未接入':'not connected yet');
-          await expect(page.locator('#dialog-body [role=status] b')).toHaveText(language==='zh'?'尚未接入':'NOT YET CONNECTED');
-          await page.keyboard.press('Escape');await expect(demo).toBeFocused();
-          if(run.scope.caseDemos) {
-            const trigger=page.locator('[data-action="demo"][data-selected="8"]'),modal=page.locator('#case-demo-modal'),frame=page.frameLocator('#case-demo-frame');
-            await trigger.click();await expect(modal).toBeVisible();await expect(frame.locator('#start')).toBeVisible();
-            await expect(frame.locator('#viewer-error')).toBeHidden();
-            await testInfo.attach('demo initial state',{body:await modal.screenshot(),contentType:'image/png'});
-            await frame.locator('#start').click();await frame.locator('[data-answer="18"]').click();await frame.locator('[data-answer="1"]').click();
-            await expect(frame.locator('#status')).toHaveText('半成品已生成');await expect(frame.locator('#progress-count')).toHaveText('3 / 4 步');
-            await frame.locator('#prompt').fill('方槽改为16毫米');await frame.locator('#send').click();
-            await expect(frame.locator('#versions')).toContainText('版本 04');
-            await frame.locator('#checks').click();await expect(frame.locator('#dialog-body')).toContainText('16 × 16 mm');await frame.locator('#dialog-close').click();
-            const canvas=frame.locator('#model-canvas');await canvas.scrollIntoViewIfNeeded();const before=await canvas.screenshot(),box=await canvas.boundingBox();
-            await page.mouse.move(box.x+box.width/2,box.y+box.height/2);await page.mouse.down();await page.mouse.move(box.x+box.width*.7,box.y+box.height*.6,{steps:8});await page.mouse.up();
-            await expect.poll(async()=>Buffer.compare(before,await canvas.screenshot())).not.toBe(0);
-            await testInfo.attach('demo completed state',{body:await modal.screenshot(),contentType:'image/png'});
-            expect(await frame.locator('body').evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2)).toBe(true);
-            await frame.locator('#versions').click();await frame.locator('[data-version="1"]').click();await expect(frame.locator('#versions')).toContainText('版本 01');
-            await frame.locator('#about').click();await frame.locator('#dialog').press('Escape');await expect(frame.locator('#dialog')).not.toBeVisible();await expect(modal).toBeVisible();
-            await frame.locator('#start').press('Escape');await expect(modal).not.toBeVisible();await expect(page.locator('#case-demo-frame')).toHaveAttribute('src','about:blank');
-            await expect(page.locator('body')).not.toHaveClass(/case-demo-open/);await expect(trigger).toBeFocused();
-            await trigger.click();await expect(frame.locator('#status')).toHaveText('等待开始');await expect(frame.locator('#versions')).toContainText('示例半成品');
-            await page.locator('[data-case-demo-close]').click();await expect(modal).not.toBeVisible();
+          const visited=new Set();
+          for(const trigger of await page.locator('[data-action="demo"]').all()) {
+            const requested=page.waitForResponse(r=>r.request().method()==='HEAD'&&r.url().startsWith(afterURL+'/api/resources/')&&new URL(r.url()).pathname.endsWith('/demo'));
+            await trigger.click();const response=await requested,id=new URL(response.url()).pathname.split('/')[3];
+            const item=run.scope.demos.find(item=>item.id===id);
+            if(!item) {
+              expect(response.status()).toBe(503);
+              await expect(page.locator('#dialog-body [role=status]')).toContainText(language==='zh'?'演示或资料尚未接入':'not connected yet');
+              await expect(page.locator('#dialog-body [role=status] b')).toHaveText(language==='zh'?'尚未接入':'NOT YET CONNECTED');
+              await page.keyboard.press('Escape');await expect(trigger).toBeFocused();continue;
+            }
+            expect(response.status(),id).toBe(200);
+            const modal=page.locator('#case-demo-modal'),frame=page.frameLocator('#case-demo-frame'),close=page.locator('[data-case-demo-close]');
+            const {default:exercise}=await import(pathToFileURL(join(process.cwd(),item.scenario)).href);
+            for(const url of assetURLs.filter(url=>url===item.route||url.startsWith(item.route+'/'))) {
+              const asset=await page.request.head(afterURL+url);expect(asset.status(),url).toBe(200);
+              expect(asset.headers()['cache-control'],url).toContain('no-store');expect(asset.headers()['x-frame-options'],url).toBe('SAMEORIGIN');
+            }
+            expect((await page.request.get(afterURL+item.route+'/ci-missing.js')).status()).toBe(404);
+            for(const attempt of [0,1]) {
+              if(attempt)await trigger.click();
+              await expect(modal).toBeVisible();await expect(page.locator('#case-demo-frame')).toHaveAttribute('src',new RegExp(item.route+'/'));
+              await expect(frame.locator('body')).toBeVisible();
+              if(!attempt)await testInfo.attach(`${id} initial`,{body:await modal.screenshot(),contentType:'image/png'});
+              await test.step(`${id}: ${attempt?'reopen':'main click flow'}`,()=>exercise({page,frame,card:trigger.locator('xpath=ancestor::article')}));
+              expect(await frame.locator('body').evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2),id).toBe(true);
+              if(!attempt)await testInfo.attach(`${id} result`,{body:await modal.screenshot(),contentType:'image/png'});
+              if(attempt){await close.focus();await page.keyboard.press('Escape');}else await close.click();
+              await expect(modal).not.toBeVisible();await expect(page.locator('#case-demo-frame')).toHaveAttribute('src','about:blank');
+              await expect(page.locator('body')).not.toHaveClass(/case-demo-open/);await expect(trigger).toBeFocused();
+            }
+            expect((await page.request.get(afterURL+item.route.replace(/demo$/,'download'))).status()).toBe(403);
+            visited.add(id);
           }
-          expect((await page.request.get(afterURL+'/api/resources/digital-toll/download')).status()).toBe(403);
+          expect([...visited].sort()).toEqual(run.scope.demos.map(item=>item.id).sort());
+          expect((await page.request.get(missing+'/demo')).status()).toBe(503);
+          expect((await page.request.get(missing+'/download')).status()).toBe(403);
           await account.setPermissions({can_demo:false,can_download:true});
           await demo.click();await expect(page.locator('#dialog-body [role=status]')).toContainText(language==='zh'?'尚未获得查看演示权限':'not yet authorised');
           await expect(page.locator('#access li').first()).not.toHaveAttribute('data-state','ok');
-          expect((await page.request.get(afterURL+'/api/resources/digital-toll/demo')).status()).toBe(403);
-          expect((await page.request.get(afterURL+'/api/resources/digital-toll/download')).status()).toBe(503);
+          for(const url of assetURLs)expect((await page.request.get(afterURL+url)).status(),url).toBe(403);
+          expect((await page.request.get(missing+'/demo')).status()).toBe(403);
+          expect((await page.request.get(missing+'/download')).status()).toBe(503);
           await page.keyboard.press('Escape');await page.locator('#access button.txt').click();
           await expect(page.locator('#access [data-action="login"]')).toBeVisible();
-          expect((await page.request.get(afterURL+'/api/resources/digital-toll/demo')).status()).toBe(401);
+          expect((await page.request.get(missing+'/demo')).status()).toBe(401);
         } finally {await account.remove();}
       }
       expect(audit.problems).toEqual([]);

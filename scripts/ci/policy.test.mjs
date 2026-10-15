@@ -129,6 +129,7 @@ test('scope retains the Base/Head page inventory and Worker inputs across additi
     git(root,'init','-b','main');git(root,'config','user.name','CI Fixture');git(root,'config','user.email','ci@example.invalid');
     writeFileSync(join(root,'README.md'),'base');git(root,'add','README.md');git(root,'commit','-m','base');const base=git(root,'rev-parse','HEAD').trim();
     for(const directory of ['website/new-feature','services/case-access','tests/browser'])mkdirSync(join(root,directory),{recursive:true});
+    writeFileSync(join(root,'services/case-access/resources.mjs'),'export const resources = {};');
     writeFileSync(join(root,'website/new-feature/index.html'),'<main>New</main>');
     const input='services/case-access/page.mjs',entry={path:'/page.php',dependencies:[input]};
     writeFileSync(join(root,input),'export const text="Page"');writeFileSync(join(root,workerPageManifest),JSON.stringify([entry]));
@@ -144,6 +145,7 @@ test('scope retains the Base/Head page inventory and Worker inputs across additi
     git(root,'rm','website/new-feature/index.html');writeFileSync(join(root,workerPageManifest),'[]');git(root,'add',workerPageManifest);git(root,'commit','-m','remove pages');
     const removed=getContext(root,{base:previous,head:'HEAD'}).scope;
     for(const path of ['/new-feature/','/page.php'])assert.deepEqual(removed.pages.find(page=>page.path===path).expected,{before:true,after:false});
+    assert.ok(removed.pages.some(page=>page.id==='home'),'Removing a route also checks navigation rendered by unchanged pages.');
   }finally{rmSync(root,{recursive:true,force:true});}
 });
 

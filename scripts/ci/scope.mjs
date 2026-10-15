@@ -1,8 +1,8 @@
 import {execFileSync} from 'node:child_process';
-import {readFileSync,writeFileSync,existsSync} from 'node:fs';
-import {join} from 'node:path';
-import {fileURLToPath} from 'node:url';
-import {configuredFiles} from './config.mjs';
+import {readFileSync,writeFileSync,existsSync,readdirSync} from 'node:fs';
+import {join,resolve,dirname,relative} from 'node:path';
+import {fileURLToPath,pathToFileURL} from 'node:url';
+import {configuredFiles,readJsonc} from './config.mjs';
 import {workerPageManifest,workerPages,readWorkerPages,htmlPage} from './pages.mjs';
 
 export const owner = 'massif-01';
@@ -35,6 +35,30 @@ export function parseChanges(output) {
 
 export function changedPaths(root,base,head) {
   return parseChanges(git(root,'diff','--name-status','-z','-M','--merge-base',base,head,'--'));
+}
+
+function readDemos(root) {
+  const resourceFile=pathToFileURL(join(root,'services/case-access/resources.mjs')).href;
+  const resources=JSON.parse(execFileSync(process.execPath,['--input-type=module','-e','const {resources}=await import(process.argv[1]); process.stdout.write(JSON.stringify(resources));',resourceFile],{cwd:root,encoding:'utf8'}));
+  const entries=Object.entries(resources).filter(([,resource])=>resource.demoPath);
+  const config='services/case-demos/wrangler.jsonc';
+  if(!existsSync(join(root,config))) {
+    if(entries.length||existsSync(join(root,'services/case-demos/assets')))throw new Error('Case demos need their Worker configuration and website resource entries.');
+    return [];
+  }
+  const assets=resolve(root,dirname(config),readJsonc(root,config).assets.directory);
+  const demos=entries.map(([id,resource])=>{
+    const directory=resolve(assets,'.'+resource.demoPath),scenario=`tests/browser/demos/${id}.mjs`;
+    if(!directory.startsWith(assets+'/')||!existsSync(join(directory,'index.html')))throw new Error(`Demo ${id}: missing index.html in its deployed assets directory.`);
+    if(!existsSync(join(root,scenario)))throw new Error(`Demo ${id}: add its main click flow in ${scenario}.`);
+    const prefix=relative(root,directory)+'/';
+    const files=git(root,'ls-files','--cached','--others','--exclude-standard','-z','--',prefix).split('\0').filter(file=>file&&existsSync(join(root,file))).map(file=>file.slice(prefix.length)).sort();
+    return {id,directory:relative(root,directory),assetPath:resource.demoPath,scenario,route:`/api/resources/${id}/demo`,files};
+  });
+  for(const folder of readdirSync(assets,{withFileTypes:true}).filter(entry=>entry.isDirectory())) {
+    if(!demos.some(demo=>resolve(root,demo.directory)===join(assets,folder.name)))throw new Error(`Demo directory ${folder.name}: connect its website entry in services/case-access/resources.mjs.`);
+  }
+  return demos;
 }
 
 const infrastructure = path => /^(?:\.github\/workflows\/|scripts\/ci\/|tests\/browser\/|playwright\.config\.|package(?:-lock)?\.json$)/.test(path);
@@ -111,6 +135,8 @@ export function classify(changes,{all=false,staticRoutes=[],workerRoutes=[]}={})
     addAll();scope.homeMotion=true; // Unknown production assets can also affect normal homepage motion.
   }
   if(all) {addAll();Object.assign(scope,{fonts:true,brand:true,exif:true,guides:true,translations:true,seo:true,caseService:true,caseMigrations:true,ota:true,homeMotion:true,infrastructure:true,navigationAll:true});}
+  // A removed URL can still be linked by unchanged JavaScript-rendered navigation.
+  if(scope.navigationAll)catalog.forEach(page=>ids.add(page.id));
   scope.pages=[...catalog,...routes.values()].filter(page=>ids.has(page.id)).map(page=>({...page}));
   for(const page of scope.pages)for(const language of page.languages||[])languages.add(language);
   scope.languages=[...languages];
@@ -142,6 +168,7 @@ export function context(root,{base,head,all=false}={}) {
   });
   scope.caseService ||= scope.pages.some(page=>['cases','admin'].includes(page.id));
   scope.caseDemos=scope.caseService&&existsSync(join(root,'services/case-demos/wrangler.jsonc'));
+  scope.demos=scope.caseService?readDemos(root):[];
   scope.pagePaths=[...new Set([...currentFiles.map(file=>htmlPage(file).path),...afterRoutes.map(route=>route.path)])];
   scope.navigationFiles=scope.navigationAll?[...new Set(currentFiles)]:[];
   return {schema:1,baseSha,headSha:git(root,'rev-parse',head).trim(),testSha:git(root,'rev-parse','HEAD').trim(),local:!process.env.CI,prNumber:pr?.number||null,author:pr?.user?.login||null,body:pr?.body||'',scope};

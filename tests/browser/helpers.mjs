@@ -19,13 +19,14 @@ export async function setup(page,language) {
   page.on('pageerror',e=>problems.push(e.message));
   page.on('response',response=>{
     const url=new URL(response.url());
-    if(url.hostname==='127.0.0.1'&&response.status()>=400&&!url.pathname.startsWith('/api/'))problems.push(`${response.status()}: ${url.pathname}`);
+    const asset=['document','script','stylesheet','image','font','media'].includes(response.request().resourceType())||/\/demo\//.test(url.pathname);
+    if(url.hostname==='127.0.0.1'&&response.status()>=400&&(!url.pathname.startsWith('/api/')||asset))problems.push(`${response.status()}: ${url.pathname}`);
   });
   page.on('console',message=>{
     if(message.type()!=='error')return;
     const url=message.location().url||'';
     if(/https:\/\/fonts\.(?:googleapis|gstatic)\.com\//.test(url))external.push(message.text());
-    else if(!url.includes('/api/'))problems.push(message.text());
+    else if(!url.includes('/api/')||/\/demo\//.test(url))problems.push(message.text());
   });
   return {problems,external};
 }

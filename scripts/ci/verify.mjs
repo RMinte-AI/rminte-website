@@ -81,8 +81,7 @@ try {
     if(!after)throw new Error('Local Pages runtime did not start.');
     await command(process.execPath,['services/case-access/tests/integration.mjs'],'case-integration',after.runtime,after.env);
     await command(process.execPath,['services/case-access/tests/admin-password.mjs',join(root,'node_modules/wrangler/bin/wrangler.js')],'admin-password',after.runtime,after.env);
-    if(run.scope.caseDemos)await command(process.execPath,['services/case-access/tests/cad-demo.mjs'],'case-demos',after.runtime,after.env);
-    return 'Account and connected demo tests ran against temporary local data.';
+    return 'Account service tests ran against temporary local data; connected demos are checked in browser operations.';
   },'No case-access API dependency changed.');
   await check('SEO HTTP',run.scope.seo,()=>{
     if(!after)throw new Error('Local Pages runtime did not start.');
