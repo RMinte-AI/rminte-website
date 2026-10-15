@@ -29,6 +29,8 @@ export function createViewer(canvas, viewport) {
   ctx.fillStyle = gradient; ctx.fillRect(0, 0, 128, 128);
   const shadow = new THREE.Mesh(new THREE.PlaneGeometry(65, 65), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(shadowCanvas), transparent: true, depthWrite: false }));
   shadow.rotation.x = -Math.PI / 2; scene.add(shadow);
+  function render() { renderer.render(scene, camera); }
+  controls.addEventListener('change', render);
   function setModel({ stage = 3, slot = 16, height = 30, chamfer = 1 }) {
     model.children.forEach(child => child.geometry?.dispose()); model.clear();
     const shape = new THREE.Shape(), radius = 30 / Math.sqrt(3);
@@ -43,17 +45,17 @@ export function createViewer(canvas, viewport) {
     geometry.rotateX(-Math.PI / 2);
     model.add(new THREE.Mesh(geometry, material));
     model.add(new THREE.LineSegments(new THREE.EdgesGeometry(geometry, 24), outline));
-    shadow.position.y = -height / 2 - .2; modelHeight = height;
+    shadow.position.y = -height / 2 - .2; modelHeight = height; render();
   }
   function view(name = 'iso') {
     const distance = Math.max(103, modelHeight * 3.5) / Math.min(camera.aspect, 1);
     const direction = { iso: [1.05, .8, 1.3], front: [0, .001, 1], top: [0, 1, .001] }[name];
     camera.position.copy(new THREE.Vector3(...direction).normalize().multiplyScalar(distance));
-    controls.target.set(0, 0, 0); controls.update();
+    controls.target.set(0, 0, 0); controls.update(); render();
   }
-  function resize() { const { width, height } = viewport.getBoundingClientRect(); if (!width || !height) return; renderer.setSize(width, height, false); const previousAspect = camera.aspect; camera.aspect = width / height; camera.position.sub(controls.target).multiplyScalar(Math.min(previousAspect, 1) / Math.min(camera.aspect, 1)).add(controls.target); camera.updateProjectionMatrix(); }
+  function resize() { const { width, height } = viewport.getBoundingClientRect(); if (!width || !height) return; renderer.setSize(width, height, false); const previousAspect = camera.aspect; camera.aspect = width / height; camera.position.sub(controls.target).multiplyScalar(Math.min(previousAspect, 1) / Math.min(camera.aspect, 1)).add(controls.target); camera.updateProjectionMatrix(); render(); }
   const observer = new ResizeObserver(resize); observer.observe(viewport);
-  renderer.setAnimationLoop(() => { controls.update(); renderer.render(scene, camera); });
+  renderer.setAnimationLoop(() => { controls.update(); render(); });
   setModel({}); view(); resize();
-  return { setModel, view, section(enabled) { material.clippingPlanes = enabled ? [clip] : []; outline.clippingPlanes = enabled ? [clip] : []; material.needsUpdate = true; outline.needsUpdate = true; }, autoRotate(enabled) { controls.autoRotate = enabled; }, dispose() { observer.disconnect(); controls.dispose(); renderer.dispose(); } };
+  return { setModel, view, section(enabled) { material.clippingPlanes = enabled ? [clip] : []; outline.clippingPlanes = enabled ? [clip] : []; material.needsUpdate = true; outline.needsUpdate = true; render(); }, autoRotate(enabled) { controls.autoRotate = enabled; }, dispose() { observer.disconnect(); controls.dispose(); renderer.dispose(); } };
 }
