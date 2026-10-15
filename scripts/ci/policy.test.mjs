@@ -125,14 +125,15 @@ test('a real added or deleted HTML route remains in browser scope with honest ba
     const translated='website/new-feature/用户.html';mkdirSync(join(root,'website/new-feature'),{recursive:true});writeFileSync(join(root,translated),'<main>Existing route</main>');git(root,'add',translated);git(root,'commit','-m','Unicode route');
     const previous=git(root,'rev-parse','HEAD').trim();writeFileSync(join(root,translated),'<main>Updated route</main>');git(root,'add',translated);git(root,'commit','-m','update Unicode route');
     assert.equal(getContext(root,{base:previous,head:'HEAD'}).scope.pages.find(page=>page.file===translated).sourceExists.before,true);
+    const merged=git(root,'rev-parse','HEAD').trim();mkdirSync(join(root,'website/assets'),{recursive:true});writeFileSync(join(root,'website/assets/brand.css'),'body { color: white; }');git(root,'add','website/assets/brand.css');git(root,'commit','-m','later shared-style change');
+    assert.ok(getContext(root,{base:merged,head:'HEAD'}).scope.pages.some(page=>page.file===translated));
     mkdirSync(join(root,'tests/browser'),{recursive:true});mkdirSync(join(root,'services/case-access'),{recursive:true});
-    const dependency='services/case-access/generated.mjs',entry={path:'/generated/',dependencies:[dependency],languages:['fr']};
+    const dependency='services/case-access/generated.mjs',entry={path:'/generated/',dependencies:[dependency]};
     writeFileSync(join(root,dependency),'export const content="Generated HTML";');
     writeFileSync(join(root,workerPageManifest),JSON.stringify([entry]));git(root,'add','tests','services');git(root,'commit','-m','declare Worker HTML without a static file');
     const worker=getContext(root,{base:previous,head:'HEAD'}).scope.pages.find(page=>page.path===entry.path);
     assert.ok(worker);assert.equal(worker.file,null);assert.deepEqual(worker.sourceExists,{before:false,after:false});assert.deepEqual(worker.expected,{before:false,after:true});
-    assert.ok(getContext(root,{base:previous,head:'HEAD'}).scope.languages.includes('fr'));
-    assert.deepEqual(operationLanguages(worker,['zh','en','fr']),['fr']);
+    assert.deepEqual(operationLanguages(worker,['zh','en','fr']),['zh','en','fr']);
     assert.throws(()=>workerPages(JSON.stringify([{...entry,dependencies:['./'+dependency]}])),/canonical repository-relative/);
     writeFileSync(join(root,workerPageManifest),JSON.stringify([{...entry,dependencies:['services/missing.mjs']}]));
     assert.throws(()=>getContext(root,{base:previous,head:'HEAD'}),/missing input/);

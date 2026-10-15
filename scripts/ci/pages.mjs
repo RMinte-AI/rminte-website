@@ -16,9 +16,8 @@ export function workerPages(source) {
     const url=new URL(entry.path,'http://ci.invalid');
     if(!entry.path.startsWith('/')||url.origin!=='http://ci.invalid'||url.pathname!==entry.path||url.search||url.hash||seen.has(entry.path))throw new Error(`${workerPageManifest}: invalid or duplicate route ${entry.path}`);
     if(!Array.isArray(entry.dependencies)||!entry.dependencies.length||entry.dependencies.some(file=>typeof file!=='string'||!file||posix.isAbsolute(file)||posix.normalize(file)!==file||file.split('/').some(part=>part==='.'||part==='..')))throw new Error(`${workerPageManifest}: ${entry.path} needs canonical repository-relative dependencies`);
-    if(entry.languages&&(!Array.isArray(entry.languages)||!entry.languages.length||entry.languages.some(language=>!['zh','en','ja','ko','es','fr'].includes(language))))throw new Error(`${workerPageManifest}: invalid languages for ${entry.path}`);
     seen.add(entry.path);
-    return {id:'worker-'+encodeURIComponent(entry.path),path:entry.path,file:null,regions:['body'],generic:true,dependencies:entry.dependencies,...(entry.languages?{languages:entry.languages}:{})};
+    return {id:'worker-'+encodeURIComponent(entry.path),path:entry.path,file:null,regions:['body'],generic:true,dependencies:entry.dependencies};
   });
 }
 

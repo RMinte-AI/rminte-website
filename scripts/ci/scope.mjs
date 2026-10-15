@@ -42,7 +42,7 @@ const document = path => /^(?:docs\/|design-preview\/|copy-review\/|output\/)/.t
   || (/\.md$/i.test(path) && !path.startsWith('website/') && path!=='DESIGN.md')
   || ['.gitignore','.github/CODEOWNERS','.github/pull_request_template.md'].includes(path);
 
-export function classify(changes,{all=false,workerRoutes=[]}={}) {
+export function classify(changes,{all=false,staticRoutes=[],workerRoutes=[]}={}) {
   const files=[...new Set(changes.flatMap(change=>change.paths))].sort();
   const destinations=new Set();
   for(const change of changes) {
@@ -51,9 +51,10 @@ export function classify(changes,{all=false,workerRoutes=[]}={}) {
   }
   const ids=new Set(), languages=new Set(['zh','en']), routes=new Map();
   const catalog=pages.map(page=>({...page}));
+  for(const route of staticRoutes)if(!catalog.some(page=>page.path===route.path))catalog.push({...route});
   for(const route of workerRoutes) {
     const existing=catalog.find(page=>page.path===route.path);
-    if(existing) {existing.dependencies=[...(existing.dependencies||[]),...route.dependencies];if(route.languages)existing.languages=route.languages;}
+    if(existing)existing.dependencies=[...(existing.dependencies||[]),...route.dependencies];
     else catalog.push({...route});
   }
   const scope={files,changes,pages:[],languages:[],widths:[1440,390],fonts:false,brand:false,exif:false,guides:false,translations:false,seo:false,caseService:false,caseMigrations:false,ota:false,infrastructure:false,homeMotion:false,configurationFiles:[],navigationAll:false};
@@ -129,13 +130,16 @@ export function context(root,{base,head,all=false}={}) {
   }
   const baseSha=git(root,'rev-parse',base).trim();
   const baseFiles=new Set(git(root,'ls-tree','-r','--name-only','-z',baseSha).split('\0'));
+  const currentFiles=git(root,'ls-files','--cached','--others','--exclude-standard','-z','--','website').split('\0').filter(file=>/\.html?$/i.test(file)&&existsSync(join(root,file)));
+  // The independent TianshanOS demo does not consume the main site's styles or language system.
+  // Direct HTML changes still select it in classify(); shared-site changes keep their existing boundary.
+  const staticRoutes=[...new Set([...baseFiles,...currentFiles])].filter(file=>file.startsWith('website/')&&/\.html?$/i.test(file)&&file!=='website/404.html'&&!file.startsWith('website/tianshanos-demo/')).map(htmlPage);
   const beforeRoutes=baseFiles.has(workerPageManifest)?workerPages(git(root,'show',`${baseSha}:${workerPageManifest}`)):[],afterRoutes=readWorkerPages(root);
-  const scope=classify(changes,{all,workerRoutes:[...beforeRoutes,...afterRoutes]});
+  const scope=classify(changes,{all,staticRoutes,workerRoutes:[...beforeRoutes,...afterRoutes]});
   scope.pages=scope.pages.map(page=>{
     const sourceExists={before:page.file!==null&&baseFiles.has(page.file),after:page.file!==null&&existsSync(join(root,page.file))};
     return {...page,sourceExists,expected:{before:sourceExists.before||beforeRoutes.some(route=>route.path===page.path),after:sourceExists.after||afterRoutes.some(route=>route.path===page.path)}};
   });
-  const currentFiles=git(root,'ls-files','--cached','--others','--exclude-standard','-z','--','website').split('\0').filter(file=>/\.html?$/i.test(file)&&existsSync(join(root,file)));
   scope.pagePaths=[...new Set([...currentFiles.map(file=>htmlPage(file).path),...afterRoutes.map(route=>route.path)])];
   scope.navigationFiles=scope.navigationAll?[...new Set(currentFiles)]:[];
   return {schema:1,baseSha,headSha:git(root,'rev-parse',head).trim(),testSha:git(root,'rev-parse','HEAD').trim(),local:!process.env.CI,prNumber:pr?.number||null,author:pr?.user?.login||null,body:pr?.body||'',scope};
