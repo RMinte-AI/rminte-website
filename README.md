@@ -11,6 +11,8 @@
 
 修改前阅读 [AGENTS.md](AGENTS.md)；界面设计遵循 [DESIGN.md](DESIGN.md)。
 
+代码共建见 [CONTRIBUTING.md](CONTRIBUTING.md)。CI 和 PR 门禁位于组织上游 `RMinte-AI/rminte-website`；运行 `npm run verify` 可复验当前改动并生成必要证据。普通贡献者需要 CI 通过和 Owner 批准，Owner 自己的 PR 自行决定合并。合并到 `main` 即授权自动上线，不增加单独发布审批。
+
 ## 本地预览
 
 ```sh
