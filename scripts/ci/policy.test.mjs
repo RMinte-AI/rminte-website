@@ -10,6 +10,9 @@ import {checkHtml,checkCss,syntax,generatedCheck,staticChecks} from './static.mj
 import {validateEvidence,gateResult} from './report.mjs';
 import {scanSecrets} from './secrets.mjs';
 import {checkConfigurations} from './build.mjs';
+import {workerPageManifest,workerPages} from './pages.mjs';
+import {observeRoute,routeEvidence,checkNavigation} from './routes.mjs';
+import {createServer} from 'node:http';
 
 test('real divergent history classifies only the PR change, including renames and deletion',()=>{
   const root=mkdtempSync(join(tmpdir(),'rminte-git-'));
@@ -96,7 +99,7 @@ test('evidence for another Head, missing screenshots and altered image bytes fai
     const records=['before','after'].map(phase=>({kind:'page',status:200,phase,page:'gallery',language:'en',width:390,region:'main',file:'image.png',sha256:createHash('sha256').update(bytes).digest('hex')}));
     writeFileSync(join(root,'output/ci/browser-results.json'),JSON.stringify({stats:{skipped:0,unexpected:0,flaky:0},suites:[{title:'operations gallery en 390px',specs:[{tests:[{expectedStatus:'passed',results:[{status:'passed'}]}]}]}]}));
     writeFileSync(join(directory,'records/gallery.json'),JSON.stringify(records));assert.equal(validateEvidence(root,context).screenshots,2);
-    context.scope.pages[0].sourceExists={before:true,after:false};
+    context.scope.pages[0].expected={before:true,after:false};
     assert.equal(validateEvidence(root,context).screenshots,2); // HTTP 200 still needs real PNGs after its source file moves.
     writeFileSync(join(root,'output/ci/browser-results.json'),JSON.stringify({stats:{skipped:1},suites:[]}));assert.throws(()=>validateEvidence(root,context),/without skips/);
     writeFileSync(join(directory,'image.png'),Buffer.concat([bytes,Buffer.from('altered')]));assert.throws(()=>validateEvidence(root,context),/checksum/);
@@ -120,7 +123,58 @@ test('a real added or deleted HTML route remains in browser scope with honest ba
     const translated='website/new-feature/用户.html';mkdirSync(join(root,'website/new-feature'),{recursive:true});writeFileSync(join(root,translated),'<main>Existing route</main>');git(root,'add',translated);git(root,'commit','-m','Unicode route');
     const previous=git(root,'rev-parse','HEAD').trim();writeFileSync(join(root,translated),'<main>Updated route</main>');git(root,'add',translated);git(root,'commit','-m','update Unicode route');
     assert.equal(getContext(root,{base:previous,head:'HEAD'}).scope.pages.find(page=>page.file===translated).sourceExists.before,true);
+    mkdirSync(join(root,'tests/browser'),{recursive:true});mkdirSync(join(root,'services/case-access'),{recursive:true});
+    const dependency='services/case-access/generated.mjs',entry={path:'/generated/',dependencies:[dependency],languages:['fr']};
+    writeFileSync(join(root,dependency),'export const content="Generated HTML";');
+    writeFileSync(join(root,workerPageManifest),JSON.stringify([entry]));git(root,'add','tests','services');git(root,'commit','-m','declare Worker HTML without a static file');
+    const worker=getContext(root,{base:previous,head:'HEAD'}).scope.pages.find(page=>page.path===entry.path);
+    assert.ok(worker);assert.equal(worker.file,null);assert.deepEqual(worker.sourceExists,{before:false,after:false});assert.deepEqual(worker.expected,{before:false,after:true});
+    assert.ok(getContext(root,{base:previous,head:'HEAD'}).scope.languages.includes('fr'));
+    assert.throws(()=>workerPages(JSON.stringify([{...entry,dependencies:['./'+dependency]}])),/canonical repository-relative/);
+    writeFileSync(join(root,workerPageManifest),JSON.stringify([{...entry,dependencies:['services/missing.mjs']}]));
+    assert.throws(()=>getContext(root,{base:previous,head:'HEAD'}),/missing input/);
+    writeFileSync(join(root,workerPageManifest),JSON.stringify([entry]));
+    const registered=git(root,'rev-parse','HEAD').trim();
+    writeFileSync(join(root,dependency),'export const content="Changed generated HTML";');git(root,'add',dependency);git(root,'commit','-m','change only the Worker page input');
+    assert.ok(getContext(root,{base:registered,head:'HEAD'}).scope.pages.some(page=>page.path===entry.path));
+    assert.ok(classify([{status:'M',paths:['website/assets/brand.css']}],{workerRoutes:workerPages(JSON.stringify([entry]))}).pages.some(page=>page.path===entry.path));
+    writeFileSync(join(root,workerPageManifest),'[]');git(root,'add',workerPageManifest);git(root,'commit','-m','remove Worker page declaration');
+    assert.deepEqual(getContext(root,{base:registered,head:'HEAD'}).scope.pages.find(page=>page.path===entry.path).expected,{before:true,after:false});
   } finally {rmSync(root,{recursive:true,force:true});}
+});
+
+test('navigation and route evidence share redirect boundaries without requesting another origin',async()=>{
+  const requests=[];
+  const server=createServer((request,response)=>{
+    requests.push(request.url);
+    if(request.url==='/external/')response.writeHead(302,{Location:'http://127.0.0.2:1/unavailable'}).end();
+    else if(request.url==='/indirect/')response.writeHead(301,{Location:'/external/'}).end();
+    else if(request.url==='/internal/')response.writeHead(302,{Location:'/page/'}).end();
+    else if(request.url==='/page/')response.writeHead(200,{'Content-Type':'text/html'}).end('<main>Declared page</main>');
+    else if(request.url==='/loop/')response.writeHead(302,{Location:'/loop/'}).end();
+    else response.writeHead(404).end();
+  });
+  await new Promise(done=>server.listen(0,'127.0.0.1',done));
+  const base=`http://127.0.0.1:${server.address().port}`;
+  const request=async url=>{
+    assert.equal(new URL(url).origin,base,'never contact the external redirect target');
+    const response=await fetch(url,{redirect:'manual'});await response.body?.cancel();
+    return {status:response.status,location:response.headers.get('location')};
+  };
+  try {
+    for(const path of ['/external/','/indirect/']) {
+      const observed=await observeRoute(new URL(path,base),request);
+      assert.equal(routeEvidence(true,observed).kind,'redirect');assert.equal(observed.external,true);assert.equal(observed.finalStatus,undefined);
+    }
+    assert.equal((await checkNavigation(base,['/external/','/indirect/','/internal/'],['/page/'])).externalRedirects.length,2);
+    const internal=await observeRoute(base+'/internal/',request);
+    assert.equal(routeEvidence(true,internal).kind,'page');assert.equal(routeEvidence(false,internal).kind,'redirect');
+    assert.throws(()=>routeEvidence(true,{status:404}),/reachable page/);assert.equal(routeEvidence(false,{status:404}).kind,'absent');
+    await assert.rejects(checkNavigation(base,['/missing/'],[]),/HTTP 404/);
+    await assert.rejects(checkNavigation(base,['/page/'],[]),/no page declaration/);
+    await assert.rejects(observeRoute(base+'/loop/',request),/redirect loop/);
+    assert.ok(requests.length);
+  } finally {await new Promise(done=>server.close(done));}
 });
 
 test('new page URLs preserve index-like names, uppercase HTML and URL-special characters',()=>{

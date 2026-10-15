@@ -2,7 +2,7 @@ import {readFileSync,mkdirSync,writeFileSync} from 'node:fs';
 import {join,resolve} from 'node:path';
 import {createHash} from 'node:crypto';
 import {expect} from '@playwright/test';
-import {routeEvidence} from '../../scripts/ci/routes.mjs';
+import {routeEvidence,observeRoute} from '../../scripts/ci/routes.mjs';
 
 export const run=JSON.parse(readFileSync(resolve('output/ci/context.json'),'utf8'));
 export const afterURL=process.env.RMINTE_AFTER_URL||'http://127.0.0.1:8788';
@@ -64,13 +64,11 @@ export async function openPage(page,descriptor,language,base=afterURL) {
 
 export async function inspectRoute(page,descriptor,language,base,phase) {
   const url=`${base}${descriptor.path}?lang=${language}`;
-  const response=await page.request.get(url,{maxRedirects:0}),status=response.status();
-  let location,finalStatus;
-  if([301,302,303,307,308].includes(status)) {
-    location=new URL(response.headers().location,url).href;
-    finalStatus=(await page.request.get(location)).status();
-  }
-  return routeEvidence(descriptor.sourceExists?.[phase],{status,location,finalStatus});
+  const response=await observeRoute(url,async target=>{
+    const response=await page.request.get(target,{maxRedirects:0,timeout:10000}),status=response.status(),location=response.headers().location;
+    await response.dispose();return {status,location};
+  });
+  return routeEvidence(descriptor.expected?.[phase],response);
 }
 
 export async function layout(page) {

@@ -75,7 +75,7 @@ try {
   },'No Worker, service or browser path required.');
   await check('internal navigation HTTP',source.navigation.length>0,()=>{
     if(!after)throw new Error('Local Pages runtime did not start.');
-    return checkNavigation(after.url,source.navigation);
+    return checkNavigation(after.url,source.navigation,run.scope.pagePaths);
   },'No affected internal website navigation.');
   await check('case service integration',run.scope.caseService,async()=>{
     if(!after)throw new Error('Local Pages runtime did not start.');

@@ -69,8 +69,9 @@ export function checkCss(root,file) {
 
 export function staticChecks(root,scope) {
   const files=new Set(scope.files.filter(file=>existsSync(join(root,file)))),navigation=new Set();
-  for(const page of scope.pages.filter(page=>page.sourceExists?.after!==false))files.add(page.file);
-  for(const page of scope.pages.filter(page=>page.sourceExists?.after!==false)) {
+  const sourcePages=scope.pages.filter(page=>page.file&&page.sourceExists?.after!==false);
+  for(const page of sourcePages)files.add(page.file);
+  for(const page of sourcePages) {
     for(const node of markup(readFileSync(join(root,page.file),'utf8'))) {
       for(const key of ['src','href']) {
         const target=resourceFile(root,page.file,attr(node,key),{navigation:key==='href'&&['a','area'].includes(node.tagName)});

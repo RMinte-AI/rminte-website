@@ -15,7 +15,7 @@ export function validateEvidence(root,context) {
     if(seen.has(key))throw new Error(`Duplicate screenshot record: ${key}`);
     const page=context.scope.pages.find(page=>page.id===record.page);
     if(!page||!['before','after'].includes(record.phase))throw new Error(`Unknown route evidence: ${key}`);
-    const route=routeEvidence(page.sourceExists?.[record.phase],record);
+    const route=routeEvidence(page.expected?.[record.phase],record);
     if(record.kind!==route.kind)throw new Error(`Route evidence disagrees with HTTP result: ${key}`);
     if(route.kind!=='page') {
       seen.set(key,record);continue;

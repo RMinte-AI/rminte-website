@@ -1,31 +1,45 @@
-// Source files describe the change; HTTP describes whether a URL still has a page.
+// One HTTP observation is shared by navigation checks, browser checks and the evidence report.
 export const operationName=(page,language,width)=>`operations ${page.id} ${language} ${width}px`;
+const redirects=new Set([301,302,303,307,308]);
 
-export function routeEvidence(sourceExists,response) {
-  const {status,location,finalStatus}=response;
+export function routeEvidence(expected,response) {
+  const {status,location,finalStatus,external}=response;
   if(status===200)return {kind:'page',status};
-  if(sourceExists===false&&[404,410].includes(status))return {kind:'absent',status};
-  if([301,302,303,307,308].includes(status)&&location&&finalStatus===200) {
-    return sourceExists===false?{kind:'redirect',status,location,finalStatus}:{kind:'page',status:200,redirect:{status,location}};
+  if(expected===false&&[404,410].includes(status))return {kind:'absent',status};
+  if(redirects.has(status)&&location&&(external||finalStatus===200)) {
+    return {kind:external||expected===false?'redirect':'page',status,location,...(external?{external:true}:{finalStatus})};
   }
-  throw new Error(`Expected a reachable page${sourceExists===false?' or an HTTP removal/redirect':''}; received HTTP ${status}`);
+  throw new Error(`Expected a reachable page${expected===false?' or an HTTP removal/redirect':''}; received HTTP ${status}`);
 }
 
-export async function checkNavigation(base,links) {
+export async function observeRoute(url,request) {
+  let target=new URL(url),first;
+  const origin=target.origin,visited=new Set();
+  for(;;) {
+    if(visited.has(target.href)||visited.size>=20)throw new Error(`Navigation redirect loop or limit: ${url}`);
+    visited.add(target.href);
+    const response=await request(target.href);
+    first ||= response;
+    if(!redirects.has(response.status)||!response.location)return {...first,finalStatus:response.status,finalURL:target.href,contentType:response.contentType};
+    const next=new URL(response.location,target);
+    if(!['http:','https:'].includes(next.protocol))throw new Error(`Unsupported redirect protocol: ${next.protocol}`);
+    if(next.origin!==origin)return {status:first.status,location:next.href,external:true};
+    if(first===response)first={status:response.status,location:next.href};
+    target=next;
+  }
+}
+
+export async function checkNavigation(base,links,pagePaths) {
   const externalRedirects=[];
   for(const path of links) {
-    let url=new URL(path,base);const visited=new Set();
-    for(;;) {
-      if(visited.has(url.href))throw new Error(`Navigation redirect loop: ${path}`);
-      visited.add(url.href);
-      const response=await fetch(url,{redirect:'manual',signal:AbortSignal.timeout(10000)});
+    const observed=await observeRoute(new URL(path,base),async url=>{
+      const response=await fetch(url,{redirect:'manual',signal:AbortSignal.timeout(10000)}),contentType=response.headers.get('content-type');
       await response.body?.cancel();
-      if(response.status===200)break;
-      const location=response.headers.get('location');
-      if(![301,302,303,307,308].includes(response.status)||!location)throw new Error(`Internal navigation ${path}: HTTP ${response.status}`);
-      url=new URL(location,url);
-      if(url.origin!==new URL(base).origin){externalRedirects.push({path,location:url.href});break;}
-    }
+      return {status:response.status,location:response.headers.get('location'),contentType};
+    });
+    routeEvidence(true,observed);
+    if(observed.external)externalRedirects.push({path,location:observed.location});
+    else if(/\btext\/html\b/i.test(observed.contentType)&&!pagePaths.includes(new URL(observed.finalURL).pathname))throw new Error(`HTML navigation ${path} has no page declaration; register Worker HTML in tests/browser/worker-pages.json.`);
   }
   return {checked:links.length,externalRedirects};
 }
