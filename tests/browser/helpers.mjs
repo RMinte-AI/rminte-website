@@ -37,6 +37,20 @@ export async function loginFixture(page,base,phase) {
   expect(response.status()).toBe(200);
 }
 
+export async function createBrowserAccount(base=afterURL) {
+  const runtime=process.env.RMINTE_AFTER_FIXTURE;
+  const password=readFileSync(join(runtime,'services/case-access/.local/admin-login.txt'),'utf8').match(/密码：(.*)/)[1];
+  const login=await fetch(base+'/api/login',{method:'POST',headers:{Origin:base,'Content-Type':'application/json'},body:JSON.stringify({username:'admin',password})});
+  expect(login.status).toBe(200);
+  const cookie=login.headers.get('set-cookie').split(';')[0];
+  const call=async(path,method,data)=>{
+    const response=await fetch(base+path,{method,headers:{Origin:base,Cookie:cookie,'Content-Type':'application/json'},body:data?JSON.stringify(data):undefined});
+    expect(response.ok).toBe(true);return response;
+  };
+  const account=await (await call('/api/admin/users','POST',{})).json();
+  return {...account,setPermissions:permissions=>call('/api/admin/users/'+account.id,'PATCH',permissions),remove:()=>call('/api/admin/users/'+account.id,'DELETE')};
+}
+
 export async function openPage(page,descriptor,language,base=afterURL) {
   const response=await page.goto(`${base}${descriptor.path}?lang=${language}`,{waitUntil:'domcontentloaded'});
   expect(response.status()).toBe(200);

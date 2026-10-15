@@ -54,8 +54,8 @@ export function checkCss(root,file) {
 
 export function staticChecks(root,scope) {
   const files=new Set(scope.files.filter(file=>existsSync(join(root,file))));
-  for(const page of scope.pages)files.add(page.file);
-  for(const page of scope.pages) {
+  for(const page of scope.pages.filter(page=>page.afterExists!==false))files.add(page.file);
+  for(const page of scope.pages.filter(page=>page.afterExists!==false)) {
     for(const node of markup(readFileSync(join(root,page.file),'utf8'))) {
       for(const key of ['src','href']) {
         const target=resourceFile(root,page.file,attr(node,key));
@@ -65,7 +65,7 @@ export function staticChecks(root,scope) {
   }
   let checked=0;
   for(const file of [...files].sort()) {
-    if(file.endsWith('.html'))checkHtml(root,file);
+    if(/\.html?$/i.test(file))checkHtml(root,file);
     else if(file.endsWith('.css'))checkCss(root,file);
     else if(/\.(?:js|mjs|cjs)$/.test(file)) {
       const source=readFileSync(join(root,file),'utf8');

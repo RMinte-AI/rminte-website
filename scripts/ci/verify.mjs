@@ -6,11 +6,13 @@ import {context,checkDescription} from './scope.mjs';
 import {staticChecks,generatedCheck} from './static.mjs';
 import {startServer} from './serve.mjs';
 import {validateEvidence,gateResult,writeReport} from './report.mjs';
+import {scanSecrets} from './secrets.mjs';
+import {buildWorkers} from './build.mjs';
 
 const root=process.cwd(),output=join(root,'output/ci');mkdirSync(output,{recursive:true});
 const option=name=>process.argv.find(value=>value.startsWith(`--${name}=`))?.slice(name.length+3);
 const run=context(root,{base:option('base'),head:option('head'),all:process.argv.includes('--all')});
-for(const directory of ['evidence','playwright-report','test-results'])rmSync(join(output,directory),{recursive:true,force:true});
+for(const artifact of ['evidence','playwright-report','test-results','browser-results.json','secrets.json','counterexamples.json','counterexamples'])rmSync(join(output,artifact),{recursive:true,force:true});
 writeFileSync(join(output,'context.json'),JSON.stringify(run,null,2));
 const checks=[];
 async function check(name,required,fn,note) {
@@ -28,6 +30,10 @@ function command(program,args,name,cwd=root,env=process.env) {
 }
 
 await check('PR description',true,()=>checkDescription(run));
+await check('secret protection',true,()=>scanSecrets(root,run));
+if(checks.some(check=>check.name==='secret protection'&&check.status==='failed')) {
+  writeReport(root,run,checks);console.error('Secret protection failed; subsequent verification was not executed.');process.exit(1);
+}
 await check('syntax and resources',true,()=>staticChecks(root,run.scope));
 await check('diff whitespace',true,()=>{execFileSync('git',['diff','--check','--merge-base',run.baseSha,run.headSha,'--'],{cwd:root,stdio:'pipe'});return 'PR difference has no whitespace errors.';});
 await check('font subset',run.scope.fonts,()=>command('python3',['website/scripts/build-fonts.py','--check'],'fonts'),'No Chinese copy or font dependency changed.');
@@ -40,6 +46,7 @@ if(run.scope.seo)unit.push('scripts/check-seo.test.mjs');
 if(run.scope.caseService)unit.push('services/case-access/tests/crypto.test.mjs');
 if(run.scope.ota)unit.push('services/tianshanos-ota/tests/releases.test.mjs');
 await check('unit and gate regressions',true,()=>command(process.execPath,['--test',...unit],'unit'));
+await check('Worker deployment builds',run.scope.caseService||run.scope.ota||run.scope.workerConfigs.length>0,()=>buildWorkers(root,run.scope),'No Worker implementation or deployment configuration changed.');
 
 let after,before,beforeRoot;
 const runtimeRequired=run.scope.pages.length>0||run.scope.seo||run.scope.caseService;

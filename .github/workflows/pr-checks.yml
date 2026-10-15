@@ -39,6 +39,9 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Verify the PR merge result and collect evidence
         run: npm run verify
+      - name: Prove real faults fail and same-scope controls pass
+        if: ${{ steps.scope.outputs.counterexamples == 'true' }}
+        run: npm run test:counterexamples
       - name: Preserve results and diagnostic evidence
         if: ${{ always() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -51,6 +54,9 @@ jobs:
             output/ci/report.md
             output/ci/*.log
             output/ci/browser-results.json
+            output/ci/secrets.json
+            output/ci/counterexamples.json
+            output/ci/counterexamples/
             output/ci/evidence/
             output/ci/playwright-report/
             output/ci/test-results/

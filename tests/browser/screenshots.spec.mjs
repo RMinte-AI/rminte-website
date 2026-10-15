@@ -8,6 +8,15 @@ for(const descriptor of run.scope.pages)for(const language of languages(descript
       const audit=await setup(page,language),records=[];
       for(const [phase,base] of [['before',beforeURL],['after',afterURL]]) {
         await page.context().clearCookies();
+        if(descriptor[phase==='before'?'beforeExists':'afterExists']===false) {
+          const url=`${base}${descriptor.path}?lang=${language}`,response=await page.request.get(url,{maxRedirects:0});
+          const redirect=[301,302,303,307,308].includes(response.status());
+          let location;
+          if(redirect) {location=new URL(response.headers().location,url).href;expect((await page.request.get(location)).status()).toBe(200);}
+          else expect([404,410]).toContain(response.status());
+          for(const region of descriptor.regions)records.push({kind:redirect?'redirect':'absent',phase,page:descriptor.id,path:descriptor.path,language,width,region,status:response.status(),...(redirect?{location,finalStatus:200}:{})});
+          continue;
+        }
         if(descriptor.id==='admin')await loginFixture(page,base,phase);
         await openPage(page,descriptor,language,base);
         for(const region of descriptor.regions)records.push(await capture(page,testInfo,descriptor,language,width,phase,region,audit));

@@ -1,15 +1,16 @@
 import {test,expect} from '@playwright/test';
 import {readFileSync} from 'node:fs';
 import {join} from 'node:path';
-import {run,languages,setup,openPage,layout,afterURL,loginFixture} from './helpers.mjs';
+import {run,languages,setup,openPage,layout,afterURL,loginFixture,createBrowserAccount} from './helpers.mjs';
 
-for(const descriptor of run.scope.pages)for(const language of languages(descriptor).filter(lang=>['zh','en'].includes(lang)))for(const width of [1440,390]) {
+for(const descriptor of run.scope.pages.filter(page=>page.afterExists!==false))for(const language of languages(descriptor).filter(lang=>['zh','en'].includes(lang)))for(const width of [1440,390]) {
   test.describe(`operations ${descriptor.id} ${language} ${width}px`,()=>{
     test.use({viewport:{width,height:900},hasTouch:width===390,locale:language==='zh'?'zh-CN':'en'});
     test('navigation, language and page operation remain usable',async({page,context},testInfo)=>{
       const audit=await setup(page,language);
       await openPage(page,descriptor,language);
       await layout(page);
+      if(descriptor.generic) {expect(audit.problems).toEqual([]);return;}
       if(descriptor.id==='admin') {
         await expect(page.locator('#admin-login')).toBeVisible();
         const credentials=readFileSync(join(process.env.RMINTE_AFTER_FIXTURE,'services/case-access/.local/admin-login.txt'),'utf8');
@@ -107,6 +108,30 @@ for(const descriptor of run.scope.pages)for(const language of languages(descript
       if(descriptor.id==='cases') {
         const card=page.locator('.cs-card').first();const more=card.locator('.cs-more');await more.click();await expect(more).toHaveAttribute('aria-expanded','true');
         const demo=page.locator('[data-action="demo"]').first();await demo.click();await expect(page.locator('dialog[open]')).toBeVisible();await page.keyboard.press('Escape');await expect(page.locator('dialog[open]')).toHaveCount(0);
+        const account=await createBrowserAccount();
+        try {
+          await account.setPermissions({can_demo:true,can_download:false});
+          await page.locator('#access [data-action="login"]').click();
+          await page.locator('#account').fill(account.username);await page.locator('#password').fill('intentionally-wrong-test-password');
+          const denied=page.waitForResponse(r=>r.url()===afterURL+'/api/login'&&r.request().method()==='POST',{timeout:10000});
+          await page.locator('#login-form [type=submit]').click();expect((await denied).status()).toBe(401);
+          await expect(page.locator('#login-form [role=status]')).toContainText(language==='zh'?'用户名或密码不正确':'incorrect');
+          await page.locator('#password').fill(account.password);
+          const accepted=page.waitForResponse(r=>r.url()===afterURL+'/api/login'&&r.request().method()==='POST',{timeout:10000});
+          await page.locator('#login-form [type=submit]').click();expect((await accepted).status()).toBe(200);
+          await expect(page.locator('#access .who')).toHaveText(account.username);
+          await expect(page.locator('#access li').first()).toHaveAttribute('data-state','ok');
+          expect((await page.request.get(afterURL+'/api/resources/digital-toll/demo')).status()).toBe(503);
+          expect((await page.request.get(afterURL+'/api/resources/digital-toll/download')).status()).toBe(403);
+          await account.setPermissions({can_demo:false,can_download:true});
+          await demo.click();await expect(page.locator('#dialog-body [role=status]')).toContainText(language==='zh'?'尚未获得查看演示权限':'not yet authorised');
+          await expect(page.locator('#access li').first()).not.toHaveAttribute('data-state','ok');
+          expect((await page.request.get(afterURL+'/api/resources/digital-toll/demo')).status()).toBe(403);
+          expect((await page.request.get(afterURL+'/api/resources/digital-toll/download')).status()).toBe(503);
+          await page.keyboard.press('Escape');await page.locator('#access button.txt').click();
+          await expect(page.locator('#access [data-action="login"]')).toBeVisible();
+          expect((await page.request.get(afterURL+'/api/resources/digital-toll/demo')).status()).toBe(401);
+        } finally {await account.remove();}
       }
       expect(audit.problems).toEqual([]);
       await testInfo.attach('operation environment',{body:Buffer.from(JSON.stringify({data:'Temporary local D1 and OTA test response',externalFontIssues:audit.external})),contentType:'application/json'});

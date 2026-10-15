@@ -4,10 +4,11 @@ import {mkdtempSync,writeFileSync,mkdirSync,rmSync,cpSync,readFileSync} from 'no
 import {tmpdir} from 'node:os';
 import {join,resolve} from 'node:path';
 import {execFileSync,spawnSync} from 'node:child_process';
-import {createHash} from 'node:crypto';
-import {changedPaths,classify,checkDescription,git} from './scope.mjs';
+import {createHash,randomBytes} from 'node:crypto';
+import {changedPaths,classify,checkDescription,git,context as getContext} from './scope.mjs';
 import {checkHtml,checkCss,syntax,generatedCheck} from './static.mjs';
 import {validateEvidence,gateResult} from './report.mjs';
+import {scanSecrets} from './secrets.mjs';
 
 test('real divergent history classifies only the PR change, including renames and deletion',()=>{
   const root=mkdtempSync(join(tmpdir(),'rminte-git-'));
@@ -84,10 +85,54 @@ test('evidence for another Head, missing screenshots and altered image bytes fai
     const bytes=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aK1cAAAAASUVORK5CYII=','base64');
     writeFileSync(join(directory,'image.png'),bytes);
     const records=['before','after'].map(phase=>({phase,page:'gallery',language:'en',width:390,region:'main',file:'image.png',sha256:createHash('sha256').update(bytes).digest('hex')}));
+    writeFileSync(join(root,'output/ci/browser-results.json'),JSON.stringify({stats:{skipped:0,unexpected:0,flaky:0},suites:[{specs:[{tests:[{expectedStatus:'passed',results:[{status:'passed'}]}]}]}]}));
     writeFileSync(join(directory,'records/gallery.json'),JSON.stringify(records));assert.equal(validateEvidence(root,context).screenshots,2);
+    writeFileSync(join(root,'output/ci/browser-results.json'),JSON.stringify({stats:{skipped:1},suites:[]}));assert.throws(()=>validateEvidence(root,context),/without skips/);
     writeFileSync(join(directory,'image.png'),Buffer.concat([bytes,Buffer.from('altered')]));assert.throws(()=>validateEvidence(root,context),/checksum/);
     assert.throws(()=>gateResult([{name:'browser',required:true,status:'cancelled'}]),/did not pass/);
     assert.throws(()=>gateResult([{name:'browser',required:true,status:'skipped'}]),/did not pass/);
     assert.doesNotThrow(()=>gateResult([{name:'browser',required:false,status:'not-applicable'}]));
   }finally{rmSync(root,{recursive:true,force:true});}
+});
+
+test('a real added or deleted HTML route remains in browser scope with honest baseline availability',()=>{
+  const root=mkdtempSync(join(tmpdir(),'rminte-route-'));
+  try {
+    git(root,'init','-b','main');git(root,'config','user.name','CI Fixture');git(root,'config','user.email','ci@example.invalid');
+    writeFileSync(join(root,'README.md'),'route fixture\n');git(root,'add','README.md');git(root,'commit','-m','base');const base=git(root,'rev-parse','HEAD').trim();
+    mkdirSync(join(root,'website/new-feature'),{recursive:true});writeFileSync(join(root,'website/new-feature/index.html'),'<main>New route</main>');git(root,'add','website');git(root,'commit','-m','new route');
+    const added=getContext(root,{base,head:'HEAD'}).scope.pages.find(page=>page.path==='/new-feature/');
+    assert.ok(added);assert.equal(added.generic,true);assert.equal(added.beforeExists,false);assert.equal(added.afterExists,true);
+    const introduced=git(root,'rev-parse','HEAD').trim();git(root,'rm','website/new-feature/index.html');git(root,'commit','-m','remove route');
+    const removed=getContext(root,{base:introduced,head:'HEAD'}).scope.pages.find(page=>page.path==='/new-feature/');
+    assert.ok(removed);assert.equal(removed.beforeExists,true);assert.equal(removed.afterExists,false);
+    const translated='website/new-feature/用户.html';mkdirSync(join(root,'website/new-feature'),{recursive:true});writeFileSync(join(root,translated),'<main>Existing route</main>');git(root,'add',translated);git(root,'commit','-m','Unicode route');
+    const previous=git(root,'rev-parse','HEAD').trim();writeFileSync(join(root,translated),'<main>Updated route</main>');git(root,'add',translated);git(root,'commit','-m','update Unicode route');
+    assert.equal(getContext(root,{base:previous,head:'HEAD'}).scope.pages.find(page=>page.file===translated).beforeExists,true);
+  } finally {rmSync(root,{recursive:true,force:true});}
+});
+
+test('new page URLs preserve index-like names, uppercase HTML and URL-special characters',()=>{
+  const scope=classify([{status:'A',paths:['website/test/myindex.html']},{status:'A',paths:['website/test/a#b.HTML']}]);
+  assert.ok(scope.pages.some(page=>page.path==='/test/myindex'));
+  assert.ok(scope.pages.some(page=>page.path==='/test/a%23b.HTML'));
+  assert.equal(new Set(scope.pages.map(page=>page.id)).size,scope.pages.length);
+});
+
+test('the real secret scanner rejects a credential removed from the final tree and never reports its value',async()=>{
+  const root=mkdtempSync(join(tmpdir(),'rminte-secret-history-'));
+  try {
+    git(root,'init','-b','main');git(root,'config','user.name','CI Fixture');git(root,'config','user.email','ci@example.invalid');
+    writeFileSync(join(root,'README.md'),'No credential.\n');git(root,'add','README.md');git(root,'commit','-m','base');const base=git(root,'rev-parse','HEAD').trim();
+    await scanSecrets(root,{baseSha:base,headSha:base,scope:{files:['README.md']}});
+    const alphabet='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const secret=['gh','p_'].join('')+Array.from(randomBytes(36),byte=>alphabet[byte%alphabet.length]).join('');
+    writeFileSync(join(root,'README.md'),`credential = "${secret}"\n`);git(root,'add','README.md');git(root,'commit','-m','synthetic credential');
+    writeFileSync(join(root,'README.md'),'No credential.\n');git(root,'add','README.md');git(root,'commit','-m','remove synthetic credential');
+    const head=git(root,'rev-parse','HEAD').trim();
+    await assert.rejects(scanSecrets(root,{baseSha:base,headSha:head,scope:{files:['README.md']}}),/Secrets detected/);
+    const report=readFileSync(join(root,'output/ci/secrets.json'),'utf8');
+    assert.equal(report.includes(secret),false);
+    const findings=JSON.parse(report).findings;assert.ok(findings.length);assert.ok(findings.every(finding=>finding.scan==='commits'));
+  } finally {rmSync(root,{recursive:true,force:true});}
 });

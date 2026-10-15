@@ -1,5 +1,6 @@
 import {execFileSync} from 'node:child_process';
-import {readFileSync,writeFileSync} from 'node:fs';
+import {readFileSync,writeFileSync,existsSync} from 'node:fs';
+import {join} from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 export const owner = 'massif-01';
@@ -41,13 +42,21 @@ const document = path => /^(?:docs\/|design-preview\/|copy-review\/|output\/)/.t
 
 export function classify(changes,{all=false}={}) {
   const files=[...new Set(changes.flatMap(change=>change.paths))].sort();
-  const ids=new Set(), languages=new Set(['zh','en']);
-  const scope={files,changes,pages:[],languages:[],widths:[1440,390],fonts:false,brand:false,exif:false,guides:false,translations:false,seo:false,caseService:false,ota:false,infrastructure:false,homeMotion:false};
+  const ids=new Set(), languages=new Set(['zh','en']), routes=new Map();
+  const scope={files,changes,pages:[],languages:[],widths:[1440,390],fonts:false,brand:false,exif:false,guides:false,translations:false,seo:false,caseService:false,ota:false,infrastructure:false,homeMotion:false,workerConfigs:[]};
   const addAll=()=>{pages.forEach(page=>ids.add(page.id));scope.widths=[1440,768,390,320];};
   const guidePages=()=>pages.filter(page=>page.id.startsWith('guide')).forEach(page=>ids.add(page.id));
+  if(changes.some(change=>/^[DR]/.test(change.status)&&/\.html?$/i.test(change.paths[0])))addAll();
   for(const file of files) {
     if(infrastructure(file)) {scope.infrastructure=true;addAll();Object.assign(scope,{fonts:true,brand:true,exif:true,guides:true,translations:true,seo:true,caseService:true,ota:true,homeMotion:true});continue;}
     if(document(file)) continue;
+    if(/(?:^|\/)wrangler\.(?:jsonc?|toml)$/.test(file))scope.workerConfigs.push(file);
+    if(file.startsWith('website/')&&/\.html?$/i.test(file)&&file!=='website/404.html'&&!pages.some(page=>page.file===file)) {
+      const path='/'+file.slice('website/'.length).replace(/(^|\/)index\.html$/,'$1').replace(/\.html$/,'').split('/').map(encodeURIComponent).join('/');
+      const id='route-'+encodeURIComponent(file.slice('website/'.length));
+      routes.set(id,{id,path,file,regions:['body'],generic:true});ids.add(id);scope.fonts=true;
+      continue;
+    }
     if(file==='DESIGN.md'||file==='website/DESIGN.md') {addAll();continue;}
     if(file.startsWith('services/tianshanos-ota/')||file==='scripts/sync-tianshanos-release.mjs') {scope.ota=true;scope.fonts=true;continue;}
     if(file.startsWith('services/case-access/')) {scope.caseService=true;ids.add('cases');ids.add('admin');continue;}
@@ -85,7 +94,7 @@ export function classify(changes,{all=false}={}) {
     addAll();scope.homeMotion=true; // Unknown production assets can also affect normal homepage motion.
   }
   if(all) {addAll();Object.assign(scope,{fonts:true,brand:true,exif:true,guides:true,translations:true,seo:true,caseService:true,ota:true,homeMotion:true,infrastructure:true});}
-  scope.pages=pages.filter(page=>ids.has(page.id));scope.languages=[...languages];
+  scope.pages=[...pages,...routes.values()].filter(page=>ids.has(page.id)).map(page=>({...page}));scope.languages=[...languages];
   scope.reason=scope.pages.length ? 'Browser checks follow the changed production dependencies.' : 'No affected website UI; screenshots are not applicable.';
   return scope;
 }
@@ -100,7 +109,10 @@ export function context(root,{base,head,all=false}={}) {
     changes.push(...parseChanges(git(root,'diff','--name-status','-z','-M','HEAD','--')));
     for(const file of git(root,'ls-files','--others','--exclude-standard','-z').split('\0').filter(Boolean)) changes.push({status:'A',paths:[file]});
   }
-  return {schema:1,baseSha:git(root,'rev-parse',base).trim(),headSha:git(root,'rev-parse',head).trim(),testSha:git(root,'rev-parse','HEAD').trim(),local:!process.env.CI,prNumber:pr?.number||null,author:pr?.user?.login||null,body:pr?.body||'',scope:classify(changes,{all})};
+  const baseSha=git(root,'rev-parse',base).trim(),scope=classify(changes,{all});
+  const baseFiles=new Set(git(root,'ls-tree','-r','--name-only','-z',baseSha,'--','website').split('\0'));
+  scope.pages=scope.pages.map(page=>({...page,beforeExists:baseFiles.has(page.file),afterExists:existsSync(join(root,page.file))}));
+  return {schema:1,baseSha,headSha:git(root,'rev-parse',head).trim(),testSha:git(root,'rev-parse','HEAD').trim(),local:!process.env.CI,prNumber:pr?.number||null,author:pr?.user?.login||null,body:pr?.body||'',scope};
 }
 
 export function checkDescription({author,body}) {
@@ -116,5 +128,5 @@ export function checkDescription({author,body}) {
 if(process.argv[1]===fileURLToPath(import.meta.url)) {
   const run=context(process.cwd());
   console.log(JSON.stringify({pages:run.scope.pages.map(p=>p.path),languages:run.scope.languages,widths:run.scope.widths,reason:run.scope.reason}));
-  if(process.env.GITHUB_OUTPUT)writeFileSync(process.env.GITHUB_OUTPUT,`browser=${run.scope.pages.length>0}\n`,{flag:'a'});
+  if(process.env.GITHUB_OUTPUT)writeFileSync(process.env.GITHUB_OUTPUT,`browser=${run.scope.pages.length>0}\ncounterexamples=${run.scope.infrastructure}\n`,{flag:'a'});
 }

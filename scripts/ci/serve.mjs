@@ -6,6 +6,7 @@ import {fileURLToPath,pathToFileURL} from 'node:url';
 import {randomBytes,randomUUID} from 'node:crypto';
 import {setTimeout as delay} from 'node:timers/promises';
 import {createServer} from 'node:net';
+import {caseConfiguration} from './config.mjs';
 
 const toolsRoot=resolve(dirname(fileURLToPath(import.meta.url)),'../..');
 export const wrangler=join(toolsRoot,'node_modules/wrangler/bin/wrangler.js');
@@ -21,7 +22,8 @@ export async function startServer(root,port,logFile) {
   mkdirSync(join(fixtures,'tests'),{recursive:true});
   const secret=randomBytes(32).toString('base64'),password='Ci-'+randomBytes(16).toString('hex');
   const {hashAdminPassword}=await import(pathToFileURL(join(root,'services/case-access/crypto.mjs')));
-  const config={name:'rminte-ci-local',pages_build_output_dir:join(root,'website'),compatibility_date:'2026-09-26',d1_databases:[{binding:'CASE_DB',database_name:'rminte-ci-local',database_id:randomUUID(),migrations_dir:join(root,'services/case-access/migrations')}]};
+  const source=caseConfiguration(root);
+  const config={name:'rminte-ci-local',pages_build_output_dir:source.assets,compatibility_date:source.compatibility_date,compatibility_flags:source.compatibility_flags||[],d1_databases:[{binding:'CASE_DB',database_name:'rminte-ci-local',database_id:randomUUID(),migrations_dir:source.migrations}]};
   for(const destination of [join(runtime,'wrangler.jsonc'),join(fixtures,'wrangler.jsonc')])writeFileSync(destination,JSON.stringify(config));
   for(const destination of [join(runtime,'.dev.vars'),join(fixtures,'.dev.vars')])writeFileSync(destination,`CASE_SECRET="${secret}"\n`,{mode:0o600});
   writeFileSync(join(fixtures,'.local/admin-login.txt'),`本地 CI 临时数据（未部署）\n用户名：admin\n密码：${password}\n`,{mode:0o600});
