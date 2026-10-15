@@ -20,6 +20,7 @@ Sources are cached in .font-cache/ at the repository root (not committed)."""
 import argparse
 import hashlib
 import io
+import json
 import os
 import re
 import shutil
@@ -55,6 +56,10 @@ SOURCE_EXT = {'.html', '.js', '.mjs', '.json', '.css', '.svg'}
 SKIP_DIRS = {'node_modules', '.git', 'fonts', 'licenses', 'images', 'videos', 'review', 'translations'}
 SKIP_NAMES = {'ja.json', 'ko.json', 'es.json', 'fr.json'}
 SOURCE_ROOTS = [SITE, ROOT / 'services' / 'tianshanos-ota' / 'src']
+# Worker-generated pages use the same font; include their declared source inputs in check AND build.
+WORKER_PAGES = ROOT / 'tests' / 'browser' / 'worker-pages.json'
+if WORKER_PAGES.exists():
+    SOURCE_ROOTS.extend(ROOT / dependency for page in json.loads(WORKER_PAGES.read_text()) for dependency in page['dependencies'])
 
 
 def parse_ranges(text):
@@ -83,6 +88,10 @@ def needs_sc(cp):
 
 def source_files():
     for root in SOURCE_ROOTS:
+        if root.is_file():
+            if root.suffix in SOURCE_EXT:
+                yield root
+            continue
         for dirpath, dirnames, filenames in os.walk(root):
             dirnames[:] = [d for d in dirnames if d not in SKIP_DIRS]
             for name in filenames:

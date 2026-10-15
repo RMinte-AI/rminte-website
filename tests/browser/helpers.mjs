@@ -2,6 +2,7 @@ import {readFileSync,mkdirSync,writeFileSync} from 'node:fs';
 import {join,resolve} from 'node:path';
 import {createHash} from 'node:crypto';
 import {expect} from '@playwright/test';
+import {routeEvidence,observeRoute} from '../../scripts/ci/routes.mjs';
 
 export const run=JSON.parse(readFileSync(resolve('output/ci/context.json'),'utf8'));
 export const afterURL=process.env.RMINTE_AFTER_URL||'http://127.0.0.1:8788';
@@ -18,13 +19,14 @@ export async function setup(page,language) {
   page.on('pageerror',e=>problems.push(e.message));
   page.on('response',response=>{
     const url=new URL(response.url());
-    if(url.hostname==='127.0.0.1'&&response.status()>=400&&!url.pathname.startsWith('/api/'))problems.push(`${response.status()}: ${url.pathname}`);
+    const asset=['document','script','stylesheet','image','font','media'].includes(response.request().resourceType())||/\/demo\//.test(url.pathname);
+    if(url.hostname==='127.0.0.1'&&response.status()>=400&&(!url.pathname.startsWith('/api/')||asset))problems.push(`${response.status()}: ${url.pathname}`);
   });
   page.on('console',message=>{
     if(message.type()!=='error')return;
     const url=message.location().url||'';
     if(/https:\/\/fonts\.(?:googleapis|gstatic)\.com\//.test(url))external.push(message.text());
-    else if(!url.includes('/api/'))problems.push(message.text());
+    else if(!url.includes('/api/')||/\/demo\//.test(url))problems.push(message.text());
   });
   return {problems,external};
 }
@@ -37,13 +39,37 @@ export async function loginFixture(page,base,phase) {
   expect(response.status()).toBe(200);
 }
 
+export async function createBrowserAccount(base=afterURL) {
+  const runtime=process.env.RMINTE_AFTER_FIXTURE;
+  const password=readFileSync(join(runtime,'services/case-access/.local/admin-login.txt'),'utf8').match(/密码：(.*)/)[1];
+  const login=await fetch(base+'/api/login',{method:'POST',headers:{Origin:base,'Content-Type':'application/json'},body:JSON.stringify({username:'admin',password})});
+  expect(login.status).toBe(200);
+  const cookie=login.headers.get('set-cookie').split(';')[0];
+  await login.body?.cancel();
+  const call=async(path,method,data)=>{
+    const response=await fetch(base+path,{method,headers:{Origin:base,Cookie:cookie,'Content-Type':'application/json'},body:data?JSON.stringify(data):undefined});
+    expect(response.ok).toBe(true);return response.json();
+  };
+  const account=await call('/api/admin/users','POST',{});
+  return {...account,setPermissions:permissions=>call('/api/admin/users/'+account.id,'PATCH',permissions),remove:()=>call('/api/admin/users/'+account.id,'DELETE')};
+}
+
 export async function openPage(page,descriptor,language,base=afterURL) {
   const response=await page.goto(`${base}${descriptor.path}?lang=${language}`,{waitUntil:'domcontentloaded'});
   expect(response.status()).toBe(200);
-  await expect(page.locator('main').first()).toBeVisible();
+  await expect(page.locator(descriptor.contentRoot||'main').first()).toBeVisible();
   await page.evaluate(()=>document.fonts.ready);
   if(descriptor.id!=='lamp')await expect(page.locator('html')).toHaveAttribute('lang',{zh:'zh-CN',en:'en',ja:'ja',ko:'ko',es:'es-ES',fr:'fr-FR'}[language]);
   else await expect(page.locator('#langSelect')).toHaveValue(language==='zh'?'zh-CN':'en-US');
+}
+
+export async function inspectRoute(page,descriptor,language,base,phase) {
+  const url=`${base}${descriptor.path}?lang=${language}`;
+  const response=await observeRoute(url,async target=>{
+    const response=await page.request.get(target,{maxRedirects:0,timeout:10000}),status=response.status(),location=response.headers().location;
+    await response.dispose();return {status,location};
+  });
+  return routeEvidence(descriptor.expected?.[phase],response,phase);
 }
 
 export async function layout(page) {
