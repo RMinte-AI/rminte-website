@@ -36,6 +36,8 @@ test('production Markdown, shared dependencies and new production files cannot u
   assert.ok(translated.languages.includes('fr'));
   assert.deepEqual(translated.pages.find(page=>page.id==='lamp').languages,['zh','en']);
   assert.equal(classify([{status:'M',paths:['docs/example.md']}]).pages.length,0);
+  assert.equal(classify([{status:'M',paths:['services/case-access/README.md']}]).pages.length,0);
+  assert.equal(classify([{status:'M',paths:['scripts/ci/README.md']}]).infrastructure,false);
   assert.throws(()=>classify([{status:'A',paths:['unclassified-code.py']}]),/No CI scope/);
 });
 

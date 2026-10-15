@@ -38,7 +38,7 @@ export function changedPaths(root,base,head) {
 
 const infrastructure = path => /^(?:\.github\/workflows\/|scripts\/ci\/|tests\/browser\/|playwright\.config\.|package(?:-lock)?\.json$)/.test(path);
 const document = path => /^(?:docs\/|design-preview\/|copy-review\/|output\/)/.test(path)
-  || (/^[^/]+\.md$/.test(path) && path!=='DESIGN.md')
+  || (/\.md$/i.test(path) && !path.startsWith('website/') && path!=='DESIGN.md')
   || ['.gitignore','.github/CODEOWNERS','.github/pull_request_template.md'].includes(path);
 
 export function classify(changes,{all=false}={}) {
@@ -54,8 +54,8 @@ export function classify(changes,{all=false}={}) {
   const guidePages=()=>pages.filter(page=>page.id.startsWith('guide')).forEach(page=>ids.add(page.id));
   if(changes.some(change=>/^[DR]/.test(change.status)&&/\.html?$/i.test(change.paths[0])))scope.navigationAll=true;
   for(const file of files) {
-    if(infrastructure(file)) {scope.infrastructure=true;addAll();Object.assign(scope,{fonts:true,brand:true,exif:true,guides:true,translations:true,seo:true,caseService:true,caseMigrations:true,ota:true,homeMotion:true,navigationAll:true});continue;}
     if(document(file)) continue;
+    if(infrastructure(file)) {scope.infrastructure=true;addAll();Object.assign(scope,{fonts:true,brand:true,exif:true,guides:true,translations:true,seo:true,caseService:true,caseMigrations:true,ota:true,homeMotion:true,navigationAll:true});continue;}
     if(destinations.has(file)&&(configuredFiles.has(file)||/(?:^|\/)wrangler\.(?:jsonc?|toml)$/.test(file)))scope.configurationFiles.push(file);
     if(configuredFiles.get(file)?.kind==='d1') {scope.caseMigrations=true;continue;}
     if(file.startsWith('website/')&&/\.html?$/i.test(file)&&file!=='website/404.html'&&!pages.some(page=>page.file===file)) {
