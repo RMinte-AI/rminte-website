@@ -1,10 +1,10 @@
 import {test,expect} from '@playwright/test';
 import {readFileSync} from 'node:fs';
 import {join} from 'node:path';
-import {operationName} from '../../scripts/ci/routes.mjs';
-import {run,languages,setup,openPage,inspectRoute,layout,afterURL,loginFixture,createBrowserAccount} from './helpers.mjs';
+import {operationName,operationLanguages} from '../../scripts/ci/routes.mjs';
+import {run,setup,openPage,inspectRoute,layout,afterURL,loginFixture,createBrowserAccount} from './helpers.mjs';
 
-for(const descriptor of run.scope.pages)for(const language of languages(descriptor).filter(lang=>['zh','en'].includes(lang)))for(const width of [1440,390]) {
+for(const descriptor of run.scope.pages)for(const language of operationLanguages(descriptor,run.scope.languages))for(const width of [1440,390]) {
   test.describe(operationName(descriptor,language,width),()=>{
     test.use({viewport:{width,height:900},hasTouch:width===390,locale:language==='zh'?'zh-CN':'en'});
     test('navigation, language and page operation remain usable',async({page,context},testInfo)=>{

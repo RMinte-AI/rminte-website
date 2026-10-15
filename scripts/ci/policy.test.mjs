@@ -11,7 +11,7 @@ import {validateEvidence,gateResult} from './report.mjs';
 import {scanSecrets} from './secrets.mjs';
 import {checkConfigurations} from './build.mjs';
 import {workerPageManifest,workerPages} from './pages.mjs';
-import {observeRoute,routeEvidence,checkNavigation} from './routes.mjs';
+import {observeRoute,routeEvidence,checkNavigation,operationLanguages} from './routes.mjs';
 import {createServer} from 'node:http';
 
 test('real divergent history classifies only the PR change, including renames and deletion',()=>{
@@ -99,8 +99,10 @@ test('evidence for another Head, missing screenshots and altered image bytes fai
     const records=['before','after'].map(phase=>({kind:'page',status:200,phase,page:'gallery',language:'en',width:390,region:'main',file:'image.png',sha256:createHash('sha256').update(bytes).digest('hex')}));
     writeFileSync(join(root,'output/ci/browser-results.json'),JSON.stringify({stats:{skipped:0,unexpected:0,flaky:0},suites:[{title:'operations gallery en 390px',specs:[{tests:[{expectedStatus:'passed',results:[{status:'passed'}]}]}]}]}));
     writeFileSync(join(directory,'records/gallery.json'),JSON.stringify(records));assert.equal(validateEvidence(root,context).screenshots,2);
-    context.scope.pages[0].expected={before:true,after:false};
+    context.scope.pages[0].sourceExists={before:true,after:false};context.scope.pages[0].expected={before:true,after:true};
     assert.equal(validateEvidence(root,context).screenshots,2); // HTTP 200 still needs real PNGs after its source file moves.
+    context.scope.pages[0].expected.after=false;assert.throws(()=>validateEvidence(root,context),/Undeclared HTML page/);
+    context.scope.pages[0].expected.after=true;
     writeFileSync(join(root,'output/ci/browser-results.json'),JSON.stringify({stats:{skipped:1},suites:[]}));assert.throws(()=>validateEvidence(root,context),/without skips/);
     writeFileSync(join(directory,'image.png'),Buffer.concat([bytes,Buffer.from('altered')]));assert.throws(()=>validateEvidence(root,context),/checksum/);
     assert.throws(()=>gateResult([{name:'browser',required:true,status:'cancelled'}]),/did not pass/);
@@ -130,6 +132,7 @@ test('a real added or deleted HTML route remains in browser scope with honest ba
     const worker=getContext(root,{base:previous,head:'HEAD'}).scope.pages.find(page=>page.path===entry.path);
     assert.ok(worker);assert.equal(worker.file,null);assert.deepEqual(worker.sourceExists,{before:false,after:false});assert.deepEqual(worker.expected,{before:false,after:true});
     assert.ok(getContext(root,{base:previous,head:'HEAD'}).scope.languages.includes('fr'));
+    assert.deepEqual(operationLanguages(worker,['zh','en','fr']),['fr']);
     assert.throws(()=>workerPages(JSON.stringify([{...entry,dependencies:['./'+dependency]}])),/canonical repository-relative/);
     writeFileSync(join(root,workerPageManifest),JSON.stringify([{...entry,dependencies:['services/missing.mjs']}]));
     assert.throws(()=>getContext(root,{base:previous,head:'HEAD'}),/missing input/);
@@ -170,6 +173,9 @@ test('navigation and route evidence share redirect boundaries without requesting
     const internal=await observeRoute(base+'/internal/',request);
     assert.equal(routeEvidence(true,internal).kind,'page');assert.equal(routeEvidence(false,internal).kind,'redirect');
     assert.throws(()=>routeEvidence(true,{status:404}),/reachable page/);assert.equal(routeEvidence(false,{status:404}).kind,'absent');
+    const page=await observeRoute(base+'/page/',request);
+    assert.equal(routeEvidence(false,page,'before').kind,'page');
+    assert.throws(()=>routeEvidence(false,page,'after'),/Undeclared HTML page/);
     await assert.rejects(checkNavigation(base,['/missing/'],[]),/HTTP 404/);
     await assert.rejects(checkNavigation(base,['/page/'],[]),/no page declaration/);
     await assert.rejects(observeRoute(base+'/loop/',request),/redirect loop/);

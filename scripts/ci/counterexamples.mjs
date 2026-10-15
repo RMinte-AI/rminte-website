@@ -44,21 +44,23 @@ try {
       if(fault!=='undeclared-worker')entries.push({path:'/ci-generated/',dependencies:['services/case-access/ci-generated.mjs']});
       write(fixture,workerPageManifest,JSON.stringify(entries));
     }},
-    {id:'route-lifecycle',check:'browser operations and evidence',variants:[{id:'external-redirect',positive:true},{id:'runtime'},{id:'dangling-link',check:'internal navigation HTTP'}],files:['website/ci-route/index.html','services/case-access/ci-route.mjs',workerPageManifest],setup:fixture=>{
+    {id:'route-lifecycle',check:'browser operations and evidence',variants:[{id:'external-redirect',positive:true},{id:'runtime'},{id:'undeclared-reachable'},{id:'dangling-link',check:'internal navigation HTTP'}],files:['website/ci-route/index.html','services/case-access/ci-route.mjs','website/cases/index.html',workerPageManifest],setup:fixture=>{
       write(fixture,'website/ci-route/index.html',html(false));
       write(fixture,'services/case-access/ci-route.mjs','export function ciRoute(request,env){return new URL(request.url).pathname==="/ci-route/"?env.ASSETS.fetch(request):null;}');
       write(fixture,'website/_worker.js',"import {ciRoute} from '../services/case-access/ci-route.mjs';\n"+replace(read('website/_worker.js'),'fetch(request, env) {','fetch(request, env) {\n    const route=ciRoute(request,env);if(route)return route;'));
       const routes=JSON.parse(read('website/_routes.json'));routes.include.push('/ci-route/*');
       write(fixture,'website/_routes.json',JSON.stringify(routes));
       write(fixture,'website/cases/index.html',replace(read('website/cases/index.html'),'</main>','<a href="/ci-route/">CI route</a></main>'));
-      return ['website/ci-route/index.html','services/case-access/ci-route.mjs','website/_worker.js','website/_routes.json','website/cases/index.html'];
+      const entries=JSON.parse(read(workerPageManifest));entries.push({path:'/ci-route/',dependencies:['services/case-access/ci-route.mjs']});write(fixture,workerPageManifest,JSON.stringify(entries));
+      return ['website/ci-route/index.html','services/case-access/ci-route.mjs','website/_worker.js','website/_routes.json','website/cases/index.html',workerPageManifest];
     },apply:(fixture,fault)=>{
       rmSync(join(fixture,'website/ci-route/index.html'));
       const response=fault==='dangling-link'?'null':fault==='external-redirect'?'Response.redirect("https://ci-external.invalid/needs-login",302)':`new Response(${JSON.stringify(html(fault==='runtime'))},{headers:{'Content-Type':'text/html; charset=utf-8'}})`;
       write(fixture,'services/case-access/ci-route.mjs',`export function ciRoute(request,env){return new URL(request.url).pathname==="/ci-route/"?${response}:null;}`);
       const entries=JSON.parse(read(workerPageManifest));
-      if(!['dangling-link','external-redirect'].includes(fault))entries.push({path:'/ci-route/',dependencies:['services/case-access/ci-route.mjs']});
+      if(!['dangling-link','external-redirect','undeclared-reachable'].includes(fault))entries.push({path:'/ci-route/',dependencies:['services/case-access/ci-route.mjs']});
       write(fixture,workerPageManifest,JSON.stringify(entries));
+      if(fault==='undeclared-reachable')write(fixture,'website/cases/index.html',read('website/cases/index.html')); // No incoming link: the retained Base declaration must keep the check alive.
     }},
     {id:'worker-entry',check:'deployment and operational configurations',files:['services/tianshanos-ota/wrangler.jsonc'],apply:(fixture,fault)=>{
       const original=read('services/tianshanos-ota/wrangler.jsonc');

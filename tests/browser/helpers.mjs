@@ -68,7 +68,7 @@ export async function inspectRoute(page,descriptor,language,base,phase) {
     const response=await page.request.get(target,{maxRedirects:0,timeout:10000}),status=response.status(),location=response.headers().location;
     await response.dispose();return {status,location};
   });
-  return routeEvidence(descriptor.expected?.[phase],response);
+  return routeEvidence(descriptor.expected?.[phase],response,phase);
 }
 
 export async function layout(page) {
