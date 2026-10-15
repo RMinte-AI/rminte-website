@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { OrbitControls } from './vendor/OrbitControls.js';
+import { OrbitControls } from './vendor/OrbitControls.mjs';
 
 export function createViewer(canvas, viewport) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });

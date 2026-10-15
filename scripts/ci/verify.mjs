@@ -37,7 +37,7 @@ await check('generated guides',run.scope.guides,()=>generatedCheck(root,'website
 await check('generated translations',run.scope.translations,()=>generatedCheck(root,'website/scripts/build-translations.mjs',['website/assets/translations/ja.js','website/assets/translations/ko.js','website/assets/translations/es.js','website/assets/translations/fr.js']),'No translation input or generator changed.');
 const unit=['scripts/ci/policy.test.mjs'];
 if(run.scope.seo)unit.push('scripts/check-seo.test.mjs');
-if(run.scope.caseService)unit.push('services/case-access/tests/crypto.test.mjs');
+if(run.scope.caseService)unit.push('services/case-access/tests/crypto.test.mjs','services/case-demos/tests/worker.test.mjs');
 if(run.scope.ota)unit.push('services/tianshanos-ota/tests/releases.test.mjs');
 await check('unit and gate regressions',true,()=>command(process.execPath,['--test',...unit],'unit'));
 

@@ -3,8 +3,8 @@ export default {
   async fetch(request, env) {
     if (!['GET', 'HEAD'].includes(request.method)) return new Response('Method not allowed', {status: 405});
     const url = new URL(request.url);
-    if (!url.pathname.startsWith('/industrial-modeling/')) return new Response('Not found', {status: 404});
-    if (url.pathname === '/industrial-modeling/') url.pathname += 'index.html';
+    if (!/^\/[a-z0-9-]+\/public\//.test(url.pathname)) return new Response('Not found', {status: 404});
+    if (url.pathname.endsWith('/')) url.pathname += 'index.html';
     const response = await env.DEMO_ASSETS.fetch(new Request(url, {method: request.method}));
     const headers = new Headers(response.headers);
     headers.set('X-Frame-Options', 'SAMEORIGIN');

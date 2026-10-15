@@ -83,7 +83,7 @@ const _EPS = 0.000001;
  * ```
  *
  * @augments Controls
- * @three_import import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+ * @three_import import { OrbitControls } from 'three/addons/controls/OrbitControls.mjs';
  */
 class OrbitControls extends Controls {
 
@@ -841,7 +841,7 @@ class OrbitControls extends Controls {
 
 			} else {
 
-				console.warn( 'WARNING: OrbitControls.js encountered an unknown camera type - zoom to cursor disabled.' );
+				console.warn( 'WARNING: OrbitControls.mjs encountered an unknown camera type - zoom to cursor disabled.' );
 				this.zoomToCursor = false;
 
 			}
@@ -1009,7 +1009,7 @@ class OrbitControls extends Controls {
 		} else {
 
 			// camera neither orthographic nor perspective
-			console.warn( 'WARNING: OrbitControls.js encountered an unknown camera type - pan disabled.' );
+			console.warn( 'WARNING: OrbitControls.mjs encountered an unknown camera type - pan disabled.' );
 			this.enablePan = false;
 
 		}
@@ -1024,7 +1024,7 @@ class OrbitControls extends Controls {
 
 		} else {
 
-			console.warn( 'WARNING: OrbitControls.js encountered an unknown camera type - dolly/zoom disabled.' );
+			console.warn( 'WARNING: OrbitControls.mjs encountered an unknown camera type - dolly/zoom disabled.' );
 			this.enableZoom = false;
 
 		}
@@ -1039,7 +1039,7 @@ class OrbitControls extends Controls {
 
 		} else {
 
-			console.warn( 'WARNING: OrbitControls.js encountered an unknown camera type - dolly/zoom disabled.' );
+			console.warn( 'WARNING: OrbitControls.mjs encountered an unknown camera type - dolly/zoom disabled.' );
 			this.enableZoom = false;
 
 		}

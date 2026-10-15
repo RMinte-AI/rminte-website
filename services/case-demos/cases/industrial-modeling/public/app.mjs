@@ -1,4 +1,4 @@
-import { createViewer } from './viewer.js';
+import { createViewer } from './viewer.mjs';
 
 const $ = selector => document.querySelector(selector);
 const $$ = selector => [...document.querySelectorAll(selector)];

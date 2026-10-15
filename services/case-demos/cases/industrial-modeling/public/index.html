@@ -6,7 +6,7 @@
   <title>图纸工坊 · 互动体验</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%234768dd'/%3E%3Cpath d='m16 6 9 5v10l-9 5-9-5V11Zm0 10v10M7 11l9 5 9-5M16 6v10' fill='none' stroke='white' stroke-width='1.5'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="./style.css">
-  <script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script>
+  <script type="importmap">{"imports":{"three":"./vendor/three.module.mjs"}}</script>
 </head>
 <body>
 <a class="skip" href="#workspace">跳到互动工作区</a>
@@ -40,6 +40,6 @@
 </main>
 <dialog id="dialog"><div class="dialog-head"><h2 id="dialog-title"></h2><button id="dialog-close" class="icon-button" aria-label="关闭弹窗">×</button></div><div id="dialog-body"></div></dialog>
 <div id="toast" role="status" hidden></div>
-<script type="module" src="./app.js"></script>
+<script type="module" src="./app.mjs"></script>
 <script src="./embed.js"></script>
 </body></html>

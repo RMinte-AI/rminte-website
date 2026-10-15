@@ -20,7 +20,7 @@
     {group: 3, name: {zh: 'AI 公文写作助手', en: 'AI Official Writing Assistant'}, desc: {zh: '面向公文写作场景，提供 AI 辅助写作的应用入口。', en: 'An entry point for AI-assisted writing of official documents.'}},
     {group: 3, name: {zh: 'AI 企业档案管理', en: 'AI Enterprise Archive Management'}, desc: {zh: '结合 OCR 与知识库，让企业档案进入可识别、可查询的工作流程。', en: 'Uses OCR and a knowledge base to bring enterprise archives into a searchable workflow.'}},
     {group: 2, name: {zh: '无人机机场 AI 分析师', en: 'Drone Airport AI Analyst'}, desc: {zh: '面向森林防火误报与户外活动人员探测，开展无人机影像分析。', en: 'Drone imagery analysis for false fire alarms in forests and detection of people in outdoor activity.'}},
-    {group: 4, name: {zh: 'AI 汽车研发与工业建模', en: 'AI Automotive R&D and Industrial Modelling'}, desc: {zh: '覆盖零件平面图转 3D、装配建模、工业焊接机器人编程与汽车安全检测。', en: 'Covers part drawings to 3D, assembly modelling, industrial welding-robot programming and automotive safety inspection.'}},
+    {group: 4, demo: 'index.html?embed=1', name: {zh: 'AI 汽车研发与工业建模', en: 'AI Automotive R&D and Industrial Modelling'}, desc: {zh: '覆盖零件平面图转 3D、装配建模、工业焊接机器人编程与汽车安全检测。', en: 'Covers part drawings to 3D, assembly modelling, industrial welding-robot programming and automotive safety inspection.'}},
     {group: 3, name: {zh: '刑事律师材料与线索 AI 整理师', en: 'AI Organiser for Criminal Defence Materials and Leads'}, desc: {zh: '面向刑事律师工作中的材料与线索整理，辅助组织已有信息。', en: 'Helps criminal defence lawyers organise case materials and leads from existing information.'}},
     {group: 4, name: {zh: 'AI 汽车功能安全检测', en: 'AI Automotive Functional Safety Inspection'}, desc: {zh: '聚焦汽车功能安全检测场景，展示 AI 在专业检测工作中的应用。', en: 'Focused on functional safety inspection of vehicles, showing AI in professional inspection work.'}}
   ];
@@ -162,10 +162,10 @@
   const fail = (pair) => Object.assign(new Error(pair.zh), {pair});
   const explain = (error) => error.pair || (error.unavailable ? COPY.serviceDown : KNOWN[error.message] || error.message);
 
-  function action(type, selected) {
+  function action(type, selected, trigger) {
     const item = selected === undefined ? null : cases[Number(selected)];
     if (type === 'demo' || type === 'download') {
-      pendingResource = {kind: type, id: caseIds[Number(selected)], item, trigger: document.activeElement};
+      pendingResource = {kind: type, id: caseIds[Number(selected)], item, trigger};
       if (CASE_AUTH.user) { enterResource(); return; }
     }
     if (type === 'login' || type === 'demo' || type === 'download') {
@@ -186,12 +186,12 @@
       const check = await fetch(url, {method: 'HEAD', credentials: 'same-origin'}).catch(() => { throw fail(COPY.tryLater); });
       if (!check.ok) throw fail(check.status === 503 ? COPY.notConnected : check.status === 403 ? COPY.noAccess : COPY.tryLater);
       dialog.close();
-      if (resource.kind === 'demo' && resource.id === 'industrial-modeling') {
+      if (resource.kind === 'demo' && resource.item.demo) {
         const title = document.getElementById('case-demo-title');
         setPair(title, resource.item.name);
         title.setAttribute('data-case-text', '');
         paint(title.parentElement);
-        CASE_DEMO.open(`${url}/index.html?embed=1`, resource.trigger);
+        CASE_DEMO.open(`${url}/${resource.item.demo}`, resource.trigger);
       } else location.assign(url);
     } catch (error) {
       open(`${heading(resource.item.name)}${status}`);
@@ -200,7 +200,7 @@
   }
   document.addEventListener('click', (event) => {
     const trigger = event.target.closest('[data-action]');
-    if (trigger && trigger.dataset.state !== 'off') action(trigger.dataset.action, trigger.dataset.selected);
+    if (trigger && trigger.dataset.state !== 'off') action(trigger.dataset.action, trigger.dataset.selected, trigger);
     const more = event.target.closest('.cs-more');
     if (more) {
       const card = more.closest('.cs-card'), expand = !card.hasAttribute('data-open');

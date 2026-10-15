@@ -5,7 +5,7 @@ if (parent !== window) {
     const height = Math.ceil(document.body.getBoundingClientRect().height);
     if (height !== lastHeight) {
       lastHeight = height;
-      parent.postMessage({type: 'cad-demo-height', height}, location.origin);
+      parent.postMessage({type: 'case-demo-height', height}, location.origin);
     }
   };
   new ResizeObserver(report).observe(document.body);
@@ -13,7 +13,7 @@ if (parent !== window) {
     // Escape closes an inner size/history dialog first, then the outer demo.
     if (event.key === 'Escape' && !document.querySelector('dialog[open]')) {
       event.preventDefault();
-      parent.postMessage({type: 'cad-demo-close'}, location.origin);
+      parent.postMessage({type: 'case-demo-close'}, location.origin);
     }
   }, true);
 }

@@ -44,7 +44,7 @@ test('Owner has no mandatory review material; an empty contributor description i
 });
 
 test('private CAD demo changes require case UI and account-service checks',()=>{
-  for(const file of ['services/case-demos/README.md','services/case-demos/worker.mjs','services/case-demos/assets/industrial-modeling/viewer.js']) {
+  for(const file of ['services/case-demos/README.md','services/case-demos/worker.mjs','services/case-demos/cases/industrial-modeling/public/viewer.mjs']) {
     const scope=classify([{status:'A',paths:[file]}]);
     assert.equal(scope.caseService,true);
     assert.deepEqual(scope.pages.map(page=>page.id),['cases']);
@@ -53,30 +53,41 @@ test('private CAD demo changes require case UI and account-service checks',()=>{
 
 test('private demo resources resolve within the private asset root and missing files still fail',()=>{
   const root=mkdtempSync(join(tmpdir(),'rminte-demo-resources-'));
-  const directory=join(root,'services/case-demos/assets/industrial-modeling');
+  const directory=join(root,'services/case-demos/cases/industrial-modeling/public');
   try {
     mkdirSync(directory,{recursive:true});
     writeFileSync(join(directory,'index.html'),'<link rel="stylesheet" href="./style.css"><script src="./app.js"></script>');
     writeFileSync(join(directory,'style.css'),'body{background:url(./drawing.svg)}');
     writeFileSync(join(directory,'app.js'),'console.log("demo")');
     writeFileSync(join(directory,'drawing.svg'),'<svg/>');
-    assert.doesNotThrow(()=>checkHtml(root,'services/case-demos/assets/industrial-modeling/index.html'));
-    assert.doesNotThrow(()=>checkCss(root,'services/case-demos/assets/industrial-modeling/style.css'));
+    assert.doesNotThrow(()=>checkHtml(root,'services/case-demos/cases/industrial-modeling/public/index.html'));
+    assert.doesNotThrow(()=>checkCss(root,'services/case-demos/cases/industrial-modeling/public/style.css'));
     rmSync(join(directory,'drawing.svg'));
-    assert.throws(()=>checkCss(root,'services/case-demos/assets/industrial-modeling/style.css'),/missing local resource/);
+    assert.throws(()=>checkCss(root,'services/case-demos/cases/industrial-modeling/public/style.css'),/missing local resource/);
     rmSync(join(directory,'app.js'));
-    assert.throws(()=>checkHtml(root,'services/case-demos/assets/industrial-modeling/index.html'),/missing local resource/);
+    assert.throws(()=>checkHtml(root,'services/case-demos/cases/industrial-modeling/public/index.html'),/missing local resource/);
   }finally{rmSync(root,{recursive:true,force:true});}
 });
 
-test('minified ES modules are parsed as JavaScript while malformed bundles still fail',()=>{
-  const root=mkdtempSync(join(tmpdir(),'rminte-module-'));
-  const file='bundle.js';
+test('HTML script types are enforced, including when one file has multiple consumers',()=>{
+  const root=mkdtempSync(join(tmpdir(),'rminte-script-types-'));
+  const files=['website/index.html','website/app.js'];
   try {
-    writeFileSync(join(root,file),'const value=1;export{value};');
-    assert.doesNotThrow(()=>staticChecks(root,{files:[file],pages:[]}));
-    writeFileSync(join(root,file),'const value=;export{value};');
-    assert.throws(()=>staticChecks(root,{files:[file],pages:[]}),/SyntaxError/);
+    mkdirSync(join(root,'website'));
+    writeFileSync(join(root,'website/index.html'),'<script src="./app.js"></script>');
+    for(const source of ['await Promise.resolve();','console.log(import.meta.url);','return;']) {
+      writeFileSync(join(root,'website/app.js'),source);
+      assert.throws(()=>staticChecks(root,{files,pages:[]}),/SyntaxError/);
+    }
+    writeFileSync(join(root,'website/index.html'),'<script type="module" src="./app.js"></script>');
+    writeFileSync(join(root,'website/app.js'),'const value=1;export{value};await Promise.resolve();');
+    assert.doesNotThrow(()=>staticChecks(root,{files,pages:[]}));
+    writeFileSync(join(root,'website/second.html'),'<script src="./app.js"></script>');
+    assert.throws(()=>staticChecks(root,{files:[...files,'website/second.html'],pages:[]}),/SyntaxError/);
+    writeFileSync(join(root,'website/app.js'),'const value=;export{value};');
+    assert.throws(()=>staticChecks(root,{files,pages:[]}),/SyntaxError/);
+    writeFileSync(join(root,'website/bundle.mjs'),'const value=1;export{value};');
+    assert.doesNotThrow(()=>staticChecks(root,{files:['website/bundle.mjs'],pages:[]}));
   }finally{rmSync(root,{recursive:true,force:true});}
 });
 

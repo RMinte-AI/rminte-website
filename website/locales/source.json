@@ -4623,5 +4623,12 @@
     "sources": [
       "cases/index.html:101"
     ]
+  },
+  {
+    "zh": "CAD 互动演示",
+    "en": "CAD interactive demo",
+    "sources": [
+      "cases/index.html:iframe-title"
+    ]
   }
 ]

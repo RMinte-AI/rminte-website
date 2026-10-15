@@ -29,8 +29,8 @@
   });
   addEventListener('message', event => {
     if (!modal.open || event.origin !== location.origin || event.source !== frame.contentWindow) return;
-    if (event.data?.type === 'cad-demo-close') modal.close();
-    if (event.data?.type === 'cad-demo-height' && Number.isFinite(event.data.height) && event.data.height > 0) {
+    if (event.data?.type === 'case-demo-close') modal.close();
+    if (event.data?.type === 'case-demo-height' && Number.isFinite(event.data.height) && event.data.height > 0) {
       frame.style.height = `${Math.min(4000, Math.ceil(event.data.height))}px`;
     }
   });

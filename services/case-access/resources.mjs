@@ -2,5 +2,5 @@
 // Demo entries must use a PRIVATE Worker service binding, not a public upstream URL.
 // Example: 'digital-toll': { demoPath: '/digital-toll/', fileKey: 'digital-toll/brief.pdf', fileName: 'brief.pdf' }
 export const resources = {
-  'industrial-modeling': {demoPath: '/industrial-modeling/'}
+  'industrial-modeling': {demoPath: '/industrial-modeling/public/'}
 };

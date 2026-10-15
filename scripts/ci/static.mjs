@@ -2,6 +2,7 @@ import {existsSync,readFileSync,statSync,mkdtempSync,rmSync,cpSync} from 'node:f
 import {dirname,resolve,extname,join} from 'node:path';
 import {tmpdir} from 'node:os';
 import {execFileSync} from 'node:child_process';
+import {Script} from 'node:vm';
 import {parse} from 'parse5';
 import postcss from 'postcss';
 import {pages} from './scope.mjs';
@@ -16,7 +17,7 @@ const attr=(node,key)=>node.attrs?.find(a=>a.name===key)?.value;
 export function resourceFile(root,from,reference) {
   if(!reference||/^(?:[a-z][a-z0-9+.-]*:|\/\/|#)/i.test(reference)) return null;
   // Private demos have their own asset root; they are not public website files.
-  const prefix=from.startsWith('services/case-demos/assets/')?'services/case-demos/assets/':'website/';
+  const prefix=from.match(/^(services\/case-demos\/cases\/[a-z0-9-]+\/public\/)/)?.[1]||'website/';
   const assetRoot=resolve(root,prefix);
   const url=new URL(reference,new URL('/'+from.slice(prefix.length),'https://ci.invalid'));
   if(url.pathname==='/visitor-language.js'||url.pathname.startsWith('/api/')) return null;
@@ -30,6 +31,7 @@ export function resourceFile(root,from,reference) {
 
 export function syntax(source,file,type='classic') {
   if(type==='json'){JSON.parse(source);return;}
+  if(type==='classic'){new Script(source,{filename:file});return;}
   try {execFileSync(process.execPath,['--check',`--input-type=${type==='module'?'module':'commonjs'}`],{input:source,encoding:'utf8',stdio:['pipe','pipe','pipe']});}
   catch(e){throw new Error(`${file}: ${String(e.stderr||e.message).slice(-2000)}`);}
 }
@@ -57,12 +59,21 @@ export function checkCss(root,file) {
 
 export function staticChecks(root,scope) {
   const files=new Set(scope.files.filter(file=>existsSync(join(root,file))));
+  const scriptModes=new Map();
   for(const page of scope.pages)files.add(page.file);
-  for(const page of scope.pages) {
-    for(const node of markup(readFileSync(join(root,page.file),'utf8'))) {
+  for(const file of [...files].filter(file=>file.endsWith('.html'))) {
+    for(const node of markup(readFileSync(join(root,file),'utf8'))) {
       for(const key of ['src','href']) {
-        const target=resourceFile(root,page.file,attr(node,key));
+        const target=resourceFile(root,file,attr(node,key));
         if(target&&/\.(?:js|mjs|css|json)$/.test(target))files.add(target.slice(root.length+1));
+      }
+      if(node.tagName==='script'&&attr(node,'src')) {
+        const type=attr(node,'type')||'';
+        if(!['','text/javascript','application/javascript','module'].includes(type))continue;
+        const target=resourceFile(root,file,attr(node,'src'));
+        if(!target)continue;
+        const name=target.slice(root.length+1),modes=scriptModes.get(name)||new Set();
+        modes.add(type==='module'?'module':'classic');scriptModes.set(name,modes);
       }
     }
   }
@@ -72,13 +83,10 @@ export function staticChecks(root,scope) {
     else if(file.endsWith('.css'))checkCss(root,file);
     else if(/\.(?:js|mjs|cjs)$/.test(file)) {
       const source=readFileSync(join(root,file),'utf8');
-      if(file.endsWith('.mjs'))syntax(source,file,'module');
-      else if(file.endsWith('.cjs'))syntax(source,file,'classic');
-      else {
-        // A .js asset may be a script or an ES module, including minified modules.
-        // Parse both grammars rather than guessing from the first token on a line.
-        try{syntax(source,file,'classic');}catch{syntax(source,file,'module');}
-      }
+      // HTML determines browser script grammar. Imported modules use .mjs;
+      // the Pages Worker is Cloudflare's explicitly defined module entrypoint.
+      const modes=scriptModes.get(file)||[file.endsWith('.mjs')||file==='website/_worker.js'?'module':file.endsWith('.cjs')?'commonjs':'classic'];
+      for(const mode of modes)syntax(source,file,mode);
     }
     else if(file.endsWith('.json'))syntax(readFileSync(join(root,file),'utf8'),file,'json');
     else if(file.endsWith('.md')) {

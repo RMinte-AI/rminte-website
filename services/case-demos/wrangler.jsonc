@@ -6,7 +6,7 @@
   "preview_urls": false,
   "routes": [],
   "assets": {
-    "directory": "assets",
+    "directory": "cases",
     "binding": "DEMO_ASSETS",
     "run_worker_first": true,
     "html_handling": "none",

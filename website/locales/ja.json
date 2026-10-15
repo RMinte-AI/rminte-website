@@ -614,5 +614,6 @@
   "The team reviews every application and replies by email. An application does not grant access to demos or downloads.": "すべての申請はチームが審査し、メールでご返信します。申請によってデモやダウンロードの権限が付与されることはありません。",
   "Username": "ユーザー名",
   "Enterprise operations": "企業運営",
-  "Work email": "勤務先メールアドレス"
+  "Work email": "勤務先メールアドレス",
+  "CAD interactive demo": "CAD インタラクティブデモ"
 }
