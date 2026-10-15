@@ -136,8 +136,9 @@ for(const descriptor of run.scope.pages)for(const language of operationLanguages
           await page.locator('#login-form [type=submit]').click();expect((await accepted).status()).toBe(200);
           await expect(page.locator('#access .who')).toHaveText(account.username);
           await expect(page.locator('#access li').first()).toHaveAttribute('data-state','ok');
-          const visited=new Set();
+          const visited=new Set(),casesURL=page.url();
           for(const trigger of await page.locator('[data-action="demo"]').all()) {
+            const caseName=await trigger.locator('xpath=ancestor::article').getByRole('heading').innerText();
             const requested=page.waitForResponse(r=>r.request().method()==='HEAD'&&r.url().startsWith(afterURL+'/api/resources/')&&new URL(r.url()).pathname.endsWith('/demo'));
             await trigger.click();const response=await requested,id=new URL(response.url()).pathname.split('/')[3];
             const item=run.scope.demos.find(item=>item.id===id);
@@ -148,7 +149,8 @@ for(const descriptor of run.scope.pages)for(const language of operationLanguages
               await page.keyboard.press('Escape');await expect(trigger).toBeFocused();continue;
             }
             expect(response.status(),id).toBe(200);
-            const modal=page.locator('#case-demo-modal'),frame=page.frameLocator('#case-demo-frame'),close=page.locator('[data-case-demo-close]');
+            const modal=page.locator('#case-demo-modal'),close=page.locator('[data-case-demo-close]');
+            const atDemo=()=>{const url=new URL(page.url());return url.origin===afterURL&&(url.pathname===item.route||url.pathname.startsWith(item.route+'/'));};
             const {default:exercise}=await import(pathToFileURL(join(process.cwd(),item.scenario)).href);
             for(const url of assetURLs.filter(url=>url===item.route||url.startsWith(item.route+'/'))) {
               const asset=await page.request.head(afterURL+url);expect(asset.status(),url).toBe(200);
@@ -157,15 +159,22 @@ for(const descriptor of run.scope.pages)for(const language of operationLanguages
             expect((await page.request.get(afterURL+item.route+'/ci-missing.js')).status()).toBe(404);
             for(const attempt of [0,1]) {
               if(attempt)await trigger.click();
-              await expect(modal).toBeVisible();await expect(page.locator('#case-demo-frame')).toHaveAttribute('src',new RegExp(item.route+'/'));
+              await expect.poll(async()=>atDemo()||await modal.isVisible()).toBe(true);
+              const embedded=!atDemo(),frame=embedded?page.frameLocator('#case-demo-frame'):page,surface=embedded?modal:page.locator('body');
+              if(embedded)await expect(page.locator('#case-demo-frame')).toHaveAttribute('src',new RegExp(item.route+'/'));
               await expect(frame.locator('body')).toBeVisible();
-              if(!attempt)await testInfo.attach(`${id} initial`,{body:await modal.screenshot(),contentType:'image/png'});
-              await test.step(`${id}: ${attempt?'reopen':'main click flow'}`,()=>exercise({page,frame,card:trigger.locator('xpath=ancestor::article')}));
+              if(!attempt)await testInfo.attach(`${id} initial`,{body:await surface.screenshot(),contentType:'image/png'});
+              await test.step(`${id}: ${attempt?'reopen':'main click flow'}`,()=>exercise({page,frame,caseName}));
               expect(await frame.locator('body').evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2),id).toBe(true);
-              if(!attempt)await testInfo.attach(`${id} result`,{body:await modal.screenshot(),contentType:'image/png'});
-              if(attempt){await close.focus();await page.keyboard.press('Escape');}else await close.click();
-              await expect(modal).not.toBeVisible();await expect(page.locator('#case-demo-frame')).toHaveAttribute('src','about:blank');
-              await expect(page.locator('body')).not.toHaveClass(/case-demo-open/);await expect(trigger).toBeFocused();
+              if(!attempt)await testInfo.attach(`${id} result`,{body:await surface.screenshot(),contentType:'image/png'});
+              if(embedded) {
+                if(attempt){await close.focus();await page.keyboard.press('Escape');}else await close.click();
+                await expect(modal).not.toBeVisible();await expect(page.locator('#case-demo-frame')).toHaveAttribute('src','about:blank');
+                await expect(page.locator('body')).not.toHaveClass(/case-demo-open/);await expect(trigger).toBeFocused();
+              } else {
+                await page.goBack({waitUntil:'domcontentloaded'});await expect(page).toHaveURL(casesURL);
+                await expect(page.locator('#access .who')).toHaveText(account.username);await expect(trigger).toBeVisible();
+              }
             }
             expect((await page.request.get(afterURL+item.route.replace(/demo$/,'download'))).status()).toBe(403);
             visited.add(id);

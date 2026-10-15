@@ -152,6 +152,7 @@ test('scope retains the Base/Head page inventory and Worker inputs across additi
 test('HTTP navigation distinguishes reachable pages, removals, dead links and external redirects',async()=>{
   const server=createServer((request,response)=>{
     if(request.url==='/external')response.writeHead(302,{Location:'http://127.0.0.2:1/unavailable'}).end();
+    else if(request.url==='/internal')response.writeHead(302,{Location:'/page'}).end();
     else if(request.url==='/loop')response.writeHead(302,{Location:'/loop'}).end();
     else if(request.url==='/page')response.writeHead(200,{'Content-Type':'text/html'}).end('<main>Page</main>');
     else response.writeHead(404).end();
@@ -162,8 +163,13 @@ test('HTTP navigation distinguishes reachable pages, removals, dead links and ex
     return {status:response.status,location:response.headers.get('location')};
   };
   try {
-    assert.equal(routeEvidence(true,await observeRoute(base+'/external',request)).kind,'redirect');
-    assert.equal(routeEvidence(false,{status:404}).kind,'absent');assert.throws(()=>routeEvidence(true,{status:404}),/reachable page/);
+    const external=await observeRoute(base+'/external',request);
+    assert.equal(routeEvidence(undefined,external).kind,'redirect');assert.throws(()=>routeEvidence(true,external),/direct HTTP 200/);
+    const internal=await observeRoute(base+'/internal',request);
+    assert.throws(()=>routeEvidence(true,internal),/direct HTTP 200/);
+    assert.equal(routeEvidence(false,internal).kind,'redirect');assert.equal(routeEvidence(true,internal,'before').kind,'redirect');
+    await assert.doesNotReject(checkNavigation(base,['/internal'],['/page']));
+    assert.equal(routeEvidence(false,{status:404}).kind,'absent');assert.throws(()=>routeEvidence(true,{status:404}),/direct HTTP 200/);
     assert.throws(()=>routeEvidence(false,{status:200},'after'),/Undeclared/);
     await assert.rejects(checkNavigation(base,['/missing'],[]),/HTTP 404/);await assert.rejects(checkNavigation(base,['/page'],[]),/no page declaration/);
     await assert.rejects(observeRoute(base+'/loop',request),/redirect loop/);

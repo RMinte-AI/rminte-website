@@ -1,7 +1,7 @@
 import {expect} from '@playwright/test';
 
-export default async function({page,frame,card}) {
-  await expect(card.getByRole('heading')).toHaveText(/汽车研发与工业建模|Automotive R&D and Industrial Modelling/);
+export default async function({page,frame,caseName}) {
+  expect(caseName).toMatch(/汽车研发与工业建模|Automotive R&D and Industrial Modelling/);
   await expect(frame.locator('#start')).toBeVisible();await expect(frame.locator('#viewer-error')).toBeHidden();
   await expect(frame.locator('#status')).toHaveText('等待开始');await expect(frame.locator('#versions')).toContainText('示例半成品');
   await frame.locator('#start').click();await frame.locator('[data-answer="18"]').click();await frame.locator('[data-answer="1"]').click();

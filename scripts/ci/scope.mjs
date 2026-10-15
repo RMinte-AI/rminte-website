@@ -1,8 +1,8 @@
 import {execFileSync} from 'node:child_process';
 import {readFileSync,writeFileSync,existsSync,readdirSync} from 'node:fs';
 import {join,resolve,dirname,relative} from 'node:path';
-import {fileURLToPath,pathToFileURL} from 'node:url';
-import {configuredFiles,readJsonc} from './config.mjs';
+import {fileURLToPath} from 'node:url';
+import {configuredFiles,readJsonc,caseResources} from './config.mjs';
 import {workerPageManifest,workerPages,readWorkerPages,htmlPage} from './pages.mjs';
 
 export const owner = 'massif-01';
@@ -38,8 +38,7 @@ export function changedPaths(root,base,head) {
 }
 
 function readDemos(root) {
-  const resourceFile=pathToFileURL(join(root,'services/case-access/resources.mjs')).href;
-  const resources=JSON.parse(execFileSync(process.execPath,['--input-type=module','-e','const {resources}=await import(process.argv[1]); process.stdout.write(JSON.stringify(resources));',resourceFile],{cwd:root,encoding:'utf8'}));
+  const resources=caseResources(root);
   const entries=Object.entries(resources).filter(([,resource])=>resource.demoPath);
   const config='services/case-demos/wrangler.jsonc';
   if(!existsSync(join(root,config))) {

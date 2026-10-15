@@ -11,11 +11,12 @@ export function navigationPath(reference,base) {
 
 export function routeEvidence(expected,response,phase='after') {
   const {status,location,finalStatus,external}=response;
+  if(phase==='after'&&expected===true&&status!==200)throw new Error(`Declared page must return a direct HTTP 200; received HTTP ${status}`);
   if(phase==='after'&&expected===false&&status===200)throw new Error('Undeclared HTML page is still reachable; retain its Worker page declaration.');
   if(status===200)return {kind:'page',status};
   if(expected===false&&[404,410].includes(status))return {kind:'absent',status};
   if(redirects.has(status)&&location&&(external||finalStatus===200)) {
-    return {kind:external||expected===false?'redirect':'page',status,location,...(external?{external:true}:{finalStatus})};
+    return {kind:'redirect',status,location,...(external?{external:true}:{finalStatus})};
   }
   throw new Error(`Expected a reachable page${expected===false?' or an HTTP removal/redirect':''}; received HTTP ${status}`);
 }
@@ -45,7 +46,7 @@ export async function checkNavigation(base,links,pagePaths) {
       await response.body?.cancel();
       return {status:response.status,location:response.headers.get('location'),contentType};
     });
-    routeEvidence(true,observed);
+    routeEvidence(undefined,observed); // Navigation may redirect; a declared page must itself return 200.
     if(observed.external)externalRedirects.push({path,location:observed.location});
     else if(/\btext\/html\b/i.test(observed.contentType)&&!pagePaths.includes(new URL(observed.finalURL).pathname))throw new Error(`HTML navigation ${path} has no page declaration; register Worker HTML in tests/browser/worker-pages.json.`);
   }

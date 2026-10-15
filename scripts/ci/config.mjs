@@ -1,6 +1,8 @@
 import {readFileSync,existsSync} from 'node:fs';
 import {join,resolve,dirname} from 'node:path';
 import {parse,printParseErrorCode} from 'jsonc-parser';
+import {execFileSync} from 'node:child_process';
+import {pathToFileURL} from 'node:url';
 
 // These are the actual consumers documented by each service: Pages, D1 operations and Worker deployment.
 export const configurationProfiles={
@@ -12,6 +14,11 @@ export const configurationProfiles={
   caseDemos:[{file:'services/case-demos/wrangler.jsonc',kind:'worker'}]
 };
 export const configuredFiles=new Map(Object.values(configurationProfiles).flat().map(profile=>[profile.file,profile]));
+
+export function caseResources(root) {
+  const file=pathToFileURL(join(root,'services/case-access/resources.mjs')).href;
+  return JSON.parse(execFileSync(process.execPath,['--input-type=module','-e','const {resources}=await import(process.argv[1]); process.stdout.write(JSON.stringify(resources));',file],{cwd:root,encoding:'utf8'}));
+}
 
 export function readJsonc(root,relative) {
   const file=join(root,relative),errors=[];
