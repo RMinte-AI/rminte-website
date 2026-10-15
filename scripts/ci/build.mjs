@@ -16,6 +16,7 @@ export function buildWorkers(root,scope) {
       let args=['deploy','--dry-run','--config',join(root,config),'--outdir',outdir];
       if(config==='services/case-access/wrangler.jsonc') {
         const pages=caseConfiguration(root);
+        // --build-output-directory selects the advanced-mode _worker.js without a functions/ directory.
         args=['pages','functions','build','--project-directory',root,'--build-output-directory',pages.assets,'--outdir',outdir,'--compatibility-date',pages.compatibility_date];
         for(const flag of pages.compatibility_flags||[])args.push('--compatibility-flags',flag);
       }

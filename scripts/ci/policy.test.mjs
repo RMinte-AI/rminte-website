@@ -9,6 +9,7 @@ import {changedPaths,classify,checkDescription,git,context as getContext} from '
 import {checkHtml,checkCss,syntax,generatedCheck} from './static.mjs';
 import {validateEvidence,gateResult} from './report.mjs';
 import {scanSecrets} from './secrets.mjs';
+import {buildWorkers} from './build.mjs';
 
 test('real divergent history classifies only the PR change, including renames and deletion',()=>{
   const root=mkdtempSync(join(tmpdir(),'rminte-git-'));
@@ -134,5 +135,47 @@ test('the real secret scanner rejects a credential removed from the final tree a
     const report=readFileSync(join(root,'output/ci/secrets.json'),'utf8');
     assert.equal(report.includes(secret),false);
     const findings=JSON.parse(report).findings;assert.ok(findings.length);assert.ok(findings.every(finding=>finding.scan==='commits'));
+  } finally {rmSync(root,{recursive:true,force:true});}
+});
+
+test('Pages builds the advanced-mode entry without functions and rejects a broken entry dependency',()=>{
+  const root=mkdtempSync(join(tmpdir(),'rminte-pages-entry-'));
+  try {
+    mkdirSync(join(root,'website'));mkdirSync(join(root,'services/case-access'),{recursive:true});
+    cpSync('services/case-access/wrangler.jsonc',join(root,'services/case-access/wrangler.jsonc'));
+    writeFileSync(join(root,'website/_worker.js'),'import {message} from "./dependency.js";export default {fetch(){return new Response(message)}};');
+    writeFileSync(join(root,'website/dependency.js'),'export const message="Actual advanced-mode Worker";');
+    const scope={caseService:true};
+    assert.doesNotThrow(()=>buildWorkers(root,scope));
+    rmSync(join(root,'website/dependency.js'));
+    assert.throws(()=>buildWorkers(root,scope),/configuration\/build failed/);
+    const log=readFileSync(join(root,'output/ci/build-services-case-access-wrangler-jsonc.log'),'utf8');
+    assert.match(log,/Could not resolve ["']\.\/dependency\.js/);
+  } finally {rmSync(root,{recursive:true,force:true});}
+});
+
+test('a real Worker config rename builds only the destination and still rejects its missing main',()=>{
+  const root=mkdtempSync(join(tmpdir(),'rminte-config-rename-'));
+  try {
+    git(root,'init','-b','main');git(root,'config','user.name','CI Fixture');git(root,'config','user.email','ci@example.invalid');
+    const service='services/tianshanos-ota';
+    mkdirSync(join(root,service,'src'),{recursive:true});mkdirSync(join(root,service,'preview-a'));
+    writeFileSync(join(root,service,'src/index.js'),'export default {fetch(){return new Response("Local build fixture")}};');
+    const configuration={name:'ci-rename-fixture',main:'src/index.js',compatibility_date:'2026-09-26'};
+    writeFileSync(join(root,service,'wrangler.jsonc'),JSON.stringify(configuration));
+    writeFileSync(join(root,service,'preview-a/wrangler.jsonc'),JSON.stringify({...configuration,main:'../src/index.js'}));
+    git(root,'add',service);git(root,'commit','-m','base');const base=git(root,'rev-parse','HEAD').trim();
+    git(root,'mv',service+'/preview-a',service+'/preview-b');git(root,'commit','-m','move preview config');
+    const changes=changedPaths(root,base,'HEAD'),scope=classify(changes);
+    assert.ok(changes.some(change=>change.status.startsWith('R')));
+    assert.doesNotThrow(()=>buildWorkers(root,scope));
+    assert.deepEqual(scope.workerConfigs,[service+'/preview-b/wrangler.jsonc']);
+    writeFileSync(join(root,service,'preview-b/wrangler.jsonc'),JSON.stringify({...configuration,main:'../src/missing.js'}));
+    assert.throws(()=>buildWorkers(root,scope),/configuration\/build failed/);
+    const log=readFileSync(join(root,'output/ci/build-services-tianshanos-ota-preview-b-wrangler-jsonc.log'),'utf8');
+    assert.match(log,/missing\.js/);
+    git(root,'rm', '-f', service+'/preview-b/wrangler.jsonc');git(root,'commit','-m','remove preview config');
+    const deleted=classify(changedPaths(root,base,'HEAD'));
+    assert.deepEqual(deleted.workerConfigs,[]);assert.doesNotThrow(()=>buildWorkers(root,deleted));
   } finally {rmSync(root,{recursive:true,force:true});}
 });

@@ -42,6 +42,7 @@ const document = path => /^(?:docs\/|design-preview\/|copy-review\/|output\/)/.t
 
 export function classify(changes,{all=false}={}) {
   const files=[...new Set(changes.flatMap(change=>change.paths))].sort();
+  const destinations=new Set(changes.filter(change=>!change.status.startsWith('D')).map(change=>change.paths.at(-1)));
   const ids=new Set(), languages=new Set(['zh','en']), routes=new Map();
   const scope={files,changes,pages:[],languages:[],widths:[1440,390],fonts:false,brand:false,exif:false,guides:false,translations:false,seo:false,caseService:false,ota:false,infrastructure:false,homeMotion:false,workerConfigs:[]};
   const addAll=()=>{pages.forEach(page=>ids.add(page.id));scope.widths=[1440,768,390,320];};
@@ -50,7 +51,7 @@ export function classify(changes,{all=false}={}) {
   for(const file of files) {
     if(infrastructure(file)) {scope.infrastructure=true;addAll();Object.assign(scope,{fonts:true,brand:true,exif:true,guides:true,translations:true,seo:true,caseService:true,ota:true,homeMotion:true});continue;}
     if(document(file)) continue;
-    if(/(?:^|\/)wrangler\.(?:jsonc?|toml)$/.test(file))scope.workerConfigs.push(file);
+    if(destinations.has(file)&&/(?:^|\/)wrangler\.(?:jsonc?|toml)$/.test(file))scope.workerConfigs.push(file);
     if(file.startsWith('website/')&&/\.html?$/i.test(file)&&file!=='website/404.html'&&!pages.some(page=>page.file===file)) {
       const path='/'+file.slice('website/'.length).replace(/(^|\/)index\.html$/,'$1').replace(/\.html$/,'').split('/').map(encodeURIComponent).join('/');
       const id='route-'+encodeURIComponent(file.slice('website/'.length));
