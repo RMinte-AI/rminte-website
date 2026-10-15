@@ -51,6 +51,7 @@ export function classify(changes,{all=false}={}) {
     if(file==='DESIGN.md'||file==='website/DESIGN.md') {addAll();continue;}
     if(file.startsWith('services/tianshanos-ota/')||file==='scripts/sync-tianshanos-release.mjs') {scope.ota=true;scope.fonts=true;continue;}
     if(file.startsWith('services/case-access/')) {scope.caseService=true;ids.add('cases');ids.add('admin');continue;}
+    if(file.startsWith('services/case-demos/')) {scope.caseService=true;ids.add('cases');continue;}
     if(file==='scripts/build-service-brand.mjs') {scope.brand=true;scope.ota=true;continue;}
     if(/(?:seo|_worker\.js|_routes\.json|_headers|_redirects|404\.html|robots\.txt|sitemap\.xml)/.test(file)) {scope.seo=true;addAll();if(file.endsWith('_worker.js'))scope.caseService=true;continue;}
     if(file.startsWith('website/scripts/')) {

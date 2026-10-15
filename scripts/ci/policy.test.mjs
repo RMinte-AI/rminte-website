@@ -43,6 +43,32 @@ test('Owner has no mandatory review material; an empty contributor description i
   assert.doesNotThrow(()=>checkDescription({author:'contributor',body:['问题与原因','影响范围','验证结果','依据与限制'].map(s=>`## ${s}\n真实说明\n`).join('\n')}));
 });
 
+test('private CAD demo changes require case UI and account-service checks',()=>{
+  for(const file of ['services/case-demos/README.md','services/case-demos/worker.mjs','services/case-demos/assets/industrial-modeling/viewer.js']) {
+    const scope=classify([{status:'A',paths:[file]}]);
+    assert.equal(scope.caseService,true);
+    assert.deepEqual(scope.pages.map(page=>page.id),['cases']);
+  }
+});
+
+test('private demo resources resolve within the private asset root and missing files still fail',()=>{
+  const root=mkdtempSync(join(tmpdir(),'rminte-demo-resources-'));
+  const directory=join(root,'services/case-demos/assets/industrial-modeling');
+  try {
+    mkdirSync(directory,{recursive:true});
+    writeFileSync(join(directory,'index.html'),'<link rel="stylesheet" href="./style.css"><script src="./app.js"></script>');
+    writeFileSync(join(directory,'style.css'),'body{background:url(./drawing.svg)}');
+    writeFileSync(join(directory,'app.js'),'console.log("demo")');
+    writeFileSync(join(directory,'drawing.svg'),'<svg/>');
+    assert.doesNotThrow(()=>checkHtml(root,'services/case-demos/assets/industrial-modeling/index.html'));
+    assert.doesNotThrow(()=>checkCss(root,'services/case-demos/assets/industrial-modeling/style.css'));
+    rmSync(join(directory,'drawing.svg'));
+    assert.throws(()=>checkCss(root,'services/case-demos/assets/industrial-modeling/style.css'),/missing local resource/);
+    rmSync(join(directory,'app.js'));
+    assert.throws(()=>checkHtml(root,'services/case-demos/assets/industrial-modeling/index.html'),/missing local resource/);
+  }finally{rmSync(root,{recursive:true,force:true});}
+});
+
 test('actual malformed JavaScript, CSS and missing referenced resources are rejected',()=>{
   assert.throws(()=>syntax('function broken(', 'bad.js'));
   const root=mkdtempSync(join(tmpdir(),'rminte-resources-'));

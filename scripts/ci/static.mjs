@@ -15,10 +15,13 @@ const attr=(node,key)=>node.attrs?.find(a=>a.name===key)?.value;
 
 export function resourceFile(root,from,reference) {
   if(!reference||/^(?:[a-z][a-z0-9+.-]*:|\/\/|#)/i.test(reference)) return null;
-  const url=new URL(reference,new URL('/'+from.replace(/^website\//,''),'https://ci.invalid'));
+  // Private demos have their own asset root; they are not public website files.
+  const prefix=from.startsWith('services/case-demos/assets/')?'services/case-demos/assets/':'website/';
+  const assetRoot=resolve(root,prefix);
+  const url=new URL(reference,new URL('/'+from.slice(prefix.length),'https://ci.invalid'));
   if(url.pathname==='/visitor-language.js'||url.pathname.startsWith('/api/')) return null;
-  let file=resolve(root,'website','.'+decodeURIComponent(url.pathname));
-  if(file!==resolve(root,'website')&&!file.startsWith(resolve(root,'website')+'/')) throw new Error(`${from}: reference outside website: ${reference}`);
+  let file=resolve(assetRoot,'.'+decodeURIComponent(url.pathname));
+  if(file!==assetRoot&&!file.startsWith(assetRoot+'/')) throw new Error(`${from}: reference outside asset root: ${reference}`);
   if(existsSync(file)&&statSync(file).isDirectory())file=join(file,'index.html');
   if(!existsSync(file)&&!extname(file))file+='.html';
   if(!existsSync(file))throw new Error(`${from}: missing local resource ${reference}`);
