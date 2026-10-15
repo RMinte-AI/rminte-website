@@ -5,24 +5,29 @@ import {execFileSync} from 'node:child_process';
 import {Script} from 'node:vm';
 import {parse} from 'parse5';
 import postcss from 'postcss';
-import {pages} from './scope.mjs';
+import {readJsonc} from './config.mjs';
+import {navigationPath} from './routes.mjs';
 
 export function markup(source) {
   const elements=[];
   function visit(node) {if(node.tagName) elements.push(node);for(const child of node.childNodes||[])visit(child);if(node.content)visit(node.content);}
   visit(parse(source));return elements;
 }
+const assetRoot=file=>file.match(/^(services\/case-demos\/cases\/[a-z0-9-]+\/public)\//)?.[1]||'website';
 const attr=(node,key)=>node.attrs?.find(a=>a.name===key)?.value;
+function navigationURL(file,reference) {
+  if(!file.startsWith('website/')||!reference||reference.startsWith('#'))return null;
+  return navigationPath(reference,new URL('/'+file.slice('website/'.length),'https://ci.invalid'));
+}
 
-export function resourceFile(root,from,reference) {
+export function resourceFile(root,from,reference,{navigation=false}={}) {
   if(!reference||/^(?:[a-z][a-z0-9+.-]*:|\/\/|#)/i.test(reference)) return null;
-  // Private demos have their own asset root; they are not public website files.
-  const prefix=from.match(/^(services\/case-demos\/cases\/[a-z0-9-]+\/public\/)/)?.[1]||'website/';
-  const assetRoot=resolve(root,prefix);
-  const url=new URL(reference,new URL('/'+from.slice(prefix.length),'https://ci.invalid'));
+  const directory=assetRoot(from),base=resolve(root,directory);
+  const url=new URL(reference,new URL('/'+from.slice(directory.length+1),'https://ci.invalid'));
   if(url.pathname==='/visitor-language.js'||url.pathname.startsWith('/api/')) return null;
-  let file=resolve(assetRoot,'.'+decodeURIComponent(url.pathname));
-  if(file!==assetRoot&&!file.startsWith(assetRoot+'/')) throw new Error(`${from}: reference outside asset root: ${reference}`);
+  if(navigation)return null; // Navigation is an HTTP contract, independent of the URL's suffix or producer.
+  let file=resolve(base,'.'+decodeURIComponent(url.pathname));
+  if(file!==base&&!file.startsWith(base+'/'))throw new Error(`${from}: reference outside deployed assets: ${reference}`);
   if(existsSync(file)&&statSync(file).isDirectory())file=join(file,'index.html');
   if(!existsSync(file)&&!extname(file))file+='.html';
   if(!existsSync(file))throw new Error(`${from}: missing local resource ${reference}`);
@@ -37,9 +42,13 @@ export function syntax(source,file,type='classic') {
 }
 
 export function checkHtml(root,file) {
-  const source=readFileSync(join(root,file),'utf8');
+  const source=readFileSync(join(root,file),'utf8'),navigation=new Set();
   for(const node of markup(source)) {
-    for(const key of ['src','href','poster'])resourceFile(root,file,attr(node,key));
+    for(const key of ['src','href','poster']) {
+      const reference=attr(node,key),link=key==='href'&&['a','area'].includes(node.tagName);
+      resourceFile(root,file,reference,{navigation:link});
+      const target=link&&navigationURL(file,reference);if(target)navigation.add(target);
+    }
     if(node.tagName==='script'&&!attr(node,'src')) {
       const type=attr(node,'type');const body=(node.childNodes||[]).map(child=>child.value||'').join('');
       if(type==='application/ld+json'||type==='application/json') syntax(body,file,'json');
@@ -50,6 +59,7 @@ export function checkHtml(root,file) {
     const prefix=attr(node,'data-frame-prefix');
     if(prefix) {resourceFile(root,file,prefix+'001.jpg');resourceFile(root,file,prefix+String(attr(node,'data-frame-count')||120).padStart(3,'0')+'.jpg');}
   }
+  return [...navigation];
 }
 
 export function checkCss(root,file) {
@@ -58,13 +68,14 @@ export function checkCss(root,file) {
 }
 
 export function staticChecks(root,scope) {
-  const files=new Set(scope.files.filter(file=>existsSync(join(root,file))));
+  const files=new Set(scope.files.filter(file=>existsSync(join(root,file)))),navigation=new Set();
   const scriptModes=new Map();
-  for(const page of scope.pages)files.add(page.file);
+  const sourcePages=scope.pages.filter(page=>page.file&&page.sourceExists?.after!==false);
+  for(const page of sourcePages)files.add(page.file);
   for(const file of [...files].filter(file=>file.endsWith('.html'))) {
     for(const node of markup(readFileSync(join(root,file),'utf8'))) {
       for(const key of ['src','href']) {
-        const target=resourceFile(root,file,attr(node,key));
+        const target=resourceFile(root,file,attr(node,key),{navigation:key==='href'&&['a','area'].includes(node.tagName)});
         if(target&&/\.(?:js|mjs|css|json)$/.test(target))files.add(target.slice(root.length+1));
       }
       if(node.tagName==='script'&&attr(node,'src')) {
@@ -77,9 +88,12 @@ export function staticChecks(root,scope) {
       }
     }
   }
+  for(const file of scope.navigationFiles||[])for(const node of markup(readFileSync(join(root,file),'utf8')))if(['a','area'].includes(node.tagName)) {
+    const target=navigationURL(file,attr(node,'href'));if(target)navigation.add(target);
+  }
   let checked=0;
   for(const file of [...files].sort()) {
-    if(file.endsWith('.html'))checkHtml(root,file);
+    if(/\.html?$/i.test(file))for(const link of checkHtml(root,file))navigation.add(link);
     else if(file.endsWith('.css'))checkCss(root,file);
     else if(/\.(?:js|mjs|cjs)$/.test(file)) {
       const source=readFileSync(join(root,file),'utf8');
@@ -89,6 +103,7 @@ export function staticChecks(root,scope) {
       for(const mode of modes)syntax(source,file,mode);
     }
     else if(file.endsWith('.json'))syntax(readFileSync(join(root,file),'utf8'),file,'json');
+    else if(/\.jsonc$/i.test(file))readJsonc(root,file);
     else if(file.endsWith('.md')) {
       const source=readFileSync(join(root,file),'utf8');
       for(const link of source.matchAll(/\]\(([^)]+)\)/g)) {
@@ -100,7 +115,7 @@ export function staticChecks(root,scope) {
     else continue;
     checked++;
   }
-  return {checked};
+  return {checked,navigation:[...navigation].sort()};
 }
 
 export function generatedCheck(root,script,outputs) {

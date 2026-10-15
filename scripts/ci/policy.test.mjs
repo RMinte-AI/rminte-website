@@ -3,11 +3,14 @@ import assert from 'node:assert/strict';
 import {mkdtempSync,writeFileSync,mkdirSync,rmSync,cpSync,readFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join,resolve} from 'node:path';
-import {execFileSync,spawnSync} from 'node:child_process';
+import {spawnSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
-import {changedPaths,classify,checkDescription,git} from './scope.mjs';
+import {changedPaths,classify,checkDescription,git,context as getContext} from './scope.mjs';
 import {checkHtml,checkCss,syntax,generatedCheck,staticChecks} from './static.mjs';
 import {validateEvidence,gateResult} from './report.mjs';
+import {workerPageManifest,workerPages} from './pages.mjs';
+import {observeRoute,routeEvidence,checkNavigation} from './routes.mjs';
+import {createServer} from 'node:http';
 
 test('real divergent history classifies only the PR change, including renames and deletion',()=>{
   const root=mkdtempSync(join(tmpdir(),'rminte-git-'));
@@ -33,7 +36,13 @@ test('production Markdown, shared dependencies and new production files cannot u
   const translated=classify([{status:'M',paths:['website/assets/translations/fr.js']}]);
   assert.ok(translated.languages.includes('fr'));
   assert.deepEqual(translated.pages.find(page=>page.id==='lamp').languages,['zh','en']);
+  const standalone=classify([{status:'M',paths:['website/tianshanos-demo/system.html']}]).pages.find(page=>page.file==='website/tianshanos-demo/system.html');
+  assert.deepEqual(standalone.languages,['zh']);assert.equal(standalone.contentRoot,'body');
   assert.equal(classify([{status:'M',paths:['docs/example.md']}]).pages.length,0);
+  assert.equal(classify([{status:'M',paths:['services/case-access/README.md']}]).pages.length,0);
+  assert.equal(classify([{status:'M',paths:['services/case-demos/cases/example/public/app.js']}]).caseService,true);
+  assert.equal(classify([{status:'M',paths:['services/case-demos/README.md']}]).pages.length,0);
+  assert.equal(classify([{status:'M',paths:['scripts/ci/README.md']}]).infrastructure,false);
   assert.throws(()=>classify([{status:'A',paths:['unclassified-code.py']}]),/No CI scope/);
 });
 
@@ -44,10 +53,10 @@ test('Owner has no mandatory review material; an empty contributor description i
 });
 
 test('private CAD demo changes require case UI and account-service checks',()=>{
-  for(const file of ['services/case-demos/README.md','services/case-demos/worker.mjs','services/case-demos/cases/industrial-modeling/public/viewer.mjs']) {
+  for(const file of ['services/case-demos/worker.mjs','services/case-demos/cases/industrial-modeling/public/viewer.mjs']) {
     const scope=classify([{status:'A',paths:[file]}]);
     assert.equal(scope.caseService,true);
-    assert.deepEqual(scope.pages.map(page=>page.id),['cases']);
+    assert.deepEqual(scope.pages.map(page=>page.id),['cases','admin']);
   }
 });
 
@@ -98,6 +107,18 @@ test('actual malformed JavaScript, CSS and missing referenced resources are reje
     mkdirSync(join(root,'website'));writeFileSync(join(root,'website/index.html'),'<script src="missing.js"></script>');assert.throws(()=>checkHtml(root,'website/index.html'),/missing local resource/);
     writeFileSync(join(root,'website/index.html'),'<script>function broken(</script>');assert.throws(()=>checkHtml(root,'website/index.html'));
     writeFileSync(join(root,'website/bad.css'),'a { color: red;');assert.throws(()=>checkCss(root,'website/bad.css'));
+    writeFileSync(join(root,'operational.jsonc'),'{"d1_databases": [');
+    assert.throws(()=>staticChecks(root,{files:['operational.jsonc'],pages:[]}),/invalid JSONC/);
+    writeFileSync(join(root,'operational.jsonc'),'{ /* JSONC uses comments and trailing commas */ "value": 1, }');
+    assert.doesNotThrow(()=>staticChecks(root,{files:['operational.jsonc'],pages:[]}));
+    writeFileSync(join(root,'website/index.html'),'<main><a href="/dynamic/">Relative</a><a href="https://rminte.com/dynamic/">Canonical origin</a><a href="https://example.invalid/dynamic/">External</a><a href="/portal.php">Worker</a><a href="/report.v2">Versioned route</a><a href="/guide.pdf" download>Download</a></main>');
+    assert.deepEqual(checkHtml(root,'website/index.html'),['/dynamic/','/portal.php','/report.v2','/guide.pdf']);
+    writeFileSync(join(root,'website/index.html'),'<img src="/portal.php">');
+    assert.throws(()=>checkHtml(root,'website/index.html'),/missing local resource/);
+    mkdirSync(join(root,'services/case-demos/cases/example/public'),{recursive:true});
+    writeFileSync(join(root,'services/case-demos/cases/example/public/index.html'),'<main><a href="./">Demo</a></main><script type="module" src="./app.js"></script>');
+    writeFileSync(join(root,'services/case-demos/cases/example/public/app.js'),'const value=1;export{value};');
+    assert.deepEqual(checkHtml(root,'services/case-demos/cases/example/public/index.html'),[]);
   }finally{rmSync(root,{recursive:true,force:true});}
 });
 
@@ -110,6 +131,10 @@ test('the real font checker rejects a newly introduced Chinese character',()=>{
     writeFileSync(join(root,'website/index.html'),`<p>${String.fromCodePoint(cp)}</p>`);
     const result=spawnSync('python3',['website/scripts/build-fonts.py','--check'],{cwd:root,encoding:'utf8'});
     assert.equal(result.status,1);assert.match(result.stdout,/not in the subset/);assert.ok(result.stdout.includes(String.fromCodePoint(cp)));
+    writeFileSync(join(root,'website/index.html'),'<main>Page</main>');mkdirSync(join(root,'tests/browser'),{recursive:true});
+    writeFileSync(join(root,'page.mjs'),`export const text="${String.fromCodePoint(cp)}";`);writeFileSync(join(root,workerPageManifest),JSON.stringify([{path:'/generated',dependencies:['page.mjs']}]));
+    const worker=spawnSync('python3',['website/scripts/build-fonts.py','--check'],{cwd:root,encoding:'utf8'});
+    assert.equal(worker.status,1);assert.match(worker.stdout,/used in page.mjs but not in the subset/);
   }finally{rmSync(root,{recursive:true,force:true});}
 });
 
@@ -131,11 +156,70 @@ test('evidence for another Head, missing screenshots and altered image bytes fai
     writeFileSync(join(directory,'manifest.json'),JSON.stringify(context));assert.throws(()=>validateEvidence(root,context),/Required screenshot missing/);
     const bytes=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aK1cAAAAASUVORK5CYII=','base64');
     writeFileSync(join(directory,'image.png'),bytes);
-    const records=['before','after'].map(phase=>({phase,page:'gallery',language:'en',width:390,region:'main',file:'image.png',sha256:createHash('sha256').update(bytes).digest('hex')}));
+    const records=['before','after'].map(phase=>({kind:'page',status:200,phase,page:'gallery',language:'en',width:390,region:'main',file:'image.png',sha256:createHash('sha256').update(bytes).digest('hex')}));
+    writeFileSync(join(root,'output/ci/browser-results.json'),JSON.stringify({stats:{skipped:0,unexpected:0,flaky:0},suites:[{title:'operations gallery en 390px',specs:[{tests:[{expectedStatus:'passed',results:[{status:'passed'}]}]}]}]}));
     writeFileSync(join(directory,'records/gallery.json'),JSON.stringify(records));assert.equal(validateEvidence(root,context).screenshots,2);
+    context.scope.pages[0].sourceExists={before:true,after:false};context.scope.pages[0].expected={before:true,after:true};
+    assert.equal(validateEvidence(root,context).screenshots,2); // HTTP 200 still needs real PNGs after its source file moves.
+    context.scope.pages[0].expected.after=false;assert.throws(()=>validateEvidence(root,context),/Undeclared HTML page/);
+    context.scope.pages[0].expected.after=true;
+    writeFileSync(join(root,'output/ci/browser-results.json'),JSON.stringify({stats:{skipped:1},suites:[]}));assert.throws(()=>validateEvidence(root,context),/without skips/);
     writeFileSync(join(directory,'image.png'),Buffer.concat([bytes,Buffer.from('altered')]));assert.throws(()=>validateEvidence(root,context),/checksum/);
     assert.throws(()=>gateResult([{name:'browser',required:true,status:'cancelled'}]),/did not pass/);
     assert.throws(()=>gateResult([{name:'browser',required:true,status:'skipped'}]),/did not pass/);
     assert.doesNotThrow(()=>gateResult([{name:'browser',required:false,status:'not-applicable'}]));
   }finally{rmSync(root,{recursive:true,force:true});}
+});
+
+test('scope retains the Base/Head page inventory and Worker inputs across additions and removals',()=>{
+  const root=mkdtempSync(join(tmpdir(),'rminte-pages-'));
+  try {
+    git(root,'init','-b','main');git(root,'config','user.name','CI Fixture');git(root,'config','user.email','ci@example.invalid');
+    writeFileSync(join(root,'README.md'),'base');git(root,'add','README.md');git(root,'commit','-m','base');const base=git(root,'rev-parse','HEAD').trim();
+    for(const directory of ['website/new-feature','services/case-access','tests/browser'])mkdirSync(join(root,directory),{recursive:true});
+    writeFileSync(join(root,'services/case-access/resources.mjs'),'export const resources = {};');
+    writeFileSync(join(root,'website/new-feature/index.html'),'<main>New</main>');
+    const input='services/case-access/page.mjs',entry={path:'/page.php',dependencies:[input]};
+    writeFileSync(join(root,input),'export const text="Page"');writeFileSync(join(root,workerPageManifest),JSON.stringify([entry]));
+    git(root,'add','website','services','tests');git(root,'commit','-m','add static and Worker pages');
+    const added=getContext(root,{base,head:'HEAD'}).scope;
+    assert.deepEqual(added.pages.find(page=>page.path==='/new-feature/').expected,{before:false,after:true});
+    assert.deepEqual(added.pages.find(page=>page.path==='/page.php').expected,{before:false,after:true});
+    const previous=git(root,'rev-parse','HEAD').trim();
+    writeFileSync(join(root,input),'export const text="Changed"');git(root,'add',input);git(root,'commit','-m','change Worker content');
+    const changed=getContext(root,{base:previous,head:'HEAD'}).scope;
+    assert.equal(changed.fonts,true);assert.ok(changed.pages.some(page=>page.path==='/page.php'));
+    assert.ok(classify([{status:'M',paths:['website/assets/brand.css']}],{workerRoutes:workerPages(JSON.stringify([entry]))}).pages.some(page=>page.path==='/page.php'));
+    git(root,'rm','website/new-feature/index.html');writeFileSync(join(root,workerPageManifest),'[]');git(root,'add',workerPageManifest);git(root,'commit','-m','remove pages');
+    const removed=getContext(root,{base:previous,head:'HEAD'}).scope;
+    for(const path of ['/new-feature/','/page.php'])assert.deepEqual(removed.pages.find(page=>page.path===path).expected,{before:true,after:false});
+    assert.ok(removed.pages.some(page=>page.id==='home'),'Removing a route also checks navigation rendered by unchanged pages.');
+  }finally{rmSync(root,{recursive:true,force:true});}
+});
+
+test('HTTP navigation distinguishes reachable pages, removals, dead links and external redirects',async()=>{
+  const server=createServer((request,response)=>{
+    if(request.url==='/external')response.writeHead(302,{Location:'http://127.0.0.2:1/unavailable'}).end();
+    else if(request.url==='/internal')response.writeHead(302,{Location:'/page'}).end();
+    else if(request.url==='/loop')response.writeHead(302,{Location:'/loop'}).end();
+    else if(request.url==='/page')response.writeHead(200,{'Content-Type':'text/html'}).end('<main>Page</main>');
+    else response.writeHead(404).end();
+  });
+  await new Promise(done=>server.listen(0,'127.0.0.1',done));const base=`http://127.0.0.1:${server.address().port}`;
+  const request=async url=>{
+    assert.equal(new URL(url).origin,base);const response=await fetch(url,{redirect:'manual'});await response.body?.cancel();
+    return {status:response.status,location:response.headers.get('location')};
+  };
+  try {
+    const external=await observeRoute(base+'/external',request);
+    assert.equal(routeEvidence(undefined,external).kind,'redirect');assert.throws(()=>routeEvidence(true,external),/direct HTTP 200/);
+    const internal=await observeRoute(base+'/internal',request);
+    assert.throws(()=>routeEvidence(true,internal),/direct HTTP 200/);
+    assert.equal(routeEvidence(false,internal).kind,'redirect');assert.equal(routeEvidence(true,internal,'before').kind,'redirect');
+    await assert.doesNotReject(checkNavigation(base,['/internal'],['/page']));
+    assert.equal(routeEvidence(false,{status:404}).kind,'absent');assert.throws(()=>routeEvidence(true,{status:404}),/direct HTTP 200/);
+    assert.throws(()=>routeEvidence(false,{status:200},'after'),/Undeclared/);
+    await assert.rejects(checkNavigation(base,['/missing'],[]),/HTTP 404/);await assert.rejects(checkNavigation(base,['/page'],[]),/no page declaration/);
+    await assert.rejects(observeRoute(base+'/loop',request),/redirect loop/);
+  }finally{await new Promise(done=>server.close(done));}
 });

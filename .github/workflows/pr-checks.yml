@@ -51,6 +51,7 @@ jobs:
             output/ci/report.md
             output/ci/*.log
             output/ci/browser-results.json
+            output/ci/secrets.json
             output/ci/evidence/
             output/ci/playwright-report/
             output/ci/test-results/
