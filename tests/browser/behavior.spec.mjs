@@ -1,13 +1,19 @@
 import {test,expect} from '@playwright/test';
 import {readFileSync} from 'node:fs';
 import {join} from 'node:path';
-import {run,languages,setup,openPage,layout,afterURL,loginFixture,createBrowserAccount} from './helpers.mjs';
+import {operationName} from '../../scripts/ci/routes.mjs';
+import {run,languages,setup,openPage,inspectRoute,layout,afterURL,loginFixture,createBrowserAccount} from './helpers.mjs';
 
-for(const descriptor of run.scope.pages.filter(page=>page.afterExists!==false))for(const language of languages(descriptor).filter(lang=>['zh','en'].includes(lang)))for(const width of [1440,390]) {
-  test.describe(`operations ${descriptor.id} ${language} ${width}px`,()=>{
+for(const descriptor of run.scope.pages)for(const language of languages(descriptor).filter(lang=>['zh','en'].includes(lang)))for(const width of [1440,390]) {
+  test.describe(operationName(descriptor,language,width),()=>{
     test.use({viewport:{width,height:900},hasTouch:width===390,locale:language==='zh'?'zh-CN':'en'});
     test('navigation, language and page operation remain usable',async({page,context},testInfo)=>{
       const audit=await setup(page,language);
+      const route=await inspectRoute(page,descriptor,language,afterURL,'after');
+      if(route.kind!=='page') {
+        await testInfo.attach('HTTP route transition',{body:Buffer.from(JSON.stringify(route)),contentType:'application/json'});
+        return;
+      }
       await openPage(page,descriptor,language);
       await layout(page);
       if(descriptor.generic) {expect(audit.problems).toEqual([]);return;}
@@ -121,7 +127,11 @@ for(const descriptor of run.scope.pages.filter(page=>page.afterExists!==false))f
           await page.locator('#login-form [type=submit]').click();expect((await accepted).status()).toBe(200);
           await expect(page.locator('#access .who')).toHaveText(account.username);
           await expect(page.locator('#access li').first()).toHaveAttribute('data-state','ok');
-          expect((await page.request.get(afterURL+'/api/resources/digital-toll/demo')).status()).toBe(503);
+          const resource=page.waitForResponse(r=>r.url()===afterURL+'/api/resources/digital-toll/demo',{timeout:10000});
+          await demo.click();expect((await resource).status()).toBe(503);
+          await expect(page.locator('#dialog-body [role=status]')).toContainText(language==='zh'?'演示或资料尚未接入':'not connected yet');
+          await expect(page.locator('#dialog-body [role=status] b')).toHaveText(language==='zh'?'尚未接入':'NOT YET CONNECTED');
+          await page.keyboard.press('Escape');await expect(demo).toBeFocused();
           expect((await page.request.get(afterURL+'/api/resources/digital-toll/download')).status()).toBe(403);
           await account.setPermissions({can_demo:false,can_download:true});
           await demo.click();await expect(page.locator('#dialog-body [role=status]')).toContainText(language==='zh'?'尚未获得查看演示权限':'not yet authorised');

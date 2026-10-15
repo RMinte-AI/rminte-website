@@ -3,19 +3,20 @@ import {join,dirname} from 'node:path';
 import {tmpdir} from 'node:os';
 import {spawnSync} from 'node:child_process';
 import {wrangler} from './serve.mjs';
-import {caseConfiguration} from './config.mjs';
+import {caseConfiguration,configurationProfiles,configuredFiles} from './config.mjs';
 
-export function buildWorkers(root,scope) {
-  const configurations=new Set(scope.workerConfigs||[]);
-  if(scope.caseService)configurations.add('services/case-access/wrangler.jsonc');
-  if(scope.ota)configurations.add('services/tianshanos-ota/wrangler.jsonc');
+export function checkConfigurations(root,scope) {
+  const configurations=new Map((scope.configurationFiles||[]).map(file=>[file,configuredFiles.get(file)||{file,kind:'worker'}]));
+  for(const [dependency,profiles] of Object.entries(configurationProfiles))if(scope[dependency])for(const profile of profiles)configurations.set(profile.file,profile);
   const temporary=mkdtempSync(join(tmpdir(),'rminte-worker-build-'));
   try {
-    for(const [index,config] of [...configurations].sort().entries()) {
+    for(const [index,[config,profile]] of [...configurations].sort(([a],[b])=>a.localeCompare(b)).entries()) {
       const outdir=join(temporary,String(index));
       let args=['deploy','--dry-run','--config',join(root,config),'--outdir',outdir];
-      if(config==='services/case-access/wrangler.jsonc') {
-        const pages=caseConfiguration(root);
+      if(profile.kind==='d1') {
+        args=['d1','migrations','apply',profile.binding,'--local','--config',join(root,config),'--persist-to',outdir];
+      } else if(profile.kind==='pages') {
+        const pages=caseConfiguration(root,config);
         // --build-output-directory selects the advanced-mode _worker.js without a functions/ directory.
         args=['pages','functions','build','--project-directory',root,'--build-output-directory',pages.assets,'--outdir',outdir,'--compatibility-date',pages.compatibility_date];
         for(const flag of pages.compatibility_flags||[])args.push('--compatibility-flags',flag);
@@ -29,6 +30,6 @@ export function buildWorkers(root,scope) {
       if(result.error)throw result.error;
       if(result.status!==0)throw new Error(`${config}: deployment configuration/build failed; see ${log.slice(root.length+1)}`);
     }
-    return {compiledConfigurations:[...configurations],deployed:false};
+    return {validatedConfigurations:[...configurations.values()],deployed:false,databaseLocation:'local'};
   } finally {rmSync(temporary,{recursive:true,force:true});}
 }

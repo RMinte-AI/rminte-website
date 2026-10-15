@@ -2,6 +2,7 @@ import {execFileSync} from 'node:child_process';
 import {readFileSync,writeFileSync,existsSync} from 'node:fs';
 import {join} from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {configuredFiles} from './config.mjs';
 
 export const owner = 'massif-01';
 export const pages = [
@@ -48,14 +49,15 @@ export function classify(changes,{all=false}={}) {
     if(!change.status.startsWith('D'))destinations.add(change.paths.at(-1));
   }
   const ids=new Set(), languages=new Set(['zh','en']), routes=new Map();
-  const scope={files,changes,pages:[],languages:[],widths:[1440,390],fonts:false,brand:false,exif:false,guides:false,translations:false,seo:false,caseService:false,ota:false,infrastructure:false,homeMotion:false,workerConfigs:[]};
+  const scope={files,changes,pages:[],languages:[],widths:[1440,390],fonts:false,brand:false,exif:false,guides:false,translations:false,seo:false,caseService:false,caseMigrations:false,ota:false,infrastructure:false,homeMotion:false,configurationFiles:[],navigationAll:false};
   const addAll=()=>{pages.forEach(page=>ids.add(page.id));scope.widths=[1440,768,390,320];};
   const guidePages=()=>pages.filter(page=>page.id.startsWith('guide')).forEach(page=>ids.add(page.id));
-  if(changes.some(change=>/^[DR]/.test(change.status)&&/\.html?$/i.test(change.paths[0])))addAll();
+  if(changes.some(change=>/^[DR]/.test(change.status)&&/\.html?$/i.test(change.paths[0])))scope.navigationAll=true;
   for(const file of files) {
-    if(infrastructure(file)) {scope.infrastructure=true;addAll();Object.assign(scope,{fonts:true,brand:true,exif:true,guides:true,translations:true,seo:true,caseService:true,ota:true,homeMotion:true});continue;}
+    if(infrastructure(file)) {scope.infrastructure=true;addAll();Object.assign(scope,{fonts:true,brand:true,exif:true,guides:true,translations:true,seo:true,caseService:true,caseMigrations:true,ota:true,homeMotion:true,navigationAll:true});continue;}
     if(document(file)) continue;
-    if(destinations.has(file)&&/(?:^|\/)wrangler\.(?:jsonc?|toml)$/.test(file))scope.workerConfigs.push(file);
+    if(destinations.has(file)&&(configuredFiles.has(file)||/(?:^|\/)wrangler\.(?:jsonc?|toml)$/.test(file)))scope.configurationFiles.push(file);
+    if(configuredFiles.get(file)?.kind==='d1') {scope.caseMigrations=true;continue;}
     if(file.startsWith('website/')&&/\.html?$/i.test(file)&&file!=='website/404.html'&&!pages.some(page=>page.file===file)) {
       const path='/'+file.slice('website/'.length).replace(/(^|\/)index\.html$/,'$1').replace(/\.html$/,'').split('/').map(encodeURIComponent).join('/');
       const id='route-'+encodeURIComponent(file.slice('website/'.length));
@@ -64,9 +66,9 @@ export function classify(changes,{all=false}={}) {
     }
     if(file==='DESIGN.md'||file==='website/DESIGN.md') {addAll();continue;}
     if(file.startsWith('services/tianshanos-ota/')||file==='scripts/sync-tianshanos-release.mjs') {scope.ota=true;scope.fonts=true;continue;}
-    if(file.startsWith('services/case-access/')) {scope.caseService=true;ids.add('cases');ids.add('admin');continue;}
+    if(file.startsWith('services/case-access/')) {scope.caseService=true;if(file.startsWith('services/case-access/migrations/'))scope.caseMigrations=true;ids.add('cases');ids.add('admin');continue;}
     if(file==='scripts/build-service-brand.mjs') {scope.brand=true;scope.ota=true;continue;}
-    if(/(?:seo|_worker\.js|_routes\.json|_headers|_redirects|404\.html|robots\.txt|sitemap\.xml)/.test(file)) {scope.seo=true;addAll();if(file.endsWith('_worker.js'))scope.caseService=true;continue;}
+    if(/(?:seo|_worker\.js|_routes\.json|_headers|_redirects|404\.html|robots\.txt|sitemap\.xml)/.test(file)) {scope.seo=true;scope.navigationAll=true;addAll();if(file.endsWith('_worker.js'))scope.caseService=true;continue;}
     if(file.startsWith('website/scripts/')) {
       if(file.includes('build-fonts')) {scope.fonts=true;addAll();}
       else if(file.includes('gallery-exif')) {scope.exif=true;ids.add('gallery');}
@@ -98,7 +100,7 @@ export function classify(changes,{all=false}={}) {
     if(file==='website/index.html'||/website\/assets\/(?:main\.js|engine|system|images\/|videos\/|teardown-frames)/.test(file)) {ids.add('home');scope.homeMotion=true;continue;}
     addAll();scope.homeMotion=true; // Unknown production assets can also affect normal homepage motion.
   }
-  if(all) {addAll();Object.assign(scope,{fonts:true,brand:true,exif:true,guides:true,translations:true,seo:true,caseService:true,ota:true,homeMotion:true,infrastructure:true});}
+  if(all) {addAll();Object.assign(scope,{fonts:true,brand:true,exif:true,guides:true,translations:true,seo:true,caseService:true,caseMigrations:true,ota:true,homeMotion:true,infrastructure:true,navigationAll:true});}
   scope.pages=[...pages,...routes.values()].filter(page=>ids.has(page.id)).map(page=>({...page}));scope.languages=[...languages];
   scope.reason=scope.pages.length ? 'Browser checks follow the changed production dependencies.' : 'No affected website UI; screenshots are not applicable.';
   return scope;
@@ -116,7 +118,8 @@ export function context(root,{base,head,all=false}={}) {
   }
   const baseSha=git(root,'rev-parse',base).trim(),scope=classify(changes,{all});
   const baseFiles=new Set(git(root,'ls-tree','-r','--name-only','-z',baseSha,'--','website').split('\0'));
-  scope.pages=scope.pages.map(page=>({...page,beforeExists:baseFiles.has(page.file),afterExists:existsSync(join(root,page.file))}));
+  scope.pages=scope.pages.map(page=>({...page,sourceExists:{before:baseFiles.has(page.file),after:existsSync(join(root,page.file))}}));
+  scope.navigationFiles=scope.navigationAll?[...new Set(git(root,'ls-files','--cached','--others','--exclude-standard','-z','--','website').split('\0'))].filter(file=>/\.html?$/i.test(file)&&existsSync(join(root,file))):[];
   return {schema:1,baseSha,headSha:git(root,'rev-parse',head).trim(),testSha:git(root,'rev-parse','HEAD').trim(),local:!process.env.CI,prNumber:pr?.number||null,author:pr?.user?.login||null,body:pr?.body||'',scope};
 }
 

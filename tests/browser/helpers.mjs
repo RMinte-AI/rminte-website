@@ -2,6 +2,7 @@ import {readFileSync,mkdirSync,writeFileSync} from 'node:fs';
 import {join,resolve} from 'node:path';
 import {createHash} from 'node:crypto';
 import {expect} from '@playwright/test';
+import {routeEvidence} from '../../scripts/ci/routes.mjs';
 
 export const run=JSON.parse(readFileSync(resolve('output/ci/context.json'),'utf8'));
 export const afterURL=process.env.RMINTE_AFTER_URL||'http://127.0.0.1:8788';
@@ -43,11 +44,12 @@ export async function createBrowserAccount(base=afterURL) {
   const login=await fetch(base+'/api/login',{method:'POST',headers:{Origin:base,'Content-Type':'application/json'},body:JSON.stringify({username:'admin',password})});
   expect(login.status).toBe(200);
   const cookie=login.headers.get('set-cookie').split(';')[0];
+  await login.body?.cancel();
   const call=async(path,method,data)=>{
     const response=await fetch(base+path,{method,headers:{Origin:base,Cookie:cookie,'Content-Type':'application/json'},body:data?JSON.stringify(data):undefined});
-    expect(response.ok).toBe(true);return response;
+    expect(response.ok).toBe(true);return response.json();
   };
-  const account=await (await call('/api/admin/users','POST',{})).json();
+  const account=await call('/api/admin/users','POST',{});
   return {...account,setPermissions:permissions=>call('/api/admin/users/'+account.id,'PATCH',permissions),remove:()=>call('/api/admin/users/'+account.id,'DELETE')};
 }
 
@@ -58,6 +60,17 @@ export async function openPage(page,descriptor,language,base=afterURL) {
   await page.evaluate(()=>document.fonts.ready);
   if(descriptor.id!=='lamp')await expect(page.locator('html')).toHaveAttribute('lang',{zh:'zh-CN',en:'en',ja:'ja',ko:'ko',es:'es-ES',fr:'fr-FR'}[language]);
   else await expect(page.locator('#langSelect')).toHaveValue(language==='zh'?'zh-CN':'en-US');
+}
+
+export async function inspectRoute(page,descriptor,language,base,phase) {
+  const url=`${base}${descriptor.path}?lang=${language}`;
+  const response=await page.request.get(url,{maxRedirects:0}),status=response.status();
+  let location,finalStatus;
+  if([301,302,303,307,308].includes(status)) {
+    location=new URL(response.headers().location,url).href;
+    finalStatus=(await page.request.get(location)).status();
+  }
+  return routeEvidence(descriptor.sourceExists?.[phase],{status,location,finalStatus});
 }
 
 export async function layout(page) {

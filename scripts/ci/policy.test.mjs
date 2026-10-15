@@ -6,10 +6,10 @@ import {join,resolve} from 'node:path';
 import {execFileSync,spawnSync} from 'node:child_process';
 import {createHash,randomBytes} from 'node:crypto';
 import {changedPaths,classify,checkDescription,git,context as getContext,parseChanges} from './scope.mjs';
-import {checkHtml,checkCss,syntax,generatedCheck} from './static.mjs';
+import {checkHtml,checkCss,syntax,generatedCheck,staticChecks} from './static.mjs';
 import {validateEvidence,gateResult} from './report.mjs';
 import {scanSecrets} from './secrets.mjs';
-import {buildWorkers} from './build.mjs';
+import {checkConfigurations} from './build.mjs';
 
 test('real divergent history classifies only the PR change, including renames and deletion',()=>{
   const root=mkdtempSync(join(tmpdir(),'rminte-git-'));
@@ -52,6 +52,12 @@ test('actual malformed JavaScript, CSS and missing referenced resources are reje
     mkdirSync(join(root,'website'));writeFileSync(join(root,'website/index.html'),'<script src="missing.js"></script>');assert.throws(()=>checkHtml(root,'website/index.html'),/missing local resource/);
     writeFileSync(join(root,'website/index.html'),'<script>function broken(</script>');assert.throws(()=>checkHtml(root,'website/index.html'));
     writeFileSync(join(root,'website/bad.css'),'a { color: red;');assert.throws(()=>checkCss(root,'website/bad.css'));
+    writeFileSync(join(root,'operational.jsonc'),'{"d1_databases": [');
+    assert.throws(()=>staticChecks(root,{files:['operational.jsonc'],pages:[]}),/invalid JSONC/);
+    writeFileSync(join(root,'operational.jsonc'),'{ /* JSONC uses comments and trailing commas */ "value": 1, }');
+    assert.doesNotThrow(()=>staticChecks(root,{files:['operational.jsonc'],pages:[]}));
+    writeFileSync(join(root,'website/index.html'),'<main><a href="/dynamic/">Relative</a><a href="https://rminte.com/dynamic/">Canonical origin</a><a href="https://example.invalid/dynamic/">External</a></main>');
+    assert.deepEqual(checkHtml(root,'website/index.html'),['/dynamic/']);
   }finally{rmSync(root,{recursive:true,force:true});}
 });
 
@@ -85,9 +91,11 @@ test('evidence for another Head, missing screenshots and altered image bytes fai
     writeFileSync(join(directory,'manifest.json'),JSON.stringify(context));assert.throws(()=>validateEvidence(root,context),/Required screenshot missing/);
     const bytes=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aK1cAAAAASUVORK5CYII=','base64');
     writeFileSync(join(directory,'image.png'),bytes);
-    const records=['before','after'].map(phase=>({phase,page:'gallery',language:'en',width:390,region:'main',file:'image.png',sha256:createHash('sha256').update(bytes).digest('hex')}));
-    writeFileSync(join(root,'output/ci/browser-results.json'),JSON.stringify({stats:{skipped:0,unexpected:0,flaky:0},suites:[{specs:[{tests:[{expectedStatus:'passed',results:[{status:'passed'}]}]}]}]}));
+    const records=['before','after'].map(phase=>({kind:'page',status:200,phase,page:'gallery',language:'en',width:390,region:'main',file:'image.png',sha256:createHash('sha256').update(bytes).digest('hex')}));
+    writeFileSync(join(root,'output/ci/browser-results.json'),JSON.stringify({stats:{skipped:0,unexpected:0,flaky:0},suites:[{title:'operations gallery en 390px',specs:[{tests:[{expectedStatus:'passed',results:[{status:'passed'}]}]}]}]}));
     writeFileSync(join(directory,'records/gallery.json'),JSON.stringify(records));assert.equal(validateEvidence(root,context).screenshots,2);
+    context.scope.pages[0].sourceExists={before:true,after:false};
+    assert.equal(validateEvidence(root,context).screenshots,2); // HTTP 200 still needs real PNGs after its source file moves.
     writeFileSync(join(root,'output/ci/browser-results.json'),JSON.stringify({stats:{skipped:1},suites:[]}));assert.throws(()=>validateEvidence(root,context),/without skips/);
     writeFileSync(join(directory,'image.png'),Buffer.concat([bytes,Buffer.from('altered')]));assert.throws(()=>validateEvidence(root,context),/checksum/);
     assert.throws(()=>gateResult([{name:'browser',required:true,status:'cancelled'}]),/did not pass/);
@@ -103,13 +111,13 @@ test('a real added or deleted HTML route remains in browser scope with honest ba
     writeFileSync(join(root,'README.md'),'route fixture\n');git(root,'add','README.md');git(root,'commit','-m','base');const base=git(root,'rev-parse','HEAD').trim();
     mkdirSync(join(root,'website/new-feature'),{recursive:true});writeFileSync(join(root,'website/new-feature/index.html'),'<main>New route</main>');git(root,'add','website');git(root,'commit','-m','new route');
     const added=getContext(root,{base,head:'HEAD'}).scope.pages.find(page=>page.path==='/new-feature/');
-    assert.ok(added);assert.equal(added.generic,true);assert.equal(added.beforeExists,false);assert.equal(added.afterExists,true);
+    assert.ok(added);assert.equal(added.generic,true);assert.equal(added.sourceExists.before,false);assert.equal(added.sourceExists.after,true);
     const introduced=git(root,'rev-parse','HEAD').trim();git(root,'rm','website/new-feature/index.html');git(root,'commit','-m','remove route');
     const removed=getContext(root,{base:introduced,head:'HEAD'}).scope.pages.find(page=>page.path==='/new-feature/');
-    assert.ok(removed);assert.equal(removed.beforeExists,true);assert.equal(removed.afterExists,false);
+    assert.ok(removed);assert.equal(removed.sourceExists.before,true);assert.equal(removed.sourceExists.after,false);
     const translated='website/new-feature/用户.html';mkdirSync(join(root,'website/new-feature'),{recursive:true});writeFileSync(join(root,translated),'<main>Existing route</main>');git(root,'add',translated);git(root,'commit','-m','Unicode route');
     const previous=git(root,'rev-parse','HEAD').trim();writeFileSync(join(root,translated),'<main>Updated route</main>');git(root,'add',translated);git(root,'commit','-m','update Unicode route');
-    assert.equal(getContext(root,{base:previous,head:'HEAD'}).scope.pages.find(page=>page.file===translated).beforeExists,true);
+    assert.equal(getContext(root,{base:previous,head:'HEAD'}).scope.pages.find(page=>page.file===translated).sourceExists.before,true);
   } finally {rmSync(root,{recursive:true,force:true});}
 });
 
@@ -145,10 +153,10 @@ test('Pages builds the advanced-mode entry without functions and rejects a broke
     cpSync('services/case-access/wrangler.jsonc',join(root,'services/case-access/wrangler.jsonc'));
     writeFileSync(join(root,'website/_worker.js'),'import {message} from "./dependency.js";export default {fetch(){return new Response(message)}};');
     writeFileSync(join(root,'website/dependency.js'),'export const message="Actual advanced-mode Worker";');
-    const scope={caseService:true};
-    assert.doesNotThrow(()=>buildWorkers(root,scope));
+    const scope={configurationFiles:['services/case-access/wrangler.jsonc']};
+    assert.doesNotThrow(()=>checkConfigurations(root,scope));
     rmSync(join(root,'website/dependency.js'));
-    assert.throws(()=>buildWorkers(root,scope),/configuration\/build failed/);
+    assert.throws(()=>checkConfigurations(root,scope),/configuration\/build failed/);
     const log=readFileSync(join(root,'output/ci/build-services-case-access-wrangler-jsonc.log'),'utf8');
     assert.match(log,/Could not resolve ["']\.\/dependency\.js/);
   } finally {rmSync(root,{recursive:true,force:true});}
@@ -168,17 +176,17 @@ test('a real Worker config rename builds only the destination and still rejects 
     git(root,'mv',service+'/preview-a',service+'/preview-b');git(root,'commit','-m','move preview config');
     const changes=changedPaths(root,base,'HEAD'),scope=classify(changes);
     assert.ok(changes.some(change=>change.status.startsWith('R')));
-    assert.doesNotThrow(()=>buildWorkers(root,scope));
-    assert.deepEqual(scope.workerConfigs,[service+'/preview-b/wrangler.jsonc']);
+    assert.doesNotThrow(()=>checkConfigurations(root,scope));
+    assert.deepEqual(scope.configurationFiles,[service+'/preview-b/wrangler.jsonc']);
     writeFileSync(join(root,service,'preview-b/wrangler.jsonc'),JSON.stringify({...configuration,main:'../src/missing.js'}));
-    assert.throws(()=>buildWorkers(root,scope),/configuration\/build failed/);
+    assert.throws(()=>checkConfigurations(root,scope),/configuration\/build failed/);
     const log=readFileSync(join(root,'output/ci/build-services-tianshanos-ota-preview-b-wrangler-jsonc.log'),'utf8');
     assert.match(log,/missing\.js/);
     git(root,'rm', '-f', service+'/preview-b/wrangler.jsonc');
     const pending=classify([...changes,...parseChanges(git(root,'diff','--name-status','-z','HEAD','--'))]);
-    assert.deepEqual(pending.workerConfigs,[]);assert.doesNotThrow(()=>buildWorkers(root,pending));
+    assert.deepEqual(pending.configurationFiles,[]);assert.doesNotThrow(()=>checkConfigurations(root,pending));
     git(root,'commit','-m','remove preview config');
     const deleted=classify(changedPaths(root,base,'HEAD'));
-    assert.deepEqual(deleted.workerConfigs,[]);assert.doesNotThrow(()=>buildWorkers(root,deleted));
+    assert.deepEqual(deleted.configurationFiles,[]);assert.doesNotThrow(()=>checkConfigurations(root,deleted));
   } finally {rmSync(root,{recursive:true,force:true});}
 });

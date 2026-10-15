@@ -1,6 +1,7 @@
 import {readFileSync,existsSync,readdirSync,writeFileSync} from 'node:fs';
 import {join,resolve} from 'node:path';
 import {createHash} from 'node:crypto';
+import {routeEvidence,operationName} from './routes.mjs';
 
 export function validateEvidence(root,context) {
   const directory=join(root,'output/ci/evidence');
@@ -13,13 +14,12 @@ export function validateEvidence(root,context) {
     const key=[record.phase,record.page,record.language,record.width,record.region].join('|');
     if(seen.has(key))throw new Error(`Duplicate screenshot record: ${key}`);
     const page=context.scope.pages.find(page=>page.id===record.page);
-    const absent=page?.[record.phase==='before'?'beforeExists':'afterExists']===false;
-    if(record.kind==='absent'||record.kind==='redirect') {
-      const valid=record.kind==='absent'?[404,410].includes(record.status):[301,302,303,307,308].includes(record.status)&&Boolean(record.location)&&record.finalStatus===200;
-      if(!absent||!valid)throw new Error(`Unexpected absent page evidence: ${key}`);
+    if(!page||!['before','after'].includes(record.phase))throw new Error(`Unknown route evidence: ${key}`);
+    const route=routeEvidence(page.sourceExists?.[record.phase],record);
+    if(record.kind!==route.kind)throw new Error(`Route evidence disagrees with HTTP result: ${key}`);
+    if(route.kind!=='page') {
       seen.set(key,record);continue;
     }
-    if(absent)throw new Error(`Absent page needs an HTTP absence record: ${key}`);
     const file=resolve(directory,record.file);
     if(!file.startsWith(directory+'/')||!existsSync(file))throw new Error(`Missing screenshot: ${key}`);
     const bytes=readFileSync(file);
@@ -32,10 +32,14 @@ export function validateEvidence(root,context) {
     if(!seen.has(key))throw new Error(`Required screenshot missing: ${key}`);
   }
   const browser=JSON.parse(readFileSync(join(root,'output/ci/browser-results.json'),'utf8'));
-  const tests=[];
-  const collect=suites=>{for(const suite of suites||[]){for(const spec of suite.specs||[])tests.push(...spec.tests||[]);collect(suite.suites);}};
+  const tests=[],operations=new Set();
+  const collect=suites=>{for(const suite of suites||[]){for(const spec of suite.specs||[])if(spec.tests?.length){tests.push(...spec.tests);operations.add(suite.title);}collect(suite.suites);}};
   collect(browser.suites);
   if(!tests.length||browser.stats.skipped||browser.stats.unexpected||browser.stats.flaky||tests.some(test=>test.expectedStatus!=='passed'||test.results.length!==1||test.results[0].status!=='passed'))throw new Error('Required browser operations did not all pass without skips or expected failures');
+  for(const page of context.scope.pages)for(const language of context.scope.languages.filter(lang=>['zh','en'].includes(lang)&&(!page.languages||page.languages.includes(lang))))for(const width of [1440,390]) {
+    const rendered=seen.get(['after',page.id,language,width,page.regions[0]].join('|'));
+    if(rendered?.kind==='page'&&!operations.has(operationName(page,language,width)))throw new Error(`Required page operation missing: ${operationName(page,language,width)}`);
+  }
   manifest.screenshots=records.filter(record=>!['absent','redirect'].includes(record.kind));
   manifest.absences=records.filter(record=>['absent','redirect'].includes(record.kind));
   writeFileSync(join(directory,'manifest.json'),JSON.stringify(manifest,null,2)+'\n');

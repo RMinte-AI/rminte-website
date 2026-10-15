@@ -50,14 +50,16 @@ export async function startServer(root,port,logFile) {
   for(let attempt=0;attempt<120;attempt++) {
     if(child.exitCode!==null){await stop();throw new Error(`Pages test server exited: ${output.replaceAll(secret,'[temporary fixture secret]')}`);}
     let ready=false;
-    try{ready=(await fetch(url,{signal:AbortSignal.timeout(800)})).ok;}catch{/* Local socket not ready yet. */}
+    try{const response=await fetch(url,{signal:AbortSignal.timeout(800)});ready=response.ok;await response.body?.cancel();}catch{/* Local socket not ready yet. */}
     if(ready) {
       const api=await fetch(url+'/api/admin/users');
+      await api.body?.cancel();
       if(api.status!==401){await stop();throw new Error(`Local Pages account bindings failed readiness: HTTP ${api.status}`);}
       const login=await fetch(url+'/api/login',{method:'POST',headers:{Origin:url,'Content-Type':'application/json'},body:JSON.stringify({username:'admin',password})});
+      await login.body?.cancel();
       if(login.status!==200){await stop();throw new Error(`Local Pages fixture database failed readiness: HTTP ${login.status}`);}
       const cookie=login.headers.get('set-cookie').split(';')[0];
-      await fetch(url+'/api/logout',{method:'POST',headers:{Origin:url,Cookie:cookie}});
+      const logout=await fetch(url+'/api/logout',{method:'POST',headers:{Origin:url,Cookie:cookie}});await logout.body?.cancel();
       return {url,runtime,env,child,command,stop};
     }
     await delay(250);
