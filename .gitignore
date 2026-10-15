@@ -4,6 +4,8 @@
 outputs/
 rm01-website/images/hardware-scroll.mp4
 .font-cache/
+node_modules/
+output/ci/
 
 # Private case access initialization
 services/case-access/.dev.vars
