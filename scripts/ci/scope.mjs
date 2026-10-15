@@ -42,7 +42,11 @@ const document = path => /^(?:docs\/|design-preview\/|copy-review\/|output\/)/.t
 
 export function classify(changes,{all=false}={}) {
   const files=[...new Set(changes.flatMap(change=>change.paths))].sort();
-  const destinations=new Set(changes.filter(change=>!change.status.startsWith('D')).map(change=>change.paths.at(-1)));
+  const destinations=new Set();
+  for(const change of changes) {
+    if(/^[DR]/.test(change.status))destinations.delete(change.paths[0]);
+    if(!change.status.startsWith('D'))destinations.add(change.paths.at(-1));
+  }
   const ids=new Set(), languages=new Set(['zh','en']), routes=new Map();
   const scope={files,changes,pages:[],languages:[],widths:[1440,390],fonts:false,brand:false,exif:false,guides:false,translations:false,seo:false,caseService:false,ota:false,infrastructure:false,homeMotion:false,workerConfigs:[]};
   const addAll=()=>{pages.forEach(page=>ids.add(page.id));scope.widths=[1440,768,390,320];};

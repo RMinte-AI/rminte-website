@@ -5,7 +5,7 @@ import {tmpdir} from 'node:os';
 import {join,resolve} from 'node:path';
 import {execFileSync,spawnSync} from 'node:child_process';
 import {createHash,randomBytes} from 'node:crypto';
-import {changedPaths,classify,checkDescription,git,context as getContext} from './scope.mjs';
+import {changedPaths,classify,checkDescription,git,context as getContext,parseChanges} from './scope.mjs';
 import {checkHtml,checkCss,syntax,generatedCheck} from './static.mjs';
 import {validateEvidence,gateResult} from './report.mjs';
 import {scanSecrets} from './secrets.mjs';
@@ -174,7 +174,10 @@ test('a real Worker config rename builds only the destination and still rejects 
     assert.throws(()=>buildWorkers(root,scope),/configuration\/build failed/);
     const log=readFileSync(join(root,'output/ci/build-services-tianshanos-ota-preview-b-wrangler-jsonc.log'),'utf8');
     assert.match(log,/missing\.js/);
-    git(root,'rm', '-f', service+'/preview-b/wrangler.jsonc');git(root,'commit','-m','remove preview config');
+    git(root,'rm', '-f', service+'/preview-b/wrangler.jsonc');
+    const pending=classify([...changes,...parseChanges(git(root,'diff','--name-status','-z','HEAD','--'))]);
+    assert.deepEqual(pending.workerConfigs,[]);assert.doesNotThrow(()=>buildWorkers(root,pending));
+    git(root,'commit','-m','remove preview config');
     const deleted=classify(changedPaths(root,base,'HEAD'));
     assert.deepEqual(deleted.workerConfigs,[]);assert.doesNotThrow(()=>buildWorkers(root,deleted));
   } finally {rmSync(root,{recursive:true,force:true});}
