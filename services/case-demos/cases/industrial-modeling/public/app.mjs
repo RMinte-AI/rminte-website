@@ -88,7 +88,7 @@ function reset() {
 function start() {
   if (state.paused) { resume(); return; }
   if (state.phase !== 'intro' && state.phase !== 'complete') return;
-  const queuedInput = pendingInput, returnToProgress = $('#conversation').contains(document.activeElement); reset(); pendingInput = queuedInput; $('#conversation').replaceChildren(); state.phase = 'reading'; renderProgress(); if (returnToProgress) $('#progress-title').focus({ preventScroll: true }); record('载入脱敏案例图纸，开始模拟建模');
+  const queuedInput = pendingInput, returnToProgress = $('#conversation').contains(document.activeElement) || document.activeElement === $('#start'); reset(); pendingInput = queuedInput; $('#conversation').replaceChildren(); state.phase = 'reading'; renderProgress(); if (returnToProgress) $('#progress-title').focus({ preventScroll: true }); record('载入脱敏案例图纸，开始模拟建模');
   message('user', '请根据这张图纸建立三维模型，不清楚的尺寸先与我确认。');
   runQueue([
     { text: '正在查看主视图与端面', delay: 1400, action: () => message('assistant', '已载入案例。示例外形为六角柱，对边 30 mm，总高 30 mm。接下来按主体、倒角、方槽逐步预览。') },
@@ -116,7 +116,7 @@ function complete() {
   state.phase = 'complete'; state.operation = null; renderProgress(); $('#prompt').placeholder = '例如：方槽改成 18 毫米'; $('#composer-hint').textContent = '可修改方槽、倒角和总高';
   message('assistant', `半成品已展示：总高 ${state.height} mm，方槽 ${state.slot} × ${state.slot} mm，两端倒角 ${state.chamfer} × 45°。\n侧面销孔尚未加工，演示停在这个检查点。你可以旋转、剖切、回看版本，或继续输入修改要求。`);
   record('完成半成品展示；侧面销孔保留为未完成特征');
-  if (pendingInput?.field === 'height') {
+  if (pendingInput) {
     const input = pendingInput; pendingInput = null;
     queueMicrotask(() => edit(input.field, input.value, input.text));
   }
