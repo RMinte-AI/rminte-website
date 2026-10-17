@@ -62,6 +62,7 @@ function resume() {
   timer = setTimeout(() => { const action = pending.action; pending = null; action(); next(); }, remaining); record('继续演示'); renderProgress();
 }
 function question(kind) {
+  const returnToQuestion = document.activeElement === $('#progress-title');
   state.phase = kind; renderProgress();
   const isSlot = kind === 'slot';
   $('#question').hidden = false;
@@ -72,9 +73,9 @@ function question(kind) {
   if (pendingInput?.field === field) {
     const input = pendingInput; pendingInput = null;
     queueMicrotask(() => accept(input.value, input.text));
-  }
+  } else if (returnToQuestion) $('#question [data-answer]')?.focus({ preventScroll: true });
 }
-function hideQuestion() { $('#question').hidden = true; $('#question').replaceChildren(); }
+function hideQuestion() { if ($('#question').contains(document.activeElement)) $('#progress-title').focus({ preventScroll: true }); $('#question').hidden = true; $('#question').replaceChildren(); }
 function reset() {
   clearQueue(); pendingInput = null; Object.assign(state, { phase: 'intro', stage: 0, slot: 16, height: 30, chamfer: 1, versions: [], history: [], selected: null, section: false, paused: false, operation: null });
   $('#conversation').replaceChildren(); hideQuestion(); $('#prompt').value = ''; $('#prompt').placeholder = '例如：方槽改成 18 毫米'; $('#composer-hint').textContent = '试着用自己的话修改尺寸';
@@ -87,7 +88,7 @@ function reset() {
 function start() {
   if (state.paused) { resume(); return; }
   if (state.phase !== 'intro' && state.phase !== 'complete') return;
-  const queuedInput = pendingInput; reset(); pendingInput = queuedInput; $('#conversation').replaceChildren(); state.phase = 'reading'; renderProgress(); record('载入脱敏案例图纸，开始模拟建模');
+  const queuedInput = pendingInput, returnToProgress = $('#conversation').contains(document.activeElement); reset(); pendingInput = queuedInput; $('#conversation').replaceChildren(); state.phase = 'reading'; renderProgress(); if (returnToProgress) $('#progress-title').focus({ preventScroll: true }); record('载入脱敏案例图纸，开始模拟建模');
   message('user', '请根据这张图纸建立三维模型，不清楚的尺寸先与我确认。');
   runQueue([
     { text: '正在查看主视图与端面', delay: 1400, action: () => message('assistant', '已载入案例。示例外形为六角柱，对边 30 mm，总高 30 mm。接下来按主体、倒角、方槽逐步预览。') },

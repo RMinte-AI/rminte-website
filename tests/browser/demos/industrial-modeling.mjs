@@ -4,12 +4,12 @@ export default async function({page,frame,caseName,reopen=false}) {
   expect(caseName).toMatch(/汽车研发与工业建模|Automotive R&D and Industrial Modelling/);
   await expect(frame.locator('#start')).toBeVisible();await expect(frame.locator('#viewer-error')).toBeHidden();
   await expect(frame.locator('#status')).toHaveText('等待开始');await expect(frame.locator('#versions')).toContainText('示例半成品');
-  if(reopen){await frame.locator('#start').click();await expect(frame.locator('#question')).toContainText('四方通槽的边长');return;}
+  if(reopen){await frame.locator('#welcome-start').click();await expect(frame.locator('#progress-title')).toBeFocused();await expect(frame.locator('#question')).toContainText('四方通槽的边长');await expect(frame.locator('[data-answer="16"]')).toBeFocused();return;}
   await frame.locator('#prompt').fill('方槽改为18毫米');await frame.locator('#send').click();
   await expect(frame.locator('#question')).toContainText('上下端部的外棱');
   await frame.locator('#prompt').fill('倒角 －1 毫米');await frame.locator('#send').click();
   await expect(frame.locator('#conversation')).toContainText('倒角 0.3～2.5 mm');await expect(frame.locator('#status')).toHaveText('需要你确认');
-  await frame.locator('[data-answer="1"]').click();
+  await frame.locator('[data-answer="1"]').click();await expect(frame.locator('#progress-title')).toBeFocused();
   await expect(frame.locator('#status')).toHaveText('半成品已生成');await expect(frame.locator('#progress-count')).toHaveText('3 / 4 步');
   await frame.locator('#prompt').fill('方槽改为16毫米');await frame.locator('#send').click();
   await expect(frame.locator('#versions')).toContainText('版本 04');
