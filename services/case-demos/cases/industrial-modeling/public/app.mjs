@@ -129,13 +129,22 @@ function edit(field, value, text) {
   record(`文字修改：${name} ${old} → ${value} mm`); message('assistant', `已理解：${name}从 ${old} 改为 ${value} mm。现在更新半成品预览，并保留修改前的版本。`);
   runQueue([{ text: `正在更新${name}`, delay: 1400, action: () => { checkpoint(3, `${name}改为 ${value} mm`); complete(); } }]);
 }
+function requestedNumber(text) {
+  const token = '[+-]?\\d+(?:\\.\\d+)?';
+  const changed = text.match(new RegExp(`(?:改(?:成|为)?|调整(?:成|为)?|设(?:成|为)?|变成|到)\\s*(${token})`));
+  if (changed) return { token: changed[1], ambiguous: false };
+  const tokens = [...text.matchAll(new RegExp(token, 'g'))].map(match => match[0]);
+  return { token: new Set(tokens.map(Number)).size <= 1 ? tokens[0] : null, ambiguous: tokens.length > 1 };
+}
 function send(text) {
   text = text.trim(); if (!text) return;
   if (/^(暂停|停止|停一下)[。！! ]*$/.test(text)) { pause(); return; }
   if (/^(继续|继续演示)[。！! ]*$/.test(text) && state.paused) { resume(); return; }
   if (/^(开始|开始体验|重新开始|重新体验)[。！! ]*$/.test(text)) { reset(); start(); return; }
   const normalized = text.replace(/[０-９．]/g, c => String.fromCharCode(c.charCodeAt(0) - 65248)).replace(/[−－]/g, '-');
-  const number = normalized.match(/[+-]?\d+(?:\.\d+)?/); const value = number ? Number(number[0]) : NaN;
+  const parsed = requestedNumber(normalized);
+  if (parsed.ambiguous) { message('assistant', '这句话里有多个尺寸。请只写目标值，例如“方槽改成 18 毫米”。'); return; }
+  const number = parsed.token, value = number === undefined ? NaN : Number(number);
   const field = /方槽|通槽|槽宽|边长/.test(text) ? 'slot' : /倒角/.test(text) ? 'chamfer' : /高度|总高|高改|高为|高[度]?\s*\d/.test(text) ? 'height' : null;
   if (state.phase === 'intro') { if (field && number) pendingInput = { field, value, text }; start(); return; }
   if (['slot', 'chamfer'].includes(state.phase)) {

@@ -108,6 +108,14 @@ function previewModuleEntries(root,files) {
   return entries;
 }
 
+function packageModule(root,file) {
+  for(let directory=dirname(join(root,file));directory.startsWith(root+'/');directory=dirname(directory)) {
+    const manifest=join(directory,'package.json');
+    if(existsSync(manifest))return JSON.parse(readFileSync(manifest,'utf8')).type==='module';
+  }
+  return false;
+}
+
 export function staticChecks(root,scope) {
   const files=new Set(scope.files.filter(file=>existsSync(join(root,file)))),navigation=new Set();
   const scriptModes=new Map();
@@ -141,7 +149,7 @@ export function staticChecks(root,scope) {
       const source=readFileSync(join(root,file),'utf8');
       // HTML determines browser script grammar. Worker configurations define
       // module source roots; imported browser modules use .mjs.
-      const modes=scriptModes.get(file)||[file.endsWith('.mjs')||file==='website/_worker.js'||moduleFiles.has(file)?'module':file.endsWith('.cjs')?'commonjs':'classic'];
+      const modes=scriptModes.get(file)||[file.endsWith('.mjs')||file==='website/_worker.js'||moduleFiles.has(file)||packageModule(root,file)?'module':file.endsWith('.cjs')?'commonjs':'classic'];
       for(const mode of modes)syntax(source,file,mode);
     }
     else if(file.endsWith('.json'))syntax(readFileSync(join(root,file),'utf8'),file,'json');

@@ -112,6 +112,11 @@ test('HTML script types are enforced, including when one file has multiple consu
     writeFileSync(join(root,'design-preview/engine/labels.js'),'export const label="Preview";');
     writeFileSync(join(root,'design-preview/engine/engine.js'),'import {label} from "./labels.js"; export {label};');
     assert.doesNotThrow(()=>staticChecks(root,{files:['design-preview/engine/labels.js','design-preview/engine/engine.js'],pages:[]}));
+    mkdirSync(join(root,'design-preview/engine/vendor/build'),{recursive:true});
+    writeFileSync(join(root,'design-preview/engine/vendor/build/package.json'),'{"type":"module"}');
+    writeFileSync(join(root,'design-preview/engine/vendor/build/entry.js'),'export {value} from "./value.js";');
+    writeFileSync(join(root,'design-preview/engine/vendor/build/value.js'),'export const value=1;');
+    assert.doesNotThrow(()=>staticChecks(root,{files:['design-preview/engine/vendor/build/entry.js','design-preview/engine/vendor/build/value.js'],pages:[]}));
   }finally{rmSync(root,{recursive:true,force:true});}
 });
 
