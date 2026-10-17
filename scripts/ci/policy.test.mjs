@@ -97,6 +97,16 @@ test('HTML script types are enforced, including when one file has multiple consu
     assert.throws(()=>staticChecks(root,{files,pages:[]}),/SyntaxError/);
     writeFileSync(join(root,'website/bundle.mjs'),'const value=1;export{value};');
     assert.doesNotThrow(()=>staticChecks(root,{files:['website/bundle.mjs'],pages:[]}));
+    mkdirSync(join(root,'services/tianshanos-ota/src'),{recursive:true});
+    writeFileSync(join(root,'services/tianshanos-ota/wrangler.jsonc'),'{"main":"src/index.js"}');
+    writeFileSync(join(root,'services/tianshanos-ota/src/index.js'),'import "./helper.js";export default {};');
+    writeFileSync(join(root,'services/tianshanos-ota/src/helper.js'),'export const value=1;');
+    assert.doesNotThrow(()=>staticChecks(root,{files:['services/tianshanos-ota/src/index.js','services/tianshanos-ota/src/helper.js'],pages:[]}));
+    mkdirSync(join(root,'services/case-demos/cases/example/public'),{recursive:true});
+    writeFileSync(join(root,'services/case-demos/wrangler.jsonc'),'{"main":"worker.mjs"}');
+    writeFileSync(join(root,'services/case-demos/worker.mjs'),'export default {};');
+    writeFileSync(join(root,'services/case-demos/cases/example/public/embed.js'),'await Promise.resolve();');
+    assert.throws(()=>staticChecks(root,{files:['services/case-demos/cases/example/public/embed.js'],pages:[]}),/SyntaxError/);
   }finally{rmSync(root,{recursive:true,force:true});}
 });
 

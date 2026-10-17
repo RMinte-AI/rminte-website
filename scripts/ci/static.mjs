@@ -5,7 +5,7 @@ import {execFileSync} from 'node:child_process';
 import {Script} from 'node:vm';
 import {parse} from 'parse5';
 import postcss from 'postcss';
-import {readJsonc} from './config.mjs';
+import {configurationProfiles,readJsonc} from './config.mjs';
 import {navigationPath} from './routes.mjs';
 
 export function markup(source) {
@@ -67,9 +67,31 @@ export function checkCss(root,file) {
   for(const match of css.matchAll(/url\(\s*(['"]?)([^)'"\s]+)\1\s*\)/g))resourceFile(root,file,match[2]);
 }
 
+function workerModules(root) {
+  const modules=new Set(),pending=[];
+  for(const profile of Object.values(configurationProfiles).flat())if(profile.kind==='worker'&&existsSync(join(root,profile.file))) {
+    const config=readJsonc(root,profile.file);
+    pending.push(resolve(root,dirname(profile.file),config.main));
+  }
+  while(pending.length) {
+    const file=pending.pop();
+    if(!existsSync(file)||modules.has(file))continue;
+    modules.add(file);
+    const source=readFileSync(file,'utf8');
+    const references=[...source.matchAll(/\b(?:import\s+(?:[^'"]*?\s+from\s+)?|export\s+[^'"]*?\s+from\s+)['"](\.[^'"]+)['"]/g),...source.matchAll(/\bimport\s*\(\s*['"](\.[^'"]+)['"]\s*\)/g)];
+    for(const match of references) {
+      let target=resolve(dirname(file),match[1]);
+      if(!extname(target))for(const extension of ['.js','.mjs'])if(existsSync(target+extension)){target+=extension;break;}
+      if(target.startsWith(root+'/')&&/\.(?:js|mjs)$/.test(target))pending.push(target);
+    }
+  }
+  return new Set([...modules].map(file=>file.slice(root.length+1)));
+}
+
 export function staticChecks(root,scope) {
   const files=new Set(scope.files.filter(file=>existsSync(join(root,file)))),navigation=new Set();
   const scriptModes=new Map();
+  const workerModuleFiles=workerModules(root);
   const sourcePages=scope.pages.filter(page=>page.file&&page.sourceExists?.after!==false);
   for(const page of sourcePages)files.add(page.file);
   for(const file of [...files].filter(file=>file.endsWith('.html'))) {
@@ -97,9 +119,9 @@ export function staticChecks(root,scope) {
     else if(file.endsWith('.css'))checkCss(root,file);
     else if(/\.(?:js|mjs|cjs)$/.test(file)) {
       const source=readFileSync(join(root,file),'utf8');
-      // HTML determines browser script grammar. Imported modules use .mjs;
-      // the Pages Worker is Cloudflare's explicitly defined module entrypoint.
-      const modes=scriptModes.get(file)||[file.endsWith('.mjs')||file==='website/_worker.js'?'module':file.endsWith('.cjs')?'commonjs':'classic'];
+      // HTML determines browser script grammar. Worker configurations define
+      // module source roots; imported browser modules use .mjs.
+      const modes=scriptModes.get(file)||[file.endsWith('.mjs')||file==='website/_worker.js'||workerModuleFiles.has(file)?'module':file.endsWith('.cjs')?'commonjs':'classic'];
       for(const mode of modes)syntax(source,file,mode);
     }
     else if(file.endsWith('.json'))syntax(readFileSync(join(root,file),'utf8'),file,'json');

@@ -4,12 +4,13 @@ const $ = selector => document.querySelector(selector);
 const $$ = selector => [...document.querySelectorAll(selector)];
 const esc = value => String(value).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const state = { phase: 'intro', stage: 0, slot: 16, height: 30, chamfer: 1, versions: [], history: [], selected: null, section: false, paused: false };
+const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 let viewer;
 try { viewer = createViewer($('#model-canvas'), $('#viewport')); }
 catch (error) { $('#viewer-error').hidden = false; $('#model-canvas').hidden = true; console.warn('3D preview unavailable:', error.message); }
 if (new URLSearchParams(location.search).get('embed') === '1') document.body.classList.add('embedded');
 const labels = ['六角主体', '端部倒角', '四方通槽', '侧面销孔'];
-let timer = null, queue = [], pending = null, due = 0, remaining = 0, toastTimer;
+let timer = null, queue = [], pending = null, pendingInput = null, due = 0, remaining = 0, toastTimer;
 
 function toast(text) { $('#toast').textContent = text; $('#toast').hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => { $('#toast').hidden = true; }, 3800); }
 function message(role, text) {
@@ -67,10 +68,15 @@ function question(kind) {
   $('#question').innerHTML = `<article class="question-card"><div class="question-kicker">✧ 工程师确认 · ${isSlot ? '01' : '02'}</div><h3>${isSlot ? '四方通槽的边长，按哪个尺寸预览？' : '上下端部的外棱，采用多大的倒角？'}</h3><p>${isSlot ? '示例标注为 16 mm。你可以确认，也可以试着修改。' : '保持总高度不变，从两端外缘去除材料。'}</p><div class="question-options">${(isSlot ? [16, 18] : [1, 2]).map(value => `<button data-answer="${value}">${isSlot ? `${value} × ${value} mm` : `${value} × 45°`}</button>`).join('')}</div><button class="custom-answer" id="custom-answer">用自己的话补充答案 ↗</button></article>`;
   $('#prompt').placeholder = isSlot ? '例如：方槽改成 18 毫米' : '例如：倒角做 1.5 毫米';
   $('#composer-hint').textContent = '回答后继续，不需要重新开始';
+  const field = isSlot ? 'slot' : 'chamfer';
+  if (pendingInput?.field === field) {
+    const input = pendingInput; pendingInput = null;
+    queueMicrotask(() => accept(input.value, input.text));
+  }
 }
 function hideQuestion() { $('#question').hidden = true; $('#question').replaceChildren(); }
 function reset() {
-  clearQueue(); Object.assign(state, { phase: 'intro', stage: 0, slot: 16, height: 30, chamfer: 1, versions: [], history: [], selected: null, section: false, paused: false, operation: null });
+  clearQueue(); pendingInput = null; Object.assign(state, { phase: 'intro', stage: 0, slot: 16, height: 30, chamfer: 1, versions: [], history: [], selected: null, section: false, paused: false, operation: null });
   $('#conversation').replaceChildren(); hideQuestion(); $('#prompt').value = ''; $('#prompt').placeholder = '例如：方槽改成 18 毫米'; $('#composer-hint').textContent = '试着用自己的话修改尺寸';
   $('#section').setAttribute('aria-pressed', 'false'); $('#section-caption').hidden = true; viewer?.section(false); viewer?.view('iso');
   $$('[data-view]').forEach(b => b.classList.toggle('active', b.dataset.view === 'iso'));
@@ -81,7 +87,7 @@ function reset() {
 function start() {
   if (state.paused) { resume(); return; }
   if (state.phase !== 'intro' && state.phase !== 'complete') return;
-  reset(); $('#conversation').replaceChildren(); state.phase = 'reading'; renderProgress(); record('载入脱敏案例图纸，开始模拟建模');
+  const queuedInput = pendingInput; reset(); pendingInput = queuedInput; $('#conversation').replaceChildren(); state.phase = 'reading'; renderProgress(); record('载入脱敏案例图纸，开始模拟建模');
   message('user', '请根据这张图纸建立三维模型，不清楚的尺寸先与我确认。');
   runQueue([
     { text: '正在查看主视图与端面', delay: 1400, action: () => message('assistant', '已载入案例。示例外形为六角柱，对边 30 mm，总高 30 mm。接下来按主体、倒角、方槽逐步预览。') },
@@ -109,6 +115,10 @@ function complete() {
   state.phase = 'complete'; state.operation = null; renderProgress(); $('#prompt').placeholder = '例如：方槽改成 18 毫米'; $('#composer-hint').textContent = '可修改方槽、倒角和总高';
   message('assistant', `半成品已展示：总高 ${state.height} mm，方槽 ${state.slot} × ${state.slot} mm，两端倒角 ${state.chamfer} × 45°。\n侧面销孔尚未加工，演示停在这个检查点。你可以旋转、剖切、回看版本，或继续输入修改要求。`);
   record('完成半成品展示；侧面销孔保留为未完成特征');
+  if (pendingInput?.field === 'height') {
+    const input = pendingInput; pendingInput = null;
+    queueMicrotask(() => edit(input.field, input.value, input.text));
+  }
 }
 function edit(field, value, text) {
   const bounds = { slot: [6, 22], chamfer: [.3, 2.5], height: [24, 45] };
@@ -123,12 +133,12 @@ function send(text) {
   if (/^(暂停|停止|停一下)[。！! ]*$/.test(text)) { pause(); return; }
   if (/^(继续|继续演示)[。！! ]*$/.test(text) && state.paused) { resume(); return; }
   if (/^(开始|开始体验|重新开始|重新体验)[。！! ]*$/.test(text)) { reset(); start(); return; }
-  const normalized = text.replace(/[０-９．]/g, c => String.fromCharCode(c.charCodeAt(0) - 65248));
-  const number = normalized.match(/\d+(?:\.\d+)?/); const value = number ? Number(number[0]) : NaN;
-  if (['slot', 'chamfer'].includes(state.phase)) { if (!number) { message('assistant', '请写出要采用的尺寸数字，或点击上面的选项。'); return; } accept(value, text); return; }
+  const normalized = text.replace(/[０-９．]/g, c => String.fromCharCode(c.charCodeAt(0) - 65248)).replace(/[−－]/g, '-');
+  const number = normalized.match(/[+-]?\d+(?:\.\d+)?/); const value = number ? Number(number[0]) : NaN;
   const field = /方槽|通槽|槽宽|边长/.test(text) ? 'slot' : /倒角/.test(text) ? 'chamfer' : /高度|总高|高改|高为|高[度]?\s*\d/.test(text) ? 'height' : null;
+  if (state.phase === 'intro') { if (field && number) pendingInput = { field, value, text }; start(); return; }
+  if (['slot', 'chamfer'].includes(state.phase)) { if (!number) { message('assistant', '请写出要采用的尺寸数字，或点击上面的选项。'); return; } accept(value, text); return; }
   if (field && number && state.versions.length) { edit(field, value, text); return; }
-  if (state.phase === 'intro') { start(); return; }
   message('user', text);
   message('assistant', pending ? '演示正在进行。你可以暂停后继续；已有模型后，可以输入“方槽改成 18 毫米”“倒角改成 2 毫米”或“高度改成 35 毫米”。' : '这里使用预设剧情，不调用真实模型。你可以输入“方槽改成 18 毫米”“倒角改成 2 毫米”或“高度改成 35 毫米”，查看对应的变化。');
 }
@@ -137,7 +147,7 @@ $('#dialog-close').onclick = () => $('#dialog').close();
 $('#dialog').addEventListener('click', event => { if (event.target === $('#dialog')) { const box = $('#dialog').getBoundingClientRect(); if (event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom) $('#dialog').close(); } });
 $('#start').onclick = start; $('#reset').onclick = () => { reset(); toast('演示已重置，可以重新选择。'); }; $('#pause').onclick = pause;
 $('#conversation').addEventListener('click', event => { if (event.target.closest('#welcome-start')) start(); });
-$('#question').addEventListener('click', event => { const button = event.target.closest('[data-answer]'); if (button) accept(Number(button.dataset.answer)); else if (event.target.closest('#custom-answer')) { $('#prompt').focus(); $('#prompt').scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } });
+$('#question').addEventListener('click', event => { const button = event.target.closest('[data-answer]'); if (button) accept(Number(button.dataset.answer)); else if (event.target.closest('#custom-answer')) { $('#prompt').focus(); $('#prompt').scrollIntoView({ block: 'nearest', behavior: reducedMotion ? 'auto' : 'smooth' }); } });
 $('#prompt-form').onsubmit = event => { event.preventDefault(); const text = $('#prompt').value; $('#prompt').value = ''; send(text); };
 $('#prompt').addEventListener('keydown', event => { if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) { event.preventDefault(); $('#prompt-form').requestSubmit(); } });
 function compare(enabled) { $('#drawing-pane').hidden = !enabled; $('#compare-tab').classList.toggle('active', enabled); $('#model-tab').classList.toggle('active', !enabled); $('#compare-tab').setAttribute('aria-selected', enabled); $('#model-tab').setAttribute('aria-selected', !enabled); }

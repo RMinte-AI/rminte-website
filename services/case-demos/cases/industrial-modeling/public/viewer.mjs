@@ -3,6 +3,7 @@ import { OrbitControls } from './vendor/OrbitControls.mjs';
 
 export function createViewer(canvas, viewport) {
   const status = document.getElementById('viewer-status');
+  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
   renderer.setClearColor(0xffffff, 0);
@@ -11,7 +12,7 @@ export function createViewer(canvas, viewport) {
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(35, 1, .1, 1000);
   const controls = new OrbitControls(camera, canvas);
-  controls.enableDamping = true;
+  controls.enableDamping = !reducedMotion;
   controls.enablePan = false;
   controls.minDistance = 55;
   controls.maxDistance = 210;
@@ -93,7 +94,7 @@ export function createViewer(canvas, viewport) {
   }
   function resize() { const { width, height } = viewport.getBoundingClientRect(); if (!width || !height) return; renderer.setSize(width, height, false); const previousAspect = camera.aspect; camera.aspect = width / height; camera.position.sub(controls.target).multiplyScalar(Math.min(previousAspect, 1) / Math.min(camera.aspect, 1)).add(controls.target); camera.updateProjectionMatrix(); render(); }
   const observer = new ResizeObserver(resize); observer.observe(viewport); canvas.addEventListener('keydown', keydown);
-  renderer.setAnimationLoop(() => { controls.update(); render(); });
+  if (!reducedMotion) renderer.setAnimationLoop(() => { controls.update(); render(); });
   setModel({}); view(); resize();
-  return { setModel, view, section(enabled) { material.clippingPlanes = enabled ? [clip] : []; outline.clippingPlanes = enabled ? [clip] : []; material.needsUpdate = true; outline.needsUpdate = true; render(); }, autoRotate(enabled) { controls.autoRotate = enabled; }, dispose() { observer.disconnect(); canvas.removeEventListener('keydown', keydown); controls.dispose(); renderer.dispose(); } };
+  return { setModel, view, section(enabled) { material.clippingPlanes = enabled ? [clip] : []; outline.clippingPlanes = enabled ? [clip] : []; material.needsUpdate = true; outline.needsUpdate = true; render(); }, autoRotate(enabled) { controls.autoRotate = enabled && !reducedMotion; }, dispose() { observer.disconnect(); canvas.removeEventListener('keydown', keydown); controls.dispose(); renderer.dispose(); } };
 }
