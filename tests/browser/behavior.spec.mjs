@@ -164,7 +164,7 @@ for(const descriptor of run.scope.pages)for(const language of operationLanguages
               if(embedded)await expect(page.locator('#case-demo-frame')).toHaveAttribute('src',new RegExp(item.route+'/'));
               await expect(frame.locator('body')).toBeVisible();
               if(!attempt)await testInfo.attach(`${id} initial`,{body:await surface.screenshot(),contentType:'image/png'});
-              await test.step(`${id}: ${attempt?'reopen':'main click flow'}`,()=>exercise({page,frame,caseName}));
+              await test.step(`${id}: ${attempt?'reopen':'main click flow'}`,()=>exercise({page,frame,caseName,reopen:Boolean(attempt)}));
               expect(await frame.locator('body').evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2),id).toBe(true);
               if(!attempt)await testInfo.attach(`${id} result`,{body:await surface.screenshot(),contentType:'image/png'});
               if(embedded) {
