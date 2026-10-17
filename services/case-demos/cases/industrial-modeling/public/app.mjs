@@ -8,7 +8,7 @@ const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 let viewer;
 try { viewer = createViewer($('#model-canvas'), $('#viewport')); }
 catch (error) { $('#viewer-error').hidden = false; $('#model-canvas').hidden = true; console.warn('3D preview unavailable:', error.message); }
-if (new URLSearchParams(location.search).get('embed') === '1') document.body.classList.add('embedded');
+if (new URLSearchParams(location.search).get('embed') === '1') { document.body.classList.add('embedded'); $('#brand-home').href = './?embed=1'; }
 const labels = ['六角主体', '端部倒角', '四方通槽', '侧面销孔'];
 let timer = null, queue = [], pending = null, pendingInput = null, due = 0, remaining = 0, toastTimer;
 

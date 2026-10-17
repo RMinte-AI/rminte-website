@@ -28,4 +28,5 @@ export default async function({page,frame,caseName,reopen=false}) {
   await canvas.press('Tab');await expect(frame.locator('[data-view="iso"]')).toBeFocused();
   await frame.locator('#versions').click();await frame.locator('[data-version="1"]').click();await expect(frame.locator('#versions')).toContainText('版本 01');
   await frame.locator('#about').click();await frame.locator('#dialog').press('Escape');await expect(frame.locator('#dialog')).not.toBeVisible();
+  await expect(frame.locator('#brand-home')).toHaveAttribute('href','./?embed=1');await frame.locator('#brand-home').click();await expect(frame.locator('body')).toHaveClass(/embedded/);await expect(frame.locator('#status')).toHaveText('等待开始');
 }

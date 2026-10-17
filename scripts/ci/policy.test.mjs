@@ -107,6 +107,11 @@ test('HTML script types are enforced, including when one file has multiple consu
     writeFileSync(join(root,'services/case-demos/worker.mjs'),'export default {};');
     writeFileSync(join(root,'services/case-demos/cases/example/public/embed.js'),'await Promise.resolve();');
     assert.throws(()=>staticChecks(root,{files:['services/case-demos/cases/example/public/embed.js'],pages:[]}),/SyntaxError/);
+    mkdirSync(join(root,'design-preview/engine'),{recursive:true});
+    writeFileSync(join(root,'design-preview/engine/index.html'),'<script type="module">import "./labels.js"; import("./engine.js");</script>');
+    writeFileSync(join(root,'design-preview/engine/labels.js'),'export const label="Preview";');
+    writeFileSync(join(root,'design-preview/engine/engine.js'),'import {label} from "./labels.js"; export {label};');
+    assert.doesNotThrow(()=>staticChecks(root,{files:['design-preview/engine/labels.js','design-preview/engine/engine.js'],pages:[]}));
   }finally{rmSync(root,{recursive:true,force:true});}
 });
 

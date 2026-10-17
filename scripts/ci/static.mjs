@@ -1,4 +1,4 @@
-import {existsSync,readFileSync,statSync,mkdtempSync,rmSync,cpSync} from 'node:fs';
+import {existsSync,readFileSync,statSync,mkdtempSync,rmSync,cpSync,readdirSync} from 'node:fs';
 import {dirname,resolve,extname,join} from 'node:path';
 import {tmpdir} from 'node:os';
 import {execFileSync} from 'node:child_process';
@@ -67,8 +67,19 @@ export function checkCss(root,file) {
   for(const match of css.matchAll(/url\(\s*(['"]?)([^)'"\s]+)\1\s*\)/g))resourceFile(root,file,match[2]);
 }
 
-function workerModules(root) {
-  const modules=new Set(),pending=[];
+function moduleReferences(root,file,source) {
+  const targets=[];
+  const references=[...source.matchAll(/\b(?:import\s+(?:[^'"]*?\s+from\s+)?|export\s+[^'"]*?\s+from\s+)['"](\.[^'"]+)['"]/g),...source.matchAll(/\bimport\s*\(\s*['"](\.[^'"]+)['"]\s*\)/g)];
+  for(const match of references) {
+    let target=resolve(dirname(file),match[1]);
+    if(!extname(target))for(const extension of ['.js','.mjs'])if(existsSync(target+extension)){target+=extension;break;}
+    if(target.startsWith(root+'/')&&/\.(?:js|mjs)$/.test(target))targets.push(target);
+  }
+  return targets;
+}
+
+function moduleGraph(root,entries) {
+  const modules=new Set(),pending=[...entries];
   for(const profile of Object.values(configurationProfiles).flat())if(profile.kind==='worker'&&existsSync(join(root,profile.file))) {
     const config=readJsonc(root,profile.file);
     pending.push(resolve(root,dirname(profile.file),config.main));
@@ -78,20 +89,29 @@ function workerModules(root) {
     if(!existsSync(file)||modules.has(file))continue;
     modules.add(file);
     const source=readFileSync(file,'utf8');
-    const references=[...source.matchAll(/\b(?:import\s+(?:[^'"]*?\s+from\s+)?|export\s+[^'"]*?\s+from\s+)['"](\.[^'"]+)['"]/g),...source.matchAll(/\bimport\s*\(\s*['"](\.[^'"]+)['"]\s*\)/g)];
-    for(const match of references) {
-      let target=resolve(dirname(file),match[1]);
-      if(!extname(target))for(const extension of ['.js','.mjs'])if(existsSync(target+extension)){target+=extension;break;}
-      if(target.startsWith(root+'/')&&/\.(?:js|mjs)$/.test(target))pending.push(target);
-    }
+    pending.push(...moduleReferences(root,file,source));
   }
   return new Set([...modules].map(file=>file.slice(root.length+1)));
+}
+
+function previewModuleEntries(root,files) {
+  const entries=[];
+  const directories=new Set(files.filter(file=>file.startsWith('design-preview/')&&/\.(?:js|mjs)$/.test(file)).map(file=>dirname(join(root,file))));
+  for(const directory of directories)for(const name of readdirSync(directory).filter(name=>/\.html?$/.test(name))) {
+    const html=join(directory,name),source=readFileSync(html,'utf8');
+    for(const node of markup(source))if(node.tagName==='script'&&attr(node,'type')==='module') {
+      const src=attr(node,'src');
+      if(src)entries.push(resolve(directory,src));
+      else entries.push(...moduleReferences(root,html,(node.childNodes||[]).map(child=>child.value||'').join('')));
+    }
+  }
+  return entries;
 }
 
 export function staticChecks(root,scope) {
   const files=new Set(scope.files.filter(file=>existsSync(join(root,file)))),navigation=new Set();
   const scriptModes=new Map();
-  const workerModuleFiles=workerModules(root);
+  const moduleFiles=moduleGraph(root,previewModuleEntries(root,scope.files));
   const sourcePages=scope.pages.filter(page=>page.file&&page.sourceExists?.after!==false);
   for(const page of sourcePages)files.add(page.file);
   for(const file of [...files].filter(file=>file.endsWith('.html'))) {
@@ -121,7 +141,7 @@ export function staticChecks(root,scope) {
       const source=readFileSync(join(root,file),'utf8');
       // HTML determines browser script grammar. Worker configurations define
       // module source roots; imported browser modules use .mjs.
-      const modes=scriptModes.get(file)||[file.endsWith('.mjs')||file==='website/_worker.js'||workerModuleFiles.has(file)?'module':file.endsWith('.cjs')?'commonjs':'classic'];
+      const modes=scriptModes.get(file)||[file.endsWith('.mjs')||file==='website/_worker.js'||moduleFiles.has(file)?'module':file.endsWith('.cjs')?'commonjs':'classic'];
       for(const mode of modes)syntax(source,file,mode);
     }
     else if(file.endsWith('.json'))syntax(readFileSync(join(root,file),'utf8'),file,'json');
