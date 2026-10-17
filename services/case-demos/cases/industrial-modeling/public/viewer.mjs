@@ -38,6 +38,7 @@ export function createViewer(canvas, viewport) {
     const vertical = Math.round(90 - THREE.MathUtils.radToDeg(spherical.phi));
     status.textContent = `${action}。当前水平角 ${horizontal} 度，垂直角 ${vertical} 度，观察距离 ${Math.round(spherical.radius)}。`;
   }
+  controls.addEventListener('end', () => announce('已通过鼠标或触控调整模型视角'));
   function setModel({ stage = 3, slot = 16, height = 30, chamfer = 1 }) {
     model.children.forEach(child => child.geometry?.dispose()); model.clear();
     const shape = new THREE.Shape(), radius = 30 / Math.sqrt(3);

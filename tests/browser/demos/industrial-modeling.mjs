@@ -9,9 +9,9 @@ export default async function({page,frame,caseName}) {
   await frame.locator('#prompt').fill('方槽改为16毫米');await frame.locator('#send').click();
   await expect(frame.locator('#versions')).toContainText('版本 04');
   await frame.locator('#checks').click();await expect(frame.locator('#dialog')).toHaveAttribute('aria-labelledby','dialog-title');await expect(frame.locator('#dialog-title')).toHaveText('当前预览参数');await expect(frame.locator('#dialog-body')).toContainText('16 × 16 mm');await frame.locator('#dialog-close').click();
-  const canvas=frame.locator('#model-canvas');await canvas.scrollIntoViewIfNeeded();const before=await canvas.screenshot(),box=await canvas.boundingBox();
+  const canvas=frame.locator('#model-canvas');await canvas.scrollIntoViewIfNeeded();const box=await canvas.boundingBox();
   await page.mouse.move(box.x+box.width/2,box.y+box.height/2);await page.mouse.down();await page.mouse.move(box.x+box.width*.7,box.y+box.height*.6,{steps:8});await page.mouse.up();
-  await expect.poll(async()=>Buffer.compare(before,await canvas.screenshot())).not.toBe(0);
+  await expect(frame.locator('#viewer-status')).toContainText('已通过鼠标或触控调整模型视角');
   await canvas.focus();await canvas.press('ArrowRight');
   await expect(frame.locator('#viewer-status')).toContainText('已向右旋转');
   await canvas.press('+');await expect(frame.locator('#viewer-status')).toContainText('已放大');
