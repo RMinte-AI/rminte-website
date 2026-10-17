@@ -1,0 +1,15 @@
+{
+  "name": "rminte-case-demos",
+  "main": "worker.mjs",
+  "compatibility_date": "2026-09-26",
+  "workers_dev": false,
+  "preview_urls": false,
+  "routes": [],
+  "assets": {
+    "directory": "cases",
+    "binding": "DEMO_ASSETS",
+    "run_worker_first": true,
+    "html_handling": "none",
+    "not_found_handling": "none"
+  }
+}

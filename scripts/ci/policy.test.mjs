@@ -40,7 +40,7 @@ test('production Markdown, shared dependencies and new production files cannot u
   assert.deepEqual(standalone.languages,['zh']);assert.equal(standalone.contentRoot,'body');
   assert.equal(classify([{status:'M',paths:['docs/example.md']}]).pages.length,0);
   assert.equal(classify([{status:'M',paths:['services/case-access/README.md']}]).pages.length,0);
-  assert.equal(classify([{status:'M',paths:['services/case-demos/assets/example/app.js']}]).caseService,true);
+  assert.equal(classify([{status:'M',paths:['services/case-demos/cases/example/public/app.js']}]).caseService,true);
   assert.equal(classify([{status:'M',paths:['services/case-demos/README.md']}]).pages.length,0);
   assert.equal(classify([{status:'M',paths:['scripts/ci/README.md']}]).infrastructure,false);
   assert.throws(()=>classify([{status:'A',paths:['unclassified-code.py']}]),/No CI scope/);
@@ -50,6 +50,74 @@ test('Owner has no mandatory review material; an empty contributor description i
   assert.doesNotThrow(()=>checkDescription({author:'massif-01',body:''}));
   assert.throws(()=>checkDescription({author:'contributor',body:'## 问题与原因\n<!-- comment only -->'}),/missing/);
   assert.doesNotThrow(()=>checkDescription({author:'contributor',body:['问题与原因','影响范围','验证结果','依据与限制'].map(s=>`## ${s}\n真实说明\n`).join('\n')}));
+});
+
+test('private CAD demo changes require case UI and account-service checks',()=>{
+  for(const file of ['services/case-demos/worker.mjs','services/case-demos/cases/industrial-modeling/public/viewer.mjs']) {
+    const scope=classify([{status:'A',paths:[file]}]);
+    assert.equal(scope.caseService,true);
+    assert.deepEqual(scope.pages.map(page=>page.id),['cases','admin']);
+  }
+});
+
+test('private demo resources resolve within the private asset root and missing files still fail',()=>{
+  const root=mkdtempSync(join(tmpdir(),'rminte-demo-resources-'));
+  const directory=join(root,'services/case-demos/cases/industrial-modeling/public');
+  try {
+    mkdirSync(directory,{recursive:true});
+    writeFileSync(join(directory,'index.html'),'<link rel="stylesheet" href="./style.css"><script src="./app.js"></script>');
+    writeFileSync(join(directory,'style.css'),'body{background:url(./drawing.svg)}');
+    writeFileSync(join(directory,'app.js'),'console.log("demo")');
+    writeFileSync(join(directory,'drawing.svg'),'<svg/>');
+    assert.doesNotThrow(()=>checkHtml(root,'services/case-demos/cases/industrial-modeling/public/index.html'));
+    assert.doesNotThrow(()=>checkCss(root,'services/case-demos/cases/industrial-modeling/public/style.css'));
+    rmSync(join(directory,'drawing.svg'));
+    assert.throws(()=>checkCss(root,'services/case-demos/cases/industrial-modeling/public/style.css'),/missing local resource/);
+    rmSync(join(directory,'app.js'));
+    assert.throws(()=>checkHtml(root,'services/case-demos/cases/industrial-modeling/public/index.html'),/missing local resource/);
+  }finally{rmSync(root,{recursive:true,force:true});}
+});
+
+test('HTML script types are enforced, including when one file has multiple consumers',()=>{
+  const root=mkdtempSync(join(tmpdir(),'rminte-script-types-'));
+  const files=['website/index.html','website/app.js'];
+  try {
+    mkdirSync(join(root,'website'));
+    writeFileSync(join(root,'website/index.html'),'<script src="./app.js"></script>');
+    for(const source of ['await Promise.resolve();','console.log(import.meta.url);','return;']) {
+      writeFileSync(join(root,'website/app.js'),source);
+      assert.throws(()=>staticChecks(root,{files,pages:[]}),/SyntaxError/);
+    }
+    writeFileSync(join(root,'website/index.html'),'<script type="module" src="./app.js"></script>');
+    writeFileSync(join(root,'website/app.js'),'const value=1;export{value};await Promise.resolve();');
+    assert.doesNotThrow(()=>staticChecks(root,{files,pages:[]}));
+    writeFileSync(join(root,'website/second.html'),'<script src="./app.js"></script>');
+    assert.throws(()=>staticChecks(root,{files:[...files,'website/second.html'],pages:[]}),/SyntaxError/);
+    writeFileSync(join(root,'website/app.js'),'const value=;export{value};');
+    assert.throws(()=>staticChecks(root,{files,pages:[]}),/SyntaxError/);
+    writeFileSync(join(root,'website/bundle.mjs'),'const value=1;export{value};');
+    assert.doesNotThrow(()=>staticChecks(root,{files:['website/bundle.mjs'],pages:[]}));
+    mkdirSync(join(root,'services/tianshanos-ota/src'),{recursive:true});
+    writeFileSync(join(root,'services/tianshanos-ota/wrangler.jsonc'),'{"main":"src/index.js"}');
+    writeFileSync(join(root,'services/tianshanos-ota/src/index.js'),'import "./helper.js";export default {};');
+    writeFileSync(join(root,'services/tianshanos-ota/src/helper.js'),'export const value=1;');
+    assert.doesNotThrow(()=>staticChecks(root,{files:['services/tianshanos-ota/src/index.js','services/tianshanos-ota/src/helper.js'],pages:[]}));
+    mkdirSync(join(root,'services/case-demos/cases/example/public'),{recursive:true});
+    writeFileSync(join(root,'services/case-demos/wrangler.jsonc'),'{"main":"worker.mjs"}');
+    writeFileSync(join(root,'services/case-demos/worker.mjs'),'export default {};');
+    writeFileSync(join(root,'services/case-demos/cases/example/public/embed.js'),'await Promise.resolve();');
+    assert.throws(()=>staticChecks(root,{files:['services/case-demos/cases/example/public/embed.js'],pages:[]}),/SyntaxError/);
+    mkdirSync(join(root,'design-preview/engine'),{recursive:true});
+    writeFileSync(join(root,'design-preview/engine/index.html'),'<script type="module">import "./labels.js"; import("./engine.js");</script>');
+    writeFileSync(join(root,'design-preview/engine/labels.js'),'export const label="Preview";');
+    writeFileSync(join(root,'design-preview/engine/engine.js'),'import {label} from "./labels.js"; export {label};');
+    assert.doesNotThrow(()=>staticChecks(root,{files:['design-preview/engine/labels.js','design-preview/engine/engine.js'],pages:[]}));
+    mkdirSync(join(root,'design-preview/engine/vendor/build'),{recursive:true});
+    writeFileSync(join(root,'design-preview/engine/vendor/build/package.json'),'{"type":"module"}');
+    writeFileSync(join(root,'design-preview/engine/vendor/build/entry.js'),'export {value} from "./value.js";');
+    writeFileSync(join(root,'design-preview/engine/vendor/build/value.js'),'export const value=1;');
+    assert.doesNotThrow(()=>staticChecks(root,{files:['design-preview/engine/vendor/build/entry.js','design-preview/engine/vendor/build/value.js'],pages:[]}));
+  }finally{rmSync(root,{recursive:true,force:true});}
 });
 
 test('actual malformed JavaScript, CSS and missing referenced resources are rejected',()=>{
@@ -67,10 +135,10 @@ test('actual malformed JavaScript, CSS and missing referenced resources are reje
     assert.deepEqual(checkHtml(root,'website/index.html'),['/dynamic/','/portal.php','/report.v2','/guide.pdf']);
     writeFileSync(join(root,'website/index.html'),'<img src="/portal.php">');
     assert.throws(()=>checkHtml(root,'website/index.html'),/missing local resource/);
-    mkdirSync(join(root,'services/case-demos/assets/example'),{recursive:true});
-    writeFileSync(join(root,'services/case-demos/assets/example/index.html'),'<main><a href="./">Demo</a></main><script type="module" src="./app.js"></script>');
-    writeFileSync(join(root,'services/case-demos/assets/example/app.js'),'const value=1;export{value};');
-    assert.deepEqual(checkHtml(root,'services/case-demos/assets/example/index.html'),[]);
+    mkdirSync(join(root,'services/case-demos/cases/example/public'),{recursive:true});
+    writeFileSync(join(root,'services/case-demos/cases/example/public/index.html'),'<main><a href="./">Demo</a></main><script type="module" src="./app.js"></script>');
+    writeFileSync(join(root,'services/case-demos/cases/example/public/app.js'),'const value=1;export{value};');
+    assert.deepEqual(checkHtml(root,'services/case-demos/cases/example/public/index.html'),[]);
   }finally{rmSync(root,{recursive:true,force:true});}
 });
 
