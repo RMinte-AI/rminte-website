@@ -138,7 +138,15 @@ function send(text) {
   const number = normalized.match(/[+-]?\d+(?:\.\d+)?/); const value = number ? Number(number[0]) : NaN;
   const field = /方槽|通槽|槽宽|边长/.test(text) ? 'slot' : /倒角/.test(text) ? 'chamfer' : /高度|总高|高改|高为|高[度]?\s*\d/.test(text) ? 'height' : null;
   if (state.phase === 'intro') { if (field && number) pendingInput = { field, value, text }; start(); return; }
-  if (['slot', 'chamfer'].includes(state.phase)) { if (!number) { message('assistant', '请写出要采用的尺寸数字，或点击上面的选项。'); return; } accept(value, text); return; }
+  if (['slot', 'chamfer'].includes(state.phase)) {
+    if (!number) { message('assistant', '请写出要采用的尺寸数字，或点击上面的选项。'); return; }
+    const activeField = state.phase === 'slot' ? 'slot' : 'chamfer';
+    if (field && field !== activeField) {
+      pendingInput = { field, value, text }; message('user', text);
+      message('assistant', `已记录${{slot:'方槽边长',chamfer:'端部倒角',height:'总高'}[field]} ${value} mm。先完成当前问题，到对应步骤时会自动应用。`); return;
+    }
+    accept(value, text); return;
+  }
   if (field && number && state.versions.length) { edit(field, value, text); return; }
   message('user', text);
   message('assistant', pending ? '演示正在进行。你可以暂停后继续；已有模型后，可以输入“方槽改成 18 毫米”“倒角改成 2 毫米”或“高度改成 35 毫米”。' : '这里使用预设剧情，不调用真实模型。你可以输入“方槽改成 18 毫米”“倒角改成 2 毫米”或“高度改成 35 毫米”，查看对应的变化。');
