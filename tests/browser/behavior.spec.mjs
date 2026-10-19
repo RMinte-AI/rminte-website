@@ -10,6 +10,13 @@ for(const descriptor of run.scope.pages)for(const language of operationLanguages
     test.use({viewport:{width,height:900},hasTouch:width===390,locale:language==='zh'?'zh-CN':'en'});
     test('navigation, language and page operation remain usable',async({page,context},testInfo)=>{
       const audit=await setup(page,language);
+      // Only replace the external document. Login, permissions and /preview stay real.
+      for(const item of run.scope.demos.filter(item=>item.kind==='website')){
+        const entry=new URL(item.src);entry.hash='';
+        await page.route(entry.href,route=>route.fulfill({contentType:'text/html',body:`<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"></head><body><h1>Local website preview fixture</h1><button id="act">Count</button><output>0</output><script>
+          document.querySelector('#act').onclick=()=>document.querySelector('output').textContent=+document.querySelector('output').textContent+1;
+        </script></body></html>`}));
+      }
       const route=await inspectRoute(page,descriptor,language,afterURL,'after');
       if(route.kind!=='page') {
         await testInfo.attach('HTTP route transition',{body:Buffer.from(JSON.stringify(route)),contentType:'application/json'});
@@ -119,9 +126,9 @@ for(const descriptor of run.scope.pages)for(const language of operationLanguages
       if(descriptor.id==='cases') {
         const card=page.locator('.cs-card').first();const more=card.locator('.cs-more');await more.click();await expect(more).toHaveAttribute('aria-expanded','true');
         const demo=page.locator('[data-action="demo"]').first();await demo.click();await expect(page.locator('dialog[open]')).toBeVisible();await page.keyboard.press('Escape');await expect(page.locator('dialog[open]')).toHaveCount(0);
-        const assetURLs=run.scope.demos.flatMap(item=>[item.route,...item.files.map(file=>item.route+'/'+file.split('/').map(encodeURIComponent).join('/'))]);
+        const assetURLs=run.scope.demos.flatMap(item=>item.kind==='website'?[]:[item.route,...item.files.map(file=>item.route+'/'+file.split('/').map(encodeURIComponent).join('/'))]);
         for(const url of assetURLs)expect((await page.request.get(afterURL+url)).status(),url).toBe(401);
-        for(const item of run.scope.demos)expect((await page.request.get(afterURL+item.assetPath+'index.html')).status(),item.id+' stays private').toBe(404);
+        for(const item of run.scope.demos.filter(item=>item.kind==='private'))expect((await page.request.get(afterURL+item.assetPath+'index.html')).status(),item.id+' stays private').toBe(404);
         const missing=afterURL+'/api/resources/ci-unregistered';
         const account=await createBrowserAccount();
         try {
@@ -138,51 +145,47 @@ for(const descriptor of run.scope.pages)for(const language of operationLanguages
           await expect(page.locator('#access li').first()).toHaveAttribute('data-state','ok');
           const visited=new Set(),casesURL=page.url();
           const previousURL=`${afterURL}/?lang=${language}`;
-          await page.goto(previousURL,{waitUntil:'domcontentloaded'});
-          await page.goto(casesURL,{waitUntil:'domcontentloaded'});
+          await page.goto(previousURL,{waitUntil:'domcontentloaded'});await page.goto(casesURL,{waitUntil:'domcontentloaded'});
           await expect(page.locator('#access .who')).toHaveText(account.username);
           for(const trigger of await page.locator('[data-action="demo"]').all()) {
             const caseName=await trigger.locator('xpath=ancestor::article').getByRole('heading').innerText();
-            const requested=page.waitForResponse(r=>r.request().method()==='HEAD'&&r.url().startsWith(afterURL+'/api/resources/')&&new URL(r.url()).pathname.endsWith('/demo'));
-            await trigger.click();const response=await requested,id=new URL(response.url()).pathname.split('/')[3];
+            const requested=page.waitForResponse(r=>r.request().method()==='GET'&&r.url().startsWith(afterURL+'/api/resources/')&&new URL(r.url()).pathname.endsWith('/preview'));
+            const openedAt=Date.now();await trigger.click();const response=await requested,id=new URL(response.url()).pathname.split('/')[3];
             const item=run.scope.demos.find(item=>item.id===id);
             if(!item) {
               expect(response.status()).toBe(503);
-              await expect(page.locator('#dialog-body [role=status]')).toContainText(language==='zh'?'演示或资料尚未接入':'not connected yet');
-              await expect(page.locator('#dialog-body [role=status] b')).toHaveText(language==='zh'?'尚未接入':'NOT YET CONNECTED');
+              await expect(page.locator('#case-demo-modal [role=status]')).toContainText(language==='zh'?'演示或资料尚未接入':'not connected yet');
+
               await page.keyboard.press('Escape');await expect(trigger).toBeFocused();continue;
             }
             expect(response.status(),id).toBe(200);
             const modal=page.locator('#case-demo-modal'),close=page.locator('[data-case-demo-close]');
-            const atDemo=()=>{const url=new URL(page.url());return url.origin===afterURL&&(url.pathname===item.route||url.pathname.startsWith(item.route+'/'));};
-            const {default:exercise}=await import(pathToFileURL(join(process.cwd(),item.scenario)).href);
+            const exercise=item.kind==='private'?(await import(pathToFileURL(join(process.cwd(),item.scenario)).href)).default:null;
             for(const url of assetURLs.filter(url=>url===item.route||url.startsWith(item.route+'/'))) {
               const asset=await page.request.head(afterURL+url);expect(asset.status(),url).toBe(200);
               expect(asset.headers()['cache-control'],url).toContain('no-store');expect(asset.headers()['x-frame-options'],url).toBe('SAMEORIGIN');
             }
-            expect((await page.request.get(afterURL+item.route+'/ci-missing.js')).status()).toBe(404);
+            if(item.kind==='private')expect((await page.request.get(afterURL+item.route+'/ci-missing.js')).status()).toBe(404);
             for(const attempt of [0,1]) {
               if(attempt)await trigger.click();
-              await expect.poll(async()=>atDemo()||await modal.isVisible()).toBe(true);
-              const embedded=!atDemo(),frame=embedded?page.frameLocator('#case-demo-frame'):page,surface=embedded?modal:page.locator('body');
-              if(embedded)await expect(page.locator('#case-demo-frame')).toHaveAttribute('src',new RegExp(item.route+'/'));
+              await expect(modal).toBeVisible();await expect(page).toHaveURL(casesURL);
+              const frame=page.frameLocator('#case-demo-frame'),surface=modal;
+              await expect(modal).toHaveAttribute('data-state','ready');if(item.kind==='private')await expect(page.locator('#case-demo-frame')).toHaveAttribute('src',new RegExp(item.route+'/'));
               await expect(frame.locator('body')).toBeVisible();
+              if(!attempt&&item.kind==='private')await testInfo.attach(id+' ready timing',{body:Buffer.from(JSON.stringify({readyMilliseconds:Date.now()-openedAt,limitMilliseconds:30000})),contentType:'application/json'});
               if(!attempt)await testInfo.attach(`${id} initial`,{body:await surface.screenshot(),contentType:'image/png'});
-              await test.step(`${id}: ${attempt?'reopen':'main click flow'}`,()=>exercise({page,frame,caseName,reopen:Boolean(attempt),language,width,testInfo}));
+              if(exercise)await test.step(`${id}: ${attempt?'reopen':'main click flow'}`,()=>exercise({page,frame,caseName,reopen:!!attempt,language,width,testInfo}));
+              else{
+                await expect(frame.locator('h1')).toHaveText('Local website preview fixture');
+                await expect(frame.locator('output')).toHaveText('0');await frame.locator('#act').click();await expect(frame.locator('output')).toHaveText('1');
+              }
               expect(await frame.locator('body').evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2),id).toBe(true);
               if(!attempt)await testInfo.attach(`${id} result`,{body:await surface.screenshot(),contentType:'image/png'});
-              if(embedded) {
-                if(attempt){await close.focus();await page.keyboard.press('Escape');}else await close.click();
-                await expect(modal).not.toBeVisible();
-                await expect.poll(()=>page.frames().filter(frame=>frame.url().startsWith(afterURL+item.route)).length).toBe(0);
-                await expect(page.locator('body')).not.toHaveClass(/case-demo-open/);await expect(trigger).toBeFocused();
-                await page.goBack({waitUntil:'domcontentloaded'});await expect(page).toHaveURL(previousURL);
-                await page.goForward({waitUntil:'domcontentloaded'});await expect(page).toHaveURL(casesURL);
-                await expect(page.locator('#access .who')).toHaveText(account.username);
-              } else {
-                await page.goBack({waitUntil:'domcontentloaded'});await expect(page).toHaveURL(casesURL);
-                await expect(page.locator('#access .who')).toHaveText(account.username);await expect(trigger).toBeVisible();
-              }
+              if(attempt){await close.focus();await page.keyboard.press('Escape');}else await close.click();
+              await expect(modal).not.toBeVisible();await expect(page.locator('#case-demo-frame')).toHaveCount(0);
+              await expect(page.locator('body')).not.toHaveClass(/case-demo-open/);await expect(trigger).toBeFocused();
+              await page.goBack({waitUntil:'domcontentloaded'});await expect(page).toHaveURL(previousURL);
+              await page.goForward({waitUntil:'domcontentloaded'});await expect(page).toHaveURL(casesURL);await expect(page.locator('#access .who')).toHaveText(account.username);
             }
             expect((await page.request.get(afterURL+item.route.replace(/demo$/,'download'))).status()).toBe(403);
             visited.add(id);
@@ -191,7 +194,7 @@ for(const descriptor of run.scope.pages)for(const language of operationLanguages
           expect((await page.request.get(missing+'/demo')).status()).toBe(503);
           expect((await page.request.get(missing+'/download')).status()).toBe(403);
           await account.setPermissions({can_demo:false,can_download:true});
-          await demo.click();await expect(page.locator('#dialog-body [role=status]')).toContainText(language==='zh'?'尚未获得查看演示权限':'not yet authorised');
+          await demo.click();await expect(page.locator('#case-demo-modal [role=status]')).toContainText(language==='zh'?'尚未获得查看演示权限':'not yet authorised');
           await expect(page.locator('#access li').first()).not.toHaveAttribute('data-state','ok');
           for(const url of assetURLs)expect((await page.request.get(afterURL+url)).status(),url).toBe(403);
           expect((await page.request.get(missing+'/demo')).status()).toBe(403);

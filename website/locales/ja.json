@@ -615,6 +615,13 @@
   "Username": "ユーザー名",
   "Enterprise operations": "企業運営",
   "Work email": "勤務先メールアドレス",
+  "Checking access…": "アクセス権を確認しています…",
+  "Loading demo…": "デモを読み込んでいます…",
+  "Your session has expired. Please sign in again.": "セッションの有効期限が切れました。再度ログインしてください。",
+  "Loading has not finished. Please retry or close.": "読み込みが完了していません。再試行するか閉じてください。",
+  "Retry": "再試行",
+  "Intelligent Highway Field Coordination": "高速道路現場のインテリジェント連携",
+  "Shows field sensing, intelligent assessment and coordinated response across toll stations, tunnels, bridges and solar sites.": "料金所、トンネル、橋梁、太陽光発電の各現場で、状況把握、インテリジェントな判断、連携対応を紹介します。",
   "Email:": "メール：",
   "Technology Co., Ltd.": "テクノロジー有限責任会社"
 }

@@ -5,7 +5,6 @@
 ## 文件与入口
 
 - `public/`：独立静态演示，含马赛克示意图、Three.js 与其 MIT 许可。
-- `tests/integration.mjs`：针对实际账号网关与私有资源服务的集成测试。
 - 官网入口：案例 → 工业研发 → AI 汽车研发与工业建模 → 演示。
 - 页面地址：`/api/resources/industrial-modeling/demo/index.html?embed=1`。
 - 私有资源映射：`/industrial-modeling/public/`。
@@ -20,12 +19,6 @@
 
 所有数据为模拟，马赛克素材不包含原始客户图纸。模型是浏览器生成的示意模型，不调用模型 API 或 FreeCAD，不代表制造验收。
 
-## 集成测试
+## 验收入口
 
-启动公共服务 README 中的两个本地服务后，在官网仓库根目录执行：
-
-```sh
-node services/case-demos/cases/industrial-modeling/tests/integration.mjs
-```
-
-测试使用本地测试库创建并删除临时账户，检查匿名、未授权、已授权、撤销权限、文件类型及独立下载权限。不要用于生产账户库。
+业务步骤由 `tests/browser/demos/industrial-modeling.mjs` 维护，中英文 × 桌面/手机覆盖四种预设选择组合、三维操作、步骤回看、内层弹窗、品牌首页和重开。账号权限、私有资源与下载独立性统一走 `services/case-access/tests/integration.mjs` 和公共浏览器流程，不为本案例再维护一份账号测试。执行仓库根目录的 `npm run verify`；只使用临时本地数据。

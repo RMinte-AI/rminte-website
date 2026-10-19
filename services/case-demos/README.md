@@ -12,7 +12,6 @@ case-demos/
     <case-id>/
       README.md               此案例的说明、接入与使用方式
       public/                 HTML、CSS、脚本、模型与素材
-      tests/                  此案例的集成测试
   tests/                      共享服务的测试
 ```
 
@@ -20,10 +19,10 @@ case-demos/
 
 ## 接入一个案例
 
-1. 在 `cases/<case-id>/public/` 放置演示文件，引用使用相对路径。脚本模块使用 `.mjs`，普通浏览器脚本使用 `.js`。
-2. 在 `services/case-access/resources.mjs` 注册该案例的 `demoPath: '/<case-id>/public/'`。只提供给已授权账户的入口应通过此网关，不使用公开旁路 URL。
-3. 若需在案例页弹层展示，在 `website/cases/cases.js` 对应案例项中声明 `demo` 入口，例如 `demo: 'index.html?embed=1'`。没有此声明的案例沿用页面跳转。
-4. 子页面按需发送 `case-demo-height` 消息调整 iframe 高度，发送 `case-demo-close` 关闭外层；父页面校验同源及消息来源。
+1. 在 `cases/<case-id>/public/` 放置演示文件，引用使用相对路径。脚本模块优先使用 `.mjs`；由模块显式导入的桥接文件也可使用 `.js`，不能再重复 classic 加载。
+2. 在 `services/case-access/resources.mjs` 注册该案例的 `demoPath: '/<case-id>/public/'` 和 `demoEntry: 'index.html?embed=1'`。只提供给已授权账户的入口应通过此网关，不使用公开旁路 URL。
+3. 官网通过 `GET /api/resources/:caseId/preview` 读取入口，在唯一大型预览窗口展示；不再在前端单独登记入口或按内容高度调整外窗。
+4. 子页面在可操作首屏完成后发送 `case-demo-ready`，通过 `case-demo-close` 请求关闭；按下文协议接入。外窗尺寸固定，不再接受高度消息。
 
 ## 生产自动部署
 
@@ -57,4 +56,14 @@ npx wrangler@4.151.0 dev --config services/case-demos/wrangler.jsonc --port 8789
 npx wrangler@4.151.0 dev --config services/case-access/wrangler.jsonc --port 8788 --ip 127.0.0.1
 ```
 
-访问 `http://127.0.0.1:8788/cases/`。纯静态预览不模拟账号及权限。各案例的测试命令见其 README。
+访问 `http://127.0.0.1:8788/cases/`。纯静态预览不模拟账号及权限。账号与私有字节鉴权统一由 `services/case-access/tests/integration.mjs` 及公共浏览器流程验收；各案例仅在 `tests/browser/demos/<case-id>.mjs` 维护业务操作。
+
+## 开发商网站与嵌入协议
+
+网站在账号服务的资源表登记固定 HTTPS `demoUrl`，与 `demoPath` 互斥，不需要部署本服务。网站不会被本站代理；官网账号权限只管理入口，不替代开发商自己的访问控制。正式卡片名称、案例 ID 与各语言外层文案由 Owner 确定；测试页不作为正式内容登记。网站通用验收由 behavior.spec.mjs 拦截登记入口，使用自包含的跨源 fixture；不为 website 要求私有演示的业务脚本。真实网站业务另做联调。
+
+私有演示必须支持 `case-demo-ready` 与 `case-demo-close`。先注册嵌入操作，再在可操作首屏完成时发送 ready；有自身登录的可操作登录页也可报告 ready。CAD 在 HTML 页头先设置嵌入布局，再加载样式与三维模块；桥接由 app.mjs 显式导入，reset() 和主要绑定完成后再通知；内部 dialog 优先处理 Escape，没有内部弹窗才请求关闭外层。不要发送高度消息。
+
+外站无需实现消息协议即可嵌入操作；鉴权通过后直接显示网页，由网页管理自身加载状态，外层关闭按钮始终可用。若外站需要请求关闭外窗或报告就绪，可采用同一消息格式，并把父站 origin 固定为双方登记的精确值，例如 `parent.postMessage({type:'case-demo-ready'}, 'https://rminte.com')`；不能反射任意消息来源。父站只接收当前 iframe、精确 origin 和当前操作的 ready/close。iframe 初始 sandbox 为 `allow-scripts allow-same-origin allow-forms`，referrerPolicy 为 no-referrer；不透传本站用户、角色、cookie 或 token，不默认允许顶层跳转、弹窗、相机或麦克风。保留外站 origin 不代表绕过第三方 Cookie 限制，有实际登录需求时另验对应浏览器。
+
+私有演示就绪等待上限为 30 秒；不以 load 代替 ready。外站不等待该通知，也不以 iframe load 声称网站业务已初始化成功。超时销毁该次 iframe，原窗口提供重试与关闭，不断言网站宕机或禁止嵌入。真实开发商构建接入时，记录构建标识、最终 sandbox、实际加载与主要操作；采用消息协议时另记录父站 origin。

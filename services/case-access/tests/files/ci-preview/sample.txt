@@ -1,0 +1,1 @@
+Synthetic local preview download fixture. No customer data.

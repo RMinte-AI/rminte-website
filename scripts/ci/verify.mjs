@@ -79,7 +79,11 @@ try {
   },'No affected internal website navigation.');
   await check('case service integration',run.scope.caseService,async()=>{
     if(!after)throw new Error('Local Pages runtime did not start.');
-    await command(process.execPath,['services/case-access/tests/integration.mjs'],'case-integration',after.runtime,after.env);
+    let noDemo;
+    try {
+      if(run.scope.caseDemos)noDemo=await startServer(root,8790,join(output,'missing-binding-server.log'),{withoutDemoBinding:true});
+      await command(process.execPath,['services/case-access/tests/integration.mjs'],'case-integration',after.runtime,{...after.env,...(noDemo?{RMINTE_MISSING_DEMO_URL:noDemo.url,RMINTE_MISSING_DEMO_RUNTIME:noDemo.runtime}:{})});
+    } finally {if(noDemo)await noDemo.stop();}
     await command(process.execPath,['services/case-access/tests/admin-password.mjs',join(root,'node_modules/wrangler/bin/wrangler.js')],'admin-password',after.runtime,after.env);
     return 'Account service tests ran against temporary local data; connected demos are checked in browser operations.';
   },'No case-access API dependency changed.');

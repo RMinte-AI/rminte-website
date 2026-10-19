@@ -615,6 +615,13 @@
   "Username": "Nombre de usuario",
   "Enterprise operations": "Operaciones empresariales",
   "Work email": "Correo profesional",
+  "Checking access…": "Comprobando el acceso…",
+  "Loading demo…": "Cargando la demostración…",
+  "Your session has expired. Please sign in again.": "Tu sesión ha caducado. Vuelve a iniciar sesión.",
+  "Loading has not finished. Please retry or close.": "La carga no ha terminado. Reinténtalo o cierra la ventana.",
+  "Retry": "Reintentar",
+  "Intelligent Highway Field Coordination": "Coordinación inteligente sobre el terreno en autopistas",
+  "Shows field sensing, intelligent assessment and coordinated response across toll stations, tunnels, bridges and solar sites.": "Muestra la detección sobre el terreno, la evaluación inteligente y la respuesta coordinada en peajes, túneles, puentes e instalaciones solares.",
   "Email:": "Correo electrónico:",
   "Technology Co., Ltd.": "Tecnología, Sociedad de Responsabilidad Limitada"
 }

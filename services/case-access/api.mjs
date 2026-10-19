@@ -67,11 +67,25 @@ export async function handleApi(request,env){
  const user=await session(request,env);
  if(method==='GET'&&path==='/api/session')return json({user:publicUser(user)});
  if(!user)fail(401,'请先登录');
- const resource=path.match(/^\/api\/resources\/([a-z0-9-]+)\/(demo|download)(\/.*)?$/);
+ const resource=path.match(/^\/api\/resources\/([a-z0-9-]+)\/(preview|demo|download)(\/.*)?$/);
  if(resource&&['GET','HEAD'].includes(method)){
   const [,id,kind,tail='']=resource;
-  if(user.role!=='admin'&&!user[kind==='demo'?'can_demo':'can_download'])fail(403,kind==='demo'?'此账号没有查看演示权限':'此账号没有下载资料权限');
+  if(user.role!=='admin'&&!user[kind==='download'?'can_download':'can_demo'])fail(403,kind==='download'?'此账号没有下载资料权限':'此账号没有查看演示权限');
   const r=resources[id];if(!r)fail(503,'该案例的演示或资料尚未接入');
+  if(kind==='preview'){
+   if(tail)fail(404,'接口不存在');
+   if(r.demoPath&&r.demoUrl)fail(503,'演示配置不可用');
+   if(r.demoUrl){
+    let target;try{target=new URL(r.demoUrl);}catch{fail(503,'演示配置不可用');}
+    if(target.protocol!=='https:'||target.username||target.password)fail(503,'演示配置不可用');
+    return json({kind:'website',src:target.href});
+   }
+   if(!r.demoPath||!env.CASE_DEMOS)fail(503,'该案例的演示尚未接入');
+   const base=new URL(`/api/resources/${id}/demo/`,url.origin);
+   let target;try{target=new URL(r.demoEntry,base);}catch{fail(503,'演示配置不可用');}
+   if(typeof r.demoEntry!=='string'||!r.demoEntry||/^(?:[a-z][a-z0-9+.-]*:|\/)/i.test(r.demoEntry)||target.origin!==base.origin||!target.pathname.startsWith(base.pathname)||/[\\]/.test(r.demoEntry))fail(503,'演示配置不可用');
+   return json({kind:'private',src:target.pathname+target.search+target.hash});
+  }
   if(kind==='demo'){
    if(!r.demoPath||!env.CASE_DEMOS)fail(503,'该案例的演示尚未接入');
    const upstream=new URL(r.demoPath+tail.replace(/^\//,''),'https://private-demo.internal');upstream.search=url.search;

@@ -1,3 +1,4 @@
+import { demoReady } from './embed.js';
 import { createViewer } from './viewer.mjs';
 
 const $ = selector => document.querySelector(selector);
@@ -164,6 +165,7 @@ try {
     });
   });
   reset();
+  demoReady();
 } catch (error) {
   $('#viewer-error').hidden = false;
   $('#model-canvas').hidden = true;

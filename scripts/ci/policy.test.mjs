@@ -5,7 +5,7 @@ import {tmpdir} from 'node:os';
 import {join,resolve} from 'node:path';
 import {spawnSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
-import {changedPaths,classify,checkDescription,git,context as getContext} from './scope.mjs';
+import {changedPaths,classify,checkDescription,readDemos,git,context as getContext} from './scope.mjs';
 import {checkHtml,checkCss,syntax,generatedCheck,staticChecks} from './static.mjs';
 import {validateEvidence,gateResult} from './report.mjs';
 import {workerPageManifest,workerPages} from './pages.mjs';
@@ -174,4 +174,14 @@ test('HTTP navigation distinguishes reachable pages, removals, dead links and ex
     await assert.rejects(checkNavigation(base,['/missing'],[]),/HTTP 404/);await assert.rejects(checkNavigation(base,['/page'],[]),/no page declaration/);
     await assert.rejects(observeRoute(base+'/loop',request),/redirect loop/);
   }finally{await new Promise(done=>server.close(done));}
+});
+
+// A website-only registry must not require private Worker assets or headers.
+test('website previews participate in operation scope without a private Worker',()=>{
+ const root=mkdtempSync(join(tmpdir(),'rminte-website-demo-'));
+ try{
+  mkdirSync(join(root,'services/case-access'),{recursive:true});mkdirSync(join(root,'tests/browser/demos'),{recursive:true});
+  writeFileSync(join(root,'services/case-access/resources.mjs'),"export const resources={'example':{demoUrl:'https://preview.example.invalid/'}};");
+  const demos=readDemos(root);assert.equal(demos.length,1);assert.equal(demos[0].kind,'website');assert.deepEqual(demos[0].files,[]);assert.equal(demos[0].directory,undefined);
+ }finally{rmSync(root,{recursive:true,force:true});}
 });

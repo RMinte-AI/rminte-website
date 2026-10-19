@@ -7,7 +7,7 @@
     document.documentElement.classList.add('i18n-loading');
     document.addEventListener('DOMContentLoaded', () => document.documentElement.classList.remove('i18n-loading'), { once: true });
   </script>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="robots" content="noindex">
   <title>应用案例 · RMinte</title>
   <link rel="icon" type="image/png" sizes="512x512" href="../assets/images/favicon.png?v=20261009"><link rel="icon" type="image/svg+xml" sizes="any" href="../assets/images/favicon.svg?v=20261009">
@@ -15,11 +15,11 @@
   <link rel="stylesheet" href="../assets/brand.css?v=d10-1">
   <link rel="stylesheet" href="../assets/styles.css?v=cases-20261013">
   <link rel="stylesheet" href="../assets/case-ui.css?v=d10-1">
-  <link rel="stylesheet" href="cases.css?v=cases-demo-20261014">
+  <link rel="stylesheet" href="cases.css?v=cases-align-20261013">
   <script>
     // ja/ko/es/fr carry their own catalog file; zh and en need none. Resolve the language the way i18n.js does and load only that file.
     (function (up) {
-      var ok = /^(zh|en|ja|ko|es|fr)$/, c = window.RM_CATALOG = { base: up + 'assets/translations/', v: 'supplier-i18n-20261019-2' };
+      var ok = /^(zh|en|ja|ko|es|fr)$/, c = window.RM_CATALOG = { base: up + 'assets/translations/', v: 'preview-review-20261019-merged22' };
       c.load = function () {
         var s; try { s = localStorage.getItem('rm-soft-lang'); } catch (e) {}
         var l = [new URLSearchParams(location.search).get('lang'), (location.hash.match(/^#(zh|en|ja|ko|es|fr)-/) || [])[1], s, window.RM_DEFAULT_LANG].filter(function (x) { return ok.test(x); })[0];
@@ -30,7 +30,7 @@
       // Each CJK face is requested only when its language is shown: every page used to ask for Noto Sans SC, JP and KR (about 0.9 MB of fonts and
       // 210 KB of stylesheet that English, Spanish and French visitors never use). While the head is parsing, document.write keeps the link
       // render-blocking like a static one; i18n.js calls this again (late) when the visitor switches language.
-      var cjk = { zh: 'assets/fonts/noto-sans-sc.css?v=case-suppliers-20261019', ja: 'https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&display=swap', ko: 'https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap' };
+      var cjk = { zh: 'assets/fonts/noto-sans-sc.css?v=cases-20261013', ja: 'https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&display=swap', ko: 'https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap' };
       c.fonts = function (l, late) {
         if (!cjk[l] || document.querySelector('link[data-cjk="' + l + '"]')) return;
         var h = /^https:/.test(cjk[l]) ? cjk[l] : up + cjk[l];
@@ -41,12 +41,12 @@
     })('../');
   </script>
   <script src="../assets/i18n.js?v=catalogs-20261004" defer></script>
-  <script src="../assets/case-auth.js?v=d10-1" defer></script>
+  <script src="../assets/case-auth.js?v=preview-review-20261019-merged22" defer></script>
   <script src="../assets/site-data.js?v=cases-20261013" defer></script>
   <script src="../assets/footer.js?v=d9-nav-1" defer></script>
-  <script src="case-demo.js" defer></script>
-  <link rel="stylesheet" href="case-demo.css">
-  <script src="cases.js?v=supplier-i18n-20261019-2" defer></script>
+  <script src="case-demo.js?v=preview-review-20261019-merged22" defer></script>
+  <link rel="stylesheet" href="case-demo.css?v=preview-review-20261019-merged22">
+  <script src="cases.js?v=preview-review-20261019-merged22" defer></script>
   <script type="module" src="wave.js?v=cases-wave-20261013"></script>
 </head>
 <body class="brand-page cases-body">
@@ -161,9 +161,9 @@
   </div>
 
   <dialog class="cs-dialog" data-bevel aria-labelledby="dialog-title"><div class="cs-dialog-core"><div class="cs-dialog-top"><span class="e"><span class="rm-mark">RMinte</span> · <span data-case-text data-zh="应用案例" data-en="Application cases">应用案例</span></span><button class="contact-close" type="button" aria-label="关闭" data-dialog-close data-i18n-aria-label-zh="关闭" data-i18n-aria-label-en="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div><div id="dialog-body"></div></div></dialog>
-  <dialog id="case-demo-modal" class="case-demo-modal" aria-labelledby="case-demo-title">
-    <div class="case-demo-head"><h2 id="case-demo-title"></h2><button type="button" class="contact-close" data-case-demo-close aria-label="关闭" data-i18n-aria-label-zh="关闭" data-i18n-aria-label-en="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
-    <div class="case-demo-content"><iframe id="case-demo-frame" title="演示" data-i18n-title-zh="演示" data-i18n-title-en="Demo"></iframe></div>
+<dialog id="case-demo-modal" class="case-demo-modal" aria-labelledby="case-demo-title">
+    <div class="case-demo-head"><h2 id="case-demo-title"></h2><button type="button" class="contact-close" data-case-demo-close aria-label="关闭" data-i18n-aria-label-zh="关闭" data-i18n-aria-label-en="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
+    <div class="case-demo-content"><div class="case-demo-mount"></div><div class="case-demo-status"><p role="status" aria-live="polite"></p><button type="button" class="cs-pill primary" hidden></button></div></div>
   </dialog>
 </body>
 </html>

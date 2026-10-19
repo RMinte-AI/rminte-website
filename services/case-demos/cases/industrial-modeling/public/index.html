@@ -5,7 +5,7 @@
   <meta name="theme-color" content="#f5f7fb"><meta name="description" content="图纸工坊互动演示：体验工程师与建模助手协作确认尺寸、逐步建立三维模型。全部使用模拟数据。">
   <title>图纸工坊 · 互动体验</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%234768dd'/%3E%3Cpath d='m16 6 9 5v10l-9 5-9-5V11Zm0 10v10M7 11l9 5 9-5M16 6v10' fill='none' stroke='white' stroke-width='1.5'/%3E%3C/svg%3E">
-  <script src="./embed.js"></script>
+  <script>if(new URLSearchParams(location.search).get('embed')==='1')document.documentElement.classList.add('embedded');</script>
   <link rel="stylesheet" href="./style.css">
   <script type="importmap">{"imports":{"three":"./vendor/three.module.mjs"}}</script>
 </head>
@@ -18,7 +18,7 @@
 </header>
 <main id="workspace">
   <section class="intro"><div><p class="eyebrow">DRAWING TO MODEL / 交互体验</p><h1>你的判断，让模型更进一步。</h1><p class="intro-copy">选择两个问题的答案，体验与建模助手一起，把细节逐一确认。</p></div><span class="privacy-note"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 6v6c0 5 8 9 8 9s8-4 8-9V6Z"/><path d="m8 12 3 3 5-6"/></svg>图纸脱敏 · 全程模拟数据</span></section>
-  <div class="workspace-heading"><div><div class="breadcrumb">体验案例 <span>/</span> DEMO-003</div><div class="title-line"><h2>六角扳头</h2><span id="status" class="state-label">等待开始</span></div></div><div class="heading-actions"><button class="button subtle" id="reset">↻ 重新体验</button><button class="button primary" id="start" disabled>开始体验 <span>→</span></button></div></div>
+  <div class="workspace-heading"><div><div class="breadcrumb">体验案例 <span>/</span> DEMO-003</div><div class="title-line"><h2>六角扳头</h2><span id="status" class="state-label">等待开始</span></div></div><div class="heading-actions"><button class="button subtle" id="reset">↻ 重新体验</button><button class="button primary" id="start">开始体验 <span>→</span></button></div></div>
   <div class="workbench">
     <section class="model-panel" aria-label="模型与图纸工作区">
       <div class="model-topbar"><div class="view-tabs" role="group" aria-label="工作区视图"><button aria-pressed="false" id="model-tab">◇ 三维模型</button><button aria-pressed="true" id="compare-tab" class="active">▧ 对照图纸</button></div><button class="version-button" id="steps" disabled>建模步骤</button></div>
