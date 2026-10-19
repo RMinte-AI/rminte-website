@@ -219,13 +219,15 @@ test.describe('unified case preview',()=>{
  });
 
  test('real Cookie-writing logins finish in order after cancelling the first form',async({page})=>{
-  const a=await createBrowserAccount(),b=await createBrowserAccount();let release;
+  const a=await createBrowserAccount(),b=await createBrowserAccount(),testIP='192.0.2.19';let release;
   try{
-   await b.setPermissions({can_demo:true,can_download:false});await setup(page,'en');let count=0;
+   await b.setPermissions({can_demo:true,can_download:false});await setup(page,'en');
+   // Keep this real-login regression out of the other local clients' login-IP budget.
+   await page.setExtraHTTPHeaders({'CF-Connecting-IP':testIP});let count=0;
    await page.route('**/api/login',async route=>{
     count++;if(count!==1){await route.continue();return;}
     // Isolated Node fetch holds the actual Set-Cookie, not just a mock JSON body.
-    const response=await fetch(afterURL+'/api/login',{method:'POST',headers:{Origin:afterURL,'Content-Type':'application/json'},body:route.request().postData()});
+    const response=await fetch(afterURL+'/api/login',{method:'POST',headers:{Origin:afterURL,'Content-Type':'application/json','CF-Connecting-IP':testIP},body:route.request().postData()});
     const body=await response.text(),headers=Object.fromEntries(response.headers.entries());
     expect(response.status).toBe(200);release=()=>route.fulfill({status:response.status,headers,body});
    });

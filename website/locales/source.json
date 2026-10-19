@@ -4674,17 +4674,19 @@
     ]
   },
   {
-    "zh": "电子邮箱：xiaoyi@botropy.com",
-    "en": "Email: xiaoyi@botropy.com",
+    "zh": "电子邮箱：",
+    "en": "Email:",
     "sources": [
-      "cases/cases.js"
+      "cases/cases.js.COPY.contactEmail"
     ]
   },
   {
-    "zh": "电子邮箱：304008097@qq.com",
-    "en": "Email: 304008097@qq.com",
+    "zh": "科技有限公司",
+    "en": "Technology Co., Ltd.",
     "sources": [
-      "cases/cases.js"
+      "cases/cases.js.cases.0.supplier.suffix",
+      "cases/cases.js.cases.8.supplier.suffix",
+      "cases/cases.js.cases.11.supplier.suffix"
     ]
   }
 ]
