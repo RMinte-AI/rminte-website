@@ -46,6 +46,7 @@ let source;
 await check('syntax and resources',true,()=>{source=staticChecks(root,run.scope);return {checked:source.checked,navigationTargets:source.navigation.length};});
 requirePassing('Source validation');
 await check('diff whitespace',true,()=>{execFileSync('git',['diff','--check','--merge-base',run.baseSha,run.headSha,'--'],{cwd:root,stdio:'pipe'});return 'PR difference has no whitespace errors.';});
+await check('shared footer consistency and coverage',true,()=>command(process.execPath,['website/scripts/build-footer.mjs','--check'],'footer'));
 await check('font subset',run.scope.fonts,()=>command('python3',['website/scripts/build-fonts.py','--check'],'fonts'),'No Chinese copy or font dependency changed.');
 await check('service brand',run.scope.brand,()=>command(process.execPath,['scripts/build-service-brand.mjs','--check'],'brand'),'No shared brand dependency changed.');
 await check('gallery EXIF',run.scope.exif,()=>command(process.execPath,['website/scripts/extract-gallery-exif.mjs','--check'],'exif'),'No gallery data or photo changed.');
