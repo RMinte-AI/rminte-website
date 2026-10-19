@@ -12,7 +12,7 @@
   ];
   // Index = position in caseIds (the resource routes), so the order here never changes; each card sits under its group.
   const cases = [
-    {group: 0, supplier: {name: {zh: '成都博熵科技有限公司'}, pinyin: 'Chengdu Boshang Keji Youxian Gongsi', email: 'xiaoyi@botropy.com'}, name: {zh: 'AI 数字收费员', en: 'AI Digital Toll Operator'}, desc: {zh: '面向收费业务的 AI 应用，探索数字收费员参与业务服务的方式。', en: 'An AI application for toll operations, exploring how a digital operator can take part in the service.'}},
+    {group: 0, supplier: {name: {zh: '成都博熵科技有限公司'}, pinyin: 'Chengdu Boshang', suffix: {zh: '科技有限公司', en: 'Technology Co., Ltd.'}, email: 'xiaoyi@botropy.com'}, name: {zh: 'AI 数字收费员', en: 'AI Digital Toll Operator'}, desc: {zh: '面向收费业务的 AI 应用，探索数字收费员参与业务服务的方式。', en: 'An AI application for toll operations, exploring how a digital operator can take part in the service.'}},
     {group: 1, name: {zh: 'AI 信息资产审计', en: 'AI Information Asset Audit'}, desc: {zh: '围绕信息资产开展 AI 审计，辅助审阅与整理相关材料。', en: 'AI-assisted audit of information assets, helping review and organise the related materials.'}},
     {group: 2, name: {zh: '基层事务 AI 助理', en: 'Community Affairs AI Assistant'}, desc: {zh: '面向基层日常事务，探索 AI 辅助处理与信息整理。', en: 'Exploring AI support for everyday community affairs, from handling to organising information.'}},
     {group: 1, name: {zh: 'AI 节能调度专家', en: 'AI Energy Dispatch Expert'}, desc: {zh: '将 AI 应用于节能与调度场景，辅助分析业务中的能源使用与调度问题。', en: 'AI for energy saving and dispatch, helping analyse energy use and scheduling in the business.'}},
@@ -20,7 +20,7 @@
     {group: 3, name: {zh: 'AI 公文写作助手', en: 'AI Official Writing Assistant'}, desc: {zh: '面向公文写作场景，提供 AI 辅助写作的应用入口。', en: 'An entry point for AI-assisted writing of official documents.'}},
     {group: 3, name: {zh: 'AI 企业档案管理', en: 'AI Enterprise Archive Management'}, desc: {zh: '结合 OCR 与知识库，让企业档案进入可识别、可查询的工作流程。', en: 'Uses OCR and a knowledge base to bring enterprise archives into a searchable workflow.'}},
     {group: 2, name: {zh: '无人机机场 AI 分析师', en: 'Drone Airport AI Analyst'}, desc: {zh: '面向森林防火误报与户外活动人员探测，开展无人机影像分析。', en: 'Drone imagery analysis for false fire alarms in forests and detection of people in outdoor activity.'}},
-    {group: 4, demo: 'index.html?embed=1', supplier: {name: {zh: '捷思共创（成都）科技有限公司'}, pinyin: 'Jiesi Gongchuang (Chengdu) Keji Youxian Gongsi', email: '304008097@qq.com'}, name: {zh: 'AI 汽车研发与工业建模', en: 'AI Automotive R&D and Industrial Modelling'}, desc: {zh: '覆盖零件平面图转 3D、装配建模、工业焊接机器人编程与汽车安全检测。', en: 'Covers part drawings to 3D, assembly modelling, industrial welding-robot programming and automotive safety inspection.'}},
+    {group: 4, demo: 'index.html?embed=1', supplier: {name: {zh: '捷思共创（成都）科技有限公司'}, pinyin: 'Jiesi Gongchuang (Chengdu)', suffix: {zh: '科技有限公司', en: 'Technology Co., Ltd.'}, email: '304008097@qq.com'}, name: {zh: 'AI 汽车研发与工业建模', en: 'AI Automotive R&D and Industrial Modelling'}, desc: {zh: '覆盖零件平面图转 3D、装配建模、工业焊接机器人编程与汽车安全检测。', en: 'Covers part drawings to 3D, assembly modelling, industrial welding-robot programming and automotive safety inspection.'}},
     {group: 3, name: {zh: '刑事律师材料与线索 AI 整理师', en: 'AI Organiser for Criminal Defence Materials and Leads'}, desc: {zh: '面向刑事律师工作中的材料与线索整理，辅助组织已有信息。', en: 'Helps criminal defence lawyers organise case materials and leads from existing information.'}},
     {group: 4, name: {zh: 'AI 汽车功能安全检测', en: 'AI Automotive Functional Safety Inspection'}, desc: {zh: '聚焦汽车功能安全检测场景，展示 AI 在专业检测工作中的应用。', en: 'Focused on functional safety inspection of vehicles, showing AI in professional inspection work.'}}
   ];
@@ -97,8 +97,8 @@
     });
     root.querySelectorAll('[data-supplier]').forEach((element) => {
       const supplier = cases[Number(element.dataset.supplier)].supplier;
-      // A supplied name wins for this language; otherwise use the registered pinyin.
-      write(element, supplier.name[lang] || supplier.pinyin);
+      // Prefer a supplied full name; otherwise keep proper names in pinyin and translate the company suffix.
+      write(element, supplier.name[lang] || `${supplier.pinyin} ${RM_I18N.text(supplier.suffix, lang)}`);
     });
   }
   const setPair = (element, pair) => { element.dataset.zh = pair.zh; element.dataset.en = pair.en; };
