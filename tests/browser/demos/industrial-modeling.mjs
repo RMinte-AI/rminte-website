@@ -1,6 +1,6 @@
 import {expect} from '@playwright/test';
 
-export default async function({page,frame,caseName,reopen=false,language,width}) {
+export default async function({page,frame,caseName,reopen=false,language,width,testInfo}) {
   expect(caseName).toMatch(/汽车研发与工业建模|Automotive R&D and Industrial Modelling/);
   await expect(frame.locator('#viewer-error')).toBeHidden();
   await expect(frame.locator('#status')).toHaveText('等待开始');
@@ -20,6 +20,12 @@ export default async function({page,frame,caseName,reopen=false,language,width})
   await expect(frame.locator('#status')).toHaveText('半成品已就绪');
   await expect(frame.locator('#progress-count')).toHaveText('3 / 3 步');
   await expect(frame.locator('#conversation')).toContainText(`方槽 ${slot} × ${slot} mm，两端倒角 ${chamfer} × 45°`);
+  await testInfo.attach('industrial-modeling completed',{body:await page.locator('#case-demo-modal').screenshot(),contentType:'image/png'});
+  await frame.locator('#model-tab').focus();await frame.locator('#model-tab').press('Enter');
+  await expect(frame.locator('#drawing-pane')).toBeHidden();await expect(frame.locator('#model-tab')).toHaveAttribute('aria-pressed','true');
+  await frame.locator('#model-tab').press('Tab');await expect(frame.locator('#compare-tab')).toBeFocused();
+  await frame.locator('#compare-tab').press('Space');await expect(frame.locator('#drawing-pane')).toBeVisible();
+  await expect(frame.locator('#compare-tab')).toHaveAttribute('aria-pressed','true');
   await frame.locator('[data-view="front"]').click();
   await frame.locator('#fit').click();
   await expect(frame.locator('[data-view="front"]')).toHaveAttribute('aria-pressed','true');

@@ -619,5 +619,9 @@
   "Loading demo…": "데모를 불러오는 중…",
   "Your session has expired. Please sign in again.": "로그인 세션이 만료되었습니다. 다시 로그인해 주세요.",
   "Loading has not finished. Please retry or close.": "아직 불러오기가 완료되지 않았습니다. 다시 시도하거나 닫아 주세요.",
-  "Retry": "다시 시도"
+  "Retry": "다시 시도",
+  "Intelligent Highway Field Coordination": "고속도로 현장 지능형 협업",
+  "Shows field sensing, intelligent assessment and coordinated response across toll stations, tunnels, bridges and solar sites.": "요금소, 터널, 교량, 태양광 현장에서 현장 감지, 지능형 판단, 협업 대응을 보여줍니다.",
+  "Email: xiaoyi@botropy.com": "이메일: xiaoyi@botropy.com",
+  "Email: 304008097@qq.com": "이메일: 304008097@qq.com"
 }

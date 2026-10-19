@@ -182,7 +182,6 @@ test('website previews participate in operation scope without a private Worker',
  try{
   mkdirSync(join(root,'services/case-access'),{recursive:true});mkdirSync(join(root,'tests/browser/demos'),{recursive:true});
   writeFileSync(join(root,'services/case-access/resources.mjs'),"export const resources={'example':{demoUrl:'https://preview.example.invalid/'}};");
-  writeFileSync(join(root,'tests/browser/demos/example.mjs'),'export default async()=>{};');
   const demos=readDemos(root);assert.equal(demos.length,1);assert.equal(demos[0].kind,'website');assert.deepEqual(demos[0].files,[]);assert.equal(demos[0].directory,undefined);
  }finally{rmSync(root,{recursive:true,force:true});}
 });

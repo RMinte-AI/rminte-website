@@ -133,7 +133,7 @@ function compare(enabled) {
   $('#drawing-pane').hidden = !enabled;
   for (const [id, active] of [['compare-tab', enabled], ['model-tab', !enabled]]) {
     $(`#${id}`).classList.toggle('active', active);
-    $(`#${id}`).setAttribute('aria-selected', String(active));
+    $(`#${id}`).setAttribute('aria-pressed', String(active));
   }
 }
 $('#model-tab').onclick = () => compare(false);

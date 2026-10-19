@@ -1,6 +1,6 @@
 import {test,expect} from '@playwright/test';
 import {createServer} from 'node:http';
-import {active,setup,afterURL} from './helpers.mjs';
+import {active,setup,afterURL,createBrowserAccount} from './helpers.mjs';
 
 const account={id:'fixture',username:'local-preview',role:'user',can_demo:true,can_download:false};
 let server,foreign;
@@ -28,7 +28,7 @@ async function boot(page,language='en',source='/ready'){
   await setup(page,language);
   await page.route('**/api/session',route=>route.fulfill({json:{user:account}}));
   // This fixture tests browser mechanics; integration.mjs tests the real endpoint separately.
-  await page.route('**/api/resources/*/preview',route=>route.fulfill({json:{kind:'website',src:foreign+source}}));
+  await page.route('**/api/resources/*/preview',route=>route.fulfill({json:{kind:'private',src:foreign+source}}));
   await page.goto(afterURL+'/cases/?lang='+language);await page.evaluate(()=>document.fonts.ready);
   await expect(page.locator('#access .who')).toHaveText(account.username);
 }
@@ -102,7 +102,7 @@ test.describe('unified case preview',()=>{
    await page.keyboard.press('Escape');
   }
   await page.route('**/api/resources/*/preview',route=>route.abort());await trigger(page).click();await expect(modal(page)).toContainText('try again later');await page.keyboard.press('Escape');
-  await page.route('**/api/resources/*/preview',route=>route.fulfill({json:{kind:'website',src:foreign+'/silent'}}));
+  await page.route('**/api/resources/*/preview',route=>route.fulfill({json:{kind:'private',src:foreign+'/silent'}}));
   await page.clock.install();await trigger(page).click();await expect(page.locator('#case-demo-frame')).toHaveCount(1);
   await page.evaluate(()=>{window.oldPreviewWindow=document.querySelector('iframe#case-demo-frame').contentWindow;});
   await expect(page.locator('[data-case-demo-close]')).toBeFocused();
@@ -211,11 +211,54 @@ test.describe('unified case preview',()=>{
   await trigger(page).click();await expect.poll(()=>requests.length).toBe(1);
   await page.evaluate(()=>document.querySelectorAll('[data-action=demo]')[4].click());await expect.poll(()=>requests.length).toBe(2);
   await requests[1].fulfill({json:{kind:'website',src:foreign+'/ready'}});await ready(page);const geometry=await dimensions(page);
-  await settleLateResponse(page,requests[0],{json:{kind:'website',src:foreign+'/silent'}});await ready(page);
+  await settleLateResponse(page,requests[0],{json:{kind:'private',src:foreign+'/silent'}});await ready(page);
   await page.evaluate(origin=>dispatchEvent(new MessageEvent('message',{origin,source:document.querySelector('#case-demo-frame').contentWindow,data:{type:'case-demo-height',height:9999}})),foreign);
   equalGeometry(await dimensions(page),geometry);
   await page.route('**/api/logout',route=>route.fulfill({json:{ok:true}}));
   await page.evaluate(()=>document.querySelector('#access button.txt').click());await expect(modal(page)).not.toBeVisible();await expect(page.locator('#case-demo-frame')).toHaveCount(0);
+ });
+
+ test('real Cookie-writing logins finish in order after cancelling the first form',async({page})=>{
+  const a=await createBrowserAccount(),b=await createBrowserAccount();let release;
+  try{
+   await b.setPermissions({can_demo:true,can_download:false});await setup(page,'en');let count=0;
+   await page.route('**/api/login',async route=>{
+    count++;if(count!==1){await route.continue();return;}
+    // Isolated Node fetch holds the actual Set-Cookie, not just a mock JSON body.
+    const response=await fetch(afterURL+'/api/login',{method:'POST',headers:{Origin:afterURL,'Content-Type':'application/json'},body:route.request().postData()});
+    const body=await response.text(),headers=Object.fromEntries(response.headers.entries());
+    expect(response.status).toBe(200);release=()=>route.fulfill({status:response.status,headers,body});
+   });
+   await page.goto(afterURL+'/cases/?lang=en');await expect(page.locator('#access [data-action=login]')).toBeVisible();
+   const open=page.locator('[data-action=demo][data-selected="8"]');await open.click();
+   await page.locator('#account').fill(a.username);await page.locator('#password').fill(a.password);await page.locator('#login-form [type=submit]').click();await expect.poll(()=>!!release).toBe(true);
+   await page.keyboard.press('Escape');await open.click();await page.locator('#account').fill(b.username);await page.locator('#password').fill(b.password);await page.locator('#login-form [type=submit]').click();
+   await page.evaluate(()=>new Promise(requestAnimationFrame));expect(count).toBe(1);
+   await release();release=null;await ready(page);expect(count).toBe(2);
+   const identity=await page.evaluate(async()=>({shared:CASE_AUTH.user,actual:(await(await fetch('/api/session')).json()).user}));
+   expect(identity.shared.id).toBe(b.id);expect(identity.actual.id).toBe(b.id);expect(identity.shared.can_demo).toBe(true);expect(identity.actual.can_demo).toBe(true);
+   await b.setPermissions({can_demo:false,can_download:false});await page.evaluate(()=>CASE_AUTH.refresh());
+   await expect(modal(page)).not.toBeVisible();await expect(page.locator('#case-demo-frame')).toHaveCount(0);
+  }finally{if(release)await release();await a.remove();await b.remove();}
+ });
+ for(const phase of ['checking','loading'])test(`late Japanese catalog updates ${phase} and the original ready deadline`,async({page})=>{
+  await boot(page,'en','/silent');let catalog,descriptor;
+  await page.route('**/assets/translations/ja.js*',route=>{catalog=route;});
+  if(phase==='checking')await page.route('**/api/resources/*/preview',route=>{descriptor=route;});
+  await page.locator('[data-lang-toggle]').click();await page.locator('[data-language=ja]').click();await expect.poll(()=>!!catalog).toBe(true);
+  await page.clock.install();await trigger(page).click();
+  if(phase==='checking')await expect.poll(()=>!!descriptor).toBe(true);else await expect(page.locator('#case-demo-frame')).toHaveCount(1);
+  await page.evaluate(()=>{window.languageFrame=document.querySelector('#case-demo-frame');});
+  await page.clock.fastForward(15000);await catalog.continue();await expect(page.locator('html')).toHaveAttribute('lang','ja');
+  await expect(modal(page).locator('[role=status]')).toHaveText(phase==='checking'?'アクセス権を確認しています…':'デモを読み込んでいます…');
+  if(phase==='checking'){
+   await descriptor.fulfill({json:{kind:'private',src:foreign+'/silent'}});await expect(page.locator('#case-demo-frame')).toHaveCount(1);
+   await expect(modal(page).locator('[role=status]')).toHaveText('デモを読み込んでいます…');await page.clock.fastForward(15000);
+  }else expect(await page.evaluate(()=>window.languageFrame===document.querySelector('#case-demo-frame'))).toBe(true);
+  await page.clock.fastForward(15001);await expect(modal(page)).toHaveAttribute('data-state','status');
+  await expect(modal(page).locator('[role=status]')).toHaveText('読み込みが完了していません。再試行するか閉じてください。');
+  await expect(modal(page).locator('.case-demo-status button')).toHaveText('再試行');
+  await page.keyboard.press('Escape');await expect(trigger(page)).toBeFocused();
  });
 
  test('preview locks background scrolling and final exit restores it',async({page})=>{

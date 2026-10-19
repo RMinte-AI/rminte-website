@@ -4658,5 +4658,33 @@
     "sources": [
       "cases/cases.js"
     ]
+  },
+  {
+    "zh": "高速公路现场智能协同",
+    "en": "Intelligent Highway Field Coordination",
+    "sources": [
+      "cases/cases.js"
+    ]
+  },
+  {
+    "zh": "面向收费站、隧道、桥梁与光伏场景，展示现场感知、智能研判和协同处置。",
+    "en": "Shows field sensing, intelligent assessment and coordinated response across toll stations, tunnels, bridges and solar sites.",
+    "sources": [
+      "cases/cases.js"
+    ]
+  },
+  {
+    "zh": "电子邮箱：xiaoyi@botropy.com",
+    "en": "Email: xiaoyi@botropy.com",
+    "sources": [
+      "cases/cases.js"
+    ]
+  },
+  {
+    "zh": "电子邮箱：304008097@qq.com",
+    "en": "Email: 304008097@qq.com",
+    "sources": [
+      "cases/cases.js"
+    ]
   }
 ]

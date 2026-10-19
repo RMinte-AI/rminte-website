@@ -1,5 +1,5 @@
 window.CASE_AUTH = (()=>{
- let user=null, generation=0, query=0;
+ let user=null, generation=0, query=0, writes=Promise.resolve();
  // Copy of the authorised-access panel on the cases page (#access). Every string is a zh/en pair that cases.js paints in the visitor's language;
  // the admin console is Chinese only and has no #access, so render() does nothing there.
  const PANEL={
@@ -35,7 +35,7 @@ window.CASE_AUTH = (()=>{
    [[PANEL.demos,user.can_demo],[PANEL.downloads,user.can_download]].forEach(([label,granted])=>{const item=node('li');if(granted)item.dataset.state='ok';item.append(node('span','',label),node('span','',granted?PANEL.on:PANEL.off));list.append(item);});
    const row=node('div','row');
    if(user.role==='admin'){const link=node('a','cs-pill ghost',PANEL.admin);link.href='/admin/';row.append(link);}
-   const out=node('button','txt',PANEL.signOut);out.type='button';out.onclick=async()=>{try{++generation;await api('/api/logout',{method:'POST'});++generation;user=null;render();window.dispatchEvent(new Event('case-auth-change'));}catch(e){render(e);}};
+   const out=node('button','txt',PANEL.signOut);out.type='button';out.onclick=async()=>{try{await logout();}catch(e){render(e);}};
    row.append(out);panel.append(who,list,row);
   }
   if(problem){const note=problem.unavailable?node('div','cs-msg',PANEL.unavailable):node('div','cs-msg');if(!problem.unavailable)note.textContent=problem.message;panel.append(note);}
@@ -50,11 +50,22 @@ window.CASE_AUTH = (()=>{
   if(problem)throw problem;
   user=result.user;render();return user;
  }
- async function login(username,password){
-  const version=++generation;
-  const result=await api('/api/login',{method:'POST',body:JSON.stringify({username,password})});
-  if(version===generation){++generation;user=result.user;render();}
-  return user;
+ // Serialize the complete Cookie-writing operation, including the user commit.
+ // A rejected operation still rejects its caller; the next submitted write can run.
+ function writeSession(action){
+  const run=async()=>{++generation;try{return await action();}finally{++generation;}};
+  const result=writes.then(run,run);writes=result;return result;
  }
- return {api,refresh,login,render,get user(){return user;}};
+ function login(username,password){return writeSession(async()=>{
+  const result=await api('/api/login',{method:'POST',body:JSON.stringify({username,password})});
+  user=result.user;render();return user;
+ });}
+ function logout(){return writeSession(async()=>{
+  await api('/api/logout',{method:'POST'});user=null;render();window.dispatchEvent(new Event('case-auth-change'));
+ });}
+ function changePassword(passwords){return writeSession(async()=>{
+  await api('/api/admin/password',{method:'POST',body:JSON.stringify(passwords)});
+  user=null;render();window.dispatchEvent(new Event('case-auth-change'));
+ });}
+ return {api,refresh,login,logout,changePassword,render,get user(){return user;}};
 })();

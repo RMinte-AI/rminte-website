@@ -31,16 +31,17 @@ window.CASE_DEMO = (() => {
     if(!modal.open){modal.showModal();document.body.classList.add('case-demo-open');}
     measure();close.focus({preventScroll:true});
   }
-  function load(op,descriptor,label,waiting,timeout,retryLabel,retry){
+  function load(op,descriptor,label,waiting,onTimeout){
     if(!valid(op))return;
     const frame=document.createElement('iframe');frame.id='case-demo-frame';frame.title=label;
     frame.referrerPolicy='no-referrer';frame.setAttribute('sandbox','allow-scripts allow-same-origin allow-forms');
-    frame.tabIndex=-1;frame.inert=true;
+    if(descriptor.kind==='private'){frame.tabIndex=-1;frame.inert=true;}
     op.frame=frame;op.origin=new URL(descriptor.src,location.href).origin;op.phase='loading';
     modal.dataset.state='loading';message.textContent=waiting;action.hidden=true;
-    // Handlers, identity and timer exist before navigation. load is not a ready signal.
-    op.timer=setTimeout(()=>{if(valid(op)&&op.frame===frame)state(op,timeout,retryLabel,retry);},READY_TIMEOUT);
+    // Private apps report initialized UI; external websites render directly and own their loading UI.
+    if(descriptor.kind==='private')op.timer=setTimeout(()=>{if(valid(op)&&op.frame===frame)onTimeout();},READY_TIMEOUT);
     mount.append(frame);frame.src=descriptor.src;
+    if(descriptor.kind==='website'){op.phase='ready';modal.dataset.state='ready';}
   }
   window.addEventListener('message',event=>{
     const op=active;
@@ -63,7 +64,7 @@ window.CASE_DEMO = (() => {
   });
   // Programmatic exit already cleaned synchronously. A delayed old close cannot affect a reopened view.
   modal.addEventListener('close',()=>{if(!modal.open&&active)onExit(active);});
-  function relabel(label,allTitles){titles=allTitles;if(active){title.textContent=label;if(active.frame)active.frame.title=label;}measure();}
+  function relabel(label,allTitles,waiting){titles=allTitles;if(active){title.textContent=label;if(active.frame)active.frame.title=label;if(active.phase==='checking'||active.phase==='loading')message.textContent=waiting;}measure();}
   window.addEventListener('resize',measure);document.fonts.addEventListener('loadingdone',measure);
   return {show,state,load,cleanup,exit,relabel};
 })();

@@ -69,7 +69,7 @@ npx wrangler@4.141.0 dev --config services/case-access/wrangler.jsonc --port 878
 
 私有 `/api/resources/:caseId/demo/…` 仍逐个请求鉴权，内部 Service Binding 传入 X-RMinte-User / X-RMinte-Role；不复制到外站。私有 Worker 禁止 workers.dev、preview URL 与公开 routes，响应 private,no-store。`fileKey/fileName`、CASE_FILES R2 与 can_download 独立，不受演示权限替代。管理员语义保持。不迁移数据库，不新增 SSO 或公开旁路。私有 CAD 带入 PR #14 的 `rminte-case-demos` Worker，生产需先部署该私有服务并配置 Pages 的 CASE_DEMOS 绑定；外站预览无需这个 Worker。
 
-大型预览与 ready/close 协议见 [演示服务说明](../case-demos/README.md)。
+大型预览、外站直接展示及私有演示 ready/close 协议见 [演示服务说明](../case-demos/README.md)。
 
 本地 `npm run preview:ci` 使用临时 Pages 源码树、D1、私有 Worker 与合成 R2；测试资源位于 `tests/resources.json`，同一资源表被临时 Worker 和 integration.mjs 实际读取，不改正式卡片或生产登记。测试仅在本地目录中生成账号与密钥。`npm run verify -- --base=<main SHA>` 执行既有 integration 入口，额外启用缺私有绑定的独立本地 Pages 实例，验证网站依然可用。
 

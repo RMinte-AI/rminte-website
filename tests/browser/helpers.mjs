@@ -14,6 +14,9 @@ const release={tag:'v0.0.0-ci',snapshot:'ci-fixture',release_url:'https://exampl
 export async function setup(page,language) {
   await page.context().addInitScript(lang=>{localStorage.setItem('rm-soft-lang',lang);localStorage.setItem('emoji2pixel_lang',lang==='zh'?'zh-CN':'en-US');},language);
   await page.route('https://static.cloudflareinsights.com/**',route=>route.fulfill({contentType:'application/javascript',body:'/* analytics excluded from local CI */'}));
+  // The lamp ships a local emoji fallback; screenshots must not depend on an
+  // optional Unicode mirror accepting the CI runner's network address.
+  await page.route('https://r.jina.ai/http://unicode.org/Public/emoji/**',route=>route.fulfill({contentType:'text/plain',body:''}));
   await page.route('https://ota.rminte.com/release',route=>route.fulfill({json:release}));
   const problems=[],external=[];
   page.on('pageerror',e=>problems.push(e.message));

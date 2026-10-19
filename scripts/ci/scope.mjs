@@ -46,9 +46,9 @@ export function readDemos(root) {
   }
   const assets=existsSync(join(root,config))?resolve(root,dirname(config),readJsonc(root,config).assets.directory):null;
   const demos=entries.map(([id,resource])=>{
+    if(resource.demoUrl)return {id,kind:'website',src:resource.demoUrl,files:[],route:`/api/resources/${id}/demo`};
     const scenario=`tests/browser/demos/${id}.mjs`;
     if(!existsSync(join(root,scenario)))throw new Error(`Demo ${id}: add its main click flow in ${scenario}.`);
-    if(resource.demoUrl)return {id,kind:'website',src:resource.demoUrl,scenario,files:[],route:`/api/resources/${id}/demo`};
     const directory=resolve(assets,'.'+resource.demoPath);
     if(!directory.startsWith(assets+'/')||!existsSync(join(directory,'index.html')))throw new Error(`Demo ${id}: missing index.html in its deployed assets directory.`);
     const prefix=relative(root,directory)+'/';
