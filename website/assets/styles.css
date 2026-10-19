@@ -926,6 +926,32 @@ body.teardown-active .brand-mark, body.teardown-active .nav-island, body.teardow
   color: var(--muted);
 }
 
+/* Homepage membership mark stays with company identity, apart from action links. */
+.footer--inception .footer-inner { display:grid; grid-template-columns:minmax(0,max-content) 96px minmax(0,1fr) auto; align-items:center; gap:32px; }
+.footer--inception .footer-brand { align-items:center; gap:32px; }
+.footer--inception .footer-actions { grid-column:4; }
+.footer--inception .footer-brand > div { min-width:0; }
+.footer--inception .footer-brand > div > span { display:block; max-width:600px; }
+.footer--inception .inception-membership { display:block; width:96px; color:var(--text-3); text-decoration:none; border-radius:2px; }
+/* The viewport removes only the PNG's transparent margins; artwork pixels are unchanged. */
+.footer--inception .inception-logo { display:block; position:relative; width:96px; height:34px; overflow:hidden; }
+.footer--inception .inception-logo img { position:absolute; width:126.5px; height:auto; max-width:none; left:-16.68px; top:-17.62px; }
+.footer--inception .inception-membership:focus-visible { outline:2px solid var(--focus-ring); outline-offset:8px; }
+@media(max-width:1120px) {
+  .footer--inception .footer-inner { grid-template-columns:minmax(0,1fr) auto; gap:28px 32px; }
+  .footer--inception .footer-brand { grid-column:1 / -1; }
+  .footer--inception .footer-actions { grid-column:auto; }
+}
+@media(max-width:520px) {
+  .footer--inception .footer-inner { grid-template-columns:minmax(0,1fr) auto; gap:24px 16px; }
+  .footer--inception .footer-brand { display:contents; }
+  .footer--inception .footer-brand > img { grid-row:1; grid-column:1; }
+  .footer--inception .footer-brand > div { grid-row:2; grid-column:1 / -1; }
+  .footer--inception .inception-membership { grid-row:1; grid-column:2; }
+  .footer--inception .footer-actions { grid-row:3; grid-column:1 / -1; justify-content:flex-start; }
+}
+
+
 .footer-actions {
   display: flex;
   align-items: center;
