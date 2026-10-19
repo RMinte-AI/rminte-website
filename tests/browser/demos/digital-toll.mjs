@@ -2,6 +2,10 @@ import {expect} from '@playwright/test';
 
 export default async function({page,frame,caseName,reopen=false,testInfo,language,width}) {
   expect(caseName).toMatch(/AI 数字收费员|AI Digital Toll Operator/);
+  await expect(page.locator('#case-demo-modal')).toHaveCSS('background-color','rgb(20, 23, 27)');
+  await expect(page.locator('#case-demo-modal')).toHaveCSS('box-shadow','none');
+  await expect(frame.locator('body')).toHaveCSS('background-color','rgba(0, 0, 0, 0)');
+  await expect(frame.locator('html')).toHaveCSS('background-color','rgb(255, 255, 255)');
   await expect(frame.locator('#welcome')).toBeVisible();
   await expect(frame.locator('.demo-label')).toHaveText('交互演示 · 全部为模拟数据');
   await expect(frame.locator('#question')).toHaveAttribute('readonly','');
@@ -39,8 +43,13 @@ export default async function({page,frame,caseName,reopen=false,testInfo,languag
     await nav('#open-plaza');await frame.locator(`#catalog [data-feature="${id}"]`).click();
     await expect(frame.locator('#plaza-view')).toBeHidden();
     await expect(frame.locator('#chat-view')).toBeHidden();
-    await frame.locator('#feature-form [type=submit]').click();
+    await frame.locator('#feature-form [type=submit]').focus();
+    await frame.locator('#feature-form [type=submit]').press('Enter');
     await expect(frame.locator('#feature-result')).toContainText(expected);
+    await expect(frame.locator('#feature-result')).toBeFocused();
+    await expect(frame.locator('#feature-result')).toHaveCSS('outline-style','solid');
+    await expect(frame.locator('#feature-result')).toHaveCSS('outline-width','2px');
+    await expect(frame.locator('#feature-result')).toHaveCSS('outline-color','rgb(52, 114, 84)');
     if(language==='zh'&&width===1440&&id!=='statistics')await screenshot(`module ${id}`);
     if(id==='statistics') {
       await screenshot('statistics');
