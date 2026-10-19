@@ -63,7 +63,7 @@ npx wrangler@4.141.0 dev --config services/case-access/wrangler.jsonc --port 878
 
 ## 演示与下载接入契约
 
-当前未提供真实软件或资料，`resources.mjs` 留空，权限通过后返回 503“尚未接入”。这不是完成了真实软件单点登录的证明。
+`industrial-modeling` 已接入本地 CAD 静态模拟演示，资源位于私有 `services/case-demos/`，使用 `CASE_DEMOS` service binding；生产绑定和部署尚未执行。其余案例及资料未接入时仍返回 503。这不是完成了真实软件单点登录的证明。
 
 - 资料：私有 R2 bucket 绑定 `CASE_FILES`，禁用公开访问，按 `resources.mjs` 的固定对象 key 提供下载。严禁把机密文件放在 `website/` 或使用可绕过权限的公开链接。
 - 演示：私有 Worker service binding `CASE_DEMOS`，禁用目标 Worker 的 workers.dev 和公开 routes。访问必须经本网站 `/api/resources/:caseId/demo/…`。网关每次检查当前账号及权限，然后通过内部请求传入 `X-RMinte-User` 和 `X-RMinte-Role`。不转发用户密码、会话 cookie 或浏览器自带身份头。

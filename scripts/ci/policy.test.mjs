@@ -40,7 +40,7 @@ test('production Markdown, shared dependencies and new production files cannot u
   assert.deepEqual(standalone.languages,['zh']);assert.equal(standalone.contentRoot,'body');
   assert.equal(classify([{status:'M',paths:['docs/example.md']}]).pages.length,0);
   assert.equal(classify([{status:'M',paths:['services/case-access/README.md']}]).pages.length,0);
-  assert.equal(classify([{status:'M',paths:['services/case-demos/assets/example/app.js']}]).caseService,true);
+  assert.equal(classify([{status:'M',paths:['services/case-demos/cases/example/public/app.js']}]).caseService,true);
   assert.equal(classify([{status:'M',paths:['services/case-demos/README.md']}]).pages.length,0);
   assert.equal(classify([{status:'M',paths:['scripts/ci/README.md']}]).infrastructure,false);
   assert.throws(()=>classify([{status:'A',paths:['unclassified-code.py']}]),/No CI scope/);
@@ -67,10 +67,10 @@ test('actual malformed JavaScript, CSS and missing referenced resources are reje
     assert.deepEqual(checkHtml(root,'website/index.html'),['/dynamic/','/portal.php','/report.v2','/guide.pdf']);
     writeFileSync(join(root,'website/index.html'),'<img src="/portal.php">');
     assert.throws(()=>checkHtml(root,'website/index.html'),/missing local resource/);
-    mkdirSync(join(root,'services/case-demos/assets/example'),{recursive:true});
-    writeFileSync(join(root,'services/case-demos/assets/example/index.html'),'<main><a href="./">Demo</a></main><script type="module" src="./app.js"></script>');
-    writeFileSync(join(root,'services/case-demos/assets/example/app.js'),'const value=1;export{value};');
-    assert.deepEqual(checkHtml(root,'services/case-demos/assets/example/index.html'),[]);
+    mkdirSync(join(root,'services/case-demos/cases/example/public'),{recursive:true});
+    writeFileSync(join(root,'services/case-demos/cases/example/public/index.html'),'<main><a href="./">Demo</a></main><script type="module" src="./app.js"></script>');
+    writeFileSync(join(root,'services/case-demos/cases/example/public/app.js'),'const value=1;export{value};');
+    assert.deepEqual(checkHtml(root,'services/case-demos/cases/example/public/index.html'),[]);
   }finally{rmSync(root,{recursive:true,force:true});}
 });
 

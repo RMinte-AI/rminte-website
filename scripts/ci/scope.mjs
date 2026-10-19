@@ -42,7 +42,7 @@ function readDemos(root) {
   const entries=Object.entries(resources).filter(([,resource])=>resource.demoPath);
   const config='services/case-demos/wrangler.jsonc';
   if(!existsSync(join(root,config))) {
-    if(entries.length||existsSync(join(root,'services/case-demos/assets')))throw new Error('Case demos need their Worker configuration and website resource entries.');
+    if(entries.length||existsSync(join(root,'services/case-demos/cases')))throw new Error('Case demos need their Worker configuration and website resource entries.');
     return [];
   }
   const assets=resolve(root,dirname(config),readJsonc(root,config).assets.directory);
@@ -55,7 +55,7 @@ function readDemos(root) {
     return {id,directory:relative(root,directory),assetPath:resource.demoPath,scenario,route:`/api/resources/${id}/demo`,files};
   });
   for(const folder of readdirSync(assets,{withFileTypes:true}).filter(entry=>entry.isDirectory())) {
-    if(!demos.some(demo=>resolve(root,demo.directory)===join(assets,folder.name)))throw new Error(`Demo directory ${folder.name}: connect its website entry in services/case-access/resources.mjs.`);
+    if(!demos.some(demo=>resolve(root,demo.directory)===join(assets,folder.name,'public')))throw new Error(`Demo directory ${folder.name}: connect its website entry in services/case-access/resources.mjs.`);
   }
   return demos;
 }
