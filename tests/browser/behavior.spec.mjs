@@ -58,6 +58,12 @@ for(const descriptor of run.scope.pages)for(const language of operationLanguages
           await expect(menu).toBeFocused();
           const focus=await menu.evaluate(el=>{const s=getComputedStyle(el);return s.outlineStyle!=='none'||s.boxShadow!=='none';});expect(focus).toBe(true);
         }
+        const membership=page.locator('.footer .inception-membership');
+        await expect(membership).toHaveCount(1);
+        await expect(membership).toHaveAttribute('href','https://www.nvidia.com/en-us/startups/');
+        await expect(membership.locator('img')).toHaveJSProperty('naturalWidth',1221);
+        const markSize=await membership.locator('.inception-logo').boundingBox();
+        expect(markSize.width).toBe(96);expect(markSize.height).toBe(34);
         const contact=page.locator('[data-contact-toggle]');
         await contact.scrollIntoViewIfNeeded();await contact.click();await expect(page.locator('[data-contact-popover]')).toHaveAttribute('aria-hidden','false');
         await expect(page.locator('[data-contact-popover] a[href^="mailto:"]').first()).toBeVisible();
@@ -66,6 +72,8 @@ for(const descriptor of run.scope.pages)for(const language of operationLanguages
         const other=language==='zh'?'en':'zh';
         await page.locator('.language-toggle').first().click();await page.locator(`[data-language="${other}"]`).first().click();
         await expect(page.locator('html')).toHaveAttribute('lang',other==='zh'?'zh-CN':'en');
+        await expect(page.locator('.footer [data-footer-text=footer]')).toHaveText(other==='zh'?'泛灵（成都）人工智能科技有限公司':'RMinte AI');
+        await expect(page.locator('.footer [data-footer-text=contactButton]')).toHaveText(other==='zh'?'联系我们':'Contact');
         await page.locator('.language-toggle').first().click();await page.locator(`[data-language="${language}"]`).first().click();
         await expect(page.locator('html')).toHaveAttribute('lang',language==='zh'?'zh-CN':'en');
       }
