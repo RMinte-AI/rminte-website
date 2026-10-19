@@ -50,18 +50,29 @@ npx wrangler@4.141.0 dev --config services/case-access/wrangler.jsonc --port 878
 
 ## 部署方式
 
-`wrangler.jsonc` 是 **Workers 本地模拟配置**，数据库 ID 是本地占位符，不能直接执行 `wrangler deploy` 来替代现有 Pages。
+`wrangler.jsonc` 是 **Workers 本地模拟配置**，数据库 ID 是本地占位符，不能直接执行 `wrangler deploy` 来替代现有 Pages。生产自动部署项目、命令和演示绑定统一见 [案例演示服务说明](../case-demos/README.md#生产自动部署)。
 
-以下是首次初始化或新建生产环境的步骤；已运行的生产环境只执行实际需要的迁移，不重复建库或重新导入管理员初始化数据。现有演示服务的自动部署和绑定说明统一见 [案例演示服务说明](../case-demos/README.md#生产自动部署)。
+初始化、后续更新和发布验收是不同职责。首次初始化完成后仍须构建、发布并验收；已有生产环境更新时不重复建库或导入初始管理员。
 
-首次上线步骤：
+### 首次初始化
 
 1. 核实当前 Pages 项目、账户套餐、D1 剩余额度，创建 `rminte-case-access` D1 数据库。保持 Preview 与 Production 数据隔离。
-2. 在现有 Pages 的 Production 绑定中添加 `CASE_DB`（D1）和 `CASE_SECRET`（Secret）；记录真实数据库 ID。管理员用户名固定为 `admin`，初始密码通过私有环境变量 `CASE_ADMIN_PASSWORD` 注入；未提供时生成随机密码。指定密码使用加盐 PBKDF2 验证值，明文不写入仓库或静态站点。生产密钥独立于其他环境，不能复制既有本地测试数据库。
+2. 在 Pages 的 Production 绑定中添加 `CASE_DB`（D1）和 `CASE_SECRET`（Secret），记录真实数据库 ID。管理员用户名固定为 `admin`，初始密码通过私有环境变量 `CASE_ADMIN_PASSWORD` 注入；未提供时生成随机密码。指定密码使用加盐 PBKDF2 验证值，明文不写入仓库或静态站点。生产密钥独立于其他环境，不能复制本地测试数据库。
 3. 对准确的远端 D1 应用 `migrations/0001.sql`，再导入与生产 `CASE_SECRET` 对应的管理员初始化 SQL。禁止将明文账号、`.dev.vars` 或 `.local` 放入 `website/`。
-4. 从确定的仓库快照构建 Pages Worker。`website/_worker.js` 引用了仓库内的 `services/case-access/` 模块，打包必须在包含这些模块的快照里完成。可用 `wrangler pages functions build --build-output-directory website --outdir <临时输出目录>` 验证；发布包中放入打包后的 `_worker.js`，不能单独复制未打包的入口文件后丢掉其依赖。
-5. 确认 `_routes.json` 包含 `/api/*`，保留 `/visitor-language.js`；将 Pages 的 Functions failure mode 设为 fail closed，避免配额耗尽时绕过动态保护。所有受限内容均放在私有服务/R2，不放进静态资源，所以即使静态回退也不能泄露资料。
-6. 在生产域名实测管理员和用户流程、真实 IP 与地区、独立权限、退出和删除失效、D1 数据持久化、免费 Worker CPU 限制，再核对部署版本。
+
+### 构建发布（首次上线与后续更新）
+
+1. 已有环境涉及数据库 schema 变更时，使用 `production.jsonc` 指向准确的远端 D1，仅执行所需迁移，按变更的兼容性安排迁移与代码发布顺序；没有 schema 变更不要求重复迁移。
+2. 从确定的仓库提交构建 Pages Worker。`website/_worker.js` 引用了仓库内的 `services/case-access/` 模块，打包必须在包含这些模块的快照里完成；可用 `wrangler pages functions build --build-output-directory website --outdir <临时输出目录>` 验证打包。生产由 Git 集成从完整仓库编译并发布，不能单独复制未打包的入口文件后丢掉其依赖。
+3. 合并到组织 `main` 后，按演示服务说明核对 Pages 与演示 Worker 的构建和部署提交、状态。发布自动进行，不再另行审批；构建失败或某一项目成功不代表整个发布已完成。首次配置或绑定有变化时，确认新的部署已使其生效。
+
+### 发布验收
+
+首次上线与后续更新都须确认部署结果，并按实际影响验收；自动部署不代替验收。非生产文档修改按 AGENTS.md 检查文档和链接，不额外要求业务测试。
+
+- 核对正式域名的版本和受影响页面／接口。路由、权限或配置有变化时，确认 `_routes.json` 仍包含 `/api/*` 和 `/visitor-language.js`，Production／Preview 数据隔离，Functions failure mode 为 fail closed；受限内容仍位于私有服务／R2。
+- 首次上线应覆盖管理员与普通用户流程、独立权限、退出与删除失效、D1 持久化、真实 IP／地区和 Worker CPU 限制；后续按变更影响选择对应项目。演示变更从官网授权入口验证主要流程及关闭／返回和重开；生产资源交付不能用本地合成文件测试代替。
+- 记录部署提交、实际操作结果及未覆盖项。只完成迁移、CI 或自动部署，不宣称用户流程已验收；已有生产验收的证据范围见下文。
 
 ## 演示与下载接入契约
 

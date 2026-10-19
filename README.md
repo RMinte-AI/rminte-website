@@ -79,6 +79,6 @@ PR 目标为 `RMinte-AI/rminte-website:main`。普通贡献者需要必要 CI �
 | 输出目录 | `website` |
 | 正式域名 | [rminte.com](https://rminte.com)、[www.rminte.com](https://www.rminte.com) |
 
-Pages 从完整仓库构建并编译 `website/_worker.js`，其账号 API 依赖 `services/case-access/` 中的模块。生产 D1、密钥和私有资源绑定由 Cloudflare 管理，不将本地凭据或数据库复制到生产。新增静态案例复用现有演示服务及绑定；生产自动部署、首次绑定与恢复方式统一见 [案例演示服务说明](services/case-demos/README.md#生产自动部署)。
+Pages 从完整仓库构建并编译 `website/_worker.js`，其账号 API 依赖 `services/case-access/` 中的模块。生产 D1、密钥和私有资源绑定由 Cloudflare 管理，不将本地凭据或数据库复制到生产。新增静态案例复用现有演示服务及绑定；生产自动部署、首次绑定与恢复方式统一见 [案例演示服务说明](services/case-demos/README.md#生产自动部署)；账号服务的初始化、后续更新和发布验收见 [账号服务说明](services/case-access/README.md#部署方式)。
 
 合并到组织 `main` 即触发主站 Pages 和已接入的案例演示 Worker 自动部署，不增加单独的部署或上线审批；两项构建分别确认成功。独立 OTA 仍按明确授权单独发布，不随主站合并自动部署。
