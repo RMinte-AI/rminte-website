@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdtempSync,writeFileSync,mkdirSync,rmSync,cpSync,readFileSync} from 'node:fs';
+import {mkdtempSync,writeFileSync,mkdirSync,rmSync,cpSync,readFileSync,symlinkSync} from 'node:fs';
 import {tmpdir} from 'node:os';
-import {join,resolve} from 'node:path';
+import {join,resolve,dirname} from 'node:path';
 import {spawnSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {changedPaths,classify,checkDescription,readDemos,git,context as getContext} from './scope.mjs';
@@ -11,6 +11,36 @@ import {validateEvidence,gateResult} from './report.mjs';
 import {workerPageManifest,workerPages} from './pages.mjs';
 import {observeRoute,routeEvidence,checkNavigation} from './routes.mjs';
 import {createServer} from 'node:http';
+import {footerPages} from '../../website/scripts/footer-template.mjs';
+
+test('footer CLI checks parsed class tokens rather than HTML quote style or text lookalikes',()=>{
+  const root=mkdtempSync(join(tmpdir(),'rminte-footer-'));
+  try {
+    for(const file of [...footerPages,'scripts/build-footer.mjs','scripts/footer-template.mjs','assets/site-data.js']) {
+      const target=join(root,'website',file);mkdirSync(dirname(target),{recursive:true});cpSync(join('website',file),target);
+    }
+    symlinkSync(resolve('node_modules'),join(root,'node_modules'),'dir');
+    const check=()=>spawnSync(process.execPath,['website/scripts/build-footer.mjs','--check'],{cwd:root,encoding:'utf8'});
+    const baseline=check();assert.equal(baseline.status,0,baseline.stderr);
+    const page=join(root,'website/new-page.html');
+    for(const source of [
+      '<footer class="footer">Old footer</footer>',
+      "<footer class='footer'>Old footer</footer>",
+      '<footer class=footer>Old footer</footer>',
+      '<FOOTER CLASS="other footer\tcompact">Old footer</FOOTER>'
+    ]) {
+      writeFileSync(page,source);const result=check();
+      assert.equal(result.status,1,source);assert.match(result.stderr,/new-page\.html: standard footer is not registered/);
+    }
+    for(const source of [
+      '<footer class="brand-footer">Independent footer</footer>',
+      '<!-- <footer class="footer">Example</footer> -->',
+      '<script>const example = \'<footer class="footer">Example</footer>\';</script>'
+    ]) {
+      writeFileSync(page,source);const result=check();assert.equal(result.status,0,result.stderr);
+    }
+  }finally{rmSync(root,{recursive:true,force:true});}
+});
 
 test('real divergent history classifies only the PR change, including renames and deletion',()=>{
   const root=mkdtempSync(join(tmpdir(),'rminte-git-'));

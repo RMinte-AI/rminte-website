@@ -45,7 +45,7 @@
 | 首页与共用基础 | `assets/styles.css`，修改实际生效规则 |
 | 专用页面布局 | 对应的 `gallery.css`、`downloads.css`、`guides.css` |
 | 首页数据与双语文案 | 检查 `assets/site-data.js` 与 HTML 的对应关系 |
-| 主站页脚与联系面板 | 复用 `assets/styles.css`、`assets/site-data.js` 与支持页的 `assets/footer.js`；首页由 `main.js` 处理交互，同步检查各页面 HTML 与指南生成模板 |
+| 主站页脚与联系面板 | 结构统一修改 `website/scripts/footer-template.mjs`，运行 `npm run build:footer`；复用 `assets/styles.css`、`assets/site-data.js` 与 `assets/footer.js`，不得单独手改生成区域。运行 `npm run check:footer` 检查一致性与覆盖 |
 | 行为 | 检查相应页面脚本，避免仅为视觉调整改写交互逻辑 |
 
 - 共享样式改动要检查所有引用页面；独立服务若通过生成文件复用样式，也应识别其依赖，但不得顺带发布服务。
