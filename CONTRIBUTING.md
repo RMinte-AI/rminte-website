@@ -103,4 +103,4 @@ CI 根据真实 Git 差异选择检查范围，不能靠标签将生产改动归
 
 视觉修改不自动授权改产品规格、承诺、文案、下载材料或独立服务。保留既有工作区，不把他人的未完成修改、私有凭据、草稿和验证材料混入 PR。工作流、测试、规范和 CODEOWNERS 本身也由 Owner 负责。
 
-生产站部署目录为 `website/`，Pages 项目为 `rminte-website`。主站合并授权不等于发布独立 OTA 服务，不允许在 PR 验证中写入生产 D1 或 R2。
+生产站部署目录为 `website/`，Pages 项目为 `rminte-website`；案例演示 Worker `rminte-case-demos` 同样通过 Cloudflare Git 集成跟随组织上游 `main` 自动部署，配置与验收见 [案例演示服务说明](services/case-demos/README.md#生产自动部署)。两者分别确认部署成功，合并后不增加上线审批。主站合并授权不等于发布独立 OTA 服务，不允许在 PR 验证中写入生产 D1 或 R2。
