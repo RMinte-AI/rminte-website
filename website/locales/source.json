@@ -4623,5 +4623,12 @@
     "sources": [
       "cases/index.html:101"
     ]
+  },
+  {
+    "zh": "电子邮箱：",
+    "en": "Email:",
+    "sources": [
+      "cases/cases.js.COPY.contactEmail"
+    ]
   }
 ]
