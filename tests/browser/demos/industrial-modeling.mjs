@@ -21,11 +21,13 @@ export default async function({page,frame,caseName,reopen=false,language,width,t
   await expect(frame.locator('#progress-count')).toHaveText('3 / 3 步');
   await expect(frame.locator('#conversation')).toContainText(`方槽 ${slot} × ${slot} mm，两端倒角 ${chamfer} × 45°`);
   await testInfo.attach('industrial-modeling completed',{body:await page.locator('#case-demo-modal').screenshot(),contentType:'image/png'});
-  await frame.locator('#model-tab').focus();await frame.locator('#model-tab').press('Enter');
-  await expect(frame.locator('#drawing-pane')).toBeHidden();await expect(frame.locator('#model-tab')).toHaveAttribute('aria-pressed','true');
-  await frame.locator('#model-tab').press('Tab');await expect(frame.locator('#compare-tab')).toBeFocused();
-  await frame.locator('#compare-tab').press('Space');await expect(frame.locator('#drawing-pane')).toBeVisible();
-  await expect(frame.locator('#compare-tab')).toHaveAttribute('aria-pressed','true');
+  const views=frame.getByRole('group',{name:'工作区视图',exact:true});
+  const model=views.getByRole('button',{name:/三维模型/}),compare=views.getByRole('button',{name:/对照图纸/});
+  await model.focus();await model.press('Enter');
+  await expect(frame.locator('#drawing-pane')).toBeHidden();await expect(model).toHaveAttribute('aria-pressed','true');await expect(compare).toHaveAttribute('aria-pressed','false');
+  await model.press('Tab');await expect(compare).toBeFocused();
+  await compare.press('Space');await expect(frame.locator('#drawing-pane')).toBeVisible();
+  await expect(compare).toHaveAttribute('aria-pressed','true');await expect(model).toHaveAttribute('aria-pressed','false');
   await frame.locator('[data-view="front"]').click();
   await frame.locator('#fit').click();
   await expect(frame.locator('[data-view="front"]')).toHaveAttribute('aria-pressed','true');
