@@ -1,6 +1,7 @@
 import {readFileSync,writeFileSync,readdirSync} from 'node:fs';
 import {dirname,join,relative,sep} from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {parse} from 'parse5';
 import {footerPages,guidePages,renderFooter,renderContactPanel} from './footer-template.mjs';
 
 const site=join(dirname(fileURLToPath(import.meta.url)),'..');
@@ -14,11 +15,16 @@ function replaceRegion(source,name,html,page) {
   return source.slice(0,source.indexOf(start))+html+source.slice(source.indexOf(end)+end.length);
 }
 
+function hasStandardFooter(node) {
+  if(node.tagName==='footer'&&node.attrs.some(attr=>attr.name==='class'&&attr.value.split(/\s+/).includes('footer')))return true;
+  return (node.childNodes||[]).some(hasStandardFooter);
+}
+
 // Discover existing standard footers as well as checking the explicit page list.
 // Independent tools use their own footer classes and are not rewritten.
 for(const file of readdirSync(site,{recursive:true}).filter(file=>file.endsWith('.html'))) {
   const page=file.split(sep).join('/'),source=readFileSync(join(site,file),'utf8');
-  const hasFooter=[...source.matchAll(/<footer\b[^>]*class="([^"]*)"/g)].some(match=>match[1].split(/\s+/).includes('footer'));
+  const hasFooter=hasStandardFooter(parse(source));
   if(hasFooter&&!footerPages.includes(page)) {
     throw new Error(`${page}: standard footer is not registered in footerPages.`);
   }
