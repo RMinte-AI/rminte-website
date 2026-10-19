@@ -21,6 +21,7 @@ RMinte RM-01 官网源码。页面使用原生 HTML、CSS 和 JavaScript，正�
 | [`website/assets/`](website/assets/) | 共享品牌样式、交互、字体与媒体 |
 | [`website/guides/content/`](website/guides/content/) | 在线指南的 Markdown 源稿 |
 | [`services/case-access/`](services/case-access/) | 案例账号 API、权限、D1 迁移与资源接入配置 |
+| [`services/case-demos/`](services/case-demos/) | 各案例的私有静态演示，随组织 `main` 自动部署 |
 | [`services/tianshanos-ota/`](services/tianshanos-ota/) | 独立 OTA Worker 与发布同步说明 |
 | [`scripts/`](scripts/)、[`website/scripts/`](website/scripts/) | CI、指南／翻译／字体生成及共享品牌资源同步 |
 | [`tests/browser/`](tests/browser/) | 浏览器操作与截图证据检查 |
@@ -78,6 +79,6 @@ PR 目标为 `RMinte-AI/rminte-website:main`。普通贡献者需要必要 CI �
 | 输出目录 | `website` |
 | 正式域名 | [rminte.com](https://rminte.com)、[www.rminte.com](https://www.rminte.com) |
 
-Pages 从完整仓库构建并编译 `website/_worker.js`，其账号 API 依赖 `services/case-access/` 中的模块。生产 D1 和密钥在 Cloudflare 配置；演示、资料接入时添加相应的私有资源绑定，不将本地凭据或数据库复制到生产。
+Pages 从完整仓库构建并编译 `website/_worker.js`，其账号 API 依赖 `services/case-access/` 中的模块。生产 D1、密钥和私有资源绑定由 Cloudflare 管理，不将本地凭据或数据库复制到生产。新增静态案例复用现有演示服务及绑定；生产自动部署、首次绑定与恢复方式统一见 [案例演示服务说明](services/case-demos/README.md#生产自动部署)。
 
-合并到组织 `main` 即触发主站自动上线，不增加单独的部署或上线审批。独立 OTA 与案例演示 Worker 按各自授权单独发布，不随主站合并自动部署。
+合并到组织 `main` 即触发主站 Pages 和已接入的案例演示 Worker 自动部署，不增加单独的部署或上线审批；两项构建分别确认成功。独立 OTA 仍按明确授权单独发布，不随主站合并自动部署。

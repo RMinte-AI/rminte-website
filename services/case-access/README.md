@@ -52,7 +52,9 @@ npx wrangler@4.141.0 dev --config services/case-access/wrangler.jsonc --port 878
 
 `wrangler.jsonc` 是 **Workers 本地模拟配置**，数据库 ID 是本地占位符，不能直接执行 `wrangler deploy` 来替代现有 Pages。
 
-正式上线步骤：
+以下是首次初始化或新建生产环境的步骤；已运行的生产环境只执行实际需要的迁移，不重复建库或重新导入管理员初始化数据。现有演示服务的自动部署和绑定说明统一见 [案例演示服务说明](../case-demos/README.md#生产自动部署)。
+
+首次上线步骤：
 
 1. 核实当前 Pages 项目、账户套餐、D1 剩余额度，创建 `rminte-case-access` D1 数据库。保持 Preview 与 Production 数据隔离。
 2. 在现有 Pages 的 Production 绑定中添加 `CASE_DB`（D1）和 `CASE_SECRET`（Secret）；记录真实数据库 ID。管理员用户名固定为 `admin`，初始密码通过私有环境变量 `CASE_ADMIN_PASSWORD` 注入；未提供时生成随机密码。指定密码使用加盐 PBKDF2 验证值，明文不写入仓库或静态站点。生产密钥独立于其他环境，不能复制既有本地测试数据库。
@@ -63,7 +65,7 @@ npx wrangler@4.141.0 dev --config services/case-access/wrangler.jsonc --port 878
 
 ## 演示与下载接入契约
 
-`industrial-modeling` 已接入本地 CAD 静态模拟演示，资源位于私有 `services/case-demos/`，使用 `CASE_DEMOS` service binding；生产绑定和部署尚未执行。其余案例及资料未接入时仍返回 503。这不是完成了真实软件单点登录的证明。
+当前接入项以 [资源配置](resources.mjs) 为准。`industrial-modeling` 静态模拟演示已通过官网账号网关接入生产，服务及绑定的维护方式见 [案例演示服务说明](../case-demos/README.md#生产自动部署)。其他案例或资料没有登记资源时，已授权请求仍返回 503；这不是接入了真实软件单点登录。
 
 - 资料：私有 R2 bucket 绑定 `CASE_FILES`，禁用公开访问，按 `resources.mjs` 的固定对象 key 提供下载。严禁把机密文件放在 `website/` 或使用可绕过权限的公开链接。
 - 演示：私有 Worker service binding `CASE_DEMOS`，禁用目标 Worker 的 workers.dev 和公开 routes。访问必须经本网站 `/api/resources/:caseId/demo/…`。网关每次检查当前账号及权限，然后通过内部请求传入 `X-RMinte-User` 和 `X-RMinte-Role`。不转发用户密码、会话 cookie 或浏览器自带身份头。
@@ -73,7 +75,12 @@ npx wrangler@4.141.0 dev --config services/case-access/wrangler.jsonc --port 878
 
 ## 验收边界
 
-已做本地 workerd + D1 HTTP 集成与 Chrome 页面操作。尚未进行云端部署、真实 IP 定位、生产 CPU 配额、真实演示服务及下载资源的联调。后台仅中文，案例提供六种语言。
+本地 workerd + D1 HTTP 集成与浏览器测试验证隔离的测试环境。2026-10-19 已完成官网及演示 Worker 的生产部署、绑定与工业建模演示联调，证据见 [PR #21](https://github.com/RMinte-AI/rminte-website/pull/21)。
+
+- 已验证的生产范围：使用已有管理员会话从官网打开演示，完成尺寸选择、模型展示与版本回看、关闭和重开；匿名访问演示 HTML、脚本和样式被拒绝，Worker 的独立公开地址不可用；主线提交自动触发两个项目并部署成功。
+- 本次未覆盖的生产验收：普通用户授权及撤权、退出与删除后的会话失效、D1 数据持久化专项检查、真实 IP／地区定位、CPU 配额，以及真实下载资源交付。本地测试和管理员演示成功不能替代这些验收，也不能证明未来新增案例已验证。
+
+后台仅中文；官网案例外层提供六种语言，各演示内部语言与能力以其案例 README 为准。
 
 管理员在后台登录状态旁点击「修改密码」，验证当前密码后设置新密码。普通用户没有此入口，接口也拒绝普通用户。修改成功会撤销该管理员的全部会话；初始密码文件不会同步更新，之后应使用自己设置的新密码。
 
