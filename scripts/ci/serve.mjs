@@ -1,6 +1,6 @@
 // Actual Pages + private demo Worker, backed by disposable local D1 data.
 import {spawn,execFileSync} from 'node:child_process';
-import {mkdirSync,mkdtempSync,writeFileSync,copyFileSync,readdirSync,rmSync,existsSync} from 'node:fs';
+import {mkdirSync,mkdtempSync,writeFileSync,copyFileSync,readdirSync,rmSync,existsSync,cpSync,readFileSync} from 'node:fs';
 import {resolve,join,dirname} from 'node:path';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 import {randomBytes,randomUUID} from 'node:crypto';
@@ -11,7 +11,7 @@ import {caseConfiguration,caseResources} from './config.mjs';
 const toolsRoot=resolve(dirname(fileURLToPath(import.meta.url)),'../..');
 export const wrangler=join(toolsRoot,'node_modules/wrangler/bin/wrangler.js');
 
-export async function startServer(root,port,logFile) {
+export async function startServer(root,port,logFile,{withoutDemoBinding=false}={}) {
   const runtime=mkdtempSync(join(toolsRoot,'output/ci/runtime-')),children=[];
   const fixtures=join(runtime,'services/case-access'),secret=randomBytes(32).toString('base64'),password='Ci-'+randomBytes(16).toString('hex');
   const env={...process.env,XDG_CONFIG_HOME:join(runtime,'config'),WRANGLER_REGISTRY_PATH:join(runtime,'registry'),WRANGLER_LOG_PATH:join(runtime,'logs'),WRANGLER_SEND_METRICS:'false',CHOKIDAR_USEPOLLING:'true'};
@@ -42,20 +42,29 @@ export async function startServer(root,port,logFile) {
   }
   try {
     const source=caseConfiguration(root),url=`http://127.0.0.1:${port}`;
-    const resources=caseResources(root),files=Object.entries(resources).filter(([,resource])=>resource.fileKey);
-    const bucket=source.r2_buckets?.some(binding=>binding.binding==='CASE_FILES')?'rminte-ci-files':null;
-    if(files.length&&!bucket)throw new Error('Registered case downloads require the CASE_FILES R2 binding in the Pages configuration.');
+    // Bundle Pages and its API from the same disposable tree. The registry below
+    // is therefore read by the actual Worker, not just by the test script.
+    const assets=join(runtime,'website');cpSync(source.assets,assets,{recursive:true});
+    mkdirSync(fixtures,{recursive:true});
+    for(const name of ['api.mjs','crypto.mjs']){copyFileSync(join(root,'services/case-access',name),join(fixtures,name));}
+    const registry=join(root,'services/case-access/tests/resources.json');
+    const registered=caseResources(root),testResources=existsSync(registry)?JSON.parse(readFileSync(registry,'utf8')):{};
+    if(Object.keys(testResources).some(id=>id in registered))throw new Error('Local fixtures must not override registered cases.');
+    const hasBucket=source.r2_buckets?.some(binding=>binding.binding==='CASE_FILES');
+    if(Object.values(registered).some(resource=>resource.fileKey)&&!hasBucket)throw new Error('Registered case downloads require the CASE_FILES R2 binding in the Pages configuration.');
+    const resources={...registered,...testResources},files=Object.entries(resources).filter(([,resource])=>resource.fileKey);
+    const bucket=hasBucket||Object.values(testResources).some(resource=>resource.fileKey)?'rminte-ci-files':null;
+    const services=withoutDemoBinding?[]:source.services||[];
     for(const requiredPort of [port,port+300,...(source.demo?[port+100,port+200]:[])])await new Promise((done,reject)=>{
       const probe=createServer();probe.once('error',()=>reject(new Error(`CI port ${requiredPort} is occupied.`)));probe.listen(requiredPort,'127.0.0.1',()=>probe.close(done));
     });
     mkdirSync(join(fixtures,'.local'),{recursive:true,mode:0o700});mkdirSync(join(fixtures,'tests'));
-    const config={name:'rminte-ci-local',pages_build_output_dir:source.assets,compatibility_date:source.compatibility_date,compatibility_flags:source.compatibility_flags||[],services:source.services||[],r2_buckets:bucket?[{binding:'CASE_FILES',bucket_name:bucket}]:[],d1_databases:[{binding:'CASE_DB',database_name:'rminte-ci-local',database_id:randomUUID(),migrations_dir:source.migrations}]};
+    const config={name:'rminte-ci-local',pages_build_output_dir:assets,compatibility_date:source.compatibility_date,compatibility_flags:source.compatibility_flags||[],services,r2_buckets:bucket?[{binding:'CASE_FILES',bucket_name:bucket}]:[],d1_databases:[{binding:'CASE_DB',database_name:'rminte-ci-local',database_id:randomUUID(),migrations_dir:source.migrations}]};
     for(const destination of [join(runtime,'wrangler.jsonc'),join(fixtures,'wrangler.jsonc')])writeFileSync(destination,JSON.stringify(config));
     for(const destination of [join(runtime,'.dev.vars'),join(fixtures,'.dev.vars')])writeFileSync(destination,`CASE_SECRET="${secret}"\n`,{mode:0o600});
     writeFileSync(join(fixtures,'.local/admin-login.txt'),`本地 CI 临时数据（未部署）\n用户名：admin\n密码：${password}\n`,{mode:0o600});
     const {hashAdminPassword}=await import(pathToFileURL(join(root,'services/case-access/crypto.mjs'))),mac=await hashAdminPassword(secret,'admin',password),sql=join(runtime,'seed.sql');
     writeFileSync(sql,`INSERT INTO users(id,username,role,password_mac,password_cipher,can_demo,can_download,created_at) VALUES('${randomUUID()}','admin','admin','${mac}',NULL,1,1,${Math.floor(Date.now()/1000)});`,{mode:0o600});
-    copyFileSync(join(root,'services/case-access/crypto.mjs'),join(fixtures,'crypto.mjs'));
     writeFileSync(join(fixtures,'resources.mjs'),'export const resources = '+JSON.stringify(resources)+';\n');
     for(const name of readdirSync(join(root,'services/case-access/tests')))if(name.endsWith('.mjs'))copyFileSync(join(root,'services/case-access/tests',name),join(fixtures,'tests',name));
     command(['d1','migrations','apply','CASE_DB','--local','--config',join(fixtures,'wrangler.jsonc')]);
@@ -70,7 +79,7 @@ export async function startServer(root,port,logFile) {
       const demoConfig=join(runtime,'demo.jsonc');writeFileSync(demoConfig,JSON.stringify(source.demo));
       await start(['dev','--config',demoConfig,'--port',String(port+100),'--inspector-port',String(port+200)],`http://127.0.0.1:${port+100}`);
     }
-    await start(['pages','dev','--port',String(port),'--inspector-port',String(port+300),'--persist-to',join(fixtures,'.wrangler/state'),'--d1',`CASE_DB=${config.d1_databases[0].database_id}`,...(bucket?['--r2',`CASE_FILES=${bucket}`]:[]),'--binding',`CASE_SECRET=${secret}`,...(source.services||[]).flatMap(service=>['--service',`${service.binding}=${service.service}`])],url);
+    await start(['pages','dev','--port',String(port),'--inspector-port',String(port+300),'--persist-to',join(fixtures,'.wrangler/state'),'--d1',`CASE_DB=${config.d1_databases[0].database_id}`,...(bucket?['--r2',`CASE_FILES=${bucket}`]:[]),'--binding',`CASE_SECRET=${secret}`,...services.flatMap(service=>['--service',`${service.binding}=${service.service}`])],url);
     const probe=await fetch(url+'/api/admin/users');await probe.body?.cancel();
     if(probe.status!==401)throw new Error(`Local Pages account bindings failed readiness: HTTP ${probe.status}`);
     const login=await fetch(url+'/api/login',{method:'POST',headers:{Origin:url,'Content-Type':'application/json'},body:JSON.stringify({username:'admin',password})});await login.body?.cancel();

@@ -26,6 +26,11 @@
   ];
   const caseIds = ['digital-toll', 'asset-audit', 'community-assistant', 'energy-dispatch', 'document-knowledge', 'official-writing', 'archive-management', 'drone-analysis', 'industrial-modeling', 'legal-materials', 'functional-safety'];
   const COPY = {
+    checking: {zh:'正在检查访问权限…', en:'Checking access…'},
+    loading: {zh:'正在加载演示…', en:'Loading demo…'},
+    expired: {zh:'登录已失效，请重新登录。', en:'Your session has expired. Please sign in again.'},
+    unfinished: {zh:'暂未完成加载，请重试或关闭。', en:'Loading has not finished. Please retry or close.'},
+    retry: {zh:'重试', en:'Retry'},
     signToDemo: {zh: '需登录后演示', en: 'Sign in to view demo'},
     demoOn: {zh: '演示已授权', en: 'Demo authorised'},
     demoOff: {zh: '演示未授权', en: 'Demo not authorised'},
@@ -74,7 +79,7 @@
   const $ = (selector) => document.querySelector(selector);
   const list = $('#cases'), dialog = $('.cs-dialog'), body = $('#dialog-body');
   const overlay = $('#mobileOverlay'), menuButton = $('[data-menu-toggle]'), closeButton = $('[data-menu-close]');
-  let lang = RM_I18N.initial(), opener = null, pendingResource = null;
+  let lang = RM_I18N.initial(), opener = null, currentOperation = null;
 
   // Painting
   const MARKS = /(RMinte(?:\s+AI\b)?|RM-01)/, MARK_ONLY = /^(?:RMinte(?:\s+AI\b)?|RM-01)$/;
@@ -162,39 +167,81 @@
   const fail = (pair) => Object.assign(new Error(pair.zh), {pair});
   const explain = (error) => error.pair || (error.unavailable ? COPY.serviceDown : KNOWN[error.message] || error.message);
 
-  function action(type, selected) {
-    const item = selected === undefined ? null : cases[Number(selected)];
-    if (type === 'demo' || type === 'download') {
-      pendingResource = {kind: type, id: caseIds[Number(selected)], item};
-      if (CASE_AUTH.user) { enterResource(); return; }
-    }
-    if (type === 'login' || type === 'demo' || type === 'download') {
-      if (type === 'login') pendingResource = null;
-      open(`${heading(COPY.signIn)}${item ? t(item.name, 'p', ' class="name"') : ''}${t(COPY.loginLead, 'p', ' class="lead"')}<form id="login-form">${field('account', COPY.username, 'text', 'username', 'username')}${field('password', COPY.password, 'password', 'current-password')}<div class="actions"><button class="cs-pill primary" type="submit">${t(COPY.signInSubmit)}</button></div>${status}</form>`);
-      return;
-    }
+  const text = pair => RM_I18N.text(pair, lang);
+  const isCurrent = op => currentOperation === op;
+  function endOperation(op) {
+    if (!isCurrent(op)) return;
+    currentOperation = null;
+    if (op.kind === 'demo') CASE_DEMO.exit(op); else op.controller?.abort();
+  }
+  function closeForm(cancel = true) {
+    if (cancel && currentOperation?.phase === 'login') endOperation(currentOperation);
+    dialog.close();body.replaceChildren();
+    if (cancel) opener?.focus({preventScroll:true});
+  }
+  function loginForm(item, op) {
+    if (op) op.phase = 'login';
+    open(`${heading(COPY.signIn)}${item ? t(item.name, 'p', ' class="name"') : ''}${t(COPY.loginLead, 'p', ' class="lead"')}<form id="login-form">${field('account', COPY.username, 'text', 'username', 'username')}${field('password', COPY.password, 'password', 'current-password')}<div class="actions"><button class="cs-pill primary" type="submit">${t(COPY.signInSubmit)}</button></div>${status}</form>`);
+    if(op)opener=op.trigger;
+  }
+  function startResource(kind, index, trigger, forceLogin = false) {
+    const previous=currentOperation;
+    const op={kind,index,id:caseIds[index],item:cases[index],trigger,phase:'checking'};
+    // Replace content without closing the shared preview or returning focus.
+    if(previous) { if(previous.kind==='demo')CASE_DEMO.cleanup(previous);else previous.controller?.abort(); }
+    currentOperation=op;
+    if (forceLogin || !CASE_AUTH.user) loginForm(op.item,op); else enterResource(op);
+  }
+  function action(type, selected, trigger) {
+    if (type === 'demo' || type === 'download') { startResource(type,Number(selected),trigger);return; }
+    if (currentOperation) endOperation(currentOperation);
+    if (type === 'login') { loginForm(null,null);return; }
     open(`${heading(COPY.partner)}${t(COPY.partnerLead, 'p', ' class="lead"')}<form id="partner-form"><div class="cs-grid2">${field('name', COPY.name, 'text', 'name')}${field('company', COPY.company, 'text', 'organization')}</div>${field('email', COPY.email, 'email', 'email')}${area('reason', COPY.reason)}${area('ability', COPY.ability)}<div class="actions"><button class="cs-pill primary" type="submit">${t(COPY.submit)}</button></div>${status}${t(COPY.review, 'p', ' class="lead sm"')}</form>`);
   }
-  async function enterResource() {
-    const resource = pendingResource;
-    if (!resource) return;
+  function previewStatus(op,key) {
+    if(!isCurrent(op))return;
+    op.statusKey=key;
+    const relogin=key==='expired',retry=!['expired','noDemo','noAccess'].includes(key);
+    CASE_DEMO.state(op,text(COPY[key]),relogin?text(COPY.signIn):retry?text(COPY.retry):null,
+      relogin?()=>{const {index,trigger}=op;endOperation(op);startResource('demo',index,trigger,true);}
+      :retry?()=>startResource('demo',op.index,op.trigger):null);
+  }
+  async function enterResource(op) {
+    if (!isCurrent(op)) return;
+    op.phase='checking';op.statusKey='checking';
+    if(op.kind==='demo')CASE_DEMO.show(op,{
+      label:text(op.item.name),allTitles:cases.map(item=>text(item.name)),isCurrent,exit:endOperation,text:text(COPY.checking)
+    });
+    op.controller=new AbortController();
     try {
-      const user = await CASE_AUTH.refresh();
-      if (!user) { action('login'); return; }
-      if (!(resource.kind === 'demo' ? user.can_demo : user.can_download)) throw fail(resource.kind === 'demo' ? COPY.noDemo : COPY.noDownload);
-      const url = `/api/resources/${resource.id}/${resource.kind}`;
-      const check = await fetch(url, {method: 'HEAD', credentials: 'same-origin'}).catch(() => { throw fail(COPY.tryLater); });
-      if (!check.ok) throw fail(check.status === 503 ? COPY.notConnected : check.status === 403 ? COPY.noAccess : COPY.tryLater);
-      dialog.close();
-      location.assign(url);
-    } catch (error) {
-      open(`${heading(resource.item.name)}${status}`);
-      say(body.querySelector('[role=status]'), explain(error), error.pair === COPY.notConnected ? COPY.notConnectedLabel : undefined);
+      const user=await CASE_AUTH.refresh({isCurrent:()=>isCurrent(op),signal:op.controller.signal});
+      if(!isCurrent(op))return;
+      if(!user) { if(op.kind==='demo')previewStatus(op,'expired');else loginForm(op.item,op);return; }
+      if(op.kind==='demo') {
+        const response=await fetch(`/api/resources/${op.id}/preview`,{credentials:'same-origin',signal:op.controller.signal});
+        if(!isCurrent(op))return;
+        if(!response.ok){previewStatus(op,response.status===401?'expired':response.status===403?'noDemo':response.status===503?'notConnected':'tryLater');return;}
+        const descriptor=await response.json();if(!isCurrent(op))return;
+        if(!CASE_AUTH.user||!CASE_AUTH.user.can_demo){previewStatus(op,CASE_AUTH.user?'noDemo':'expired');return;}
+        op.statusKey='loading';
+        CASE_DEMO.load(op,descriptor,text(op.item.name),text(COPY.loading),text(COPY.unfinished),text(COPY.retry),()=>startResource('demo',op.index,op.trigger));
+      } else {
+        if(!user.can_download)throw fail(COPY.noDownload);
+        const url=`/api/resources/${op.id}/download`;
+        const response=await fetch(url,{method:'HEAD',credentials:'same-origin',signal:op.controller.signal});
+        if(!isCurrent(op))return;
+        if(!response.ok)throw fail(response.status===503?COPY.notConnected:response.status===403?COPY.noAccess:COPY.tryLater);
+        endOperation(op);closeForm(false);location.assign(url);
+      }
+    } catch(error) {
+      if(!isCurrent(op))return;
+      if(op.kind==='demo')previewStatus(op,'tryLater');
+      else {open(`${heading(op.item.name)}${status}`);say(body.querySelector('[role=status]'),explain(error));}
     }
   }
   document.addEventListener('click', (event) => {
     const trigger = event.target.closest('[data-action]');
-    if (trigger && trigger.dataset.state !== 'off') action(trigger.dataset.action, trigger.dataset.selected);
+    if (trigger && trigger.dataset.state !== 'off') action(trigger.dataset.action, trigger.dataset.selected, trigger);
     const more = event.target.closest('.cs-more');
     if (more) {
       const card = more.closest('.cs-card'), expand = !card.hasAttribute('data-open');
@@ -202,31 +249,36 @@
       more.setAttribute('aria-expanded', String(expand));
       card.querySelector('.cs-panel').inert = !expand;
     }
-    if (event.target.closest('[data-dialog-close]')) dialog.close();
+    if (event.target.closest('[data-dialog-close]')) closeForm();
   });
   dialog.addEventListener('click', (event) => {
     if (event.target !== dialog) return;
     const box = dialog.getBoundingClientRect();
-    if (event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom) dialog.close();
+    if (event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom) closeForm();
   });
   // A close event can arrive after the dialog was opened again (a quick answer to the resource check): leave the new content alone.
-  dialog.addEventListener('close', () => { if (dialog.open) return; body.innerHTML = ''; opener?.focus(); });
+  dialog.addEventListener('cancel',event=>{event.preventDefault();closeForm();});
+  dialog.addEventListener('close',()=>{if(!dialog.open&&body.childNodes.length)closeForm();});
   dialog.addEventListener('submit', async (event) => {
     event.preventDefault();
     const form = event.target, button = form.querySelector('[type=submit]'), slot = form.querySelector('[role=status]');
+    const loginOperation=currentOperation;
     button.disabled = true;
     try {
       if (form.id === 'login-form') {
         await CASE_AUTH.login(form.username.value, form.password.value);
-        form.reset();
-        dialog.close();
-        if (pendingResource) await enterResource();
+        // Login can establish a valid account after cancellation; it cannot reopen that preview.
+        if(!form.isConnected||form!==body.querySelector('form')||currentOperation!==loginOperation)return;
+        form.reset();closeForm(false);
+        if(loginOperation&&isCurrent(loginOperation))await enterResource(loginOperation);
+        else opener?.focus({preventScroll:true});
       } else {
         await CASE_AUTH.api('/api/applications', {method: 'POST', body: JSON.stringify({name: form.querySelector('#name').value, company: form.querySelector('#company').value, email: form.querySelector('#email').value, message: form.querySelector('#reason').value, experience: form.querySelector('#ability').value})});
         form.reset();
         say(slot, COPY.received);
       }
     } catch (error) {
+      if(!form.isConnected||form!==body.querySelector('form'))return;
       say(slot, explain(error), form.id === 'login-form' ? COPY.loginFailed : undefined);
     } finally {
       button.disabled = false;
@@ -260,6 +312,10 @@
     document.title = `${RM_I18N.text({zh: '应用案例', en: 'Application cases'}, lang)} · RMinte`;
     menuButton.setAttribute('aria-label', menuLabel(menuButton.classList.contains('active')));
     paint();
+    if(currentOperation?.kind==='demo'&&currentOperation.phase!=='login'){
+      CASE_DEMO.relabel(text(currentOperation.item.name),cases.map(item=>text(item.name)));
+      if(currentOperation.phase==='status')previewStatus(currentOperation,currentOperation.statusKey==='loading'?'unfinished':currentOperation.statusKey);
+    }
   }
 
   build();
@@ -275,7 +331,11 @@
   const cardSizeObserver = new ResizeObserver(alignCardHeights);
   list.querySelectorAll('.cs-copy, .cs-bar').forEach((content) => cardSizeObserver.observe(content));
   alignCardHeights();
-  window.addEventListener('case-auth-render', updateCards);
+  window.addEventListener('case-auth-render',()=>{
+    updateCards();const op=currentOperation;
+    if(op?.kind==='demo'&&op.frame&&(!CASE_AUTH.user||!CASE_AUTH.user.can_demo))endOperation(op);
+  });
+  window.addEventListener('case-auth-change',()=>{if(currentOperation)endOperation(currentOperation);});
   RM_I18N.mount('[data-lang-toggle]', applyLanguage);
   applyLanguage(lang);
   CASE_AUTH.refresh().catch((error) => CASE_AUTH.render(error));

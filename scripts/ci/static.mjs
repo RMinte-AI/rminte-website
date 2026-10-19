@@ -12,7 +12,7 @@ export function markup(source) {
   function visit(node) {if(node.tagName) elements.push(node);for(const child of node.childNodes||[])visit(child);if(node.content)visit(node.content);}
   visit(parse(source));return elements;
 }
-const assetRoot=file=>file.startsWith('services/case-demos/assets/')?'services/case-demos/assets':'website';
+const assetRoot=file=>file.match(/^(services\/case-demos\/cases\/[a-z0-9-]+\/public)\//)?.[1]||'website';
 const attr=(node,key)=>node.attrs?.find(a=>a.name===key)?.value;
 function navigationURL(file,reference) {
   if(!file.startsWith('website/')||!reference||reference.startsWith('#'))return null;

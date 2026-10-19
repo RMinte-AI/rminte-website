@@ -4623,5 +4623,40 @@
     "sources": [
       "cases/index.html:101"
     ]
+  },
+  {
+    "zh": "正在检查访问权限…",
+    "en": "Checking access…",
+    "sources": [
+      "cases/cases.js"
+    ]
+  },
+  {
+    "zh": "正在加载演示…",
+    "en": "Loading demo…",
+    "sources": [
+      "cases/cases.js"
+    ]
+  },
+  {
+    "zh": "登录已失效，请重新登录。",
+    "en": "Your session has expired. Please sign in again.",
+    "sources": [
+      "cases/cases.js"
+    ]
+  },
+  {
+    "zh": "暂未完成加载，请重试或关闭。",
+    "en": "Loading has not finished. Please retry or close.",
+    "sources": [
+      "cases/cases.js"
+    ]
+  },
+  {
+    "zh": "重试",
+    "en": "Retry",
+    "sources": [
+      "cases/cases.js"
+    ]
   }
 ]

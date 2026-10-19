@@ -5,7 +5,7 @@ import {tmpdir} from 'node:os';
 import {join,resolve} from 'node:path';
 import {spawnSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
-import {changedPaths,classify,checkDescription,git,context as getContext} from './scope.mjs';
+import {changedPaths,classify,checkDescription,readDemos,git,context as getContext} from './scope.mjs';
 import {checkHtml,checkCss,syntax,generatedCheck,staticChecks} from './static.mjs';
 import {validateEvidence,gateResult} from './report.mjs';
 import {workerPageManifest,workerPages} from './pages.mjs';
@@ -40,7 +40,7 @@ test('production Markdown, shared dependencies and new production files cannot u
   assert.deepEqual(standalone.languages,['zh']);assert.equal(standalone.contentRoot,'body');
   assert.equal(classify([{status:'M',paths:['docs/example.md']}]).pages.length,0);
   assert.equal(classify([{status:'M',paths:['services/case-access/README.md']}]).pages.length,0);
-  assert.equal(classify([{status:'M',paths:['services/case-demos/assets/example/app.js']}]).caseService,true);
+  assert.equal(classify([{status:'M',paths:['services/case-demos/cases/example/public/app.js']}]).caseService,true);
   assert.equal(classify([{status:'M',paths:['services/case-demos/README.md']}]).pages.length,0);
   assert.equal(classify([{status:'M',paths:['scripts/ci/README.md']}]).infrastructure,false);
   assert.throws(()=>classify([{status:'A',paths:['unclassified-code.py']}]),/No CI scope/);
@@ -67,10 +67,10 @@ test('actual malformed JavaScript, CSS and missing referenced resources are reje
     assert.deepEqual(checkHtml(root,'website/index.html'),['/dynamic/','/portal.php','/report.v2','/guide.pdf']);
     writeFileSync(join(root,'website/index.html'),'<img src="/portal.php">');
     assert.throws(()=>checkHtml(root,'website/index.html'),/missing local resource/);
-    mkdirSync(join(root,'services/case-demos/assets/example'),{recursive:true});
-    writeFileSync(join(root,'services/case-demos/assets/example/index.html'),'<main><a href="./">Demo</a></main><script type="module" src="./app.js"></script>');
-    writeFileSync(join(root,'services/case-demos/assets/example/app.js'),'const value=1;export{value};');
-    assert.deepEqual(checkHtml(root,'services/case-demos/assets/example/index.html'),[]);
+    mkdirSync(join(root,'services/case-demos/cases/example/public'),{recursive:true});
+    writeFileSync(join(root,'services/case-demos/cases/example/public/index.html'),'<main><a href="./">Demo</a></main><script type="module" src="./app.js"></script>');
+    writeFileSync(join(root,'services/case-demos/cases/example/public/app.js'),'const value=1;export{value};');
+    assert.deepEqual(checkHtml(root,'services/case-demos/cases/example/public/index.html'),[]);
   }finally{rmSync(root,{recursive:true,force:true});}
 });
 
@@ -174,4 +174,15 @@ test('HTTP navigation distinguishes reachable pages, removals, dead links and ex
     await assert.rejects(checkNavigation(base,['/missing'],[]),/HTTP 404/);await assert.rejects(checkNavigation(base,['/page'],[]),/no page declaration/);
     await assert.rejects(observeRoute(base+'/loop',request),/redirect loop/);
   }finally{await new Promise(done=>server.close(done));}
+});
+
+// A website-only registry must not require private Worker assets or headers.
+test('website previews participate in operation scope without a private Worker',()=>{
+ const root=mkdtempSync(join(tmpdir(),'rminte-website-demo-'));
+ try{
+  mkdirSync(join(root,'services/case-access'),{recursive:true});mkdirSync(join(root,'tests/browser/demos'),{recursive:true});
+  writeFileSync(join(root,'services/case-access/resources.mjs'),"export const resources={'example':{demoUrl:'https://preview.example.invalid/'}};");
+  writeFileSync(join(root,'tests/browser/demos/example.mjs'),'export default async()=>{};');
+  const demos=readDemos(root);assert.equal(demos.length,1);assert.equal(demos[0].kind,'website');assert.deepEqual(demos[0].files,[]);assert.equal(demos[0].directory,undefined);
+ }finally{rmSync(root,{recursive:true,force:true});}
 });

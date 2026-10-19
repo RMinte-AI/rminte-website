@@ -1,0 +1,22 @@
+body.case-demo-open{overflow:hidden}
+.case-demo-modal{box-sizing:border-box;position:fixed;inset:0;margin:auto;padding:0;width:min(1440px,calc(100vw - 48px));height:calc(100dvh - 48px);max-width:none;max-height:none;border:1px solid var(--line-3);border-radius:8px;background:var(--n-3);color:var(--text-1);box-shadow:none;overflow:hidden}
+.case-demo-modal[open]{display:grid;grid-template-rows:auto minmax(0,1fr)}
+.case-demo-modal::backdrop{background:rgba(0,0,0,.8)}
+.case-demo-head{display:flex;align-items:center;gap:16px;padding:max(16px,env(safe-area-inset-top)) max(24px,env(safe-area-inset-right)) 16px max(24px,env(safe-area-inset-left));border-bottom:1px solid var(--line-3)}
+.case-demo-head h2,.case-demo-title-probe{margin:0;font-family:var(--font-ui);font-size:20px;font-weight:500;line-height:1.4;overflow-wrap:anywhere}
+.case-demo-head h2{flex:1;min-width:0;min-height:var(--preview-title-height,44px);display:flex;align-items:center}
+.case-demo-title-probe{position:fixed;visibility:hidden;pointer-events:none;inset:0 auto auto 0;height:auto}
+.case-demo-head .contact-close{box-sizing:border-box;flex:0 0 44px;width:44px;height:44px;margin:0}
+.case-demo-content{margin:0 max(0px,calc(env(safe-area-inset-right) - 24px)) max(0px,calc(env(safe-area-inset-bottom) - 24px)) max(0px,calc(env(safe-area-inset-left) - 24px));position:relative;min-height:0;min-width:0;overflow:hidden}
+.case-demo-mount{position:absolute;inset:0}
+.case-demo-mount iframe{box-sizing:border-box;display:block;width:100%;height:100%;border:0;background:var(--n-3)}
+.case-demo-modal:not([data-state=ready]) iframe{visibility:hidden;pointer-events:none}
+.case-demo-status{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:safe center;gap:24px;padding:24px;overflow:auto;background:var(--n-3);text-align:center}
+.case-demo-status p{margin:0;max-width:48ch;color:var(--text-2);font-size:16px;line-height:1.6}
+.case-demo-status [hidden],.case-demo-modal[data-state=ready] .case-demo-status{display:none}
+@media(max-width:600px){
+ .case-demo-modal{width:100%;height:100dvh;border-radius:0;border:0}
+ .case-demo-head{padding:calc(12px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) 12px calc(16px + env(safe-area-inset-left))}
+ .case-demo-head h2,.case-demo-title-probe{font-size:18px}
+ .case-demo-content{margin:0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+}

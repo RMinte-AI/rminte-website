@@ -1,4 +1,7 @@
-// Add approved resources only when supplied. Keep confidential files out of website/.
-// Demo entries must use a PRIVATE Worker service binding, not a public upstream URL.
-// Example: 'digital-toll': { demoPath: '/digital-toll/', fileKey: 'digital-toll/brief.pdf', fileName: 'brief.pdf' }
-export const resources = {};
+// Register approved previews here. Never put private demo files in website/.
+// Private: demoPath (Worker directory) + demoEntry (relative entry, may include ?embed=1).
+// Website: demoUrl (fixed HTTPS entry, ready/close bridge required). Exactly one source.
+// fileKey/fileName independently grant access to downloads; download-only entries are valid.
+export const resources = {
+  'industrial-modeling': {demoPath:'/industrial-modeling/public/', demoEntry:'index.html?embed=1'}
+};

@@ -614,5 +614,10 @@
   "The team reviews every application and replies by email. An application does not grant access to demos or downloads.": "L'équipe examine chaque candidature et répond par e-mail. Une candidature ne donne pas accès aux démos ni aux téléchargements.",
   "Username": "Identifiant",
   "Enterprise operations": "Opérations d'entreprise",
-  "Work email": "E-mail professionnel"
+  "Work email": "E-mail professionnel",
+  "Checking access…": "Vérification de l’accès…",
+  "Loading demo…": "Chargement de la démonstration…",
+  "Your session has expired. Please sign in again.": "Votre session a expiré. Veuillez vous reconnecter.",
+  "Loading has not finished. Please retry or close.": "Le chargement n’est pas terminé. Réessayez ou fermez la fenêtre.",
+  "Retry": "Réessayer"
 }

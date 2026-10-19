@@ -53,7 +53,7 @@ await check('generated guides',run.scope.guides,()=>generatedCheck(root,'website
 await check('generated translations',run.scope.translations,()=>generatedCheck(root,'website/scripts/build-translations.mjs',['website/assets/translations/ja.js','website/assets/translations/ko.js','website/assets/translations/es.js','website/assets/translations/fr.js']),'No translation input or generator changed.');
 const unit=run.scope.infrastructure?['scripts/ci/policy.test.mjs']:[];
 if(run.scope.seo)unit.push('scripts/check-seo.test.mjs');
-if(run.scope.caseService)unit.push('services/case-access/tests/crypto.test.mjs');
+if(run.scope.caseService)unit.push('services/case-access/tests/crypto.test.mjs','services/case-demos/tests/worker.test.mjs');
 if(run.scope.ota)unit.push('services/tianshanos-ota/tests/releases.test.mjs');
 await check('unit and gate regressions',unit.length>0,()=>command(process.execPath,['--test',...unit],'unit'),'No corresponding unit-test consumer changed.');
 await check('deployment and operational configurations',run.scope.caseService||run.scope.caseMigrations||run.scope.ota||run.scope.configurationFiles.length>0,()=>checkConfigurations(root,run.scope),'No deployment or operational configuration dependency changed.');
@@ -79,7 +79,11 @@ try {
   },'No affected internal website navigation.');
   await check('case service integration',run.scope.caseService,async()=>{
     if(!after)throw new Error('Local Pages runtime did not start.');
-    await command(process.execPath,['services/case-access/tests/integration.mjs'],'case-integration',after.runtime,after.env);
+    let noDemo;
+    try {
+      if(run.scope.caseDemos)noDemo=await startServer(root,8790,join(output,'missing-binding-server.log'),{withoutDemoBinding:true});
+      await command(process.execPath,['services/case-access/tests/integration.mjs'],'case-integration',after.runtime,{...after.env,...(noDemo?{RMINTE_MISSING_DEMO_URL:noDemo.url,RMINTE_MISSING_DEMO_RUNTIME:noDemo.runtime}:{})});
+    } finally {if(noDemo)await noDemo.stop();}
     await command(process.execPath,['services/case-access/tests/admin-password.mjs',join(root,'node_modules/wrangler/bin/wrangler.js')],'admin-password',after.runtime,after.env);
     return 'Account service tests ran against temporary local data; connected demos are checked in browser operations.';
   },'No case-access API dependency changed.');

@@ -37,25 +37,26 @@ export function changedPaths(root,base,head) {
   return parseChanges(git(root,'diff','--name-status','-z','-M','--merge-base',base,head,'--'));
 }
 
-function readDemos(root) {
+export function readDemos(root) {
   const resources=caseResources(root);
-  const entries=Object.entries(resources).filter(([,resource])=>resource.demoPath);
+  const entries=Object.entries(resources).filter(([,resource])=>resource.demoPath||resource.demoUrl);
   const config='services/case-demos/wrangler.jsonc';
   if(!existsSync(join(root,config))) {
-    if(entries.length||existsSync(join(root,'services/case-demos/assets')))throw new Error('Case demos need their Worker configuration and website resource entries.');
-    return [];
+    if(entries.some(([,r])=>r.demoPath)||existsSync(join(root,'services/case-demos/cases')))throw new Error('Case demos need their Worker configuration and website resource entries.');
   }
-  const assets=resolve(root,dirname(config),readJsonc(root,config).assets.directory);
+  const assets=existsSync(join(root,config))?resolve(root,dirname(config),readJsonc(root,config).assets.directory):null;
   const demos=entries.map(([id,resource])=>{
-    const directory=resolve(assets,'.'+resource.demoPath),scenario=`tests/browser/demos/${id}.mjs`;
-    if(!directory.startsWith(assets+'/')||!existsSync(join(directory,'index.html')))throw new Error(`Demo ${id}: missing index.html in its deployed assets directory.`);
+    const scenario=`tests/browser/demos/${id}.mjs`;
     if(!existsSync(join(root,scenario)))throw new Error(`Demo ${id}: add its main click flow in ${scenario}.`);
+    if(resource.demoUrl)return {id,kind:'website',src:resource.demoUrl,scenario,files:[],route:`/api/resources/${id}/demo`};
+    const directory=resolve(assets,'.'+resource.demoPath);
+    if(!directory.startsWith(assets+'/')||!existsSync(join(directory,'index.html')))throw new Error(`Demo ${id}: missing index.html in its deployed assets directory.`);
     const prefix=relative(root,directory)+'/';
     const files=git(root,'ls-files','--cached','--others','--exclude-standard','-z','--',prefix).split('\0').filter(file=>file&&existsSync(join(root,file))).map(file=>file.slice(prefix.length)).sort();
-    return {id,directory:relative(root,directory),assetPath:resource.demoPath,scenario,route:`/api/resources/${id}/demo`,files};
+    return {id,kind:'private',directory:relative(root,directory),assetPath:resource.demoPath,scenario,route:`/api/resources/${id}/demo`,files};
   });
-  for(const folder of readdirSync(assets,{withFileTypes:true}).filter(entry=>entry.isDirectory())) {
-    if(!demos.some(demo=>resolve(root,demo.directory)===join(assets,folder.name)))throw new Error(`Demo directory ${folder.name}: connect its website entry in services/case-access/resources.mjs.`);
+  for(const folder of (assets?readdirSync(assets,{withFileTypes:true}):[]).filter(entry=>entry.isDirectory())) {
+    if(!demos.some(demo=>demo.kind==='private'&&resolve(root,demo.directory)===join(assets,folder.name,'public')))throw new Error(`Demo directory ${folder.name}: connect its website entry in services/case-access/resources.mjs.`);
   }
   return demos;
 }

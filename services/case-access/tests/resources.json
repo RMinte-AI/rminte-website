@@ -1,0 +1,28 @@
+{
+  "ci-website": {
+    "demoUrl": "https://preview.example.invalid/interactive?embed=1"
+  },
+  "ci-download": {
+    "fileKey": "ci-preview/sample.txt",
+    "fileName": "sample.txt"
+  },
+  "ci-conflict": {
+    "demoPath": "/industrial-modeling/public/",
+    "demoEntry": "index.html",
+    "demoUrl": "https://preview.example.invalid/"
+  },
+  "ci-unsafe-entry": {
+    "demoPath": "/industrial-modeling/public/",
+    "demoEntry": "../other/index.html"
+  },
+  "ci-unsafe-website": {
+    "demoUrl": "https://user:password@preview.example.invalid/"
+  },
+  "ci-insecure-website": {
+    "demoUrl": "http://preview.example.invalid/"
+  },
+  "ci-absolute-entry": {
+    "demoPath": "/industrial-modeling/public/",
+    "demoEntry": "/api/resources/ci-absolute-entry/demo/index.html"
+  }
+}

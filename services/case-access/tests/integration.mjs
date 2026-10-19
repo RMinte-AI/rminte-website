@@ -7,9 +7,12 @@ const username=credentials.match(/用户名：(.*)/)[1],password=credentials.mat
 let admin='',user='';const checks=[];
 async function call(path,{method='GET',data,cookie='',origin=base}={}){const r=await fetch(base+path,{method,headers:{Origin:origin,...(data?{'Content-Type':'application/json'}:{}),...(cookie?{Cookie:cookie}:{})},body:data?JSON.stringify(data):undefined});let body;try{body=await r.json()}catch{body=null}return {status:r.status,body,cookie:r.headers.get('set-cookie')?.split(';')[0],headers:r.headers};}
 function ok(name,condition){assert.ok(condition,name);checks.push(name);}
+const previews=Object.entries(resources).filter(([,r])=>r.demoUrl||r.demoPath);
+const validPreviews=previews.filter(([id])=>!id.startsWith('ci-')||id==='ci-website');
 const downloads=Object.entries(resources).filter(([,resource])=>resource.fileKey);
 let r=await call('/api/admin/users');ok('unauthenticated admin rejected',r.status===401);
 for(const [id] of downloads)ok('anonymous download rejected: '+id,(await call(`/api/resources/${id}/download`)).status===401);
+for(const [id] of previews)ok('anonymous preview rejected: '+id,(await call(`/api/resources/${id}/preview`)).status===401);
 r=await call('/api/login',{method:'POST',data:{username,password}});ok('admin login',r.status===200&&r.body.user.role==='admin');admin=r.cookie;ok('HttpOnly SameSite session',r.headers.get('set-cookie').includes('HttpOnly')&&r.headers.get('set-cookie').includes('SameSite=Strict'));
 r=await call('/api/admin/users',{method:'POST',cookie:admin,origin:'https://other.example',data:{can_demo:true,can_download:false}});ok('cross origin write blocked',r.status===403);
 r=await call('/api/admin/users',{method:'POST',cookie:admin,data:{can_demo:true,can_download:false}});ok('account generated',r.status===201);const account=r.body;
@@ -24,10 +27,35 @@ try{
  r=await call('/api/resources/ci-unregistered/download',{cookie:user});ok('download denied independently',r.status===403);
  for(const [id] of downloads)ok('registered download denied independently: '+id,(await call(`/api/resources/${id}/download`,{cookie:user})).status===403);
  r=await call('/api/resources/ci-unregistered/demo',{cookie:user});ok('authorized but missing demo explicitly unavailable',r.status===503);
+ for(const [id,resource] of validPreviews){
+  for(const cookie of [user,admin]){
+   const preview=await call(`/api/resources/${id}/preview`,{cookie});
+   ok('preview succeeds for user and admin: '+id,preview.status===200);
+   ok('preview private cache: '+id,preview.headers.get('cache-control').includes('no-store'));
+   if(resource.demoUrl)ok('fixed website descriptor: '+id,preview.body.kind==='website'&&preview.body.src===resource.demoUrl);
+   else {
+    ok('private descriptor stays within gateway: '+id,preview.body.kind==='private'&&preview.body.src===`/api/resources/${id}/demo/${resource.demoEntry}`);
+   }
+  }
+  if(resource.demoPath){
+   const entry=`/api/resources/${id}/demo/${resource.demoEntry}`;
+   ok('anonymous private entry rejected: '+id,(await call(entry)).status===401);
+   const bytes=await fetch(base+entry,{headers:{Cookie:user}});
+   ok('authorized private entry served: '+id,bytes.status===200&&bytes.headers.get('cache-control').includes('no-store'));
+   await bytes.body?.cancel();
+  }
+ }
+ for(const id of ['ci-download','ci-conflict','ci-unsafe-entry','ci-absolute-entry','ci-unsafe-website','ci-insecure-website','ci-unregistered'])
+  ok('unconfigured or invalid preview fails closed: '+id,(await call(`/api/resources/${id}/preview`,{cookie:user})).status===503);
  r=await call('/api/admin/users/'+account.id+'/logins',{cookie:admin});ok('login recorded with time and IP fields',r.body.events.length===1&&r.body.events[0].occurred_at&&typeof r.body.events[0].ip==='string'&&'region' in r.body.events[0]);
  r=await call('/api/admin/users/'+account.id,{method:'PATCH',cookie:admin,data:{can_demo:false,can_download:true}});ok('admin updates two permissions',r.status===200);
  r=await call('/api/session',{cookie:user});ok('permissions change in existing session',!r.body.user.can_demo&&r.body.user.can_download);
  r=await call('/api/resources/ci-unregistered/demo',{cookie:user});ok('revoked demo denied',r.status===403);
+ for(const [id,resource] of validPreviews){
+  ok('revoked preview denied: '+id,(await call(`/api/resources/${id}/preview`,{cookie:user})).status===403);
+  if(resource.demoPath)ok('revoked private bytes denied: '+id,(await call(`/api/resources/${id}/demo/${resource.demoEntry}`,{cookie:user})).status===403);
+ }
+
  r=await call('/api/resources/ci-unregistered/download',{cookie:user});ok('authorized missing download explicit',r.status===503);
  for(const [id,resource] of downloads){
   const file=await fetch(`${base}/api/resources/${id}/download`,{headers:{Cookie:user}});
@@ -51,5 +79,15 @@ try{
  r=await call('/api/login',{method:'POST',data:{username:account.username,password:account.password}});ok('deleted credentials rejected',r.status===401);
  r=await call('/api/logout',{method:'POST',cookie:admin});ok('logout',r.status===200);
  r=await call('/api/admin/users',{cookie:admin});ok('logout revokes session',r.status===401);
+ if(process.env.RMINTE_MISSING_DEMO_URL){
+  const missingBase=process.env.RMINTE_MISSING_DEMO_URL;
+  const auth=await readFile(process.env.RMINTE_MISSING_DEMO_RUNTIME+'/services/case-access/.local/admin-login.txt','utf8');
+  const login=await fetch(missingBase+'/api/login',{method:'POST',headers:{Origin:missingBase,'Content-Type':'application/json'},body:JSON.stringify({username:'admin',password:auth.match(/密码：(.*)/)[1]})});
+  ok('missing-binding runtime login',login.status===200);const cookie=login.headers.get('set-cookie').split(';')[0];await login.body.cancel();
+  for(const [id,expected] of [['industrial-modeling',503],['ci-website',200]]){
+   const response=await fetch(missingBase+`/api/resources/${id}/preview`,{headers:{Cookie:cookie}});
+   ok('no private binding: '+id,response.status===expected);await response.body.cancel();
+  }
+ }
  console.log(JSON.stringify({passed:checks.length,checks},null,2));
 }finally{await call('/api/admin/users/'+account.id,{method:'DELETE',cookie:admin});}
