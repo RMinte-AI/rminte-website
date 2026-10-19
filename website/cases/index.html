@@ -30,7 +30,7 @@
       // Each CJK face is requested only when its language is shown: every page used to ask for Noto Sans SC, JP and KR (about 0.9 MB of fonts and
       // 210 KB of stylesheet that English, Spanish and French visitors never use). While the head is parsing, document.write keeps the link
       // render-blocking like a static one; i18n.js calls this again (late) when the visitor switches language.
-      var cjk = { zh: 'assets/fonts/noto-sans-sc.css?v=cases-20261013', ja: 'https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&display=swap', ko: 'https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap' };
+      var cjk = { zh: 'assets/fonts/noto-sans-sc.css?v=case-suppliers-20261019', ja: 'https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&display=swap', ko: 'https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap' };
       c.fonts = function (l, late) {
         if (!cjk[l] || document.querySelector('link[data-cjk="' + l + '"]')) return;
         var h = /^https:/.test(cjk[l]) ? cjk[l] : up + cjk[l];
@@ -46,7 +46,7 @@
   <script src="../assets/footer.js?v=d9-nav-1" defer></script>
   <script src="case-demo.js" defer></script>
   <link rel="stylesheet" href="case-demo.css">
-  <script src="cases.js?v=cases-demo-20261014" defer></script>
+  <script src="cases.js?v=case-suppliers-20261019" defer></script>
   <script type="module" src="wave.js?v=cases-wave-20261013"></script>
 </head>
 <body class="brand-page cases-body">
