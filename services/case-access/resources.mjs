@@ -3,6 +3,7 @@
 // Website: demoUrl (fixed HTTPS entry, displayed directly). Exactly one source.
 // fileKey/fileName independently grant access to downloads; download-only entries are valid.
 export const resources = {
+  'digital-toll': {demoPath:'/digital-toll/public/', demoEntry:'index.html?embed=1'},
   'highway-coordination': {demoUrl:'https://sdgs.botropy.com/'},
   'industrial-modeling': {demoPath:'/industrial-modeling/public/', demoEntry:'index.html?embed=1'}
 };
