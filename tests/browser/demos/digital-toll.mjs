@@ -21,6 +21,16 @@ export default async function({page,frame,caseName,reopen=false,testInfo,languag
   const assistantAvatar=await assistant.locator('.avatar').boundingBox(),assistantBody=await assistant.locator('.message-content').boundingBox();
   expect(userAvatar.x).toBeGreaterThan(userBody.x);expect(assistantAvatar.x).toBeLessThan(assistantBody.x);
   const screenshot=async name=>testInfo.attach(`digital-toll ${name}`,{body:await page.locator('#case-demo-modal').screenshot(),contentType:'image/png'});
+  if(width===390) {
+    await frame.locator('#toggle-sidebar').press('Enter');
+    await expect(frame.locator('#new-chat')).toBeFocused();
+    await frame.locator('#new-chat').press('Tab');
+    await expect(frame.locator('#open-plaza')).toBeFocused();
+    await screenshot('sidebar keyboard');
+    await frame.locator('#open-plaza').press('Escape');
+    await expect(frame.locator('#toggle-sidebar')).toBeFocused();
+    await expect(frame.locator('#toggle-sidebar')).toHaveAttribute('aria-expanded','false');
+  }
   await screenshot('daily answer');
   await frame.locator('#scenario').selectOption('payments');await frame.locator('#question').press('Enter');
   await expect(frame.locator('.message.assistant').last()).toContainText('236,480.00');

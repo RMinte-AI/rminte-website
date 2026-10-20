@@ -133,7 +133,11 @@ $('composer').addEventListener('submit',event=>{
 $('question').addEventListener('keydown',event=>{if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();$('composer').requestSubmit();}});
 $('new-chat').addEventListener('click',newChat);
 $('open-plaza').addEventListener('click',()=>navigate('plaza'));
-$('toggle-sidebar').addEventListener('click',()=>{$('workspace').classList.toggle(mobile.matches?'mobile-nav':'collapsed');syncSidebar();});
+$('toggle-sidebar').addEventListener('click',()=>{
+  const opened=$('workspace').classList.toggle(mobile.matches?'mobile-nav':'collapsed');
+  syncSidebar();
+  if(mobile.matches&&opened)$('new-chat').focus();
+});
 mobile.addEventListener('change',()=>{$('workspace').classList.remove('mobile-nav');syncSidebar();});
 document.addEventListener('click',event=>{
   const feature=event.target.closest('[data-feature]');if(feature){navigate('feature',feature.dataset.feature);return;}
