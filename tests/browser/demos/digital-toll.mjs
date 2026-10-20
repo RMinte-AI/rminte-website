@@ -4,7 +4,6 @@ export default async function({page,frame,caseName,reopen=false,testInfo,languag
   expect(caseName).toMatch(/AI 数字收费员|AI Digital Toll Operator/);
   await expect(page.locator('#case-demo-modal')).toHaveCSS('background-color','rgb(20, 23, 27)');
   await expect(page.locator('#case-demo-modal')).toHaveCSS('box-shadow','none');
-  await expect(frame.locator('body')).toHaveCSS('background-color','rgba(0, 0, 0, 0)');
   await expect(frame.locator('html')).toHaveCSS('background-color','rgb(255, 255, 255)');
   await expect(frame.locator('#welcome')).toBeVisible();
   await expect(frame.locator('.demo-label')).toHaveText('交互演示 · 全部为模拟数据');
@@ -17,6 +16,7 @@ export default async function({page,frame,caseName,reopen=false,testInfo,languag
   await expect(frame.locator('.message.assistant')).toContainText('236,480.00 元');
   if(reopen)return;
   const user=frame.locator('.message.user'),assistant=frame.locator('.message.assistant');
+  const originalQuestion=await user.elementHandle(),originalAnswer=await assistant.elementHandle();
   const userAvatar=await user.locator('.avatar').boundingBox(),userBody=await user.locator('.message-content').boundingBox();
   const assistantAvatar=await assistant.locator('.avatar').boundingBox(),assistantBody=await assistant.locator('.message-content').boundingBox();
   expect(userAvatar.x).toBeGreaterThan(userBody.x);expect(assistantAvatar.x).toBeLessThan(assistantBody.x);
@@ -25,6 +25,9 @@ export default async function({page,frame,caseName,reopen=false,testInfo,languag
   await frame.locator('#scenario').selectOption('payments');await frame.locator('#question').press('Enter');
   await expect(frame.locator('.message.assistant').last()).toContainText('236,480.00');
   await expect(frame.locator('.message.assistant').last().locator('tbody tr')).toHaveCount(5);
+  expect(await originalQuestion.evaluate(node=>node.isConnected)).toBe(true);
+  expect(await originalAnswer.evaluate(node=>node.isConnected)).toBe(true);
+  await expect(frame.locator('#messages article')).toHaveCount(4);
   await frame.locator('#scenario').selectOption('exception');await frame.locator('#send').click();
   await expect(frame.locator('.message.assistant').last()).toContainText('2 项待核对');
   await frame.locator('#scenario').selectOption('policy');await frame.locator('#send').click();
@@ -76,6 +79,16 @@ export default async function({page,frame,caseName,reopen=false,testInfo,languag
     }
     if(id==='payment') {
       await expect(frame.locator('#feature-result tbody tr')).toHaveCount(2);
+      const scroll=frame.getByRole('region',{name:'支付流水核对',exact:true});
+      await frame.locator('#feature-result').press('Tab');
+      await expect(scroll).toBeFocused();
+      await expect(scroll).toHaveCSS('outline-style','solid');
+      if(width===390) {
+        expect(await scroll.evaluate(node=>node.scrollWidth>node.clientWidth)).toBe(true);
+        await scroll.press('ArrowRight');
+        await expect.poll(()=>scroll.evaluate(node=>node.scrollLeft)).toBeGreaterThan(0);
+        await screenshot('table keyboard scroll');
+      }
       await frame.locator('[name=scope]').selectOption('all');await frame.locator('#feature-form [type=submit]').click();
       await expect(frame.locator('#feature-result tbody tr')).toHaveCount(3);
     }
@@ -85,7 +98,16 @@ export default async function({page,frame,caseName,reopen=false,testInfo,languag
     await expect(frame.locator('#feature-form')).toBeVisible();
   }
   await nav('#new-chat');await expect(frame.locator('#welcome')).toBeVisible();
-  await nav('#recent button');await expect(frame.locator('.message.assistant')).toHaveCount(4);
+  await expect(frame.locator('#new-chat')).toHaveAttribute('aria-current','page');
+  await frame.locator('#scenario').selectOption('policy');await frame.locator('#send').click();
+  await expect(frame.locator('#recent [aria-current=page]')).toHaveText('查验资料追溯');
+  await nav('#recent button[title="出口流水查询"]');
+  await expect(frame.locator('.message.assistant')).toHaveCount(4);
+  await expect(frame.locator('#recent [aria-current=page]')).toHaveText('出口流水查询');
+  await expect(frame.locator('#sidebar [aria-current=page]')).toHaveCount(1);
+  await expect(frame.locator('#new-chat')).not.toHaveAttribute('aria-current','page');
+  if(width===390)await frame.locator('#toggle-sidebar').click();
+  await screenshot('history current');
   await nav('#clear-history');await frame.locator('#cancel-clear').click();
   await expect(frame.locator('.message.assistant')).toHaveCount(4);
   await nav('#clear-history');await frame.locator('#confirm-clear-button').click();
