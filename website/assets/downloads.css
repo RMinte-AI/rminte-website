@@ -111,3 +111,21 @@
 @keyframes download-drop { 0% { transform: none; opacity: 1; } 42% { transform: translateY(9px); opacity: 0; } 43% { transform: translateY(-9px); opacity: 0; } 100% { transform: none; opacity: 1; } }
 .download-action.is-sent > span:last-child svg { animation: download-drop 760ms var(--ease-settle); }
 @media (prefers-reduced-motion: reduce) { .download-overview-line { display: none; } .download-action.is-sent > span:last-child svg { animation: none; } }
+
+/* Dealer downloads: uses the shared case-dialog material. */
+.dealer-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 16px; }
+.dealer-access { display: inline-flex; flex: none; align-items: center; gap: 8px; color: var(--text-3); font-size: var(--fs-caption); }
+.dealer-access svg { width: 16px; height: 16px; }
+.dealer-lead { margin: 0 0 28px; color: var(--text-2); font-size: var(--fs-small); line-height: 1.85; }
+[data-dealer-download][aria-busy="true"] { cursor: progress; opacity: .65; }
+.dealer-dialog { margin: auto; }
+.dealer-dialog::before { content: ''; position: absolute; top: 0; left: 24px; right: 24px; height: 1px; background: linear-gradient(90deg, transparent, var(--text-1), transparent); opacity: .6; pointer-events: none; }
+.dealer-dialog-icon { display: grid; place-items: center; width: 48px; height: 48px; margin-bottom: 24px; border: 1px solid var(--line-2); border-radius: var(--radius-panel); color: var(--text-2); }
+.dealer-dialog-icon svg { width: 24px; height: 24px; }
+.dealer-file { padding: 16px; border: 1px solid var(--line-2); border-radius: var(--radius-panel); display: grid; gap: 8px; }
+.dealer-file > span { font-size: var(--fs-note); color: var(--text-3); }
+.dealer-file strong { font-size: var(--fs-small); font-weight: 400; line-height: 1.7; overflow-wrap: anywhere; }
+.dealer-dialog .dealer-actions { justify-content: flex-end; margin-top: 28px; }
+.dealer-dialog .dealer-actions [hidden] { display: none; }
+@media (max-width: 700px) { .dealer-dialog { margin: auto 16px 16px; } .dealer-head { align-items: flex-start; flex-direction: column; gap: 12px; } }
+@media (max-width: 360px) { .dealer-actions > * { width: 100%; } .dealer-actions .primary { order: -1; } }

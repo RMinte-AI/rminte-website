@@ -1,15 +1,15 @@
 window.CASE_AUTH = (()=>{
- let user=null;
+ let user=null, generation=0, query=0, writes=Promise.resolve();
  // Copy of the authorised-access panel on the cases page (#access). Every string is a zh/en pair that cases.js paints in the visitor's language;
  // the admin console is Chinese only and has no #access, so render() does nothing there.
  const PANEL={
   label:{zh:'授权访问',en:'AUTHORISED ACCESS'},
   hint:{zh:'已有官方分发的账号？登录后可进入获准的演示与下载资料。',en:'Have an account issued by us? Sign in to open the demos and materials you are authorised to use.'},
   signIn:{zh:'授权登录',en:'Sign in'},
-  demos:{zh:'查看演示',en:'View demos'},
-  downloads:{zh:'下载相关资料',en:'Download materials'},
-  on:{zh:'已授权',en:'Authorised'},
-  off:{zh:'未授权',en:'Not authorised'},
+  cases:{zh:'案例访问',en:'Case access'},
+  all:{zh:'全部案例',en:'All cases'},
+  count:{zh:'已授权 {n} 个案例',en:'{n} cases authorised'},
+  changePassword:{zh:'请先到管理后台修改初始密码',en:'Change your initial password in the admin console first'},
   admin:{zh:'管理后台',en:'Admin console'},
   signOut:{zh:'退出登录',en:'Sign out'},
   unavailable:{zh:'账号服务暂时不可用',en:'The account service is temporarily unavailable'}
@@ -32,16 +32,42 @@ window.CASE_AUTH = (()=>{
   }else{
    const who=node('p','who');who.textContent=user.username;
    const list=node('ul','p');
-   [[PANEL.demos,user.can_demo],[PANEL.downloads,user.can_download]].forEach(([label,granted])=>{const item=node('li');if(granted)item.dataset.state='ok';item.append(node('span','',label),node('span','',granted?PANEL.on:PANEL.off));list.append(item);});
+   const granted=user.all_cases?PANEL.all:PANEL.count;
+   const item=node('li'),value=node('span','',user.must_change_password?PANEL.changePassword:granted);if(!user.all_cases&&!user.must_change_password)value.dataset.n=String(user.case_ids.length);if(user.all_cases||user.case_ids.length)item.dataset.state='ok';item.append(node('span','',PANEL.cases),value);list.append(item);
    const row=node('div','row');
    if(user.role==='admin'){const link=node('a','cs-pill ghost',PANEL.admin);link.href='/admin/';row.append(link);}
-   const out=node('button','txt',PANEL.signOut);out.type='button';out.onclick=async()=>{try{await api('/api/logout',{method:'POST'});user=null;render();window.dispatchEvent(new Event('case-auth-change'));}catch(e){render(e);}};
+   const out=node('button','txt',PANEL.signOut);out.type='button';out.onclick=async()=>{try{await logout();}catch(e){render(e);}};
    row.append(out);panel.append(who,list,row);
   }
   if(problem){const note=problem.unavailable?node('div','cs-msg',PANEL.unavailable):node('div','cs-msg');if(!problem.unavailable)note.textContent=problem.message;panel.append(note);}
   window.dispatchEvent(new Event('case-auth-render'));
  }
- async function refresh(){user=(await api('/api/session')).user;render();return user;}
- async function login(username,password){user=(await api('/api/login',{method:'POST',body:JSON.stringify({username,password})})).user;render();return user;}
- return {api,refresh,login,render,get user(){return user;}};
+ // A stale query must not mutate shared auth state or dispatch render events.
+ async function refresh({isCurrent=()=>true,signal}={}){
+  const version=generation,request=++query;
+  let result,problem;
+  try{result=await api('/api/session',{signal});}catch(error){problem=error;}
+  if(version!==generation||request!==query||!isCurrent())return user;
+  if(problem)throw problem;
+  user=result.user;render();return user;
+ }
+ // Serialize the complete Cookie-writing operation, including the user commit.
+ // A rejected operation still rejects its caller; the next submitted write can run.
+ function writeSession(action){
+  const run=async()=>{++generation;try{return await action();}finally{++generation;}};
+  const result=writes.then(run,run);writes=result;return result;
+ }
+ function login(username,password){return writeSession(async()=>{
+  const result=await api('/api/login',{method:'POST',body:JSON.stringify({username,password})});
+  user=result.user;render();return user;
+ });}
+ function logout(){return writeSession(async()=>{
+  await api('/api/logout',{method:'POST'});user=null;render();window.dispatchEvent(new Event('case-auth-change'));
+ });}
+ function changePassword(passwords){return writeSession(async()=>{
+  await api('/api/admin/password',{method:'POST',body:JSON.stringify(passwords)});
+  user=null;render();window.dispatchEvent(new Event('case-auth-change'));
+ });}
+ function canAccess(id){return !!user&&!user.must_change_password&&(user.all_cases||user.case_ids.includes(id));}
+ return {api,refresh,login,logout,changePassword,render,canAccess,get user(){return user;}};
 })();

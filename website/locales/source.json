@@ -4096,189 +4096,189 @@
     "zh": "交通服务",
     "en": "Transport",
     "sources": [
-      "cases/cases.js.groups.0"
+      "assets/case-catalog.mjs.groups.0"
     ]
   },
   {
     "zh": "企业运营",
     "en": "Enterprise operations",
     "sources": [
-      "cases/cases.js.groups.1"
+      "assets/case-catalog.mjs.groups.1"
     ]
   },
   {
     "zh": "公共事务",
     "en": "Public affairs",
     "sources": [
-      "cases/cases.js.groups.2"
+      "assets/case-catalog.mjs.groups.2"
     ]
   },
   {
     "zh": "文档与知识",
     "en": "Documents and knowledge",
     "sources": [
-      "cases/cases.js.groups.3"
+      "assets/case-catalog.mjs.groups.3"
     ]
   },
   {
     "zh": "工业研发",
     "en": "Industrial R&D",
     "sources": [
-      "cases/cases.js.groups.4"
+      "assets/case-catalog.mjs.groups.4"
     ]
   },
   {
     "zh": "AI 数字收费员",
     "en": "AI Digital Toll Operator",
     "sources": [
-      "cases/cases.js.cases.0.name"
+      "assets/case-catalog.mjs.cases.0.name"
     ]
   },
   {
     "zh": "面向收费业务的 AI 应用，探索数字收费员参与业务服务的方式。",
     "en": "An AI application for toll operations, exploring how a digital operator can take part in the service.",
     "sources": [
-      "cases/cases.js.cases.0.desc"
+      "assets/case-catalog.mjs.cases.0.desc"
     ]
   },
   {
     "zh": "AI 信息资产审计",
     "en": "AI Information Asset Audit",
     "sources": [
-      "cases/cases.js.cases.1.name"
+      "assets/case-catalog.mjs.cases.1.name"
     ]
   },
   {
     "zh": "围绕信息资产开展 AI 审计，辅助审阅与整理相关材料。",
     "en": "AI-assisted audit of information assets, helping review and organise the related materials.",
     "sources": [
-      "cases/cases.js.cases.1.desc"
+      "assets/case-catalog.mjs.cases.1.desc"
     ]
   },
   {
     "zh": "基层事务 AI 助理",
     "en": "Community Affairs AI Assistant",
     "sources": [
-      "cases/cases.js.cases.2.name"
+      "assets/case-catalog.mjs.cases.2.name"
     ]
   },
   {
     "zh": "面向基层日常事务，探索 AI 辅助处理与信息整理。",
     "en": "Exploring AI support for everyday community affairs, from handling to organising information.",
     "sources": [
-      "cases/cases.js.cases.2.desc"
+      "assets/case-catalog.mjs.cases.2.desc"
     ]
   },
   {
     "zh": "AI 节能调度专家",
     "en": "AI Energy Dispatch Expert",
     "sources": [
-      "cases/cases.js.cases.3.name"
+      "assets/case-catalog.mjs.cases.3.name"
     ]
   },
   {
     "zh": "将 AI 应用于节能与调度场景，辅助分析业务中的能源使用与调度问题。",
     "en": "AI for energy saving and dispatch, helping analyse energy use and scheduling in the business.",
     "sources": [
-      "cases/cases.js.cases.3.desc"
+      "assets/case-catalog.mjs.cases.3.desc"
     ]
   },
   {
     "zh": "AI 文档识别与翻译知识库",
     "en": "AI Document Recognition, Translation and Knowledge Base",
     "sources": [
-      "cases/cases.js.cases.4.name"
+      "assets/case-catalog.mjs.cases.4.name"
     ]
   },
   {
     "zh": "结合 OCR、翻译与知识库，衔接文档识别、语言转换和知识查询。",
     "en": "Combines OCR, translation and a knowledge base, linking document recognition, language conversion and lookup.",
     "sources": [
-      "cases/cases.js.cases.4.desc"
+      "assets/case-catalog.mjs.cases.4.desc"
     ]
   },
   {
     "zh": "AI 公文写作助手",
     "en": "AI Official Writing Assistant",
     "sources": [
-      "cases/cases.js.cases.5.name"
+      "assets/case-catalog.mjs.cases.5.name"
     ]
   },
   {
     "zh": "面向公文写作场景，提供 AI 辅助写作的应用入口。",
     "en": "An entry point for AI-assisted writing of official documents.",
     "sources": [
-      "cases/cases.js.cases.5.desc"
+      "assets/case-catalog.mjs.cases.5.desc"
     ]
   },
   {
     "zh": "AI 企业档案管理",
     "en": "AI Enterprise Archive Management",
     "sources": [
-      "cases/cases.js.cases.6.name"
+      "assets/case-catalog.mjs.cases.6.name"
     ]
   },
   {
     "zh": "结合 OCR 与知识库，让企业档案进入可识别、可查询的工作流程。",
     "en": "Uses OCR and a knowledge base to bring enterprise archives into a searchable workflow.",
     "sources": [
-      "cases/cases.js.cases.6.desc"
+      "assets/case-catalog.mjs.cases.6.desc"
     ]
   },
   {
     "zh": "无人机机场 AI 分析师",
     "en": "Drone Airport AI Analyst",
     "sources": [
-      "cases/cases.js.cases.7.name"
+      "assets/case-catalog.mjs.cases.7.name"
     ]
   },
   {
     "zh": "面向森林防火误报与户外活动人员探测，开展无人机影像分析。",
     "en": "Drone imagery analysis for false fire alarms in forests and detection of people in outdoor activity.",
     "sources": [
-      "cases/cases.js.cases.7.desc"
+      "assets/case-catalog.mjs.cases.7.desc"
     ]
   },
   {
     "zh": "AI 汽车研发与工业建模",
     "en": "AI Automotive R&D and Industrial Modelling",
     "sources": [
-      "cases/cases.js.cases.8.name"
+      "assets/case-catalog.mjs.cases.8.name"
     ]
   },
   {
     "zh": "覆盖零件平面图转 3D、装配建模、工业焊接机器人编程与汽车安全检测。",
     "en": "Covers part drawings to 3D, assembly modelling, industrial welding-robot programming and automotive safety inspection.",
     "sources": [
-      "cases/cases.js.cases.8.desc"
+      "assets/case-catalog.mjs.cases.8.desc"
     ]
   },
   {
     "zh": "刑事律师材料与线索 AI 整理师",
     "en": "AI Organiser for Criminal Defence Materials and Leads",
     "sources": [
-      "cases/cases.js.cases.9.name"
+      "assets/case-catalog.mjs.cases.9.name"
     ]
   },
   {
     "zh": "面向刑事律师工作中的材料与线索整理，辅助组织已有信息。",
     "en": "Helps criminal defence lawyers organise case materials and leads from existing information.",
     "sources": [
-      "cases/cases.js.cases.9.desc"
+      "assets/case-catalog.mjs.cases.9.desc"
     ]
   },
   {
     "zh": "AI 汽车功能安全检测",
     "en": "AI Automotive Functional Safety Inspection",
     "sources": [
-      "cases/cases.js.cases.10.name"
+      "assets/case-catalog.mjs.cases.10.name"
     ]
   },
   {
     "zh": "聚焦汽车功能安全检测场景，展示 AI 在专业检测工作中的应用。",
     "en": "Focused on functional safety inspection of vehicles, showing AI in professional inspection work.",
     "sources": [
-      "cases/cases.js.cases.10.desc"
+      "assets/case-catalog.mjs.cases.10.desc"
     ]
   },
   {
@@ -4622,6 +4622,229 @@
     "en": "Explore software applications and delivery built on RM-01 with us.",
     "sources": [
       "cases/index.html:101"
+    ]
+  },
+  {
+    "zh": "正在检查访问权限…",
+    "en": "Checking access…",
+    "sources": [
+      "cases/cases.js"
+    ]
+  },
+  {
+    "zh": "正在加载演示…",
+    "en": "Loading demo…",
+    "sources": [
+      "cases/cases.js"
+    ]
+  },
+  {
+    "zh": "登录已失效，请重新登录。",
+    "en": "Your session has expired. Please sign in again.",
+    "sources": [
+      "cases/cases.js"
+    ]
+  },
+  {
+    "zh": "暂未完成加载，请重试或关闭。",
+    "en": "Loading has not finished. Please retry or close.",
+    "sources": [
+      "cases/cases.js"
+    ]
+  },
+  {
+    "zh": "重试",
+    "en": "Retry",
+    "sources": [
+      "cases/cases.js"
+    ]
+  },
+  {
+    "zh": "高速公路现场智能协同",
+    "en": "Intelligent Highway Field Coordination",
+    "sources": [
+      "cases/cases.js"
+    ]
+  },
+  {
+    "zh": "面向收费站、隧道、桥梁与光伏场景，展示现场感知、智能研判和协同处置。",
+    "en": "Shows field sensing, intelligent assessment and coordinated response across toll stations, tunnels, bridges and solar sites.",
+    "sources": [
+      "cases/cases.js"
+    ]
+  },
+  {
+    "zh": "电子邮箱：",
+    "en": "Email:",
+    "sources": [
+      "cases/cases.js.COPY.contactEmail"
+    ]
+  },
+  {
+    "zh": "科技有限公司",
+    "en": "Technology Co., Ltd.",
+    "sources": [
+      "assets/case-catalog.mjs.cases.0.supplier.suffix",
+      "assets/case-catalog.mjs.cases.8.supplier.suffix",
+      "assets/case-catalog.mjs.cases.11.supplier.suffix"
+    ]
+  },
+  {
+    "zh": "案例访问",
+    "en": "Case access",
+    "sources": [
+      "assets/case-auth.js.PANEL.cases"
+    ]
+  },
+  {
+    "zh": "全部案例",
+    "en": "All cases",
+    "sources": [
+      "assets/case-auth.js.PANEL.all"
+    ]
+  },
+  {
+    "zh": "已授权 {n} 个案例",
+    "en": "{n} cases authorised",
+    "sources": [
+      "assets/case-auth.js.PANEL.count"
+    ]
+  },
+  {
+    "zh": "请先到管理后台修改初始密码",
+    "en": "Change your initial password in the admin console first",
+    "sources": [
+      "assets/case-auth.js.PANEL.changePassword"
+    ]
+  },
+  {
+    "zh": "未登录，需要登录后才能下载。",
+    "en": "You are not signed in. Please sign in before downloading.",
+    "sources": [
+      "assets/dealer-downloads.js.COPY.login.message",
+      "downloads/index.html:579"
+    ]
+  },
+  {
+    "zh": "请前往案例页面，使用已有账号登录。",
+    "en": "Go to the cases page and sign in with your existing account.",
+    "sources": [
+      "assets/dealer-downloads.js.COPY.login.help",
+      "downloads/index.html:585"
+    ]
+  },
+  {
+    "zh": "暂时无法下载",
+    "en": "Download unavailable",
+    "sources": [
+      "assets/dealer-downloads.js.COPY.unavailable.title"
+    ]
+  },
+  {
+    "zh": "资料暂时不可用，请稍后重试。",
+    "en": "This document is temporarily unavailable. Please try again later.",
+    "sources": [
+      "assets/dealer-downloads.js.COPY.unavailable.message"
+    ]
+  },
+  {
+    "zh": "如需帮助，请联系账号发放人。",
+    "en": "For help, contact the person who issued your account.",
+    "sources": [
+      "assets/dealer-downloads.js.COPY.unavailable.help",
+      "assets/dealer-downloads.js.COPY.password.help"
+    ]
+  },
+  {
+    "zh": "请先修改初始密码",
+    "en": "Change your initial password first",
+    "sources": [
+      "assets/dealer-downloads.js.COPY.password.title"
+    ]
+  },
+  {
+    "zh": "请前往管理后台修改初始密码，然后重新登录下载。",
+    "en": "Change your initial password in the admin console, then sign in again to download.",
+    "sources": [
+      "assets/dealer-downloads.js.COPY.password.message"
+    ]
+  },
+  {
+    "zh": "经销商资料",
+    "en": "Dealer resources",
+    "sources": [
+      "downloads/index.html:128",
+      "downloads/index.html:478"
+    ]
+  },
+  {
+    "zh": "需在案例页登录后下载",
+    "en": "Sign in on the cases page to download",
+    "sources": [
+      "downloads/index.html:484"
+    ]
+  },
+  {
+    "zh": "面向经销商的产品与技术资料。",
+    "en": "Product and technical materials for dealers.",
+    "sources": [
+      "downloads/index.html:487"
+    ]
+  },
+  {
+    "zh": "RM-01 产品横向参数对比（中文）",
+    "en": "RM-01 Product Specification Comparison (Chinese)",
+    "sources": [
+      "downloads/index.html:492"
+    ]
+  },
+  {
+    "zh": "产品与技术规格对比 · 中文 · PDF",
+    "en": "Product and technical specification comparison · Chinese · PDF",
+    "sources": [
+      "downloads/index.html:493"
+    ]
+  },
+  {
+    "zh": "下载资料",
+    "en": "Requested file",
+    "sources": [
+      "downloads/index.html:581"
+    ]
+  },
+  {
+    "zh": "暂不下载",
+    "en": "Cancel",
+    "sources": [
+      "downloads/index.html:587"
+    ]
+  },
+  {
+    "zh": "前往案例登录",
+    "en": "Go to sign in",
+    "sources": [
+      "downloads/index.html:589"
+    ]
+  },
+  {
+    "zh": "没有权限",
+    "en": "Access denied",
+    "sources": [
+      "assets/dealer-downloads.js.COPY.forbidden.title"
+    ]
+  },
+  {
+    "zh": "此账号尚未获得经销商资料下载权限，请联系账号发放人。",
+    "en": "This account is not authorised to download dealer resources. Please contact the person who issued your account.",
+    "sources": [
+      "assets/dealer-downloads.js.COPY.forbidden.message"
+    ]
+  },
+  {
+    "zh": "权限开通后，可直接重新下载，无需再次登录。",
+    "en": "Once access is granted, try downloading again. You do not need to sign in again.",
+    "sources": [
+      "assets/dealer-downloads.js.COPY.forbidden.help"
     ]
   }
 ]

@@ -1,9 +1,11 @@
 import {digest,passwordMac,hashAdminPassword,verifyPassword,encryptPassword,decryptPassword,randomString,randomPassword} from './crypto.mjs';
 import {resources} from './resources.mjs';
+import {dealerMaterials,MAX_DEALER_PDF_BYTES} from './dealer-materials.mjs';
+import {caseIds} from '../../website/assets/case-catalog.mjs';
 const H={'Content-Type':'application/json; charset=utf-8','Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff','Referrer-Policy':'no-referrer'};
 const json=(data,status=200,extra={})=>new Response(JSON.stringify(data),{status,headers:{...H,...extra}});
-class HttpError extends Error{constructor(status,message){super(message);this.status=status;}}
-const fail=(status,message)=>{throw new HttpError(status,message)};
+class HttpError extends Error{constructor(status,message,code){super(message);this.status=status;this.code=code;}}
+const fail=(status,message,code)=>{throw new HttpError(status,message,code)};
 const now=()=>Math.floor(Date.now()/1000);
 const cookieName=request=>new URL(request.url).protocol==='https:'?'__Host-rminte_session':'rminte_local_session';
 function cookie(request,value,age){return `${cookieName(request)}=${value}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${age}${new URL(request.url).protocol==='https:'?'; Secure':''}`;}
@@ -16,13 +18,18 @@ async function payload(request){
 }
 function field(data,key,max){const v=data[key];if(typeof v!=='string'||!v.trim()||v.length>max)fail(400,`${key} 未填写或过长`);return v.trim();}
 function passwordField(data,key){const value=data[key];if(typeof value!=='string'||!value.length||value.length>128)fail(400,'密码未填写或过长');return value;}
-function permissions(data){if(typeof data.can_demo!=='boolean'||typeof data.can_download!=='boolean')fail(400,'请分别指定演示和下载权限');return [+data.can_demo,+data.can_download];}
+function exact(data,keys){if(Object.keys(data).some(k=>!keys.includes(k)))fail(400,'请求包含不支持的字段');}
+function audit(env,actor,target,action,details){return env.CASE_DB.prepare('INSERT INTO permission_events(id,actor_id,target_id,action,details,occurred_at) VALUES(?,?,?,?,?,?)').bind(crypto.randomUUID(),actor,target,action,JSON.stringify(details),now());}
 export async function session(request,env){
  const raw=(request.headers.get('cookie')||'').split(';').map(x=>x.trim()).find(x=>x.startsWith(cookieName(request)+'='))?.split('=')[1];
  if(!raw||!/^[A-Za-z0-9]{48}$/.test(raw))return null;
- return env.CASE_DB.prepare('SELECT u.id,u.username,u.role,u.can_demo,u.can_download FROM sessions s JOIN users u ON u.id=s.user_id WHERE s.token_hash=? AND s.expires_at>?').bind(await digest(raw),now()).first();
+ return env.CASE_DB.prepare('SELECT u.id,u.username,u.role,u.is_owner,u.disabled_at,u.must_change_password,u.can_download_dealer FROM sessions s JOIN users u ON u.id=s.user_id WHERE s.token_hash=? AND s.expires_at>? AND u.disabled_at IS NULL').bind(await digest(raw),now()).first();
 }
-function publicUser(u){return u?{id:u.id,username:u.username,role:u.role,can_demo:u.role==='admin'||!!u.can_demo,can_download:u.role==='admin'||!!u.can_download}:null;}
+async function publicUser(u,env){
+ if(!u)return null;
+ const grants=u.role==='user'?await env.CASE_DB.prepare('SELECT case_id FROM case_grants WHERE user_id=? ORDER BY case_id').bind(u.id).all():{results:[]};
+ return {id:u.id,username:u.username,role:u.role,is_owner:!!u.is_owner,must_change_password:!!u.must_change_password,case_ids:grants.results.map(g=>g.case_id),all_cases:u.role==='admin'&&!u.must_change_password,resources:Object.fromEntries(caseIds.map(id=>[id,{demo:!!(resources[id]?.demoUrl||(resources[id]?.demoPath&&env.CASE_DEMOS)),download:!!(resources[id]?.fileKey&&env.CASE_FILES)}]))};
+}
 async function limit(env,key,max,seconds){
  const t=now();const row=await env.CASE_DB.prepare('INSERT INTO rate_limits(key,hits,expires_at) VALUES(?,1,?) ON CONFLICT(key) DO UPDATE SET hits=CASE WHEN expires_at<=? THEN 1 ELSE hits+1 END,expires_at=CASE WHEN expires_at<=? THEN excluded.expires_at ELSE expires_at END RETURNING hits').bind(key,t+seconds,t,t).first();
  if(row.hits>max)fail(429,'尝试过于频繁，请稍后再试');
@@ -35,22 +42,23 @@ export async function handleApi(request,env){
  if(!['GET','HEAD'].includes(method)){
   if(request.headers.get('origin')!==url.origin)fail(403,'请求来源不正确');
  }
+ if(path!=='/api/applications'){const settings=await env.CASE_DB.prepare('SELECT ready FROM access_settings WHERE id=1').first();if(!settings?.ready)fail(503,'账号权限正在升级，请稍后重试');}
  if(method==='POST'&&path==='/api/login'){
   const data=await payload(request),username=field(data,'username',80),password=passwordField(data,'password');
   await limit(env,'login-ip:'+await digest(ipOf(request)),30,900);
   await limit(env,'login-user:'+await digest(username),15,900);
   const u=await env.CASE_DB.prepare('SELECT * FROM users WHERE username=?').bind(username).first();
-  if(!u||!await verifyPassword(env.CASE_SECRET,username,password,u.password_mac))fail(401,'用户名或密码不正确');
+  if(!u||u.disabled_at!==null||!await verifyPassword(env.CASE_SECRET,username,password,u.password_mac))fail(401,'用户名或密码不正确');
   const token=randomString(48),t=now(),cf=request.cf||{};
   const created=await env.CASE_DB.batch([
-   env.CASE_DB.prepare('INSERT INTO sessions(token_hash,user_id,expires_at) SELECT ?,id,? FROM users WHERE id=? AND password_mac=?').bind(await digest(token),t+86400,u.id,u.password_mac),
+   env.CASE_DB.prepare('INSERT INTO sessions(token_hash,user_id,expires_at) SELECT ?,id,? FROM users WHERE id=? AND password_mac=? AND disabled_at IS NULL').bind(await digest(token),t+86400,u.id,u.password_mac),
    env.CASE_DB.prepare('INSERT INTO login_events(user_id,occurred_at,ip,country,region,city) VALUES(?,?,?,?,?,?)').bind(u.id,t,ipOf(request),cf.country||'',cf.region||'',cf.city||''),
    env.CASE_DB.prepare('DELETE FROM sessions WHERE expires_at<=?').bind(t),
    env.CASE_DB.prepare('DELETE FROM rate_limits WHERE expires_at<=?').bind(t),
    env.CASE_DB.prepare('DELETE FROM login_events WHERE occurred_at<?').bind(t-90*86400)
   ]);
   if(!created[0].meta.changes)fail(401,'密码已更新，请重新登录');
-  return json({user:publicUser(u)},200,{'Set-Cookie':cookie(request,token,86400)});
+  return json({user:await publicUser(u,env)},200,{'Set-Cookie':cookie(request,token,86400)});
  }
  if(method==='POST'&&path==='/api/logout'){
   const raw=(request.headers.get('cookie')||'').split(';').map(x=>x.trim()).find(x=>x.startsWith(cookieName(request)+'='))?.split('=')[1];
@@ -65,13 +73,36 @@ export async function handleApi(request,env){
   return json({ok:true},201);
  }
  const user=await session(request,env);
- if(method==='GET'&&path==='/api/session')return json({user:publicUser(user)});
+ if(method==='GET'&&path==='/api/session')return json({user:await publicUser(user,env)});
  if(!user)fail(401,'请先登录');
- const resource=path.match(/^\/api\/resources\/([a-z0-9-]+)\/(demo|download)(\/.*)?$/);
+ if(user.must_change_password&&path!=='/api/admin/password')fail(403,'请先修改初始密码','password_change_required');
+ const dealerDownload=path.match(/^\/api\/dealer-materials\/([a-z0-9-]+)\/download$/);
+ if(dealerDownload&&['GET','HEAD'].includes(method)){
+  if(user.role!=='admin'&&!user.can_download_dealer)fail(403,'此账号没有经销商资料下载权限','dealer_download_forbidden');
+  const item=dealerMaterials.find(item=>item.id===dealerDownload[1]);if(!item)fail(404,'资料不存在');
+  if(!env.CASE_FILES)fail(503,'经销商资料存储尚未配置');
+  const object=await env.CASE_FILES[method==='HEAD'?'head':'get'](item.fileKey);if(!object)fail(404,'资料不存在');
+  return new Response(method==='HEAD'?null:object.body,{headers:{'Content-Type':'application/pdf','Content-Length':String(object.size),'Content-Disposition':`attachment; filename*=UTF-8''${encodeURIComponent(item.fileName)}`,'Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff'}});
+ }
+ const resource=path.match(/^\/api\/resources\/([a-z0-9-]+)\/(preview|demo|download)(\/.*)?$/);
  if(resource&&['GET','HEAD'].includes(method)){
   const [,id,kind,tail='']=resource;
-  if(user.role!=='admin'&&!user[kind==='demo'?'can_demo':'can_download'])fail(403,kind==='demo'?'此账号没有查看演示权限':'此账号没有下载资料权限');
+  if(user.role!=='admin'&&!await env.CASE_DB.prepare('SELECT 1 FROM case_grants WHERE user_id=? AND case_id=?').bind(user.id,id).first())fail(403,'此账号没有该案例的访问权限');
   const r=resources[id];if(!r)fail(503,'该案例的演示或资料尚未接入');
+  if(kind==='preview'){
+   if(tail)fail(404,'接口不存在');
+   if(r.demoPath&&r.demoUrl)fail(503,'演示配置不可用');
+   if(r.demoUrl){
+    let target;try{target=new URL(r.demoUrl);}catch{fail(503,'演示配置不可用');}
+    if(target.protocol!=='https:'||target.username||target.password)fail(503,'演示配置不可用');
+    return json({kind:'website',src:target.href});
+   }
+   if(!r.demoPath||!env.CASE_DEMOS)fail(503,'该案例的演示尚未接入');
+   const base=new URL(`/api/resources/${id}/demo/`,url.origin);
+   let target;try{target=new URL(r.demoEntry,base);}catch{fail(503,'演示配置不可用');}
+   if(typeof r.demoEntry!=='string'||!r.demoEntry||/^(?:[a-z][a-z0-9+.-]*:|\/)/i.test(r.demoEntry)||target.origin!==base.origin||!target.pathname.startsWith(base.pathname)||/[\\]/.test(r.demoEntry))fail(503,'演示配置不可用');
+   return json({kind:'private',src:target.pathname+target.search+target.hash});
+  }
   if(kind==='demo'){
    if(!r.demoPath||!env.CASE_DEMOS)fail(503,'该案例的演示尚未接入');
    const upstream=new URL(r.demoPath+tail.replace(/^\//,''),'https://private-demo.internal');upstream.search=url.search;
@@ -86,6 +117,24 @@ export async function handleApi(request,env){
   return new Response(method==='HEAD'?null:object.body,{headers:{'Content-Type':object.httpMetadata?.contentType||'application/octet-stream','Content-Disposition':`attachment; filename*=UTF-8''${encodeURIComponent(r.fileName||'document.pdf')}`,'Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff'}});
  }
  if(user.role!=='admin')fail(403,'仅管理员可操作');
+ if(path==='/api/admin/dealer-materials'&&method==='GET'){
+  if(!env.CASE_FILES)fail(503,'经销商资料存储尚未配置');
+  const files=await Promise.all(dealerMaterials.map(async item=>{const stored=await env.CASE_FILES.head(item.fileKey);return {id:item.id,title:item.title,uploaded:!!stored,size:stored?.size||0};}));
+  return json({files});
+ }
+ const dealerUpload=path.match(/^\/api\/admin\/dealer-materials\/([a-z0-9-]+)$/);
+ if(dealerUpload&&method==='PUT'){
+  const item=dealerMaterials.find(item=>item.id===dealerUpload[1]);if(!item)fail(404,'资料不存在');
+  if(!env.CASE_FILES)fail(503,'经销商资料存储尚未配置');
+  if(request.headers.get('content-type')?.split(';')[0].trim()!=='application/pdf')fail(415,'请选择 PDF 文件');
+  const reader=request.body?.getReader();if(!reader)fail(400,'缺少 PDF 文件');
+  const chunks=[];let size=0;
+  while(true){const {done,value}=await reader.read();if(done)break;size+=value.length;if(size>MAX_DEALER_PDF_BYTES){await reader.cancel();fail(413,'PDF 不能超过 20 MB');}chunks.push(value);}
+  const bytes=new Uint8Array(size);let offset=0;for(const chunk of chunks){bytes.set(chunk,offset);offset+=chunk.length;}
+  if(new TextDecoder().decode(bytes.subarray(0,5))!=='%PDF-')fail(400,'文件不是有效的 PDF');
+  await env.CASE_FILES.put(item.fileKey,bytes,{httpMetadata:{contentType:'application/pdf'}});
+  return json({ok:true,size});
+ }
  if(path==='/api/admin/password'&&method==='POST'){
   await limit(env,'password-change:'+user.id,5,900);
   const data=await payload(request),current=passwordField(data,'current_password'),next=passwordField(data,'new_password');
@@ -95,25 +144,57 @@ export async function handleApi(request,env){
   if(!await verifyPassword(env.CASE_SECRET,user.username,current,record.password_mac))fail(400,'当前密码不正确');
   const hash=await hashAdminPassword(env.CASE_SECRET,user.username,next);
   const result=await env.CASE_DB.batch([
-   env.CASE_DB.prepare("UPDATE users SET password_mac=?,password_cipher=NULL WHERE id=? AND role='admin' AND password_mac=?").bind(hash,user.id,record.password_mac),
+   env.CASE_DB.prepare("UPDATE users SET password_mac=?,password_cipher=NULL,must_change_password=0 WHERE id=? AND role='admin' AND disabled_at IS NULL AND password_mac=?").bind(hash,user.id,record.password_mac),
    env.CASE_DB.prepare('DELETE FROM sessions WHERE user_id=? AND EXISTS (SELECT 1 FROM users WHERE id=? AND password_mac=?)').bind(user.id,user.id,hash)
   ]);
   if(!result[0].meta.changes)fail(409,'密码已被更新，请重新登录');
   return json({ok:true},200,{'Set-Cookie':cookie(request,'',0)});
  }
 
+ if(path==='/api/admin/admins'||path.startsWith('/api/admin/admins/')){
+  if(!user.is_owner)fail(403,'仅主管理员可操作');
+  if(path==='/api/admin/admins'&&method==='GET'){
+   const offset=Math.max(0,Math.min(100000,Number(url.searchParams.get('offset'))||0));
+   const {results}=await env.CASE_DB.prepare("SELECT id,username,label,disabled_at,must_change_password,created_at,(SELECT MAX(occurred_at) FROM login_events WHERE user_id=users.id) AS occurred_at FROM users WHERE role='admin' AND is_owner=0 ORDER BY created_at DESC,id LIMIT 51 OFFSET ?").bind(offset).all();
+   return json({admins:results.slice(0,50),more:results.length>50});
+  }
+  if(path==='/api/admin/admins'&&method==='POST'){
+   const data=await payload(request);exact(data,['label']);
+   if(data.label!==undefined&&(typeof data.label!=='string'||data.label.length>40))fail(400,'备注不能超过 40 个字符');
+   const label=(data.label||'').trim(),username='rminte-admin-'+randomString(10,'abcdefghijklmnopqrstuvwxyz0123456789'),password=randomString(24),id=crypto.randomUUID();
+   await env.CASE_DB.batch([
+    env.CASE_DB.prepare("INSERT INTO users(id,username,role,password_mac,password_cipher,created_at,must_change_password,label) VALUES(?,?,'admin',?,NULL,?,1,?)").bind(id,username,await hashAdminPassword(env.CASE_SECRET,username,password),now(),label),
+    audit(env,user.id,id,'admin_created',{label})
+   ]);
+   return json({id,username,password,label},201);
+  }
+  const target=path.match(/^\/api\/admin\/admins\/([a-f0-9-]+)$/);
+  if(target&&method==='PATCH'){
+   const data=await payload(request);exact(data,['enabled']);if(typeof data.enabled!=='boolean')fail(400,'请指定账号状态');
+   const id=target[1],u=await env.CASE_DB.prepare("SELECT id FROM users WHERE id=? AND role='admin' AND is_owner=0").bind(id).first();if(!u)fail(404,'管理员不存在');
+   await env.CASE_DB.batch([
+    env.CASE_DB.prepare("UPDATE users SET disabled_at=? WHERE id=? AND role='admin' AND is_owner=0").bind(data.enabled?null:now(),id),
+    env.CASE_DB.prepare('DELETE FROM sessions WHERE user_id=?').bind(id),
+    audit(env,user.id,id,data.enabled?'admin_enabled':'admin_disabled',{})
+   ]);
+   return json({ok:true});
+  }
+  fail(404,'接口不存在');
+ }
  if(path==='/api/admin/users'&&method==='GET'){
   const offset=Math.max(0,Math.min(100000,Number(url.searchParams.get('offset'))||0));
-  const {results}=await env.CASE_DB.prepare(`SELECT u.id,u.username,u.role,u.password_cipher,u.can_demo,u.can_download,u.created_at,e.occurred_at,e.ip,e.country,e.region,e.city FROM users u LEFT JOIN login_events e ON e.id=(SELECT id FROM login_events WHERE user_id=u.id ORDER BY occurred_at DESC,id DESC LIMIT 1) WHERE u.role='user' ORDER BY u.created_at DESC,u.id LIMIT 51 OFFSET ?`).bind(offset).all();
-  return json({users:results.slice(0,50).map(({password_cipher,...u})=>u),more:results.length>50});
+  const {results}=await env.CASE_DB.prepare(`SELECT u.id,u.username,u.role,u.permissions_version,u.can_download_dealer AS dealer_download,u.created_at,e.occurred_at,e.ip,e.country,e.region,e.city FROM users u LEFT JOIN login_events e ON e.id=(SELECT id FROM login_events WHERE user_id=u.id ORDER BY occurred_at DESC,id DESC LIMIT 1) WHERE u.role='user' ORDER BY u.created_at DESC,u.id LIMIT 51 OFFSET ?`).bind(offset).all();
+  const page=results.slice(0,50);
+  const grants=page.length?await env.CASE_DB.prepare(`SELECT user_id,case_id FROM case_grants WHERE user_id IN (${page.map(()=>'?').join(',')}) ORDER BY case_id`).bind(...page.map(u=>u.id)).all():{results:[]};
+  return json({users:page.map(u=>({...u,dealer_download:!!u.dealer_download,case_ids:grants.results.filter(g=>g.user_id===u.id).map(g=>g.case_id)})),more:results.length>50});
  }
  if(path==='/api/admin/users'&&method==='POST'){
-  await payload(request);
+  exact(await payload(request),[]);
   const demo=0,download=0,username='rminte-'+randomString(10,'abcdefghijklmnopqrstuvwxyz0123456789'),password=randomPassword(),id=crypto.randomUUID();
   await env.CASE_DB.prepare('INSERT INTO users(id,username,role,password_mac,password_cipher,can_demo,can_download,created_at) VALUES(?,?,?,?,?,?,?,?)').bind(id,username,'user',await passwordMac(env.CASE_SECRET,username,password),await encryptPassword(env.CASE_SECRET,username,password),demo,download,now()).run();
   return json({id,username,password},201);
  }
- const match=path.match(/^\/api\/admin\/users\/([a-f0-9-]+)(?:\/(password|logins))?$/);
+ const match=path.match(/^\/api\/admin\/users\/([a-f0-9-]+)(?:\/(password|logins|cases))?$/);
  if(match){
   const [,id,sub]=match;const u=await env.CASE_DB.prepare("SELECT * FROM users WHERE id=? AND role='user'").bind(id).first();if(!u)fail(404,'账号不存在');
   if(method==='GET'&&sub==='password')return json({password:await decryptPassword(env.CASE_SECRET,u.username,u.password_cipher)});
@@ -121,7 +202,24 @@ export async function handleApi(request,env){
    const offset=Math.max(0,Number(url.searchParams.get('offset'))||0);
    const {results}=await env.CASE_DB.prepare('SELECT occurred_at,ip,country,region,city FROM login_events WHERE user_id=? ORDER BY occurred_at DESC,id DESC LIMIT 51 OFFSET ?').bind(id,offset).all();return json({events:results.slice(0,50),more:results.length>50});
   }
-  if(method==='PATCH'&&!sub){const [a,b]=permissions(await payload(request));await env.CASE_DB.prepare("UPDATE users SET can_demo=?,can_download=? WHERE id=? AND role='user'").bind(a,b,id).run();return json({ok:true});}
+  if(method==='GET'&&sub==='cases'){
+   const {results}=await env.CASE_DB.prepare('SELECT case_id FROM case_grants WHERE user_id=? ORDER BY case_id').bind(id).all();
+   return json({case_ids:results.map(g=>g.case_id),dealer_download:!!u.can_download_dealer,version:u.permissions_version});
+  }
+  if(method==='PUT'&&sub==='cases'){
+   const data=await payload(request);exact(data,['case_ids','dealer_download','version']);
+   if(typeof data.dealer_download!=='boolean'||!Number.isSafeInteger(data.version)||data.version<0||!Array.isArray(data.case_ids)||data.case_ids.length>caseIds.length||data.case_ids.some(c=>!caseIds.includes(c))||new Set(data.case_ids).size!==data.case_ids.length)fail(400,'访问授权格式不正确');
+   const version=data.version;
+   // Every write uses the same version predicate; D1 batch commits all statements atomically.
+   const guard="EXISTS(SELECT 1 FROM users WHERE id=? AND role='user' AND permissions_version=?)";
+   const statements=[env.CASE_DB.prepare(`DELETE FROM case_grants WHERE user_id=? AND ${guard}`).bind(id,id,version)];
+   for(const cid of data.case_ids)statements.push(env.CASE_DB.prepare(`INSERT INTO case_grants(user_id,case_id) SELECT ?,? WHERE ${guard}`).bind(id,cid,id,version));
+   statements.push(env.CASE_DB.prepare(`INSERT INTO permission_events(id,actor_id,target_id,action,details,occurred_at) SELECT ?,?,?,?,?,? WHERE ${guard}`).bind(crypto.randomUUID(),user.id,id,'access_grants',JSON.stringify({case_ids:data.case_ids,dealer_download:data.dealer_download}),now(),id,version));
+   statements.push(env.CASE_DB.prepare("UPDATE users SET can_download_dealer=?,permissions_version=permissions_version+1 WHERE id=? AND role='user' AND permissions_version=?").bind(data.dealer_download?1:0,id,version));
+   const result=await env.CASE_DB.batch(statements);
+   if(!result.at(-1).meta.changes)fail(409,'访问权限已更新，请重新载入后再保存');
+   return json({case_ids:data.case_ids,dealer_download:data.dealer_download,version:version+1});
+  }
   if(method==='DELETE'&&!sub){await env.CASE_DB.prepare("DELETE FROM users WHERE id=? AND role='user'").bind(id).run();return json({ok:true});}
  }
  if(path==='/api/admin/inbox'&&method==='GET'){
@@ -130,5 +228,5 @@ export async function handleApi(request,env){
  const message=path.match(/^\/api\/admin\/inbox\/([a-f0-9-]+)$/);
  if(message&&method==='PATCH'){await env.CASE_DB.prepare('UPDATE applications SET read_at=? WHERE id=?').bind(now(),message[1]).run();return json({ok:true});}
  fail(404,'接口不存在');
- }catch(e){if(e instanceof HttpError)return json({error:e.message},e.status);console.error('case_access_error',e.name);return json({error:'服务暂时不可用，请稍后重试'},500);}
+ }catch(e){if(e instanceof HttpError)return json({error:e.message,...(e.code?{code:e.code}:{})},e.status);console.error('case_access_error',e.name);return json({error:'服务暂时不可用，请稍后重试'},500);}
 }

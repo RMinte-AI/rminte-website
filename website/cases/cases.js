@@ -1,31 +1,16 @@
+import {enhancePasswords,refreshPasswordButtons} from '../assets/password-field.mjs';
+import {groups,cases,caseIds} from '../assets/case-catalog.mjs';
 // Cases page, design system v2 (D10). The cards, the dialogs and the authorised-access panel are drawn here. Every visible string is a zh/en pair that is
 // painted in the visitor's language (RM_I18N.text: zh and en from the pair, ja/ko/es/fr from the catalogs by the English text) and painted again on a
 // language switch, so a dialog that is open keeps what was typed into it.
 (() => {
   'use strict';
-  const groups = [
-    {zh: '交通服务', en: 'Transport'},
-    {zh: '企业运营', en: 'Enterprise operations'},
-    {zh: '公共事务', en: 'Public affairs'},
-    {zh: '文档与知识', en: 'Documents and knowledge'},
-    {zh: '工业研发', en: 'Industrial R&D'}
-  ];
-  // Index = position in caseIds (the resource routes), so the order here never changes; each card sits under its group.
-  const cases = [
-    {group: 0, name: {zh: 'AI 数字收费员', en: 'AI Digital Toll Operator'}, desc: {zh: '面向收费业务的 AI 应用，探索数字收费员参与业务服务的方式。', en: 'An AI application for toll operations, exploring how a digital operator can take part in the service.'}},
-    {group: 1, name: {zh: 'AI 信息资产审计', en: 'AI Information Asset Audit'}, desc: {zh: '围绕信息资产开展 AI 审计，辅助审阅与整理相关材料。', en: 'AI-assisted audit of information assets, helping review and organise the related materials.'}},
-    {group: 2, name: {zh: '基层事务 AI 助理', en: 'Community Affairs AI Assistant'}, desc: {zh: '面向基层日常事务，探索 AI 辅助处理与信息整理。', en: 'Exploring AI support for everyday community affairs, from handling to organising information.'}},
-    {group: 1, name: {zh: 'AI 节能调度专家', en: 'AI Energy Dispatch Expert'}, desc: {zh: '将 AI 应用于节能与调度场景，辅助分析业务中的能源使用与调度问题。', en: 'AI for energy saving and dispatch, helping analyse energy use and scheduling in the business.'}},
-    {group: 3, name: {zh: 'AI 文档识别与翻译知识库', en: 'AI Document Recognition, Translation and Knowledge Base'}, desc: {zh: '结合 OCR、翻译与知识库，衔接文档识别、语言转换和知识查询。', en: 'Combines OCR, translation and a knowledge base, linking document recognition, language conversion and lookup.'}},
-    {group: 3, name: {zh: 'AI 公文写作助手', en: 'AI Official Writing Assistant'}, desc: {zh: '面向公文写作场景，提供 AI 辅助写作的应用入口。', en: 'An entry point for AI-assisted writing of official documents.'}},
-    {group: 3, name: {zh: 'AI 企业档案管理', en: 'AI Enterprise Archive Management'}, desc: {zh: '结合 OCR 与知识库，让企业档案进入可识别、可查询的工作流程。', en: 'Uses OCR and a knowledge base to bring enterprise archives into a searchable workflow.'}},
-    {group: 2, name: {zh: '无人机机场 AI 分析师', en: 'Drone Airport AI Analyst'}, desc: {zh: '面向森林防火误报与户外活动人员探测，开展无人机影像分析。', en: 'Drone imagery analysis for false fire alarms in forests and detection of people in outdoor activity.'}},
-    {group: 4, name: {zh: 'AI 汽车研发与工业建模', en: 'AI Automotive R&D and Industrial Modelling'}, desc: {zh: '覆盖零件平面图转 3D、装配建模、工业焊接机器人编程与汽车安全检测。', en: 'Covers part drawings to 3D, assembly modelling, industrial welding-robot programming and automotive safety inspection.'}},
-    {group: 3, name: {zh: '刑事律师材料与线索 AI 整理师', en: 'AI Organiser for Criminal Defence Materials and Leads'}, desc: {zh: '面向刑事律师工作中的材料与线索整理，辅助组织已有信息。', en: 'Helps criminal defence lawyers organise case materials and leads from existing information.'}},
-    {group: 4, name: {zh: 'AI 汽车功能安全检测', en: 'AI Automotive Functional Safety Inspection'}, desc: {zh: '聚焦汽车功能安全检测场景，展示 AI 在专业检测工作中的应用。', en: 'Focused on functional safety inspection of vehicles, showing AI in professional inspection work.'}}
-  ];
-  const caseIds = ['digital-toll', 'asset-audit', 'community-assistant', 'energy-dispatch', 'document-knowledge', 'official-writing', 'archive-management', 'drone-analysis', 'industrial-modeling', 'legal-materials', 'functional-safety'];
   const COPY = {
+    checking: {zh:'正在检查访问权限…', en:'Checking access…'},
+    loading: {zh:'正在加载演示…', en:'Loading demo…'},
+    expired: {zh:'登录已失效，请重新登录。', en:'Your session has expired. Please sign in again.'},
+    unfinished: {zh:'暂未完成加载，请重试或关闭。', en:'Loading has not finished. Please retry or close.'},
+    retry: {zh:'重试', en:'Retry'},
     signToDemo: {zh: '需登录后演示', en: 'Sign in to view demo'},
     demoOn: {zh: '演示已授权', en: 'Demo authorised'},
     demoOff: {zh: '演示未授权', en: 'Demo not authorised'},
@@ -35,6 +20,7 @@
     signToDownload: {zh: '登录后下载', en: 'Sign in to download'},
     docPending: {zh: '资料待接入', en: 'Document not yet connected'},
     contact: {zh: '联系供应商', en: 'Contact the supplier'},
+    contactEmail: {zh: '电子邮箱：', en: 'Email:'},
     contactPending: {zh: '供应商信息待公布', en: 'Supplier details to be announced'},
     one: {zh: '1 个场景', en: '1 scenario'},
     many: {zh: '{n} 个场景', en: '{n} scenarios'},
@@ -74,7 +60,7 @@
   const $ = (selector) => document.querySelector(selector);
   const list = $('#cases'), dialog = $('.cs-dialog'), body = $('#dialog-body');
   const overlay = $('#mobileOverlay'), menuButton = $('[data-menu-toggle]'), closeButton = $('[data-menu-close]');
-  let lang = RM_I18N.initial(), opener = null, pendingResource = null;
+  let lang = RM_I18N.initial(), opener = null, currentOperation = null;
 
   // Painting
   const MARKS = /(RMinte(?:\s+AI\b)?|RM-01)/, MARK_ONLY = /^(?:RMinte(?:\s+AI\b)?|RM-01)$/;
@@ -89,10 +75,16 @@
     }));
   }
   function paint(root = document) {
+    refreshPasswordButtons(root);
     root.querySelectorAll('[data-case-text]').forEach((element) => {
       let text = RM_I18N.text(element.dataset, lang);
       if (element.dataset.n) text = text.replace('{n}', element.dataset.n);
       write(element, text);
+    });
+    root.querySelectorAll('[data-supplier]').forEach((element) => {
+      const supplier = cases[Number(element.dataset.supplier)].supplier;
+      // Prefer a supplied full name; otherwise keep proper names in pinyin and translate the company suffix.
+      write(element, supplier.name[lang] || `${supplier.pinyin} ${RM_I18N.text(supplier.suffix, lang)}`);
     });
   }
   const setPair = (element, pair) => { element.dataset.zh = pair.zh; element.dataset.en = pair.en; };
@@ -106,11 +98,14 @@
 
   // The cards: one section per scenario group, built once. A sign-in or sign-out only changes the status line and the download row (updateCards).
   function card(item, index) {
+    const contact = item.supplier
+      ? `<a class="cs-row" href="mailto:${esc(item.supplier.email)}">${t(COPY.contact, 'small')}<strong data-supplier="${index}">${esc(item.supplier.name.zh)}</strong><small>${t(COPY.contactEmail)} ${esc(item.supplier.email)}</small>${icons.arrow}</a>`
+      : `<button class="cs-row" type="button" data-state="off" aria-disabled="true">${t(COPY.contact, 'small')}${t(COPY.contactPending, 'strong')}${icons.arrow}</button>`;
     return `<article class="cs-card" data-bevel><div class="cs-summary"><div class="cs-copy">${t(COPY.signToDemo, 'p', ' class="cs-status"')}${t(item.name, 'h3')}${t(item.desc, 'p', ' class="desc"')}</div>`
       + `<div class="cs-bar"><button class="cs-more" type="button" aria-expanded="false" aria-controls="p${index}">${t(COPY.more)}${icons.chevron}</button>`
       + `<button class="cs-demo" type="button" data-action="demo" data-selected="${index}">${icons.play}${t(COPY.demo)}</button></div></div>`
       + `<div class="cs-panel" id="p${index}" inert><div><button class="cs-row" type="button" data-action="download" data-selected="${index}">${t(COPY.materials, 'small')}${t(COPY.signToDownload, 'strong')}${icons.arrow}</button>`
-      + `<button class="cs-row" type="button" data-state="off" aria-disabled="true">${t(COPY.contact, 'small')}${t(COPY.contactPending, 'strong')}${icons.arrow}</button></div></div></article>`;
+      + `${contact}</div></div></article>`;
   }
   function build() {
     list.innerHTML = groups.map((group, gi) => {
@@ -122,15 +117,18 @@
   }
   function updateCards() {
     const user = CASE_AUTH.user;
-    const [state, pair] = !user ? ['', COPY.signToDemo] : user.can_demo ? ['ok', COPY.demoOn] : ['off', COPY.demoOff];
     list.querySelectorAll('.cs-status').forEach((status) => {
-      if (state) status.dataset.state = state; else delete status.dataset.state;
-      setPair(status, pair);
+      const index=Number(status.closest('article').querySelector('[data-action="demo"]').dataset.selected);
+      const granted=CASE_AUTH.canAccess(caseIds[index]);
+      const [state,pair]=!user?['',COPY.signToDemo]:granted?['ok',COPY.demoOn]:['off',COPY.demoOff];
+      if(state)status.dataset.state=state;else delete status.dataset.state;
+      setPair(status,pair);
     });
-    // Signed in, the download row reads "not yet connected" and stays grey: the front end cannot read yet whether a resource is wired.
     list.querySelectorAll('[data-action="download"]').forEach((download) => {
-      if (user) { download.dataset.state = 'off'; download.setAttribute('aria-disabled', 'true'); } else { delete download.dataset.state; download.removeAttribute('aria-disabled'); }
-      setPair(download.querySelector('strong'), user ? COPY.docPending : COPY.signToDownload);
+      const id=caseIds[Number(download.dataset.selected)],granted=CASE_AUTH.canAccess(id);
+      if(user&&!granted)download.dataset.state='off';else delete download.dataset.state;
+      download.removeAttribute('aria-disabled');
+      setPair(download.querySelector('strong'),!user?COPY.signToDownload:!granted?COPY.noDownload:user.resources[id]?.download?COPY.materials:COPY.docPending);
     });
     paint();
   }
@@ -139,6 +137,7 @@
   function open(html) {
     if (!dialog.open) opener = document.activeElement;
     body.innerHTML = html;
+    enhancePasswords(body);
     paint(body);
     if (!dialog.open) dialog.showModal();
     const title = body.querySelector('#dialog-title');
@@ -162,39 +161,81 @@
   const fail = (pair) => Object.assign(new Error(pair.zh), {pair});
   const explain = (error) => error.pair || (error.unavailable ? COPY.serviceDown : KNOWN[error.message] || error.message);
 
-  function action(type, selected) {
-    const item = selected === undefined ? null : cases[Number(selected)];
-    if (type === 'demo' || type === 'download') {
-      pendingResource = {kind: type, id: caseIds[Number(selected)], item};
-      if (CASE_AUTH.user) { enterResource(); return; }
-    }
-    if (type === 'login' || type === 'demo' || type === 'download') {
-      if (type === 'login') pendingResource = null;
-      open(`${heading(COPY.signIn)}${item ? t(item.name, 'p', ' class="name"') : ''}${t(COPY.loginLead, 'p', ' class="lead"')}<form id="login-form">${field('account', COPY.username, 'text', 'username', 'username')}${field('password', COPY.password, 'password', 'current-password')}<div class="actions"><button class="cs-pill primary" type="submit">${t(COPY.signInSubmit)}</button></div>${status}</form>`);
-      return;
-    }
+  const text = pair => RM_I18N.text(pair, lang);
+  const isCurrent = op => currentOperation === op;
+  function endOperation(op) {
+    if (!isCurrent(op)) return;
+    currentOperation = null;
+    if (op.kind === 'demo') CASE_DEMO.exit(op); else op.controller?.abort();
+  }
+  function closeForm(cancel = true) {
+    if (cancel && currentOperation?.phase === 'login') endOperation(currentOperation);
+    dialog.close();body.replaceChildren();
+    if (cancel) opener?.focus({preventScroll:true});
+  }
+  function loginForm(item, op) {
+    if (op) op.phase = 'login';
+    open(`${heading(COPY.signIn)}${item ? t(item.name, 'p', ' class="name"') : ''}${t(COPY.loginLead, 'p', ' class="lead"')}<form id="login-form">${field('account', COPY.username, 'text', 'username', 'username')}${field('password', COPY.password, 'password', 'current-password')}<div class="actions"><button class="cs-pill primary" type="submit">${t(COPY.signInSubmit)}</button></div>${status}</form>`);
+    if(op)opener=op.trigger;
+  }
+  function startResource(kind, index, trigger, forceLogin = false) {
+    const previous=currentOperation;
+    const op={kind,index,id:caseIds[index],item:cases[index],trigger,phase:'checking'};
+    // Replace content without closing the shared preview or returning focus.
+    if(previous) { if(previous.kind==='demo')CASE_DEMO.cleanup(previous);else previous.controller?.abort(); }
+    currentOperation=op;
+    if (forceLogin || !CASE_AUTH.user) loginForm(op.item,op); else enterResource(op);
+  }
+  function action(type, selected, trigger) {
+    if (type === 'demo' || type === 'download') { startResource(type,Number(selected),trigger);return; }
+    if (currentOperation) endOperation(currentOperation);
+    if (type === 'login') { loginForm(null,null);return; }
     open(`${heading(COPY.partner)}${t(COPY.partnerLead, 'p', ' class="lead"')}<form id="partner-form"><div class="cs-grid2">${field('name', COPY.name, 'text', 'name')}${field('company', COPY.company, 'text', 'organization')}</div>${field('email', COPY.email, 'email', 'email')}${area('reason', COPY.reason)}${area('ability', COPY.ability)}<div class="actions"><button class="cs-pill primary" type="submit">${t(COPY.submit)}</button></div>${status}${t(COPY.review, 'p', ' class="lead sm"')}</form>`);
   }
-  async function enterResource() {
-    const resource = pendingResource;
-    if (!resource) return;
+  function previewStatus(op,key) {
+    if(!isCurrent(op))return;
+    op.statusKey=key;
+    const relogin=key==='expired',retry=!['expired','noDemo','noAccess'].includes(key);
+    CASE_DEMO.state(op,text(COPY[key]),relogin?text(COPY.signIn):retry?text(COPY.retry):null,
+      relogin?()=>{const {index,trigger}=op;endOperation(op);startResource('demo',index,trigger,true);}
+      :retry?()=>startResource('demo',op.index,op.trigger):null);
+  }
+  async function enterResource(op) {
+    if (!isCurrent(op)) return;
+    op.phase='checking';op.statusKey='checking';
+    if(op.kind==='demo')CASE_DEMO.show(op,{
+      label:text(op.item.name),allTitles:cases.map(item=>text(item.name)),isCurrent,exit:endOperation,text:text(COPY.checking)
+    });
+    op.controller=new AbortController();
     try {
-      const user = await CASE_AUTH.refresh();
-      if (!user) { action('login'); return; }
-      if (!(resource.kind === 'demo' ? user.can_demo : user.can_download)) throw fail(resource.kind === 'demo' ? COPY.noDemo : COPY.noDownload);
-      const url = `/api/resources/${resource.id}/${resource.kind}`;
-      const check = await fetch(url, {method: 'HEAD', credentials: 'same-origin'}).catch(() => { throw fail(COPY.tryLater); });
-      if (!check.ok) throw fail(check.status === 503 ? COPY.notConnected : check.status === 403 ? COPY.noAccess : COPY.tryLater);
-      dialog.close();
-      location.assign(url);
-    } catch (error) {
-      open(`${heading(resource.item.name)}${status}`);
-      say(body.querySelector('[role=status]'), explain(error), error.pair === COPY.notConnected ? COPY.notConnectedLabel : undefined);
+      const user=await CASE_AUTH.refresh({isCurrent:()=>isCurrent(op),signal:op.controller.signal});
+      if(!isCurrent(op))return;
+      if(!user) { if(op.kind==='demo')previewStatus(op,'expired');else loginForm(op.item,op);return; }
+      if(op.kind==='demo') {
+        const response=await fetch(`/api/resources/${op.id}/preview`,{credentials:'same-origin',signal:op.controller.signal});
+        if(!isCurrent(op))return;
+        if(!response.ok){previewStatus(op,response.status===401?'expired':response.status===403?'noDemo':response.status===503?'notConnected':'tryLater');return;}
+        const descriptor=await response.json();if(!isCurrent(op))return;
+        if(!CASE_AUTH.user||!CASE_AUTH.canAccess(op.id)){previewStatus(op,CASE_AUTH.user?'noDemo':'expired');return;}
+        op.statusKey='loading';
+        CASE_DEMO.load(op,descriptor,text(op.item.name),text(COPY.loading),()=>previewStatus(op,'unfinished'));
+      } else {
+        if(!CASE_AUTH.canAccess(op.id))throw fail(COPY.noDownload);
+        const url=`/api/resources/${op.id}/download`;
+        const response=await fetch(url,{method:'HEAD',credentials:'same-origin',signal:op.controller.signal});
+        if(!isCurrent(op))return;
+        if(!response.ok)throw fail(response.status===503?COPY.notConnected:response.status===403?COPY.noAccess:COPY.tryLater);
+        endOperation(op);closeForm(false);location.assign(url);
+      }
+    } catch(error) {
+      if(!isCurrent(op))return;
+      if(op.kind==='demo')previewStatus(op,'tryLater');
+      else {open(`${heading(op.item.name)}${status}`);say(body.querySelector('[role=status]'),explain(error));}
     }
   }
   document.addEventListener('click', (event) => {
     const trigger = event.target.closest('[data-action]');
-    if (trigger && trigger.dataset.state !== 'off') action(trigger.dataset.action, trigger.dataset.selected);
+    if (trigger && trigger.dataset.state !== 'off') action(trigger.dataset.action, trigger.dataset.selected, trigger);
     const more = event.target.closest('.cs-more');
     if (more) {
       const card = more.closest('.cs-card'), expand = !card.hasAttribute('data-open');
@@ -202,31 +243,36 @@
       more.setAttribute('aria-expanded', String(expand));
       card.querySelector('.cs-panel').inert = !expand;
     }
-    if (event.target.closest('[data-dialog-close]')) dialog.close();
+    if (event.target.closest('[data-dialog-close]')) closeForm();
   });
   dialog.addEventListener('click', (event) => {
     if (event.target !== dialog) return;
     const box = dialog.getBoundingClientRect();
-    if (event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom) dialog.close();
+    if (event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom) closeForm();
   });
   // A close event can arrive after the dialog was opened again (a quick answer to the resource check): leave the new content alone.
-  dialog.addEventListener('close', () => { if (dialog.open) return; body.innerHTML = ''; opener?.focus(); });
+  dialog.addEventListener('cancel',event=>{event.preventDefault();closeForm();});
+  dialog.addEventListener('close',()=>{if(!dialog.open&&body.childNodes.length)closeForm();});
   dialog.addEventListener('submit', async (event) => {
     event.preventDefault();
     const form = event.target, button = form.querySelector('[type=submit]'), slot = form.querySelector('[role=status]');
+    const loginOperation=currentOperation;
     button.disabled = true;
     try {
       if (form.id === 'login-form') {
         await CASE_AUTH.login(form.username.value, form.password.value);
-        form.reset();
-        dialog.close();
-        if (pendingResource) await enterResource();
+        // Login can establish a valid account after cancellation; it cannot reopen that preview.
+        if(!form.isConnected||form!==body.querySelector('form')||currentOperation!==loginOperation)return;
+        form.reset();closeForm(false);
+        if(loginOperation&&isCurrent(loginOperation))await enterResource(loginOperation);
+        else opener?.focus({preventScroll:true});
       } else {
         await CASE_AUTH.api('/api/applications', {method: 'POST', body: JSON.stringify({name: form.querySelector('#name').value, company: form.querySelector('#company').value, email: form.querySelector('#email').value, message: form.querySelector('#reason').value, experience: form.querySelector('#ability').value})});
         form.reset();
         say(slot, COPY.received);
       }
     } catch (error) {
+      if(!form.isConnected||form!==body.querySelector('form'))return;
       say(slot, explain(error), form.id === 'login-form' ? COPY.loginFailed : undefined);
     } finally {
       button.disabled = false;
@@ -260,6 +306,10 @@
     document.title = `${RM_I18N.text({zh: '应用案例', en: 'Application cases'}, lang)} · RMinte`;
     menuButton.setAttribute('aria-label', menuLabel(menuButton.classList.contains('active')));
     paint();
+    if(currentOperation?.kind==='demo'&&currentOperation.phase!=='login'){
+      CASE_DEMO.relabel(text(currentOperation.item.name),cases.map(item=>text(item.name)),text(COPY[currentOperation.statusKey]));
+      if(currentOperation.phase==='status')previewStatus(currentOperation,currentOperation.statusKey==='loading'?'unfinished':currentOperation.statusKey);
+    }
   }
 
   build();
@@ -275,7 +325,11 @@
   const cardSizeObserver = new ResizeObserver(alignCardHeights);
   list.querySelectorAll('.cs-copy, .cs-bar').forEach((content) => cardSizeObserver.observe(content));
   alignCardHeights();
-  window.addEventListener('case-auth-render', updateCards);
+  window.addEventListener('case-auth-render',()=>{
+    updateCards();const op=currentOperation;
+    if(op?.kind==='demo'&&op.frame&&(!CASE_AUTH.user||!CASE_AUTH.canAccess(op.id)))endOperation(op);
+  });
+  window.addEventListener('case-auth-change',()=>{if(currentOperation)endOperation(currentOperation);});
   RM_I18N.mount('[data-lang-toggle]', applyLanguage);
   applyLanguage(lang);
   CASE_AUTH.refresh().catch((error) => CASE_AUTH.render(error));

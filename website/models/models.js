@@ -521,9 +521,7 @@
         link.append(...button.childNodes); button.replaceWith(link);
       });
       const menu = document.getElementById('mobileMenu');
-      const contact = document.getElementById('contactPopover');
       const menuToggle = document.getElementById('menuToggle');
-      const contactToggle = document.getElementById('contactToggle');
       const languageToggle = document.getElementById('languageToggle');
       let lang = 'zh';
       function setBrandedText(element,text) {
@@ -567,17 +565,6 @@
       menu.addEventListener('close',() => menuToggle.setAttribute('aria-expanded','false'));
       document.querySelectorAll('[data-close-dialog]').forEach(button => button.addEventListener('click',() => button.closest('dialog').close()));
       document.querySelectorAll('.mp-mobile-links a').forEach(link => link.addEventListener('click',() => menu.close()));
-      // Keep the shared non-modal panel out of keyboard navigation while closed.
-      new MutationObserver(() => {
-        const open = contact.getAttribute('aria-hidden') === 'false';
-        const restoreFocus = !open && contact.contains(document.activeElement);
-        contact.inert = !open;
-        if (open && contactToggle.matches(':focus-visible')) {
-          contact.querySelector('[data-contact-close]').focus();
-        } else if (restoreFocus) {
-          contactToggle.focus();
-        }
-      }).observe(contact,{ attributes:true, attributeFilter:['aria-hidden'] });
       const narrowMenu = matchMedia('(max-width:1120px)');
       narrowMenu.addEventListener('change',event => { if (!event.matches && menu.open) menu.close(); });
       const engineTabs = Array.from(document.querySelectorAll('[data-engine-tab]'));
