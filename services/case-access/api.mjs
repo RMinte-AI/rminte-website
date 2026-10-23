@@ -28,7 +28,7 @@ export async function session(request,env){
 async function publicUser(u,env){
  if(!u)return null;
  const grants=u.role==='user'?await env.CASE_DB.prepare('SELECT case_id FROM case_grants WHERE user_id=? ORDER BY case_id').bind(u.id).all():{results:[]};
- return {id:u.id,username:u.username,role:u.role,is_owner:!!u.is_owner,must_change_password:!!u.must_change_password,case_ids:grants.results.map(g=>g.case_id),all_cases:u.role==='admin'&&!u.must_change_password,dealer_download:!u.must_change_password&&(u.role==='admin'||!!u.can_download_dealer),resources:Object.fromEntries(caseIds.map(id=>[id,{demo:!!(resources[id]?.demoUrl||(resources[id]?.demoPath&&env.CASE_DEMOS)),download:!!(resources[id]?.fileKey&&env.CASE_FILES)}]))};
+ return {id:u.id,username:u.username,role:u.role,is_owner:!!u.is_owner,must_change_password:!!u.must_change_password,case_ids:grants.results.map(g=>g.case_id),all_cases:u.role==='admin'&&!u.must_change_password,resources:Object.fromEntries(caseIds.map(id=>[id,{demo:!!(resources[id]?.demoUrl||(resources[id]?.demoPath&&env.CASE_DEMOS)),download:!!(resources[id]?.fileKey&&env.CASE_FILES)}]))};
 }
 async function limit(env,key,max,seconds){
  const t=now();const row=await env.CASE_DB.prepare('INSERT INTO rate_limits(key,hits,expires_at) VALUES(?,1,?) ON CONFLICT(key) DO UPDATE SET hits=CASE WHEN expires_at<=? THEN 1 ELSE hits+1 END,expires_at=CASE WHEN expires_at<=? THEN excluded.expires_at ELSE expires_at END RETURNING hits').bind(key,t+seconds,t,t).first();

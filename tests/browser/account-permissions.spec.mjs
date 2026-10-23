@@ -39,7 +39,7 @@ if(run.scope.pages.some(p=>p.id==='admin'))for(const width of [1440,768,390,320]
    await userRow.locator('[data-cases]').click();await page.getByRole('checkbox',{name:'经销商资料下载',exact:true}).check();await page.locator('#save').click();await expect(userRow).toContainText('经销商资料下载：已授权');await expect(userRow).toContainText('2 / 12 个案例');
    const upload=await page.request.put(afterURL+'/api/admin/dealer-materials/rm01-product-comparison',{headers:{Origin:afterURL,'Content-Type':'application/pdf'},data:Buffer.from('%PDF-1.7\nBrowser download fixture\n%%EOF')});expect(upload.status()).toBe(200);
    const downloaded=visitor.waitForEvent('download');await visitor.locator('[data-dealer-download]').click();expect((await downloaded).suggestedFilename()).toBe('RM-01 产品横向参数对比（中文）.pdf');await expect(visitor.locator('dialog[open]')).toHaveCount(0);
-   await userRow.locator('[data-cases]').click();await page.getByRole('checkbox',{name:'经销商资料下载',exact:true}).uncheck();await page.locator('#save').click();await visitor.locator('[data-dealer-download]').click();await expect(visitor.locator('dialog[open]')).toContainText('没有权限');
+   await userRow.locator('[data-cases]').click();await page.getByRole('checkbox',{name:'经销商资料下载',exact:true}).uncheck();await page.locator('#save').click();await expect(userRow).toContainText('经销商资料下载：未授权');await visitor.locator('[data-dealer-download]').click();await expect(visitor.locator('dialog[open]')).toContainText('没有权限');
    await visitorContext.close();await delegatedContext.close();expect(audit.problems).toEqual([]);
   });
  });

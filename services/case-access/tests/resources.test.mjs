@@ -89,7 +89,6 @@ test('case and dealer grants share an atomic version, stale writers cannot chang
   assert.equal((await put({case_ids:['digital-toll'],dealer_download:false,version:2})).status,200);
   assert.deepEqual(await get(),{case_ids:['digital-toll'],dealer_download:false,version:3});
   assert.equal((await f.request(download,{cookie:reader})).status,403);
-  assert.equal((await (await f.request('/api/session',{cookie:reader})).json()).user.dealer_download,false);
   const events=f.db.prepare('SELECT details FROM permission_events ORDER BY rowid').all();assert.equal(events.length,3);assert.equal(JSON.parse(events[0].details).dealer_download,true);
   f.db.exec("CREATE TRIGGER reject_dealer_grant BEFORE UPDATE OF can_download_dealer ON users WHEN NEW.can_download_dealer=1 BEGIN SELECT RAISE(ABORT,'injected fixture failure'); END");
   assert.equal((await put({case_ids:[],dealer_download:true,version:3})).status,500);
