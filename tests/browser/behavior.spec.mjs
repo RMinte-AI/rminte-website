@@ -35,7 +35,7 @@ for(const descriptor of run.scope.pages)for(const language of operationLanguages
         const credentials=readFileSync(join(process.env.RMINTE_AFTER_FIXTURE,'services/case-access/.local/admin-login.txt'),'utf8');
         await page.locator('#admin-login input[name=username]').fill('admin');
         await page.locator('#admin-login input[name=password]').fill(credentials.match(/密码：(.*)/)[1]);
-        await page.locator('#admin-login button').click();
+        await page.locator('#admin-login button[type=submit]').click();
         await expect(page.locator('#create-user')).toBeVisible();
         await page.locator('#change-password').click();await expect(page.locator('#password-dialog')).toBeVisible();
         await page.keyboard.press('Escape');await expect(page.locator('#password-dialog')).not.toBeVisible();
