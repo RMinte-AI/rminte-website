@@ -2410,7 +2410,9 @@ html:lang(zh) .home-body #engineTitle{word-break:keep-all}
 .home-body .engine-tag,.home-body .engine-label{z-index:1}
 .home-body .engine-tag{position:absolute;left:0;top:0;font:400 var(--fs-label)/1 var(--font-mono);letter-spacing:.12em;color:var(--text-3)}
 .home-body .engine-label{position:absolute;left:0;top:0;opacity:0;transition:opacity 500ms ease;pointer-events:none;display:flex;align-items:center;gap:10px;will-change:transform}
-.home-body .engine-label::before{content:"";width:28px;height:1px;background:linear-gradient(90deg,#ffffff8c,#ffffff1a);flex:none}
+.home-body .engine-label::before{content:"";width:28px;height:1px;background:linear-gradient(90deg,#ffffff8c,#ffffff1a);flex:none;opacity:var(--lab,0)}
+/* --lab (set by engine-glass.js) follows the scroll-linked opening of the plates; the label's own opacity still changes with the open topic */
+.home-body .engine-label>div{opacity:var(--lab,0)}
 .home-body .engine-label b{display:block;font:500 var(--fs-small)/1.3 var(--font-ui);color:var(--text-1);white-space:nowrap}
 .home-body .engine-label>div>span{display:block;font:400 var(--fs-label)/1.4 var(--font-mono);color:var(--text-3);margin-top:3px;white-space:nowrap}
 .home-body .engine-art[data-scene="0"] .l0,.home-body .engine-art[data-scene="1"] .l1,.home-body .engine-art[data-scene="2"] .l2{opacity:1;transition:opacity 700ms var(--ease-settle) 300ms}
@@ -3175,16 +3177,31 @@ html.motion-js:not(.motion-ready) .hero-section [data-enter="line"] > .line-in {
   background-image: url("images/grain.png");
 }
 
-/* The page you are on, in the navigation island of the sub-pages: a silver-white pill with dark text (boards 09 to 13).
-   The home page marks the chapter being read instead, with the quieter grey fill above. */
-.nav-island a[aria-current="page"] {
-  color: var(--n-2);
-  background: var(--text-1);
-  font-weight: 500;
-  box-shadow: none;
+/* The page you are on, in the navigation island of the sub-pages, wears the same quiet grey fill as the chapter being read on the home page
+   (user decision 2026-10-24: the silver-white pill was too glaring). */
+.nav-island a[aria-current="page"], .nav-island a[aria-current="page"]:hover {
+  color: var(--text-1);
+  background: #ffffff1a;
+  box-shadow: inset 0 0 0 1px var(--line-2);
 }
 
-.nav-island a[aria-current="page"]:hover {
-  color: var(--n-2);
-  background: var(--text-1);
-}
+
+/* Navigation island pills (nav-glide.js): one follows the pointer and focus, one marks the current page or chapter and glides to a new link.
+   The links give up their own hover and current backgrounds while the pills are there; the pill for the current link copies the look the page
+   gave it (the same grey everywhere since 2026-10-24). */
+.nav-glide { position: relative; }
+.nav-glide > a { position: relative; z-index: 1; }
+.nav-glide[data-glide] > a.active, .nav-glide[data-glide] > a[aria-current="page"], .nav-glide[data-glide] > a:hover, .nav-glide[data-glide] > a[aria-current="page"]:hover { background: transparent; box-shadow: none; }
+.nav-glide-hover, .nav-glide-current { position: absolute; left: 0; top: 0; width: 0; height: 0; border-radius: var(--radius-button); opacity: 0; pointer-events: none;
+  transition: transform 460ms var(--ease-settle), width 460ms var(--ease-settle), height 460ms var(--ease-settle), opacity var(--dur-hover) var(--ease-settle); }
+.nav-glide-hover { background: var(--line-1); }
+.nav-glide-current[data-kind="chapter"] { background: #ffffff1a; box-shadow: inset 0 0 0 1px var(--line-2); }
+.nav-glide-current[data-kind="page"] { background: var(--text-1); }
+
+/* Figures that light up character by character (figure-sweep.js): the hero sweep, for the 0.13 mm of the thermal chapter and the craft values.
+   The class names differ from the hero's ".ch" because the thermal caption styles every span inside it. */
+.fig-sweep .fig-ch { --lit: var(--text-1); --dim: #20262c; font-size: inherit; color: transparent; background: linear-gradient(90deg, var(--lit) 50%, var(--dim) 50%) 100% 0 / 200% 100% no-repeat; -webkit-background-clip: text; background-clip: text; }
+.fig-sweep .fig-ch.is-unit { --lit: var(--sapphire-300); --dim: #262c3e; }
+.fig-sweep.is-lit .fig-ch { animation: fig-scan 408ms linear calc(var(--ci, 0) * 46.6ms + 120ms) both; }
+.fig-sweep.is-done .fig-ch { animation: none; color: var(--lit); background: none; }
+@keyframes fig-scan { to { background-position: 0 0; } }
