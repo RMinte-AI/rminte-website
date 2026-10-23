@@ -13,8 +13,8 @@ if(run.scope.pages.some(p=>p.id==='admin'))for(const width of [1440,768,390,320]
    await page.goto(afterURL+'/admin/');await page.getByLabel('用户名',{exact:true}).fill('admin');await page.getByLabel('密码',{exact:true}).fill(password);await page.getByRole('button',{name:'登录',exact:true}).click();
    await expect(page.locator('#tab-admins')).toBeVisible();await page.locator('#create-user button').click();await expect(page.locator('#new-account')).toBeVisible();
    const userName=await page.locator('#new-account dd').nth(0).textContent(),userPassword=await page.locator('#new-account dd').nth(1).textContent();
-   const userRow=page.locator('#users tr').filter({hasText:userName});await userRow.locator('[data-cases]').click();await expect(page.locator('#selected')).toHaveText('已选 0 / 12 个案例');
-   await page.getByRole('searchbox',{name:'搜索案例'}).fill('汽车');await expect(page.locator('#case-list input')).toHaveCount(2);await page.getByRole('searchbox').fill('');
+   const userRow=page.locator('#users tr').filter({hasText:userName});await userRow.locator('[data-cases]').click();await expect(page.locator('#selected')).toHaveText('已选 0 / 12 个案例');await expect(page.getByRole('checkbox',{name:'经销商资料下载',exact:true})).not.toBeChecked();
+   await page.getByRole('searchbox',{name:'搜索案例'}).fill('汽车');await expect(page.locator('#case-list [data-case-id]')).toHaveCount(2);await expect(page.getByRole('checkbox',{name:'经销商资料下载',exact:true})).toBeVisible();await page.getByRole('searchbox').fill('');
    await page.getByRole('checkbox',{name:'AI 数字收费员',exact:true}).check();
    await page.route('**/api/admin/users/*/cases',route=>route.request().method()==='PUT'?route.fulfill({status:500,json:{error:'本地测试：保存失败'}}):route.continue(),{times:1});
    await page.locator('#save').click();await expect(page.locator('#changes')).toContainText('保存失败');await expect(page.getByRole('checkbox',{name:'AI 数字收费员',exact:true})).toBeChecked();await page.locator('#save').click();await expect(userRow).toContainText('1 / 12 个案例');
@@ -33,6 +33,13 @@ if(run.scope.pages.some(p=>p.id==='admin'))for(const width of [1440,768,390,320]
    const delegatedRow=delegate.locator('#users tr').filter({hasText:userName});await delegatedRow.locator('[data-cases]').click();await delegate.getByRole('checkbox',{name:'AI 信息资产审计',exact:true}).check();await delegate.locator('#save').click();await expect(delegatedRow).toContainText('2 / 12 个案例');
    const adminRow=page.locator('#admin-accounts tr').filter({hasText:adminName});await adminRow.getByRole('button',{name:'停用账号'}).click();await page.locator('#confirm-status').click();await expect(adminRow).toContainText('已停用');await delegate.reload();await expect(delegate.locator('#admin-login')).toBeVisible();
    const visitorContext=await browser.newContext({viewport:{width,height:900}}),visitor=await visitorContext.newPage();await setup(visitor,'zh');await visitor.goto(afterURL+'/cases/');await visitor.locator('[data-action="demo"]').first().click();await visitor.getByLabel('用户名',{exact:true}).fill(userName);await visitor.getByLabel('密码',{exact:true}).fill(userPassword);await visitor.getByRole('button',{name:'登录',exact:true}).click();await expect(visitor.locator('#case-demo-modal')).toHaveAttribute('data-state','ready');await visitor.keyboard.press('Escape');await expect(visitor.locator('.cs-status').first()).toContainText('已授权');
+   await visitor.goto(afterURL+'/downloads/?lang=zh#dealer-materials');await visitor.locator('[data-dealer-download]').click();await expect(visitor.locator('dialog[open]')).toContainText('没有权限');await expect(visitor.locator('[data-case-login]')).not.toBeVisible();await visitor.keyboard.press('Escape');
+   await page.locator('#tab-users').click();await userRow.locator('[data-cases]').click();await page.getByRole('checkbox',{name:'经销商资料下载',exact:true}).check();await expect(page.locator('#changes')).toContainText('开启经销商资料下载');await page.locator('#cancel').click();
+   await visitor.locator('[data-dealer-download]').click();await expect(visitor.locator('dialog[open]')).toContainText('没有权限');await visitor.keyboard.press('Escape');
+   await userRow.locator('[data-cases]').click();await page.getByRole('checkbox',{name:'经销商资料下载',exact:true}).check();await page.locator('#save').click();await expect(userRow).toContainText('经销商资料下载：已授权');await expect(userRow).toContainText('2 / 12 个案例');
+   const upload=await page.request.put(afterURL+'/api/admin/dealer-materials/rm01-product-comparison',{headers:{Origin:afterURL,'Content-Type':'application/pdf'},data:Buffer.from('%PDF-1.7\nBrowser download fixture\n%%EOF')});expect(upload.status()).toBe(200);
+   const downloaded=visitor.waitForEvent('download');await visitor.locator('[data-dealer-download]').click();expect((await downloaded).suggestedFilename()).toBe('RM-01 产品横向参数对比（中文）.pdf');await expect(visitor.locator('dialog[open]')).toHaveCount(0);
+   await userRow.locator('[data-cases]').click();await page.getByRole('checkbox',{name:'经销商资料下载',exact:true}).uncheck();await page.locator('#save').click();await expect(userRow).toContainText('经销商资料下载：未授权');await visitor.locator('[data-dealer-download]').click();await expect(visitor.locator('dialog[open]')).toContainText('没有权限');
    await visitorContext.close();await delegatedContext.close();expect(audit.problems).toEqual([]);
   });
  });
@@ -49,25 +56,25 @@ if(run.scope.pages.some(p=>p.id==='admin'))test.describe('account editor lifecyc
  test('a delayed conflict reload cannot replace another account draft or saved grants',async({page})=>{
   await ownerLogin(page);
   const a=await write(page,'/api/admin/users',{}),b=await write(page,'/api/admin/users',{});
-  await write(page,`/api/admin/users/${a.id}/cases`,{case_ids:['digital-toll'],version:0},'put');
-  await write(page,`/api/admin/users/${b.id}/cases`,{case_ids:[],version:0},'put');
-  await write(page,`/api/admin/users/${b.id}/cases`,{case_ids:['functional-safety'],version:1},'put');
+  await write(page,`/api/admin/users/${a.id}/cases`,{dealer_download:false,case_ids:['digital-toll'],version:0},'put');
+  await write(page,`/api/admin/users/${b.id}/cases`,{dealer_download:false,case_ids:[],version:0},'put');
+  await write(page,`/api/admin/users/${b.id}/cases`,{dealer_download:true,case_ids:['functional-safety'],version:1},'put');
   await page.locator('#refresh-users').click();
   await page.locator(`tr[data-id="${a.id}"] [data-cases]`).click();await page.locator('#clear-all').click();
-  await write(page,`/api/admin/users/${a.id}/cases`,{case_ids:['asset-audit'],version:1},'put');
+  await write(page,`/api/admin/users/${a.id}/cases`,{dealer_download:false,case_ids:['asset-audit'],version:1},'put');
   await page.locator('#save').click();await expect(page.getByRole('button',{name:'重新载入',exact:true})).toBeVisible();
   let release,started;const gate=new Promise(resolve=>{release=resolve;}),waiting=new Promise(resolve=>{started=resolve;});
   await page.route(`**/api/admin/users/${a.id}/cases`,async route=>{const response=await route.fetch();started();await gate;await route.fulfill({response});},{times:1});
   try{
    await page.getByRole('button',{name:'重新载入',exact:true}).click();await waiting;
    await page.locator('#cancel').click();await page.locator(`tr[data-id="${b.id}"] [data-cases]`).click();
-   await expect(page.locator('#editor-title')).toHaveText(b.username);await expect(page.locator('[data-case-id="functional-safety"]')).toBeChecked();
+   await expect(page.locator('#editor-title')).toHaveText(b.username);await expect(page.locator('[data-case-id="functional-safety"]')).toBeChecked();await expect(page.getByRole('checkbox',{name:'经销商资料下载',exact:true})).toBeChecked();
    const finished=page.waitForEvent('requestfinished',{predicate:r=>r.url().endsWith(`/api/admin/users/${a.id}/cases`)});
    release();await finished;await page.evaluate(()=>new Promise(requestAnimationFrame));
    await expect(page.locator('#editor-title')).toHaveText(b.username);
    await expect(page.locator('[data-case-id="functional-safety"]')).toBeChecked();await expect(page.locator('[data-case-id="asset-audit"]')).not.toBeChecked();
    await page.locator('[data-case-id="digital-toll"]').check();await page.locator('#save').click();await expect(page.locator('#editor')).not.toBeVisible();
-   const saved=await (await page.request.get(afterURL+`/api/admin/users/${b.id}/cases`)).json();expect(saved.case_ids.sort()).toEqual(['digital-toll','functional-safety']);expect(saved.version).toBe(3);
+   const saved=await (await page.request.get(afterURL+`/api/admin/users/${b.id}/cases`)).json();expect(saved.case_ids.sort()).toEqual(['digital-toll','functional-safety']);expect(saved.version).toBe(3);expect(saved.dealer_download).toBe(true);
   }finally{release();}
  });
  test('logging back in restores a loaded default tab, then loads administrator data on selection',async({page})=>{

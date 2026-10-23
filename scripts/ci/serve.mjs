@@ -47,6 +47,8 @@ export async function startServer(root,port,logFile,{withoutDemoBinding=false}={
     const assets=join(runtime,'website');cpSync(source.assets,assets,{recursive:true});
     mkdirSync(fixtures,{recursive:true});
     for(const name of ['api.mjs','crypto.mjs']){copyFileSync(join(root,'services/case-access',name),join(fixtures,name));}
+    const dealerCatalog=join(root,'services/case-access/dealer-materials.mjs');
+    if(existsSync(dealerCatalog))copyFileSync(dealerCatalog,join(fixtures,'dealer-materials.mjs')); // Base snapshots can predate dealer resources.
     const registry=join(root,'services/case-access/tests/resources.json');
     const registered=caseResources(root),testResources=existsSync(registry)?JSON.parse(readFileSync(registry,'utf8')):{};
     if(Object.keys(testResources).some(id=>id in registered))throw new Error('Local fixtures must not override registered cases.');

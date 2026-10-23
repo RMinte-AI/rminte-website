@@ -76,7 +76,7 @@ npx wrangler dev --config services/case-access/wrangler.jsonc --port 8788 --ip 1
 
 ## 演示与下载接入契约
 
-当前接入项以 [资源配置](resources.mjs) 为准。`industrial-modeling` 静态模拟演示已通过官网账号网关接入生产，服务及绑定的维护方式见 [案例演示服务说明](../case-demos/README.md#生产自动部署)。其他案例或资料没有登记资源时，已授权请求仍返回 503；这不是接入了真实软件单点登录。
+当前接入项以 [资源配置](resources.mjs) 为准。`industrial-modeling` 静态模拟演示已通过官网账号网关接入生产，服务及绑定的维护方式见 [案例演示服务说明](../case-demos/README.md#生产自动部署)。其他案例或资料没有登记资源时，已授权请求仍返回 503；这不是接入了真实软件单点登录。 经销商资料独立于案例清单，按下节接入。
 
 `resources.mjs` 是服务端唯一登记表。演示配置恰选一种：私有 `demoPath`（例如 `/<case-id>/public/`）加该目录内相对 `demoEntry`（例如 `index.html?embed=1`）；或固定 HTTPS `demoUrl`，不得含用户名/密码。入口越出本案例网关、两种来源同时存在或地址无效时明确返回 503。只有下载的条目可以不配演示。
 
@@ -105,7 +105,7 @@ npx wrangler dev --config services/case-access/wrangler.jsonc --port 8788 --ip 1
 
 本节描述待部署实现，不表示生产迁移已执行。`users.role` 仍为 `admin/user`，`is_owner=1` 标识唯一主管理员。仅该身份可调用 `/api/admin/admins`；普通管理员可管理所有普通用户，所有用户管理目标必须为 `role=user`。主管理员不能由接口创建、转让、停用或删除。
 
-普通用户使用 `case_grants(user_id,case_id)`，一个案例授权同时开放演示和资料下载。共用的公开案例清单在 `website/assets/case-catalog.mjs`；私有服务与文件映射仍在服务端。`GET/PUT /api/admin/users/:id/cases` 读取／整体替换授权，PUT 提交 `{case_ids,version}`。并发版本冲突返回 409，所有写操作在同一 D1 batch 中按版本条件执行，不会部分覆盖。旧 PATCH 总开关接口已移除；旧字段仅为迁移核对保留，不参与新权限判断。
+普通用户使用 `case_grants(user_id,case_id)`，一个案例授权同时开放演示和资料下载。共用的公开案例清单在 `website/assets/case-catalog.mjs`；私有服务与文件映射仍在服务端。`GET/PUT /api/admin/users/:id/cases` 读取／整体替换授权，PUT 提交 `{case_ids,dealer_download,version}`。并发版本冲突返回 409，所有写操作在同一 D1 batch 中按版本条件执行，不会部分覆盖。旧 PATCH 总开关接口已移除；旧字段仅为迁移核对保留，不参与新权限判断。
 
 主管理员可通过 `POST /api/admin/admins` 创建普通管理员（仅接受可选 label），初始密码随机生成 24 位，仅返回一次，数据库不保存可解密副本；首次登录仅允许会话查询、退出及自己的密码修改。完成修改后所有会话撤销，重新登录后获得管理权限。`PATCH /api/admin/admins/:id` 仅接受 `{enabled:boolean}`，停用及启用都会撤销旧会话。普通用户的密码分发功能保持不变。管理员密码丢失时本次不提供找回／重置接口；Owner 可停用旧账号后分发独立账号。创建超时不自动重试，应先核对管理员列表。
 
@@ -125,3 +125,26 @@ npx wrangler dev --config services/case-access/wrangler.jsonc --port 8788 --ip 1
 ### 新增验证
 
 `node --test services/case-access/tests/*.test.mjs` 包含加密、SQLite 迁移事务、本地 D1 原子迁移与权限代理测试（Node 22.13+ 或 24）。资源测试使用明确的隔离演示／文件 fixture，不能证明真实私有服务可用。既有 `integration.mjs` 扩展了真实本地 Pages/D1 上的管理员与案例权限矩阵。浏览器 `account-permissions.spec.mjs` 覆盖创建、首次改密、跨管理员管理普通用户、授权保存、取消与停用，使用 CI 临时数据库和账号。
+
+## 经销商资料（本地实现，未部署）
+
+下载中心新增经销商资料分类，公开文案覆盖六种语言。当前仅列出《RM-01 产品横向参数对比（中文）》；PDF 文件不翻译，网页标题标明中文版本。文件不放在 `website/` 或公开下载域名中。
+
+- `dealer-materials.mjs` 固定资料 ID、私有对象 key 和下载文件名。
+- `GET/HEAD /api/dealer-materials/:id/download` 每次复用案例页会话，普通用户必须获得独立的经销商资料下载权限，该权限不要求任何案例授权；初始密码未修改、失效或停用的账号仍按既有规则拒绝访问。响应为 PDF 附件，禁止缓存。
+- `GET /api/admin/dealer-materials` 返回已配置资料的上传状态和大小。
+- `PUT /api/admin/dealer-materials/:id` 供已完成首次改密的管理员上传或替换 PDF，要求同源和 PDF 内容类型，最大 20 MB。后台“经销商资料”页签提供该入口。替换对象是原子的，校验失败不覆盖旧文件。网页标题由六语言文案维护，替换文件后不会改变其名称。
+
+本地 `wrangler.jsonc` 已声明 `CASE_FILES` 模拟 R2。正式上线时需将私有 bucket 绑定到 Pages Production 的 `CASE_FILES`，关闭该 bucket 的公开访问，并通过后台上传原始 PDF。Preview 使用独立存储；不要误将本地 bucket 名当成已存在的生产资源。`production.jsonc` 仍只用于既有数据库运维，不通过它部署 Worker。
+
+新增下载、上传和权限测试纳入既有 `tests/resources.test.mjs`，与案例资源回归一起运行。本地验收以原始 PDF 上传、普通登录用户下载后的字节一致性为准；不代表生产存储或正式下载已配置。
+
+### 独立经销商下载权限（0003）
+
+`0003_dealer_download_permission.sql` 新增 `users.can_download_dealer`，默认 0；已有普通用户也保持未授权，不复用旧 `can_download`，不从 `case_grants` 自动继承。管理员完成首次改密后保留资源管理与访问能力。
+
+管理后台的用户授权面板增加“经销商资料下载”单个复选项，统一控制全部经销商资料；案例搜索、全选与清空只影响案例。选中仅是草稿，保存后才生效。`GET/PUT /api/admin/users/:id/cases` 现在读写 `{case_ids,dealer_download,version}`，其中 `dealer_download` 必须为布尔值。两类授权共用 `permissions_version`，同一个 D1 batch 完成更新与审计，过期版本拒绝覆盖任何一类权限。
+
+`GET/HEAD` 每次读取当前会话及权限。未登录返回 401；已登录但没有经销商下载权限返回 403 与 `dealer_download_forbidden`；初始密码未修改的 403 使用 `password_change_required`。下载页分别显示“未登录”“没有权限”和首次改密提示，所有公开提示覆盖六语言。授予和撤销对现有会话的后续请求生效，不要求重新登录。
+
+生产需先在备份及明确发布授权下应用 0003，再部署对应代码；本次只在隔离本地 D1 应用。不得回退到忽略该权限、仅检查登录的下载实现。

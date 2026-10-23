@@ -145,6 +145,7 @@
     }
 
     RM_I18N.apply(lang);
+    window.dispatchEvent(new CustomEvent('download-language-change', { detail: lang }));
   }
 
   function setupLanguage() {

@@ -17,13 +17,14 @@ r=await call('/api/login',{method:'POST',data:{username,password}});ok('admin lo
 r=await call('/api/admin/users',{method:'POST',cookie:admin,origin:'https://other.example',data:{can_demo:true,can_download:false}});ok('cross origin write blocked',r.status===403);
 r=await call('/api/admin/users',{method:'POST',cookie:admin,data:{}});ok('account generated',r.status===201);const account=r.body;
 try{
- r=await call('/api/admin/users',{cookie:admin});const initial=r.body.users.find(u=>u.id===account.id);ok('new accounts have no case grants',initial.case_ids.length===0);
- r=await call('/api/admin/users/'+account.id+'/cases',{method:'PUT',cookie:admin,data:{case_ids:caseIds,version:0}});ok('permissions assigned only after creation',r.status===200);
+ r=await call('/api/admin/users',{cookie:admin});const initial=r.body.users.find(u=>u.id===account.id);ok('new accounts have no case grants',initial.case_ids.length===0);ok('new accounts have no dealer download permission',initial.dealer_download===false);
+ r=await call('/api/admin/users/'+account.id+'/cases',{method:'PUT',cookie:admin,data:{dealer_download:false,case_ids:caseIds,version:0}});ok('permissions assigned only after creation',r.status===200);
  ok('username format',/^rminte-[a-z0-9]{10}$/.test(account.username));ok('12 character mixed case alphanumeric password',/^[A-Za-z0-9]{12}$/.test(account.password)&&/[a-z]/.test(account.password)&&/[A-Z]/.test(account.password)&&/\d/.test(account.password));
  r=await call('/api/admin/users/'+account.id+'/password',{cookie:admin});ok('admin can retrieve encrypted password',r.body.password===account.password);
  r=await call('/api/login',{method:'POST',data:{username:account.username,password:account.password}});ok('ordinary login',r.status===200&&r.body.user.case_ids.includes('digital-toll')&&!r.body.user.all_cases);user=r.cookie;
  r=await call('/api/admin/users',{cookie:user});ok('user cannot list credentials',r.status===403);
  r=await call('/api/admin/users/'+account.id,{method:'PATCH',cookie:user,data:{can_demo:true,can_download:true,username:'changed',password:'changed'}});ok('user cannot change account or permissions',r.status===403);
+ r=await call('/api/dealer-materials/rm01-product-comparison/download',{cookie:user});ok('case grant does not enable dealer downloads',r.status===403&&r.body.code==='dealer_download_forbidden');
  r=await call('/api/resources/digital-toll/download',{cookie:user});ok('same case download authorized but unavailable',r.status===503);
  r=await call('/api/resources/digital-toll/demo',{cookie:user});ok('authorized registered demo is available',r.status===200);
  for(const [id,res] of Object.entries(resources)){
@@ -40,7 +41,7 @@ try{
  }
  for(const id of ['asset-audit','ci-unregistered'])ok('missing preview remains unavailable '+id,(await call(`/api/resources/${id}/preview`,{cookie:admin})).status===503);
  r=await call('/api/admin/users/'+account.id+'/logins',{cookie:admin});ok('login recorded with time and IP fields',r.body.events.length===1&&r.body.events[0].occurred_at&&typeof r.body.events[0].ip==='string'&&'region' in r.body.events[0]);
- r=await call('/api/admin/users/'+account.id+'/cases',{method:'PUT',cookie:admin,data:{case_ids:[],version:1}});ok('admin revokes case grant',r.status===200);
+ r=await call('/api/admin/users/'+account.id+'/cases',{method:'PUT',cookie:admin,data:{dealer_download:false,case_ids:[],version:1}});ok('admin revokes case grant',r.status===200);
  r=await call('/api/session',{cookie:user});ok('permissions change in existing session',r.body.user.case_ids.length===0);
  r=await call('/api/resources/digital-toll/demo',{cookie:user});ok('revoked demo denied',r.status===403);
  r=await call('/api/resources/digital-toll/download',{cookie:user});ok('revocation also denies download',r.status===403);
@@ -73,8 +74,8 @@ try{
  ok('owner cannot disable self',(await call('/api/admin/admins/'+owner.id,{method:'PATCH',cookie:admin,data:{enabled:false}})).status===404);
  ok('role injection rejected',(await call('/api/admin/users',{method:'POST',cookie:dc,data:{role:'admin'}})).status===400);
  ok('owner injection rejected',(await call('/api/admin/admins',{method:'POST',cookie:admin,data:{is_owner:true}})).status===400);
- ok('invalid case rejected',(await call('/api/admin/users/'+account.id+'/cases',{method:'PUT',cookie:dc,data:{case_ids:['unknown'],version:2}})).status===400);
- const attempts=await Promise.all(['digital-toll','asset-audit'].map(id=>call('/api/admin/users/'+account.id+'/cases',{method:'PUT',cookie:dc,data:{case_ids:[id],version:2}})));
+ ok('invalid case rejected',(await call('/api/admin/users/'+account.id+'/cases',{method:'PUT',cookie:dc,data:{dealer_download:false,case_ids:['unknown'],version:2}})).status===400);
+ const attempts=await Promise.all(['digital-toll','asset-audit'].map(id=>call('/api/admin/users/'+account.id+'/cases',{method:'PUT',cookie:dc,data:{dealer_download:false,case_ids:[id],version:2}})));
  ok('concurrent grant update has one winner',attempts.filter(r=>r.status===200).length===1&&attempts.filter(r=>r.status===409).length===1);
  const grants=(await call('/api/admin/users/'+account.id+'/cases',{cookie:dc})).body;
  ok('conflict does not mix grants',grants.case_ids.length===1&&grants.version===3);
@@ -85,6 +86,16 @@ try{
   ok('HEAD denied '+kind,(await call('/api/resources/'+denied+'/'+kind,{method:'HEAD',cookie:user})).status===403);
  }
  ok('demo subpath denied',(await call('/api/resources/'+denied+'/demo/private.js',{cookie:user})).status===403);
+ const dealerPath='/api/dealer-materials/rm01-product-comparison/download';
+ const dealerPdf=Buffer.from('%PDF-1.7\nSynthetic dealer protocol fixture\n%%EOF');
+ const uploadDealer=await fetch(base+'/api/admin/dealer-materials/rm01-product-comparison',{method:'PUT',headers:{Origin:base,Cookie:dc,'Content-Type':'application/pdf'},body:dealerPdf});ok('delegate uploads dealer PDF',uploadDealer.status===200);await uploadDealer.body.cancel();
+ ok('delegate grants dealer downloads',(await call('/api/admin/users/'+account.id+'/cases',{method:'PUT',cookie:dc,data:{case_ids:grants.case_ids,dealer_download:true,version:3}})).status===200);
+ const dealerResponse=await fetch(base+dealerPath,{headers:{Cookie:user}});ok('dealer download succeeds in an existing session',dealerResponse.status===200);ok('dealer download matches uploaded bytes',Buffer.from(await dealerResponse.arrayBuffer()).equals(dealerPdf));ok('dealer download is private',dealerResponse.headers.get('cache-control').includes('no-store'));
+ const dealerHead=await fetch(base+dealerPath,{method:'HEAD',headers:{Cookie:user}});ok('dealer HEAD size and empty body',dealerHead.status===200&&dealerHead.headers.get('content-length')===String(dealerPdf.length)&&(await dealerHead.text())==='');
+ ok('delegate revokes dealer downloads',(await call('/api/admin/users/'+account.id+'/cases',{method:'PUT',cookie:dc,data:{case_ids:grants.case_ids,dealer_download:false,version:4}})).status===200);
+ const deniedDealer=await call(dealerPath,{cookie:user});ok('revoked dealer download explicitly denied',deniedDealer.status===403&&deniedDealer.body.code==='dealer_download_forbidden');
+ ok('revoked dealer HEAD denied',(await call(dealerPath,{method:'HEAD',cookie:user})).status===403);
+ ok('dealer revocation preserves case grant',(await call('/api/admin/users/'+account.id+'/cases',{cookie:admin})).body.case_ids[0]===allowed);
  ok('owner disables delegate',(await call('/api/admin/admins/'+delegated.id,{method:'PATCH',cookie:admin,data:{enabled:false}})).status===200);
  ok('disabled session denied',(await call('/api/admin/users',{cookie:dc})).status===401);
  ok('disabled login denied',(await call('/api/login',{method:'POST',data:{username:delegated.username,password:next}})).status===401);

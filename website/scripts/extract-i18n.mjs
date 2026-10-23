@@ -32,6 +32,7 @@ for(const [file,start,end,names] of [
  ['models/models.js','      const cases =','      function bilingual(',['cases','optimizationItems']],
  ['scripts/build-guides.mjs','const guideConfig =','extendPairs(guideConfig);',['guideConfig']],
  ['cases/cases.js','  const COPY =','  const esc =',['COPY']],
+ ['assets/dealer-downloads.js','  const COPY =','  function render()', ['COPY']],
  ['assets/case-auth.js',' const PANEL=',' async function api(',['PANEL']]
 ]) {
  const code=readFileSync(join(site,file),'utf8');
