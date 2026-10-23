@@ -3,7 +3,7 @@ import {join,resolve} from 'node:path';
 import {createHash} from 'node:crypto';
 import {expect} from '@playwright/test';
 
-export const run=JSON.parse(readFileSync(resolve('output/ci/context.json'),'utf8'));
+export const run=JSON.parse(readFileSync(resolve(process.env.RMINTE_TEST_CONTEXT||'output/ci/context.json'),'utf8'));
 export const afterURL=process.env.RMINTE_AFTER_URL||'http://127.0.0.1:8788';
 export const beforeURL=process.env.RMINTE_BEFORE_URL||'http://127.0.0.1:8789';
 export const languages=page=>run.scope.languages.filter(lang=>!page.languages||page.languages.includes(lang));

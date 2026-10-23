@@ -1,30 +1,9 @@
+import {groups,cases,caseIds} from '../assets/case-catalog.mjs';
 // Cases page, design system v2 (D10). The cards, the dialogs and the authorised-access panel are drawn here. Every visible string is a zh/en pair that is
 // painted in the visitor's language (RM_I18N.text: zh and en from the pair, ja/ko/es/fr from the catalogs by the English text) and painted again on a
 // language switch, so a dialog that is open keeps what was typed into it.
 (() => {
   'use strict';
-  const groups = [
-    {zh: '交通服务', en: 'Transport'},
-    {zh: '企业运营', en: 'Enterprise operations'},
-    {zh: '公共事务', en: 'Public affairs'},
-    {zh: '文档与知识', en: 'Documents and knowledge'},
-    {zh: '工业研发', en: 'Industrial R&D'}
-  ];
-  // Index = position in caseIds (the resource routes), so the order here never changes; each card sits under its group.
-  const cases = [
-    {group: 0, name: {zh: 'AI 数字收费员', en: 'AI Digital Toll Operator'}, desc: {zh: '面向收费业务的 AI 应用，探索数字收费员参与业务服务的方式。', en: 'An AI application for toll operations, exploring how a digital operator can take part in the service.'}},
-    {group: 1, name: {zh: 'AI 信息资产审计', en: 'AI Information Asset Audit'}, desc: {zh: '围绕信息资产开展 AI 审计，辅助审阅与整理相关材料。', en: 'AI-assisted audit of information assets, helping review and organise the related materials.'}},
-    {group: 2, name: {zh: '基层事务 AI 助理', en: 'Community Affairs AI Assistant'}, desc: {zh: '面向基层日常事务，探索 AI 辅助处理与信息整理。', en: 'Exploring AI support for everyday community affairs, from handling to organising information.'}},
-    {group: 1, name: {zh: 'AI 节能调度专家', en: 'AI Energy Dispatch Expert'}, desc: {zh: '将 AI 应用于节能与调度场景，辅助分析业务中的能源使用与调度问题。', en: 'AI for energy saving and dispatch, helping analyse energy use and scheduling in the business.'}},
-    {group: 3, name: {zh: 'AI 文档识别与翻译知识库', en: 'AI Document Recognition, Translation and Knowledge Base'}, desc: {zh: '结合 OCR、翻译与知识库，衔接文档识别、语言转换和知识查询。', en: 'Combines OCR, translation and a knowledge base, linking document recognition, language conversion and lookup.'}},
-    {group: 3, name: {zh: 'AI 公文写作助手', en: 'AI Official Writing Assistant'}, desc: {zh: '面向公文写作场景，提供 AI 辅助写作的应用入口。', en: 'An entry point for AI-assisted writing of official documents.'}},
-    {group: 3, name: {zh: 'AI 企业档案管理', en: 'AI Enterprise Archive Management'}, desc: {zh: '结合 OCR 与知识库，让企业档案进入可识别、可查询的工作流程。', en: 'Uses OCR and a knowledge base to bring enterprise archives into a searchable workflow.'}},
-    {group: 2, name: {zh: '无人机机场 AI 分析师', en: 'Drone Airport AI Analyst'}, desc: {zh: '面向森林防火误报与户外活动人员探测，开展无人机影像分析。', en: 'Drone imagery analysis for false fire alarms in forests and detection of people in outdoor activity.'}},
-    {group: 4, name: {zh: 'AI 汽车研发与工业建模', en: 'AI Automotive R&D and Industrial Modelling'}, desc: {zh: '覆盖零件平面图转 3D、装配建模、工业焊接机器人编程与汽车安全检测。', en: 'Covers part drawings to 3D, assembly modelling, industrial welding-robot programming and automotive safety inspection.'}},
-    {group: 3, name: {zh: '刑事律师材料与线索 AI 整理师', en: 'AI Organiser for Criminal Defence Materials and Leads'}, desc: {zh: '面向刑事律师工作中的材料与线索整理，辅助组织已有信息。', en: 'Helps criminal defence lawyers organise case materials and leads from existing information.'}},
-    {group: 4, name: {zh: 'AI 汽车功能安全检测', en: 'AI Automotive Functional Safety Inspection'}, desc: {zh: '聚焦汽车功能安全检测场景，展示 AI 在专业检测工作中的应用。', en: 'Focused on functional safety inspection of vehicles, showing AI in professional inspection work.'}}
-  ];
-  const caseIds = ['digital-toll', 'asset-audit', 'community-assistant', 'energy-dispatch', 'document-knowledge', 'official-writing', 'archive-management', 'drone-analysis', 'industrial-modeling', 'legal-materials', 'functional-safety'];
   const COPY = {
     signToDemo: {zh: '需登录后演示', en: 'Sign in to view demo'},
     demoOn: {zh: '演示已授权', en: 'Demo authorised'},
@@ -122,15 +101,18 @@
   }
   function updateCards() {
     const user = CASE_AUTH.user;
-    const [state, pair] = !user ? ['', COPY.signToDemo] : user.can_demo ? ['ok', COPY.demoOn] : ['off', COPY.demoOff];
     list.querySelectorAll('.cs-status').forEach((status) => {
-      if (state) status.dataset.state = state; else delete status.dataset.state;
-      setPair(status, pair);
+      const index=Number(status.closest('article').querySelector('[data-action="demo"]').dataset.selected);
+      const granted=CASE_AUTH.canAccess(caseIds[index]);
+      const [state,pair]=!user?['',COPY.signToDemo]:granted?['ok',COPY.demoOn]:['off',COPY.demoOff];
+      if(state)status.dataset.state=state;else delete status.dataset.state;
+      setPair(status,pair);
     });
-    // Signed in, the download row reads "not yet connected" and stays grey: the front end cannot read yet whether a resource is wired.
     list.querySelectorAll('[data-action="download"]').forEach((download) => {
-      if (user) { download.dataset.state = 'off'; download.setAttribute('aria-disabled', 'true'); } else { delete download.dataset.state; download.removeAttribute('aria-disabled'); }
-      setPair(download.querySelector('strong'), user ? COPY.docPending : COPY.signToDownload);
+      const id=caseIds[Number(download.dataset.selected)],granted=CASE_AUTH.canAccess(id);
+      if(user&&!granted)download.dataset.state='off';else delete download.dataset.state;
+      download.removeAttribute('aria-disabled');
+      setPair(download.querySelector('strong'),!user?COPY.signToDownload:!granted?COPY.noDownload:user.resources[id]?.download?COPY.materials:COPY.docPending);
     });
     paint();
   }
@@ -181,7 +163,7 @@
     try {
       const user = await CASE_AUTH.refresh();
       if (!user) { action('login'); return; }
-      if (!(resource.kind === 'demo' ? user.can_demo : user.can_download)) throw fail(resource.kind === 'demo' ? COPY.noDemo : COPY.noDownload);
+      if (!CASE_AUTH.canAccess(resource.id)) throw fail(resource.kind === 'demo' ? COPY.noDemo : COPY.noDownload);
       const url = `/api/resources/${resource.id}/${resource.kind}`;
       const check = await fetch(url, {method: 'HEAD', credentials: 'same-origin'}).catch(() => { throw fail(COPY.tryLater); });
       if (!check.ok) throw fail(check.status === 503 ? COPY.notConnected : check.status === 403 ? COPY.noAccess : COPY.tryLater);

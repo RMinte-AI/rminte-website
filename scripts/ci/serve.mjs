@@ -25,9 +25,10 @@ export async function startServer(root,port,logFile) {
   for(const destination of [join(runtime,'wrangler.jsonc'),join(fixtures,'wrangler.jsonc')])writeFileSync(destination,JSON.stringify(config));
   for(const destination of [join(runtime,'.dev.vars'),join(fixtures,'.dev.vars')])writeFileSync(destination,`CASE_SECRET="${secret}"\n`,{mode:0o600});
   writeFileSync(join(fixtures,'.local/admin-login.txt'),`本地 CI 临时数据（未部署）\n用户名：admin\n密码：${password}\n`,{mode:0o600});
+  const modern=existsSync(join(root,'services/case-access/migrations/0002_account_permissions.sql'));
   const mac=await hashAdminPassword(secret,'admin',password);
   const sql=join(runtime,'seed.sql');
-  writeFileSync(sql,`INSERT INTO users(id,username,role,password_mac,password_cipher,can_demo,can_download,created_at) VALUES('${randomUUID()}','admin','admin','${mac}',NULL,1,1,${Math.floor(Date.now()/1000)});`,{mode:0o600});
+  writeFileSync(sql,`INSERT INTO users(id,username,role,password_mac,password_cipher,can_demo,can_download,created_at${modern?',is_owner':''}) VALUES('${randomUUID()}','admin','admin','${mac}',NULL,1,1,${Math.floor(Date.now()/1000)}${modern?',1':''});${modern?'UPDATE access_settings SET ready=1 WHERE id=1;':''}`,{mode:0o600});
   copyFileSync(join(root,'services/case-access/crypto.mjs'),join(fixtures,'crypto.mjs'));
   for(const name of ['integration.mjs','admin-password.mjs'])if(existsSync(join(root,'services/case-access/tests',name)))copyFileSync(join(root,'services/case-access/tests',name),join(fixtures,'tests',name));
   const env={...process.env,XDG_CONFIG_HOME:join(runtime,'config'),WRANGLER_LOG_PATH:join(runtime,'logs'),WRANGLER_SEND_METRICS:'false',CHOKIDAR_USEPOLLING:'true'};

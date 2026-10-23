@@ -37,7 +37,7 @@ await check('generated guides',run.scope.guides,()=>generatedCheck(root,'website
 await check('generated translations',run.scope.translations,()=>generatedCheck(root,'website/scripts/build-translations.mjs',['website/assets/translations/ja.js','website/assets/translations/ko.js','website/assets/translations/es.js','website/assets/translations/fr.js']),'No translation input or generator changed.');
 const unit=['scripts/ci/policy.test.mjs'];
 if(run.scope.seo)unit.push('scripts/check-seo.test.mjs');
-if(run.scope.caseService)unit.push('services/case-access/tests/crypto.test.mjs');
+if(run.scope.caseService)unit.push('services/case-access/tests/crypto.test.mjs','services/case-access/tests/migration.test.mjs','services/case-access/tests/migration-d1.test.mjs','services/case-access/tests/resources.test.mjs');
 if(run.scope.ota)unit.push('services/tianshanos-ota/tests/releases.test.mjs');
 await check('unit and gate regressions',true,()=>command(process.execPath,['--test',...unit],'unit'));
 
@@ -67,6 +67,8 @@ try {
   },'No SEO or routing dependency changed.');
   await check('browser operations and evidence',run.scope.pages.length>0,()=>{
     if(!after||!before)throw new Error('Before/after Pages runtimes did not start.');
+    // API and browser suites share one synthetic IP; reset only the disposable fixture quota between suites.
+    after.command(['d1','execute','CASE_DB','--local','--config',join(after.runtime,'services/case-access/wrangler.jsonc'),'--command','DELETE FROM rate_limits;']);
     mkdirSync(join(output,'evidence'),{recursive:true});
     writeFileSync(join(output,'evidence/manifest.json'),JSON.stringify({schema:1,baseSha:run.baseSha,headSha:run.headSha,testSha:run.testSha,scope:run.scope,data:'Local D1 fixtures and synthetic OTA release. Admin currently supports Chinese only.'},null,2));
     const env={...process.env,RMINTE_AFTER_URL:after.url,RMINTE_BEFORE_URL:before.url,RMINTE_AFTER_FIXTURE:after.runtime,RMINTE_BEFORE_FIXTURE:before.runtime};

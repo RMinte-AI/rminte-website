@@ -614,5 +614,9 @@
   "The team reviews every application and replies by email. An application does not grant access to demos or downloads.": "El equipo revisa todas las solicitudes y responde por correo electrónico. Una solicitud no concede acceso a las demos ni a las descargas.",
   "Username": "Nombre de usuario",
   "Enterprise operations": "Operaciones empresariales",
-  "Work email": "Correo profesional"
+  "Work email": "Correo profesional",
+  "Case access": "Acceso a casos",
+  "All cases": "Todos los casos",
+  "{n} cases authorised": "{n} casos autorizados",
+  "Change your initial password in the admin console first": "Cambia primero tu contraseña inicial en la consola de administración"
 }

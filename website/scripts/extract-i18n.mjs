@@ -3,6 +3,7 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import vm from 'node:vm';
+import {groups,cases} from '../assets/case-catalog.mjs';
 const site = join(dirname(fileURLToPath(import.meta.url)), '..');
 const entries = new Map();
 function add(zh, en, source) {
@@ -24,12 +25,12 @@ function walk(value,source) {
     if(key!=='zh'&&key!=='en'&&key!=='source')walk(value[key],`${source}.${key}`);
   }
 }
+walk({groups,cases},'assets/case-catalog.mjs');
 const context={window:{}}; vm.runInNewContext(readFileSync(join(site,'assets/site-data.js'),'utf8'),context); walk(context.window.RM_SOFT,'assets/site-data.js');
 for(const [file,start,end,names] of [
  ['assets/gallery.js','  const galleryItems =','  const $ =',['galleryItems']],
  ['models/models.js','      const cases =','      function bilingual(',['cases','optimizationItems']],
  ['scripts/build-guides.mjs','const guideConfig =','extendPairs(guideConfig);',['guideConfig']],
- ['cases/cases.js','  const groups =','  const caseIds =',['groups','cases']],
  ['cases/cases.js','  const COPY =','  const esc =',['COPY']],
  ['assets/case-auth.js',' const PANEL=',' async function api(',['PANEL']]
 ]) {
