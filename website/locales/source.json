@@ -4625,6 +4625,71 @@
     ]
   },
   {
+    "zh": "正在检查访问权限…",
+    "en": "Checking access…",
+    "sources": [
+      "cases/cases.js"
+    ]
+  },
+  {
+    "zh": "正在加载演示…",
+    "en": "Loading demo…",
+    "sources": [
+      "cases/cases.js"
+    ]
+  },
+  {
+    "zh": "登录已失效，请重新登录。",
+    "en": "Your session has expired. Please sign in again.",
+    "sources": [
+      "cases/cases.js"
+    ]
+  },
+  {
+    "zh": "暂未完成加载，请重试或关闭。",
+    "en": "Loading has not finished. Please retry or close.",
+    "sources": [
+      "cases/cases.js"
+    ]
+  },
+  {
+    "zh": "重试",
+    "en": "Retry",
+    "sources": [
+      "cases/cases.js"
+    ]
+  },
+  {
+    "zh": "高速公路现场智能协同",
+    "en": "Intelligent Highway Field Coordination",
+    "sources": [
+      "cases/cases.js"
+    ]
+  },
+  {
+    "zh": "面向收费站、隧道、桥梁与光伏场景，展示现场感知、智能研判和协同处置。",
+    "en": "Shows field sensing, intelligent assessment and coordinated response across toll stations, tunnels, bridges and solar sites.",
+    "sources": [
+      "cases/cases.js"
+    ]
+  },
+  {
+    "zh": "电子邮箱：",
+    "en": "Email:",
+    "sources": [
+      "cases/cases.js.COPY.contactEmail"
+    ]
+  },
+  {
+    "zh": "科技有限公司",
+    "en": "Technology Co., Ltd.",
+    "sources": [
+      "assets/case-catalog.mjs.cases.0.supplier.suffix",
+      "assets/case-catalog.mjs.cases.8.supplier.suffix",
+      "assets/case-catalog.mjs.cases.11.supplier.suffix"
+    ]
+  },
+  {
     "zh": "案例访问",
     "en": "Case access",
     "sources": [

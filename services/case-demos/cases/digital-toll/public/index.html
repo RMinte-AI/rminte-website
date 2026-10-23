@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>AI 数字收费员 · 交互演示</title>
+  <meta name="description" content="AI 数字收费员交互演示，使用独立模拟数据展示对话问数与收费运营工作流程。">
+  <link rel="icon" href="./icons/bot.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./style.css">
+  <script type="module" src="./app.mjs"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到工作区</a>
+  <div class="workspace" id="workspace">
+    <aside class="sidebar" id="sidebar" aria-label="工作空间导航">
+      <div class="brand"><img src="./icons/bot.svg" alt="" width="28" height="28"><span>AI 数字收费员</span></div>
+      <nav class="primary-nav" aria-label="主导航">
+        <button id="new-chat" class="nav-button active" aria-current="page"><img src="./icons/square-pen.svg" alt="">新对话</button>
+        <button id="open-plaza" class="nav-button"><img src="./icons/layout-grid.svg" alt="">智能体广场</button>
+      </nav>
+      <section class="nav-section" aria-labelledby="frequent-title"><h2 id="frequent-title">常用项</h2><div id="frequent"></div></section>
+      <section class="nav-section recent-section" aria-labelledby="recent-title"><div class="section-heading"><h2 id="recent-title">最近</h2><button class="icon-button" id="clear-history" title="清空演示对话" aria-label="清空演示对话" disabled><img src="./icons/trash-2.svg" alt=""></button></div><div id="recent"><p class="empty-history">暂无对话</p></div></section>
+      <div class="account"><img src="./icons/user-round.svg" alt="">演示访客</div>
+    </aside>
+    <main id="main" tabindex="-1">
+      <header class="topbar"><button class="icon-button" id="toggle-sidebar" aria-label="收起侧栏" title="收起侧栏" aria-controls="sidebar" aria-expanded="true"><img src="./icons/panel-left.svg" alt=""></button><span class="demo-label">交互演示 · 全部为模拟数据</span></header>
+      <section class="chat-view" id="chat-view" aria-label="对话问数">
+        <div class="chat-scroll" id="chat-scroll">
+          <div class="welcome" id="welcome"><img src="./icons/bot.svg" alt="" width="64" height="64"><h1>AI 数字收费员</h1><p>收费运营的智能工作助手</p></div>
+          <div class="messages" id="messages" role="log" aria-label="模拟对话" aria-live="polite"></div>
+        </div>
+        <form class="composer" id="composer">
+          <label class="sr-only" for="question">待发送的演示问题</label>
+          <textarea id="question" readonly rows="2" placeholder="选择一个问数场景…"></textarea>
+          <div class="composer-tools"><label class="scenario-picker"><img src="./icons/message-circle.svg" alt=""><span class="sr-only">选择演示问题</span><select id="scenario" aria-label="选择演示问题"><option value="">问数场景</option></select></label><button id="send" class="send-button" type="submit" aria-label="发送演示问题" title="发送演示问题" disabled><img src="./icons/arrow-up.svg" alt=""></button></div>
+          <p class="composer-note">预设问题与结果 · 非实时 AI 推理</p>
+        </form>
+      </section>
+      <section class="plaza-view" id="plaza-view" aria-labelledby="plaza-title" hidden><div class="page-heading"><h1 id="plaza-title" tabindex="-1">智能体广场</h1><span>示例收费站</span></div><div id="catalog"></div></section>
+      <section class="feature-view" id="feature-view" aria-labelledby="feature-title" hidden><div class="page-heading"><h1 id="feature-title" tabindex="-1"></h1><span>示例收费站</span></div><div id="feature-content"></div></section>
+    </main>
+  </div>
+  <dialog id="confirm-clear" aria-labelledby="clear-title"><h2 id="clear-title">清空演示对话？</h2><p>仅清空本次打开的模拟记录。</p><div class="dialog-actions"><button id="cancel-clear" class="button">取消</button><button id="confirm-clear-button" class="button primary">清空</button></div></dialog>
+  <noscript><p class="noscript">演示需要 JavaScript。当前未执行任何查询。</p></noscript>
+</body>
+</html>

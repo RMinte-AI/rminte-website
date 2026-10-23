@@ -28,7 +28,7 @@ function showLogin(){
 }
 async function init(){try{const user=await CASE_AUTH.refresh();if(user?.role==='admin'){showAdmin(user);if(!user.must_change_password){usersOffset=0;await selectTab($('#tab-users'));loadInbox();}}else{showLogin();if(user)say($('#login-message'),'当前账号不是管理员。你仍可前往案例页使用已授权的功能。');}}catch(e){showLogin();say($('#login-message'),e.message,'未能登录');}}
 $('#admin-login').onsubmit=async e=>{e.preventDefault();const form=e.target,b=form.querySelector('button');b.disabled=true;try{await CASE_AUTH.login(form.username.value,form.password.value);form.reset();$('#login-message').replaceChildren();await init();}catch(e){say($('#login-message'),e.message,'未能登录');}finally{b.disabled=false;}};
-$('#logout').onclick=async()=>{try{await api('/api/logout',{method:'POST'});await init();}catch(e){report(e);}};
+$('#logout').onclick=async()=>{try{await CASE_AUTH.logout();await init();}catch(e){report(e);}};
 async function loadUsers(){
  try{const data=await api(`/api/admin/users?offset=${usersOffset}`);users=data.users;
  $('#users').innerHTML=users.length?users.map(u=>`<tr data-id="${u.id}"><td data-label="账号 / 密码"><span class="u">${escapeHtml(u.username)}</span><div class="ad-pw"><code data-password>••••••••••••</code><button class="ad-btn" type="button" data-show>查看密码</button><button class="ad-btn" type="button" data-copy>复制账号密码</button></div></td><td data-label="已授权案例" class="summary"><strong>${u.case_ids.length} / ${caseCatalog.length} 个案例</strong><span class="s">${escapeHtml(u.case_ids.length?u.case_ids.slice(0,3).map(id=>caseCatalog.find(c=>c.id===id)?.name.zh||id).join('、')+(u.case_ids.length>3?'…':''):'尚未授权')}</span><button class="ad-btn" type="button" data-cases>管理案例</button></td><td data-label="最近登录"><span data-time="${u.occurred_at||''}">${ago(u.occurred_at)}</span><span class="s">${u.occurred_at?date(u.occurred_at):''}</span></td><td data-label="IP / 地区">${escapeHtml(u.ip||'—')}<span class="s">${escapeHtml(u.occurred_at?region(u):'—')}</span></td><td data-label="操作"><div class="ad-ops"><button class="ad-btn" type="button" data-history>登录记录</button><button class="ad-btn danger" type="button" data-delete>删除</button></div></td></tr>`).join(''):'<tr><td colspan="5">尚未分发账号。</td></tr>';
@@ -75,7 +75,7 @@ $('#password-form').onsubmit=async event=>{
  if(form.elements.new_password.value!==form.elements.confirm_password.value){say($('#password-message'),'两次输入的新密码不一致','未能保存');return;}
  button.disabled=true;
  try{
-  await api('/api/admin/password',{method:'POST',body:JSON.stringify({current_password:form.elements.current_password.value,new_password:form.elements.new_password.value})});
+  await CASE_AUTH.changePassword({current_password:form.elements.current_password.value,new_password:form.elements.new_password.value});
   $('#password-dialog').close();showLogin();await CASE_AUTH.refresh();
   say($('#login-message'),'密码已修改，所有旧登录已退出。请使用新密码登录。');$('#admin-login').elements.password.focus();
  }catch(error){say($('#password-message'),error.message,'未能保存');if(error.status===401)showLogin();}

@@ -1,3 +1,5 @@
+import {resources} from '../resources.mjs';
+import {caseIds} from '../../../website/assets/case-catalog.mjs';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 const base=process.env.CASE_TEST_URL||'http://127.0.0.1:8788';
@@ -6,26 +8,44 @@ const username=credentials.match(/用户名：(.*)/)[1],password=credentials.mat
 let admin='',user='';const checks=[];
 async function call(path,{method='GET',data,cookie='',origin=base}={}){const r=await fetch(base+path,{method,headers:{Origin:origin,...(data?{'Content-Type':'application/json'}:{}),...(cookie?{Cookie:cookie}:{})},body:data?JSON.stringify(data):undefined});let body;try{body=await r.json()}catch{body=null}return {status:r.status,body,cookie:r.headers.get('set-cookie')?.split(';')[0],headers:r.headers};}
 function ok(name,condition){assert.ok(condition,name);checks.push(name);}
+const previews=Object.entries(resources).filter(([,r])=>r.demoUrl||r.demoPath);
+const downloads=Object.entries(resources).filter(([,resource])=>resource.fileKey);
 let r=await call('/api/admin/users');ok('unauthenticated admin rejected',r.status===401);
+for(const [id] of downloads)ok('anonymous download rejected: '+id,(await call(`/api/resources/${id}/download`)).status===401);
+for(const [id] of previews)ok('anonymous preview rejected: '+id,(await call(`/api/resources/${id}/preview`)).status===401);
 r=await call('/api/login',{method:'POST',data:{username,password}});ok('admin login',r.status===200&&r.body.user.role==='admin');admin=r.cookie;ok('HttpOnly SameSite session',r.headers.get('set-cookie').includes('HttpOnly')&&r.headers.get('set-cookie').includes('SameSite=Strict'));
 r=await call('/api/admin/users',{method:'POST',cookie:admin,origin:'https://other.example',data:{can_demo:true,can_download:false}});ok('cross origin write blocked',r.status===403);
 r=await call('/api/admin/users',{method:'POST',cookie:admin,data:{}});ok('account generated',r.status===201);const account=r.body;
 try{
  r=await call('/api/admin/users',{cookie:admin});const initial=r.body.users.find(u=>u.id===account.id);ok('new accounts have no case grants',initial.case_ids.length===0);
- r=await call('/api/admin/users/'+account.id+'/cases',{method:'PUT',cookie:admin,data:{case_ids:['digital-toll'],version:0}});ok('permissions assigned only after creation',r.status===200);
+ r=await call('/api/admin/users/'+account.id+'/cases',{method:'PUT',cookie:admin,data:{case_ids:caseIds,version:0}});ok('permissions assigned only after creation',r.status===200);
  ok('username format',/^rminte-[a-z0-9]{10}$/.test(account.username));ok('12 character mixed case alphanumeric password',/^[A-Za-z0-9]{12}$/.test(account.password)&&/[a-z]/.test(account.password)&&/[A-Z]/.test(account.password)&&/\d/.test(account.password));
  r=await call('/api/admin/users/'+account.id+'/password',{cookie:admin});ok('admin can retrieve encrypted password',r.body.password===account.password);
  r=await call('/api/login',{method:'POST',data:{username:account.username,password:account.password}});ok('ordinary login',r.status===200&&r.body.user.case_ids.includes('digital-toll')&&!r.body.user.all_cases);user=r.cookie;
  r=await call('/api/admin/users',{cookie:user});ok('user cannot list credentials',r.status===403);
  r=await call('/api/admin/users/'+account.id,{method:'PATCH',cookie:user,data:{can_demo:true,can_download:true,username:'changed',password:'changed'}});ok('user cannot change account or permissions',r.status===403);
  r=await call('/api/resources/digital-toll/download',{cookie:user});ok('same case download authorized but unavailable',r.status===503);
- r=await call('/api/resources/digital-toll/demo',{cookie:user});ok('authorized but missing demo explicitly unavailable',r.status===503);
+ r=await call('/api/resources/digital-toll/demo',{cookie:user});ok('authorized registered demo is available',r.status===200);
+ for(const [id,res] of Object.entries(resources)){
+  if(res.demoPath||res.demoUrl){
+   if(id==='ci-website'){const preview=await call(`/api/resources/${id}/preview`,{cookie:admin});ok('fixed website fixture',preview.status===200&&preview.body.kind==='website'&&preview.body.src===res.demoUrl);continue;}
+   if(!caseIds.includes(id)){ok('invalid preview configuration fails closed '+id,(await call(`/api/resources/${id}/preview`,{cookie:admin})).status===503);continue;}
+   for(const cookie of [user,admin]){
+    const preview=await call(`/api/resources/${id}/preview`,{cookie});ok('preview succeeds '+id,preview.status===200);ok('preview private cache '+id,preview.headers.get('cache-control').includes('no-store'));
+    ok('fixed preview descriptor '+id,preview.body.kind===(res.demoUrl?'website':'private')&&preview.body.src===(res.demoUrl||`/api/resources/${id}/demo/${res.demoEntry}`));
+   }
+   if(res.demoPath){const entry=`/api/resources/${id}/demo/${res.demoEntry}`;ok('private entry anonymous denied '+id,(await call(entry)).status===401);const bytes=await fetch(base+entry,{headers:{Cookie:user}});ok('private entry authorized '+id,bytes.status===200&&bytes.headers.get('cache-control').includes('no-store'));await bytes.body.cancel();}
+  }
+  if(res.fileKey){const download=await fetch(base+`/api/resources/${id}/download`,{headers:{Cookie:user}});ok('authorized download '+id,download.status===200);ok('download private '+id,download.headers.get('cache-control').includes('no-store'));ok('download filename '+id,download.headers.get('content-disposition')===`attachment; filename*=UTF-8''${encodeURIComponent(res.fileName||'document.pdf')}`);ok('download content '+id,Buffer.from(await download.arrayBuffer()).equals(await readFile(new URL('./files/'+res.fileKey,import.meta.url))));}
+ }
+ for(const id of ['asset-audit','ci-unregistered'])ok('missing preview remains unavailable '+id,(await call(`/api/resources/${id}/preview`,{cookie:admin})).status===503);
  r=await call('/api/admin/users/'+account.id+'/logins',{cookie:admin});ok('login recorded with time and IP fields',r.body.events.length===1&&r.body.events[0].occurred_at&&typeof r.body.events[0].ip==='string'&&'region' in r.body.events[0]);
  r=await call('/api/admin/users/'+account.id+'/cases',{method:'PUT',cookie:admin,data:{case_ids:[],version:1}});ok('admin revokes case grant',r.status===200);
  r=await call('/api/session',{cookie:user});ok('permissions change in existing session',r.body.user.case_ids.length===0);
  r=await call('/api/resources/digital-toll/demo',{cookie:user});ok('revoked demo denied',r.status===403);
  r=await call('/api/resources/digital-toll/download',{cookie:user});ok('revocation also denies download',r.status===403);
- r=await call('/api/resources/digital-toll/demo',{cookie:admin});ok('admin bypasses user permission switches',r.status===503);
+ for(const [id,res] of Object.entries(resources)){if(res.demoPath||res.demoUrl)ok('revoked preview '+id,(await call(`/api/resources/${id}/preview`,{cookie:user})).status===403);if(res.demoPath)ok('revoked bytes '+id,(await call(`/api/resources/${id}/demo/${res.demoEntry}`,{cookie:user})).status===403);if(res.fileKey)ok('revoked download '+id,(await call(`/api/resources/${id}/download`,{cookie:user})).status===403);}
+ r=await call('/api/resources/digital-toll/demo',{cookie:admin});ok('admin bypasses user permission switches',r.status===200);
  r=await call('/api/applications',{method:'POST',data:{name:'本地验收',company:'测试申请（非真实合作）',email:'qa@example.com',message:'<script>alert(1)</script> 测试合作信息',experience:'仅用于本地收件箱验证'}});ok('software application saved',r.status===201);
  r=await call('/api/admin/inbox',{cookie:user});ok('inbox private to admin',r.status===403);
  r=await call('/api/admin/inbox',{cookie:admin});const message=r.body.messages.find(x=>x.email==='qa@example.com');ok('application in admin inbox',message&&message.kind==='software'&&message.message.includes('<script>'));
@@ -60,7 +80,7 @@ try{
  ok('conflict does not mix grants',grants.case_ids.length===1&&grants.version===3);
  const allowed=grants.case_ids[0],denied=allowed==='digital-toll'?'asset-audit':'digital-toll';
  for(const kind of ['demo','download']){
-  ok('allowed resource reaches unavailable '+kind,(await call('/api/resources/'+allowed+'/'+kind,{cookie:user})).status===503);
+  ok('allowed resource status '+kind,(await call('/api/resources/'+allowed+'/'+kind,{cookie:user})).status===(kind==='demo'?resources[allowed]?.demoPath?200:503:resources[allowed]?.fileKey?200:503));
   ok('other case denied '+kind,(await call('/api/resources/'+denied+'/'+kind,{cookie:user})).status===403);
   ok('HEAD denied '+kind,(await call('/api/resources/'+denied+'/'+kind,{method:'HEAD',cookie:user})).status===403);
  }
@@ -78,5 +98,15 @@ try{
  r=await call('/api/login',{method:'POST',data:{username:account.username,password:account.password}});ok('deleted credentials rejected',r.status===401);
  r=await call('/api/logout',{method:'POST',cookie:admin});ok('logout',r.status===200);
  r=await call('/api/admin/users',{cookie:admin});ok('logout revokes session',r.status===401);
+ if(process.env.RMINTE_MISSING_DEMO_URL){
+  const missingBase=process.env.RMINTE_MISSING_DEMO_URL;
+  const auth=await readFile(process.env.RMINTE_MISSING_DEMO_RUNTIME+'/services/case-access/.local/admin-login.txt','utf8');
+  const login=await fetch(missingBase+'/api/login',{method:'POST',headers:{Origin:missingBase,'Content-Type':'application/json'},body:JSON.stringify({username:'admin',password:auth.match(/密码：(.*)/)[1]})});
+  ok('missing-binding runtime login',login.status===200);const cookie=login.headers.get('set-cookie').split(';')[0];await login.body.cancel();
+  for(const [id,expected] of [['industrial-modeling',503],['ci-website',200]]){
+   const response=await fetch(missingBase+`/api/resources/${id}/preview`,{headers:{Cookie:cookie}});
+   ok('no private binding: '+id,response.status===expected);await response.body.cancel();
+  }
+ }
  console.log(JSON.stringify({passed:checks.length,checks},null,2));
 }finally{await call('/api/admin/users/'+account.id,{method:'DELETE',cookie:admin});}

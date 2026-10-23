@@ -27,7 +27,7 @@ export async function session(request,env){
 async function publicUser(u,env){
  if(!u)return null;
  const grants=u.role==='user'?await env.CASE_DB.prepare('SELECT case_id FROM case_grants WHERE user_id=? ORDER BY case_id').bind(u.id).all():{results:[]};
- return {id:u.id,username:u.username,role:u.role,is_owner:!!u.is_owner,must_change_password:!!u.must_change_password,case_ids:grants.results.map(g=>g.case_id),all_cases:u.role==='admin'&&!u.must_change_password,resources:Object.fromEntries(caseIds.map(id=>[id,{demo:!!(resources[id]?.demoPath&&env.CASE_DEMOS),download:!!(resources[id]?.fileKey&&env.CASE_FILES)}]))};
+ return {id:u.id,username:u.username,role:u.role,is_owner:!!u.is_owner,must_change_password:!!u.must_change_password,case_ids:grants.results.map(g=>g.case_id),all_cases:u.role==='admin'&&!u.must_change_password,resources:Object.fromEntries(caseIds.map(id=>[id,{demo:!!(resources[id]?.demoUrl||(resources[id]?.demoPath&&env.CASE_DEMOS)),download:!!(resources[id]?.fileKey&&env.CASE_FILES)}]))};
 }
 async function limit(env,key,max,seconds){
  const t=now();const row=await env.CASE_DB.prepare('INSERT INTO rate_limits(key,hits,expires_at) VALUES(?,1,?) ON CONFLICT(key) DO UPDATE SET hits=CASE WHEN expires_at<=? THEN 1 ELSE hits+1 END,expires_at=CASE WHEN expires_at<=? THEN excluded.expires_at ELSE expires_at END RETURNING hits').bind(key,t+seconds,t,t).first();
@@ -75,12 +75,25 @@ export async function handleApi(request,env){
  if(method==='GET'&&path==='/api/session')return json({user:await publicUser(user,env)});
  if(!user)fail(401,'请先登录');
  if(user.must_change_password&&path!=='/api/admin/password')fail(403,'请先修改初始密码');
- const resource=path.match(/^\/api\/resources\/([a-z0-9-]+)\/(demo|download)(\/.*)?$/);
+ const resource=path.match(/^\/api\/resources\/([a-z0-9-]+)\/(preview|demo|download)(\/.*)?$/);
  if(resource&&['GET','HEAD'].includes(method)){
   const [,id,kind,tail='']=resource;
-  if(!caseIds.includes(id))fail(404,'案例不存在');
   if(user.role!=='admin'&&!await env.CASE_DB.prepare('SELECT 1 FROM case_grants WHERE user_id=? AND case_id=?').bind(user.id,id).first())fail(403,'此账号没有该案例的访问权限');
   const r=resources[id];if(!r)fail(503,'该案例的演示或资料尚未接入');
+  if(kind==='preview'){
+   if(tail)fail(404,'接口不存在');
+   if(r.demoPath&&r.demoUrl)fail(503,'演示配置不可用');
+   if(r.demoUrl){
+    let target;try{target=new URL(r.demoUrl);}catch{fail(503,'演示配置不可用');}
+    if(target.protocol!=='https:'||target.username||target.password)fail(503,'演示配置不可用');
+    return json({kind:'website',src:target.href});
+   }
+   if(!r.demoPath||!env.CASE_DEMOS)fail(503,'该案例的演示尚未接入');
+   const base=new URL(`/api/resources/${id}/demo/`,url.origin);
+   let target;try{target=new URL(r.demoEntry,base);}catch{fail(503,'演示配置不可用');}
+   if(typeof r.demoEntry!=='string'||!r.demoEntry||/^(?:[a-z][a-z0-9+.-]*:|\/)/i.test(r.demoEntry)||target.origin!==base.origin||!target.pathname.startsWith(base.pathname)||/[\\]/.test(r.demoEntry))fail(503,'演示配置不可用');
+   return json({kind:'private',src:target.pathname+target.search+target.hash});
+  }
   if(kind==='demo'){
    if(!r.demoPath||!env.CASE_DEMOS)fail(503,'该案例的演示尚未接入');
    const upstream=new URL(r.demoPath+tail.replace(/^\//,''),'https://private-demo.internal');upstream.search=url.search;
