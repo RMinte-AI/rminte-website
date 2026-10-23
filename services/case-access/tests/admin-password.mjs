@@ -31,7 +31,7 @@ try{
   const browser=await chromium.launch({channel:'chrome',headless:true});
   try{
    const page=await browser.newPage({viewport:{width:1440,height:1000}});
-   await page.goto(base+'/admin/');await page.locator('#admin-login input[name=username]').fill(username);await page.locator('#admin-login input[name=password]').fill(next);await page.locator('#admin-login button').click();
+   await page.goto(base+'/admin/');await page.locator('#admin-login input[name=username]').fill(username);await page.locator('#admin-login input[name=password]').fill(next);await page.locator('#admin-login button[type=submit]').click();
    await page.locator('#change-password').click();await page.locator('#password-dialog').waitFor({state:'visible'});
    await page.screenshot({path:root+'output/playwright/admin-password-desktop.png'});
    await page.setViewportSize({width:320,height:900});
@@ -40,11 +40,11 @@ try{
    await page.keyboard.press('Escape');await page.locator('#change-password').click();
    const form=page.locator('#password-form'),finalPassword='Final-'+randomPassword();
    await form.locator('[name=current_password]').fill(next);await form.locator('[name=new_password]').fill(finalPassword);await form.locator('[name=confirm_password]').fill(next);
-   await form.locator('button').click();check('confirmation mismatch shown',await page.locator('#password-message').textContent()==='两次输入的新密码不一致');
-   await form.locator('[name=confirm_password]').fill(finalPassword);await form.locator('button').click();await page.locator('#login-panel').waitFor({state:'visible'});
+   await form.locator('button[type=submit]').click();check('confirmation mismatch shown',await page.locator('#password-message').textContent()==='未能保存两次输入的新密码不一致');
+   await form.locator('[name=confirm_password]').fill(finalPassword);await form.locator('button[type=submit]').click();await page.locator('#login-panel').waitFor({state:'visible'});
    await page.waitForFunction(()=>document.querySelector('#login-message').textContent.includes('密码已修改'));
    check('successful change returns to login',(await page.locator('#login-message').textContent()).includes('密码已修改'));
-   await page.locator('#admin-login input[name=username]').fill(username);await page.locator('#admin-login input[name=password]').fill(finalPassword);await page.locator('#admin-login button').click();await page.locator('#admin-panel').waitFor({state:'visible'});
+   await page.locator('#admin-login input[name=username]').fill(username);await page.locator('#admin-login input[name=password]').fill(finalPassword);await page.locator('#admin-login button[type=submit]').click();await page.locator('#admin-panel').waitFor({state:'visible'});
    check('browser login with updated password',true);
   }finally{await browser.close();}
  }

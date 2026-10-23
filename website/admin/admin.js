@@ -1,5 +1,7 @@
+import {enhancePasswords} from '../assets/password-field.mjs';
 import {groups,caseCatalog} from '../assets/case-catalog.mjs';
 const $=s=>document.querySelector(s),api=CASE_AUTH.api;
+enhancePasswords(document);
 const escapeHtml=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let currentUser=null;
 let usersOffset=0,inboxOffset=0,historyOffset=0,historyId=null,users=[],newAccount=null;
@@ -27,7 +29,7 @@ function showLogin(){
  $('#unread').hidden=true;$('#admin-panel').hidden=true;$('#password-required-panel').hidden=true;$('#login-panel').hidden=false;
 }
 async function init(){try{const user=await CASE_AUTH.refresh();if(user?.role==='admin'){showAdmin(user);if(!user.must_change_password){usersOffset=0;await selectTab($('#tab-users'));loadInbox();}}else{showLogin();if(user)say($('#login-message'),'当前账号不是管理员。你仍可前往案例页使用已授权的功能。');}}catch(e){showLogin();say($('#login-message'),e.message,'未能登录');}}
-$('#admin-login').onsubmit=async e=>{e.preventDefault();const form=e.target,b=form.querySelector('button');b.disabled=true;try{await CASE_AUTH.login(form.username.value,form.password.value);form.reset();$('#login-message').replaceChildren();await init();}catch(e){say($('#login-message'),e.message,'未能登录');}finally{b.disabled=false;}};
+$('#admin-login').onsubmit=async e=>{e.preventDefault();const form=e.target,b=form.querySelector('[type=submit]');b.disabled=true;try{await CASE_AUTH.login(form.username.value,form.password.value);form.reset();$('#login-message').replaceChildren();await init();}catch(e){say($('#login-message'),e.message,'未能登录');}finally{b.disabled=false;}};
 $('#logout').onclick=async()=>{try{await CASE_AUTH.logout();await init();}catch(e){report(e);}};
 async function loadUsers(){
  try{const data=await api(`/api/admin/users?offset=${usersOffset}`);users=data.users;
