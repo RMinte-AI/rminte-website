@@ -19,6 +19,14 @@
 .cs-field { display: block; margin: 0 0 20px; }
 .cs-field > span { display: block; margin: 0 0 8px; font-size: var(--fs-caption); color: var(--text-2); }
 .cs-field input, .cs-field textarea { display: block; width: 100%; height: 48px; padding: 0 14px; border: 1px solid var(--line-2); border-radius: var(--radius-panel); background: var(--n-2); color: var(--ink); font: inherit; font-size: var(--fs-small); transition: border-color var(--dur-hover) var(--ease-settle); }
+/* Phosphor Light password visibility; glyph 20px, keyboard/touch target 44px. */
+.cs-field > .cs-password { position: relative; margin: 0; }
+.cs-field .cs-password input { padding-right: 52px; }
+.cs-password-toggle { position: absolute; inset: 2px 2px 2px auto; display: grid; place-items: center; width: 44px; padding: 0; border: 0; border-radius: var(--radius-panel); background: transparent; color: var(--text-2); cursor: pointer; }
+.cs-password-toggle::before { content: ''; width: 20px; height: 20px; background: currentColor; mask: url('icons/phosphor/eye-light.svg') center / contain no-repeat; }
+.cs-password-toggle[aria-pressed="true"]::before { mask-image: url('icons/phosphor/eye-slash-light.svg'); }
+.cs-password-toggle:hover { color: var(--ink); }
+.cs-password-toggle:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: -3px; }
 .cs-field textarea { height: auto; min-height: 104px; padding: 12px 14px; line-height: 1.7; resize: vertical; }
 .cs-field input:hover, .cs-field textarea:hover { border-color: var(--line-3); }
 .cs-field input:focus-visible, .cs-field textarea:focus-visible { border-color: var(--line-3); outline: 2px solid var(--focus-ring); outline-offset: 2px; }
