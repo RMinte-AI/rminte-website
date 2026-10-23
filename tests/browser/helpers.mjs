@@ -50,7 +50,7 @@ export async function createBrowserAccount(base=afterURL) {
   };
   const account=await call('/api/admin/users','POST',{});
   let version=0;
-  return {...account,setPermissions:async case_ids=>{const result=await call('/api/admin/users/'+account.id+'/cases','PUT',{case_ids,version});version=result.version;return result;},remove:()=>call('/api/admin/users/'+account.id,'DELETE')};
+  return {...account,setPermissions:async case_ids=>{const result=await call('/api/admin/users/'+account.id+'/cases','PUT',{case_ids,dealer_download:false,version});version=result.version;return result;},remove:()=>call('/api/admin/users/'+account.id,'DELETE')};
 }
 
 export async function openPage(page,descriptor,language,base=afterURL) {

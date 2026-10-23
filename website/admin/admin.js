@@ -24,7 +24,7 @@ function showAdmin(user){
 function showLogin(){
  endCaseEdit();
  document.querySelectorAll('dialog[open]').forEach(d=>d.close());currentUser=null;users=[];
- for(const id of ['users','messages','new-account','admin-accounts','admin-credentials'])$('#'+id).replaceChildren();
+ for(const id of ['users','messages','new-account','admin-accounts','admin-credentials','dealer-files'])$('#'+id).replaceChildren();
  $('#new-account').hidden=true;$('#admin-credentials').hidden=true;newAccount=null;accountControls.forEach(s=>$(s).hidden=true);
  $('#unread').hidden=true;$('#admin-panel').hidden=true;$('#password-required-panel').hidden=true;$('#login-panel').hidden=false;
 }
@@ -33,7 +33,7 @@ $('#admin-login').onsubmit=async e=>{e.preventDefault();const form=e.target,b=fo
 $('#logout').onclick=async()=>{try{await CASE_AUTH.logout();await init();}catch(e){report(e);}};
 async function loadUsers(){
  try{const data=await api(`/api/admin/users?offset=${usersOffset}`);users=data.users;
- $('#users').innerHTML=users.length?users.map(u=>`<tr data-id="${u.id}"><td data-label="账号 / 密码"><span class="u">${escapeHtml(u.username)}</span><div class="ad-pw"><code data-password>••••••••••••</code><button class="ad-btn" type="button" data-show>查看密码</button><button class="ad-btn" type="button" data-copy>复制账号密码</button></div></td><td data-label="已授权案例" class="summary"><strong>${u.case_ids.length} / ${caseCatalog.length} 个案例</strong><span class="s">${escapeHtml(u.case_ids.length?u.case_ids.slice(0,3).map(id=>caseCatalog.find(c=>c.id===id)?.name.zh||id).join('、')+(u.case_ids.length>3?'…':''):'尚未授权')}</span><button class="ad-btn" type="button" data-cases>管理案例</button></td><td data-label="最近登录"><span data-time="${u.occurred_at||''}">${ago(u.occurred_at)}</span><span class="s">${u.occurred_at?date(u.occurred_at):''}</span></td><td data-label="IP / 地区">${escapeHtml(u.ip||'—')}<span class="s">${escapeHtml(u.occurred_at?region(u):'—')}</span></td><td data-label="操作"><div class="ad-ops"><button class="ad-btn" type="button" data-history>登录记录</button><button class="ad-btn danger" type="button" data-delete>删除</button></div></td></tr>`).join(''):'<tr><td colspan="5">尚未分发账号。</td></tr>';
+ $('#users').innerHTML=users.length?users.map(u=>`<tr data-id="${u.id}"><td data-label="账号 / 密码"><span class="u">${escapeHtml(u.username)}</span><div class="ad-pw"><code data-password>••••••••••••</code><button class="ad-btn" type="button" data-show>查看密码</button><button class="ad-btn" type="button" data-copy>复制账号密码</button></div></td><td data-label="访问权限" class="summary"><strong>${u.case_ids.length} / ${caseCatalog.length} 个案例</strong><span class="s">${escapeHtml(u.case_ids.length?u.case_ids.slice(0,3).map(id=>caseCatalog.find(c=>c.id===id)?.name.zh||id).join('、')+(u.case_ids.length>3?'…':''):'尚未授权案例')}</span><span class="s">经销商资料下载：${u.dealer_download?'已授权':'未授权'}</span><button class="ad-btn" type="button" data-cases>管理权限</button></td><td data-label="最近登录"><span data-time="${u.occurred_at||''}">${ago(u.occurred_at)}</span><span class="s">${u.occurred_at?date(u.occurred_at):''}</span></td><td data-label="IP / 地区">${escapeHtml(u.ip||'—')}<span class="s">${escapeHtml(u.occurred_at?region(u):'—')}</span></td><td data-label="操作"><div class="ad-ops"><button class="ad-btn" type="button" data-history>登录记录</button><button class="ad-btn danger" type="button" data-delete>删除</button></div></td></tr>`).join(''):'<tr><td colspan="5">尚未分发账号。</td></tr>';
  $('#users-prev').disabled=usersOffset===0;$('#users-next').disabled=!data.more;$('#users-page').textContent=`第 ${usersOffset/50+1} 页`;
  }catch(e){report(e);}
 }
@@ -62,7 +62,7 @@ async function loadInbox(){try{const data=await api(`/api/admin/inbox?offset=${i
 $('#messages').onclick=async e=>{const b=e.target.closest('button[data-read]');if(!b)return;b.disabled=true;try{await api('/api/admin/inbox/'+b.dataset.read,{method:'PATCH'});await loadInbox();}catch(e){report(e);b.disabled=false;}};
 // Selecting a tab owns both the visible panel and its data load.
 const tabs=[...document.querySelectorAll('[role=tab]')];
-function selectTab(tab){if(tab.hidden)return;tabs.forEach(x=>{const on=x===tab;x.setAttribute('aria-selected',String(on));x.tabIndex=on?0:-1;});for(const name of ['users','admins','inbox'])$('#'+name+'-panel').hidden=tab.dataset.tab!==name;if(tab.dataset.tab==='inbox')return loadInbox();if(tab.dataset.tab==='admins')return loadAdmins();return loadUsers();}
+function selectTab(tab){if(tab.hidden)return;tabs.forEach(x=>{const on=x===tab;x.setAttribute('aria-selected',String(on));x.tabIndex=on?0:-1;});for(const name of ['users','admins','dealer','inbox'])$('#'+name+'-panel').hidden=tab.dataset.tab!==name;if(tab.dataset.tab==='dealer')return loadDealerMaterials();if(tab.dataset.tab==='inbox')return loadInbox();if(tab.dataset.tab==='admins')return loadAdmins();return loadUsers();}
 tabs.forEach(b=>b.onclick=()=>selectTab(b));
 $('[role=tablist]').addEventListener('keydown',e=>{const visible=tabs.filter(t=>!t.hidden),i=visible.indexOf(document.activeElement);if(i<0)return;const next={ArrowRight:(i+1)%visible.length,ArrowLeft:(i+visible.length-1)%visible.length,Home:0,End:visible.length-1}[e.key];if(next===undefined)return;e.preventDefault();visible[next].focus();selectTab(visible[next]);});
 $('#refresh-users').onclick=loadUsers;$('#refresh-inbox').onclick=loadInbox;
@@ -90,25 +90,26 @@ function caseSummary(){
  const edit=caseEdit;
  const added=[...edit.draft].filter(id=>!edit.original.has(id)).length,removed=[...edit.original].filter(id=>!edit.draft.has(id)).length;
  $('#selected').textContent=`已选 ${edit.draft.size} / ${caseCatalog.length} 个案例`;
- $('#changes').textContent=added||removed?`待保存：新增 ${added} 个，移除 ${removed} 个。${edit.draft.size===0?'保存后将无法演示或下载任何案例。':''}`:'当前授权未更改';
+ const changes=[];if(added||removed)changes.push(`案例新增 ${added} 个，移除 ${removed} 个`);if(edit.dealerDraft!==edit.dealerOriginal)changes.push(`${edit.dealerDraft?'开启':'关闭'}经销商资料下载`);
+ $('#changes').textContent=changes.length?'待保存：'+changes.join('；')+'。':'当前授权未更改';
  caseControls();
 }
 function caseControls(){
  const edit=caseEdit;
  $('#editor').querySelectorAll('button,input').forEach(e=>{e.disabled=!!edit.busy;});
  $('#close').disabled=$('#cancel').disabled=edit.busy==='saving';
- $('#save').disabled=!!edit.busy||(edit.draft.size===edit.original.size&&[...edit.draft].every(id=>edit.original.has(id)));
+ $('#save').disabled=!!edit.busy||(edit.dealerDraft===edit.dealerOriginal&&edit.draft.size===edit.original.size&&[...edit.draft].every(id=>edit.original.has(id)));
 }
 function renderCaseChoices(){
  const query=$('#search').value.trim().toLowerCase(),edit=caseEdit;
- $('#case-list').innerHTML=groups.map((group,index)=>{const members=caseCatalog.filter(c=>c.group===index&&c.name.zh.toLowerCase().includes(query));return members.length?`<section><h3 class="group-title">${escapeHtml(group.zh)}</h3>${members.map(c=>`<label class="case-option"><span class="ad-check"><input type="checkbox" data-case-id="${c.id}" ${edit.draft.has(c.id)?'checked':''} aria-label="${escapeHtml(c.name.zh)}"></span><span class="name">${escapeHtml(c.name.zh)}</span><span class="state">${edit.draft.has(c.id)?'已选择':'未选择'}</span></label>`).join('')}</section>`:'';}).join('');
- if(!$('#case-list').childElementCount)$('#case-list').innerHTML='<p class="empty">没有匹配的案例，请换一个名称搜索。</p>';
+ const casesMarkup=groups.map((group,index)=>{const members=caseCatalog.filter(c=>c.group===index&&c.name.zh.toLowerCase().includes(query));return members.length?`<section><h3 class="group-title">${escapeHtml(group.zh)}</h3>${members.map(c=>`<label class="case-option"><span class="ad-check"><input type="checkbox" data-case-id="${c.id}" ${edit.draft.has(c.id)?'checked':''} aria-label="${escapeHtml(c.name.zh)}"></span><span class="name">${escapeHtml(c.name.zh)}</span><span class="state">${edit.draft.has(c.id)?'已选择':'未选择'}</span></label>`).join('')}</section>`:'';}).join('');
+ $('#case-list').innerHTML=`<section class="dealer-grant-group"><h3 class="group-title">下载中心</h3><label class="case-option"><span class="ad-check"><input type="checkbox" data-dealer-grant aria-label="经销商资料下载" aria-describedby="dealer-permission-help" ${edit.dealerDraft?'checked':''}></span><span class="name">经销商资料下载<small id="dealer-permission-help">统一控制全部经销商资料，不影响案例权限。</small></span><span class="state">${edit.dealerDraft?'已选择':'未选择'}</span></label></section>`+(casesMarkup||'<p class="empty">没有匹配的案例，请换一个名称搜索。</p>');
  caseSummary();
 }
 async function loadCaseEdit(edit){
  const data=await api(`/api/admin/users/${edit.user.id}/cases`);
  if(caseEdit!==edit)return false;
- edit.version=data.version;edit.original=new Set(data.case_ids);edit.draft=new Set(data.case_ids);
+ edit.version=data.version;edit.original=new Set(data.case_ids);edit.draft=new Set(data.case_ids);edit.dealerOriginal=data.dealer_download;edit.dealerDraft=data.dealer_download;
  return true;
 }
 async function openCaseEditor(user,button){
@@ -119,7 +120,7 @@ async function openCaseEditor(user,button){
   renderCaseChoices();$('#editor').showModal();
  }catch(e){if(caseEdit===edit){endCaseEdit();report(e);}}finally{button.disabled=false;}
 }
-$('#case-list').onchange=e=>{const input=e.target;if(!input.matches('[data-case-id]'))return;if(input.checked)caseEdit.draft.add(input.dataset.caseId);else caseEdit.draft.delete(input.dataset.caseId);input.closest('.case-option').querySelector('.state').textContent=input.checked?'已选择':'未选择';caseSummary();};
+$('#case-list').onchange=e=>{const input=e.target;if(input.matches('[data-dealer-grant]')){caseEdit.dealerDraft=input.checked;input.closest('.case-option').querySelector('.state').textContent=input.checked?'已选择':'未选择';caseSummary();return;}if(!input.matches('[data-case-id]'))return;if(input.checked)caseEdit.draft.add(input.dataset.caseId);else caseEdit.draft.delete(input.dataset.caseId);input.closest('.case-option').querySelector('.state').textContent=input.checked?'已选择':'未选择';caseSummary();};
 $('#search').oninput=renderCaseChoices;
 $('#select-all').onclick=()=>{caseEdit.draft=new Set(caseCatalog.map(c=>c.id));renderCaseChoices();};
 $('#clear-all').onclick=()=>{caseEdit.draft.clear();renderCaseChoices();};
@@ -139,9 +140,9 @@ async function reloadCaseEdit(edit){
 $('#save').onclick=async()=>{
  const edit=caseEdit;edit.busy='saving';caseControls();
  try{
-  await api(`/api/admin/users/${edit.user.id}/cases`,{method:'PUT',body:JSON.stringify({case_ids:[...edit.draft],version:edit.version})});
+  await api(`/api/admin/users/${edit.user.id}/cases`,{method:'PUT',body:JSON.stringify({case_ids:[...edit.draft],dealer_download:edit.dealerDraft,version:edit.version})});
   if(caseEdit!==edit)return;
-  endCaseEdit();await loadUsers();document.querySelector(`tr[data-id="${edit.user.id}"] [data-cases]`)?.focus();toast('已保存','案例权限已更新，对后续访问立即生效。');
+  endCaseEdit();await loadUsers();document.querySelector(`tr[data-id="${edit.user.id}"] [data-cases]`)?.focus();toast('已保存','访问权限已更新，对后续访问立即生效。');
  }catch(e){
   if(caseEdit!==edit)return;
   if(e.status===401)report(e);else{
@@ -179,3 +180,22 @@ let statusSaving=false;
 $('#admin-status-dialog').addEventListener('cancel',e=>{if(statusSaving)e.preventDefault();});
 $('#confirm-status').onclick=async()=>{const u=statusAdmin;statusSaving=true;$('#admin-status-dialog').querySelectorAll('button').forEach(b=>b.disabled=true);try{await api(`/api/admin/admins/${u.id}`,{method:'PATCH',body:JSON.stringify({enabled:u.disabled_at!==null})});$('#admin-status-dialog').close();await loadAdmins();document.querySelector(`[data-admin-status="${u.id}"]`)?.focus();toast('已保存','管理员状态已更新。');}catch(e){if(e.status===401)report(e);else $('#admin-status-help').textContent=e.message;}finally{statusSaving=false;$('#admin-status-dialog').querySelectorAll('button').forEach(b=>b.disabled=false);}};
 init();
+
+// Dealer resources use the existing case-page session and private file bucket.
+async function loadDealerMaterials(){
+ const slot=$('#dealer-files');
+ try{
+  const {files}=await api('/api/admin/dealer-materials');
+  slot.innerHTML=files.map(file=>`<form class="ad-panel dealer-upload" data-dealer-id="${escapeHtml(file.id)}"><h3>${escapeHtml(file.title)}</h3><p class="ad-note" data-upload-status>${file.uploaded?'已上传 · '+(file.size/1024/1024).toFixed(1)+' MB':'尚未上传'}</p><label class="cs-field"><span>选择 PDF（最大 20 MB）</span><input type="file" name="pdf" accept="application/pdf,.pdf" required></label><p class="ad-note">上传会替换这份资料，网页名称保持不变。文件内容仅提供中文版本。</p><button class="cs-pill primary" type="submit">上传 / 替换 PDF</button></form>`).join('');
+ }catch(e){say(slot,e.message,'未能读取资料');if(e.status===401)showLogin();}
+}
+$('#refresh-dealer').onclick=loadDealerMaterials;
+$('#dealer-files').addEventListener('submit',async event=>{
+ event.preventDefault();const form=event.target,file=form.pdf.files[0],button=form.querySelector('[type=submit]');
+ if(!file)return;if(file.size>20*1024*1024){toast('未能上传','PDF 不能超过 20 MB');return;}
+ button.disabled=true;form.pdf.disabled=true;
+ try{
+  const {size}=await api('/api/admin/dealer-materials/'+encodeURIComponent(form.dataset.dealerId),{method:'PUT',headers:{'Content-Type':'application/pdf'},body:file});
+  form.querySelector('[data-upload-status]').textContent='已上传 · '+(size/1024/1024).toFixed(1)+' MB';form.reset();toast('已上传','经销商资料已更新。');
+ }catch(e){report(e);}finally{button.disabled=false;form.pdf.disabled=false;}
+});

@@ -9,3 +9,15 @@ function atomic(db,sql){db.exec('BEGIN');try{db.exec(sql);db.exec('COMMIT');}cat
 test('migration requires explicit partial decision, preserves passwords, creates exact grants and rejects rerun',()=>{const {db,inventory}=fixture();assert.throws(()=>upgradeSQL(inventory,'owner'),/Explicit case decision/);atomic(db,upgradeSQL(inventory,'owner',{partial:['asset-audit']}));assert.equal(db.prepare('SELECT COUNT(*) AS n FROM case_grants WHERE user_id=?').get('all').n,caseIds.length);assert.deepEqual(db.prepare('SELECT case_id FROM case_grants WHERE user_id=?').all('partial').map(r=>r.case_id),['asset-audit']);assert.equal(db.prepare('SELECT COUNT(*) AS n FROM case_grants WHERE user_id=?').get('none').n,0);assert.equal(db.prepare('SELECT password_mac FROM users WHERE id=?').get('owner').password_mac,'hash');assert.throws(()=>atomic(db,upgradeSQL(inventory,'owner',{partial:[]})));assert.equal(db.prepare('SELECT ready FROM access_settings').get().ready,1);db.close();});
 test('stale inventory aborts the entire transaction without promotion or grants',()=>{const {db,inventory}=fixture();db.exec("UPDATE users SET can_download=1 WHERE id='partial'");assert.throws(()=>atomic(db,upgradeSQL(inventory,'owner',{partial:[]})));assert.equal(db.prepare('SELECT SUM(is_owner) AS n FROM users').get().n,0);assert.equal(db.prepare('SELECT ready FROM access_settings').get().ready,0);db.close();});
 test('database protects owner, uniqueness, and regular-user grants',()=>{const {db,inventory}=fixture();atomic(db,upgradeSQL(inventory,'owner',{partial:[]}));for(const sql of ["DELETE FROM users WHERE id='owner'","UPDATE users SET is_owner=0 WHERE id='owner'","UPDATE users SET disabled_at=1 WHERE id='owner'","UPDATE users SET is_owner=1 WHERE id='all'","INSERT INTO case_grants VALUES('owner','digital-toll')"])assert.throws(()=>db.exec(sql));db.close();});
+
+test('dealer permission migration defaults all existing accounts to denied without changing cases or sessions',()=>{
+ const {db,inventory}=fixture();atomic(db,upgradeSQL(inventory,'owner',{partial:['digital-toll']}));
+ db.exec("INSERT INTO sessions(token_hash,user_id,expires_at) VALUES('fixture-token','all',9999999999)");
+ const before=db.prepare('SELECT * FROM case_grants ORDER BY user_id,case_id').all();
+ db.exec(readFileSync(new URL('../migrations/0003_dealer_download_permission.sql',import.meta.url),'utf8'));
+ assert.equal(db.prepare('SELECT SUM(can_download_dealer) AS n FROM users').get().n,0);
+ assert.deepEqual(db.prepare('SELECT * FROM case_grants ORDER BY user_id,case_id').all(),before);
+ assert.equal(db.prepare('SELECT COUNT(*) AS n FROM sessions').get().n,1);
+ assert.throws(()=>db.exec("UPDATE users SET can_download_dealer=2 WHERE id='all'"));
+ db.close();
+});
