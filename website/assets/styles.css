@@ -3187,16 +3187,14 @@ html.motion-js:not(.motion-ready) .hero-section [data-enter="line"] > .line-in {
 
 
 /* Navigation island pills (nav-glide.js): one follows the pointer and focus, one marks the current page or chapter and glides to a new link.
-   The links give up their own hover and current backgrounds while the pills are there; the pill for the current link copies the look the page
-   gave it (the same grey everywhere since 2026-10-24). */
+   The links give up their own hover and current backgrounds while the pills are there; both pills are the same grey as the links' own fills. */
 .nav-glide { position: relative; }
 .nav-glide > a { position: relative; z-index: 1; }
 .nav-glide[data-glide] > a.active, .nav-glide[data-glide] > a[aria-current="page"], .nav-glide[data-glide] > a:hover, .nav-glide[data-glide] > a[aria-current="page"]:hover { background: transparent; box-shadow: none; }
 .nav-glide-hover, .nav-glide-current { position: absolute; left: 0; top: 0; width: 0; height: 0; border-radius: var(--radius-button); opacity: 0; pointer-events: none;
   transition: transform 460ms var(--ease-settle), width 460ms var(--ease-settle), height 460ms var(--ease-settle), opacity var(--dur-hover) var(--ease-settle); }
 .nav-glide-hover { background: var(--line-1); }
-.nav-glide-current[data-kind="chapter"] { background: #ffffff1a; box-shadow: inset 0 0 0 1px var(--line-2); }
-.nav-glide-current[data-kind="page"] { background: var(--text-1); }
+.nav-glide-current { background: #ffffff1a; box-shadow: inset 0 0 0 1px var(--line-2); }
 
 /* Figures that light up character by character (figure-sweep.js): the hero sweep, for the 0.13 mm of the thermal chapter and the craft values.
    The class names differ from the hero's ".ch" because the thermal caption styles every span inside it. */
