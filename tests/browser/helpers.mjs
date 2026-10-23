@@ -4,7 +4,7 @@ import {createHash} from 'node:crypto';
 import {expect} from '@playwright/test';
 import {routeEvidence,observeRoute} from '../../scripts/ci/routes.mjs';
 
-export const run=JSON.parse(readFileSync(resolve('output/ci/context.json'),'utf8'));
+export const run=JSON.parse(readFileSync(resolve(process.env.RMINTE_TEST_CONTEXT||'output/ci/context.json'),'utf8'));
 export const afterURL=process.env.RMINTE_AFTER_URL||'http://127.0.0.1:8788';
 export const beforeURL=process.env.RMINTE_BEFORE_URL||'http://127.0.0.1:8789';
 export const languages=page=>run.scope.languages.filter(lang=>!page.languages||page.languages.includes(lang));
@@ -37,24 +37,20 @@ export async function setup(page,language) {
 export async function loginFixture(page,base,phase) {
   const runtime=process.env[phase==='before'?'RMINTE_BEFORE_FIXTURE':'RMINTE_AFTER_FIXTURE'];
   if(!runtime)throw new Error('Run npm run verify to create the local account fixture.');
-  const text=readFileSync(join(runtime,'services/case-access/.local/admin-login.txt'),'utf8');
-  const response=await page.request.post(base+'/api/login',{headers:{Origin:base},data:{username:'admin',password:text.match(/密码：(.*)/)[1]}});
-  expect(response.status()).toBe(200);
+  const cookie=readFileSync(join(runtime,'services/case-access/.local/admin-session.txt'),'utf8');
+  const split=cookie.indexOf('=');await page.context().addCookies([{name:cookie.slice(0,split),value:cookie.slice(split+1),url:base,httpOnly:true,sameSite:'Strict'}]);
 }
 
 export async function createBrowserAccount(base=afterURL) {
   const runtime=process.env.RMINTE_AFTER_FIXTURE;
-  const password=readFileSync(join(runtime,'services/case-access/.local/admin-login.txt'),'utf8').match(/密码：(.*)/)[1];
-  const login=await fetch(base+'/api/login',{method:'POST',headers:{Origin:base,'Content-Type':'application/json'},body:JSON.stringify({username:'admin',password})});
-  expect(login.status).toBe(200);
-  const cookie=login.headers.get('set-cookie').split(';')[0];
-  await login.body?.cancel();
+  const cookie=readFileSync(join(runtime,'services/case-access/.local/admin-session.txt'),'utf8');
   const call=async(path,method,data)=>{
     const response=await fetch(base+path,{method,headers:{Origin:base,Cookie:cookie,'Content-Type':'application/json'},body:data?JSON.stringify(data):undefined});
     expect(response.ok).toBe(true);return response.json();
   };
   const account=await call('/api/admin/users','POST',{});
-  return {...account,setPermissions:permissions=>call('/api/admin/users/'+account.id,'PATCH',permissions),remove:()=>call('/api/admin/users/'+account.id,'DELETE')};
+  let version=0;
+  return {...account,setPermissions:async case_ids=>{const result=await call('/api/admin/users/'+account.id+'/cases','PUT',{case_ids,version});version=result.version;return result;},remove:()=>call('/api/admin/users/'+account.id,'DELETE')};
 }
 
 export async function openPage(page,descriptor,language,base=afterURL) {

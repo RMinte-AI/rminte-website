@@ -64,7 +64,8 @@ export async function startServer(root,port,logFile,{withoutDemoBinding=false}={
     for(const destination of [join(runtime,'.dev.vars'),join(fixtures,'.dev.vars')])writeFileSync(destination,`CASE_SECRET="${secret}"\n`,{mode:0o600});
     writeFileSync(join(fixtures,'.local/admin-login.txt'),`本地 CI 临时数据（未部署）\n用户名：admin\n密码：${password}\n`,{mode:0o600});
     const {hashAdminPassword}=await import(pathToFileURL(join(root,'services/case-access/crypto.mjs'))),mac=await hashAdminPassword(secret,'admin',password),sql=join(runtime,'seed.sql');
-    writeFileSync(sql,`INSERT INTO users(id,username,role,password_mac,password_cipher,can_demo,can_download,created_at) VALUES('${randomUUID()}','admin','admin','${mac}',NULL,1,1,${Math.floor(Date.now()/1000)});`,{mode:0o600});
+    const modern=existsSync(join(root,'services/case-access/migrations/0002_account_permissions.sql'));
+    writeFileSync(sql,`INSERT INTO users(id,username,role,password_mac,password_cipher,can_demo,can_download,created_at${modern?',is_owner':''}) VALUES('${randomUUID()}','admin','admin','${mac}',NULL,1,1,${Math.floor(Date.now()/1000)}${modern?',1':''});${modern?'UPDATE access_settings SET ready=1 WHERE id=1;':''}`,{mode:0o600});
     writeFileSync(join(fixtures,'resources.mjs'),'export const resources = '+JSON.stringify(resources)+';\n');
     for(const name of readdirSync(join(root,'services/case-access/tests')))if(name.endsWith('.mjs'))copyFileSync(join(root,'services/case-access/tests',name),join(fixtures,'tests',name));
     command(['d1','migrations','apply','CASE_DB','--local','--config',join(fixtures,'wrangler.jsonc')]);
@@ -84,7 +85,8 @@ export async function startServer(root,port,logFile,{withoutDemoBinding=false}={
     if(probe.status!==401)throw new Error(`Local Pages account bindings failed readiness: HTTP ${probe.status}`);
     const login=await fetch(url+'/api/login',{method:'POST',headers:{Origin:url,'Content-Type':'application/json'},body:JSON.stringify({username:'admin',password})});await login.body?.cancel();
     if(login.status!==200)throw new Error(`Local Pages fixture database failed readiness: HTTP ${login.status}`);
-    const cookie=login.headers.get('set-cookie').split(';')[0],logout=await fetch(url+'/api/logout',{method:'POST',headers:{Origin:url,Cookie:cookie}});await logout.body?.cancel();
+    const cookie=login.headers.get('set-cookie').split(';')[0];
+    writeFileSync(join(fixtures,'.local/admin-session.txt'),cookie,{mode:0o600});
     return {url,runtime,env,command,stop};
   }catch(error){await stop();throw error;}
 }

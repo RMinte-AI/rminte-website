@@ -1,8 +1,9 @@
+import {caseIds} from '../../website/assets/case-catalog.mjs';
 import {test,expect} from '@playwright/test';
 import {createServer} from 'node:http';
 import {active,setup,afterURL,createBrowserAccount} from './helpers.mjs';
 
-const account={id:'fixture',username:'local-preview',role:'user',can_demo:true,can_download:false};
+const account={id:'fixture',username:'local-preview',role:'user',case_ids:caseIds,all_cases:false,must_change_password:false,resources:{}};
 let server,foreign;
 test.beforeAll(async()=>{
   server=createServer((req,res)=>{
@@ -156,7 +157,7 @@ test.describe('unified case preview',()=>{
   await trigger(page).click();await expect.poll(()=>!!session).toBe(true);await page.keyboard.press('Escape');await settleLateResponse(page,session,{json:{user:null}});await expect(page.locator('#access .who')).toHaveText(account.username);
   await page.route('**/api/session',route=>route.fulfill({json:{user:account}}));await trigger(page).click();await ready(page);
   await page.route('**/api/session',route=>route.abort());await page.evaluate(()=>CASE_AUTH.refresh().catch(()=>{}));await ready(page);
-  await page.route('**/api/session',route=>route.fulfill({json:{user:{...account,can_demo:false}}}));await page.evaluate(()=>CASE_AUTH.refresh());await expect(modal(page)).not.toBeVisible();await expect(page.locator('#case-demo-frame')).toHaveCount(0);
+  await page.route('**/api/session',route=>route.fulfill({json:{user:{...account,case_ids:[]}}}));await page.evaluate(()=>CASE_AUTH.refresh());await expect(modal(page)).not.toBeVisible();await expect(page.locator('#case-demo-frame')).toHaveCount(0);
  });
  for(const source of ['/denied','/network'])test(`child ${source} never counts as readiness and remains a controlled timeout`,async({page})=>{
   await boot(page,'en',source);await page.clock.install();await trigger(page).click();await expect(page.locator('#case-demo-frame')).toHaveCount(1);await page.clock.fastForward(30001);await expect(modal(page)).toContainText('Loading has not finished');await expect(page.locator('#case-demo-frame')).toHaveCount(0);
@@ -188,7 +189,7 @@ test.describe('unified case preview',()=>{
  });
  test('confirmed permission loss during child initialization removes it before late ready',async({page})=>{
   await boot(page,'en','/silent');await trigger(page).click();await expect(page.locator('#case-demo-frame')).toHaveCount(1);
-  await page.route('**/api/session',route=>route.fulfill({json:{user:{...account,can_demo:false}}}));
+  await page.route('**/api/session',route=>route.fulfill({json:{user:{...account,case_ids:[]}}}));
   await page.evaluate(()=>CASE_AUTH.refresh());await expect(modal(page)).not.toBeVisible();await expect(page.locator('#case-demo-frame')).toHaveCount(0);
  });
 
@@ -221,7 +222,7 @@ test.describe('unified case preview',()=>{
  test('real Cookie-writing logins finish in order after cancelling the first form',async({page})=>{
   const a=await createBrowserAccount(),b=await createBrowserAccount(),testIP='192.0.2.19';let release;
   try{
-   await b.setPermissions({can_demo:true,can_download:false});await setup(page,'en');
+   await b.setPermissions(caseIds);await setup(page,'en');
    // Keep this real-login regression out of the other local clients' login-IP budget.
    await page.setExtraHTTPHeaders({'CF-Connecting-IP':testIP});let count=0;
    await page.route('**/api/login',async route=>{
@@ -238,8 +239,8 @@ test.describe('unified case preview',()=>{
    await page.evaluate(()=>new Promise(requestAnimationFrame));expect(count).toBe(1);
    await release();release=null;await ready(page);expect(count).toBe(2);
    const identity=await page.evaluate(async()=>({shared:CASE_AUTH.user,actual:(await(await fetch('/api/session')).json()).user}));
-   expect(identity.shared.id).toBe(b.id);expect(identity.actual.id).toBe(b.id);expect(identity.shared.can_demo).toBe(true);expect(identity.actual.can_demo).toBe(true);
-   await b.setPermissions({can_demo:false,can_download:false});await page.evaluate(()=>CASE_AUTH.refresh());
+   expect(identity.shared.id).toBe(b.id);expect(identity.actual.id).toBe(b.id);expect(identity.shared.case_ids).toEqual(caseIds.slice().sort());expect(identity.actual.case_ids).toEqual(caseIds.slice().sort());
+   await b.setPermissions([]);await page.evaluate(()=>CASE_AUTH.refresh());
    await expect(modal(page)).not.toBeVisible();await expect(page.locator('#case-demo-frame')).toHaveCount(0);
   }finally{if(release)await release();await a.remove();await b.remove();}
  });

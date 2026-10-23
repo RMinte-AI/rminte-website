@@ -1,3 +1,4 @@
+import {caseIds} from '../../website/assets/case-catalog.mjs';
 import {test,expect} from '@playwright/test';
 import {readFileSync} from 'node:fs';
 import {join} from 'node:path';
@@ -140,7 +141,7 @@ for(const descriptor of run.scope.pages)for(const language of operationLanguages
         const missing=afterURL+'/api/resources/ci-unregistered';
         const account=await createBrowserAccount();
         try {
-          await account.setPermissions({can_demo:true,can_download:false});
+          await account.setPermissions(caseIds);
           await page.locator('#access [data-action="login"]').click();
           await page.locator('#account').fill(account.username);await page.locator('#password').fill('intentionally-wrong-test-password');
           const denied=page.waitForResponse(r=>r.url()===afterURL+'/api/login'&&r.request().method()==='POST',{timeout:10000});
@@ -195,18 +196,18 @@ for(const descriptor of run.scope.pages)for(const language of operationLanguages
               await page.goBack({waitUntil:'domcontentloaded'});await expect(page).toHaveURL(previousURL);
               await page.goForward({waitUntil:'domcontentloaded'});await expect(page).toHaveURL(casesURL);await expect(page.locator('#access .who')).toHaveText(account.username);
             }
-            expect((await page.request.get(afterURL+item.route.replace(/demo$/,'download'))).status()).toBe(403);
+            expect((await page.request.get(afterURL+item.route.replace(/demo$/,'download'))).status()).toBe(503);
             visited.add(id);
           }
           expect([...visited].sort()).toEqual(run.scope.demos.map(item=>item.id).sort());
-          expect((await page.request.get(missing+'/demo')).status()).toBe(503);
+          expect((await page.request.get(missing+'/demo')).status()).toBe(403);
           expect((await page.request.get(missing+'/download')).status()).toBe(403);
-          await account.setPermissions({can_demo:false,can_download:true});
+          await account.setPermissions([]);
           await demo.click();await expect(page.locator('#case-demo-modal [role=status]')).toContainText(language==='zh'?'尚未获得查看演示权限':'not yet authorised');
           await expect(page.locator('#access li').first()).not.toHaveAttribute('data-state','ok');
           for(const url of assetURLs)expect((await page.request.get(afterURL+url)).status(),url).toBe(403);
           expect((await page.request.get(missing+'/demo')).status()).toBe(403);
-          expect((await page.request.get(missing+'/download')).status()).toBe(503);
+          expect((await page.request.get(missing+'/download')).status()).toBe(403);
           await page.keyboard.press('Escape');await page.locator('#access button.txt').click();
           await expect(page.locator('#access [data-action="login"]')).toBeVisible();
           expect((await page.request.get(missing+'/demo')).status()).toBe(401);

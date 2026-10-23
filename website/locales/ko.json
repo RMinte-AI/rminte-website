@@ -623,5 +623,9 @@
   "Intelligent Highway Field Coordination": "고속도로 현장 지능형 협업",
   "Shows field sensing, intelligent assessment and coordinated response across toll stations, tunnels, bridges and solar sites.": "요금소, 터널, 교량, 태양광 현장에서 현장 감지, 지능형 판단, 협업 대응을 보여줍니다.",
   "Email:": "이메일:",
-  "Technology Co., Ltd.": "기술 유한회사"
+  "Technology Co., Ltd.": "기술 유한회사",
+  "Case access": "사례 접근",
+  "All cases": "모든 사례",
+  "{n} cases authorised": "사례 {n}개 접근 허용",
+  "Change your initial password in the admin console first": "먼저 관리 콘솔에서 초기 비밀번호를 변경하세요"
 }

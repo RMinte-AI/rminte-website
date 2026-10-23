@@ -623,5 +623,9 @@
   "Intelligent Highway Field Coordination": "Coordinación inteligente sobre el terreno en autopistas",
   "Shows field sensing, intelligent assessment and coordinated response across toll stations, tunnels, bridges and solar sites.": "Muestra la detección sobre el terreno, la evaluación inteligente y la respuesta coordinada en peajes, túneles, puentes e instalaciones solares.",
   "Email:": "Correo electrónico:",
-  "Technology Co., Ltd.": "Tecnología, Sociedad de Responsabilidad Limitada"
+  "Technology Co., Ltd.": "Tecnología, Sociedad de Responsabilidad Limitada",
+  "Case access": "Acceso a casos",
+  "All cases": "Todos los casos",
+  "{n} cases authorised": "{n} casos autorizados",
+  "Change your initial password in the admin console first": "Cambia primero tu contraseña inicial en la consola de administración"
 }

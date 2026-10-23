@@ -1,11 +1,4 @@
 {
-  "ci-website": {
-    "demoUrl": "https://preview.example.invalid/interactive?embed=1"
-  },
-  "ci-download": {
-    "fileKey": "ci-preview/sample.txt",
-    "fileName": "sample.txt"
-  },
   "ci-conflict": {
     "demoPath": "/industrial-modeling/public/",
     "demoEntry": "index.html",
@@ -24,5 +17,12 @@
   "ci-absolute-entry": {
     "demoPath": "/industrial-modeling/public/",
     "demoEntry": "/api/resources/ci-absolute-entry/demo/index.html"
+  },
+  "asset-audit": {
+    "fileKey": "ci-preview/sample.txt",
+    "fileName": "sample.txt"
+  },
+  "ci-website": {
+    "demoUrl": "https://preview.example.invalid/interactive?embed=1"
   }
 }
