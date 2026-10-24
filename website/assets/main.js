@@ -436,6 +436,10 @@
     const context = canvas.getContext('2d', { alpha: false, desynchronized: true }) || canvas.getContext('2d');
     if (!context) return;
 
+    // The stage is as tall as its content; styles.css centers it in the window while it sticks (see ".teardown-stage")
+    const stage = $('.teardown-stage', section);
+    new ResizeObserver(() => section.style.setProperty('--teardown-h', `${stage.offsetHeight}px`)).observe(stage);
+
     const frameCount = Number(canvas.dataset.frameCount) || 0;
     const framePad = Number(canvas.dataset.framePad) || 3;
     const framePrefix = canvas.dataset.framePrefix || '';

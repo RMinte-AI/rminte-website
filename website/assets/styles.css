@@ -535,15 +535,23 @@ body.teardown-active .brand-mark, body.teardown-active .nav-island, body.teardow
   }
 }
 
+/* The film sticks while the page scrolls through --teardown-run. The stage is as tall as its content (padding included, like the other
+   chapters) and sticks where that content is centered in the window, so the black above and below it matches the other chapters.
+   main.js sets --teardown-h to the stage's height. */
 .teardown-section {
+  --teardown-run: 160dvh;
   position: relative;
-  min-height: 260dvh;
+}
+
+.teardown-section::after {
+  content: "";
+  display: block;
+  height: var(--teardown-run);
 }
 
 .teardown-stage {
   position: sticky;
-  top: 0;
-  min-height: 100dvh;
+  top: max(0px, calc((100dvh - var(--teardown-h, 100dvh)) / 2));
   overflow: hidden;
   display: grid;
   align-items: center;
@@ -1173,7 +1181,7 @@ body.teardown-active .brand-mark, body.teardown-active .nav-island, body.teardow
 
 @media (max-width: 820px) {
   .teardown-section {
-    min-height: 230dvh;
+    --teardown-run: 130dvh;
   }
 }
 
