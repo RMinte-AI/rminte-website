@@ -1,6 +1,5 @@
-/* Downloads and guides, small touches: on the downloads page one sapphire line slides between the category links as the current one
-   changes, and the arrow on a download button drops into the tray when it is pressed (the label is untouched); on the guides page the
-   search results rise one after another when they first appear. Reduced motion: none of it runs. */
+/* Downloads page, small touches: one sapphire line slides between the category links as the current one changes, and the arrow on a
+   download button drops into the tray when it is pressed (the label is untouched). Reduced motion: none of it runs. */
 (() => {
   if (matchMedia('(prefers-reduced-motion:reduce)').matches) return;
   const overview = document.querySelector('.download-overview');
@@ -31,20 +30,4 @@
     button.classList.remove('is-sent'); void button.offsetWidth; button.classList.add('is-sent');
     setTimeout(() => button.classList.remove('is-sent'), 1000);
   });
-  const results = document.querySelector('[data-guide-search-results]');
-  const list = document.querySelector('[data-guide-search-result-list]');
-  if (results && list) {
-    // only the first appearance animates; typing on replaces the list without replaying it
-    let had = false, timer = 0;
-    new MutationObserver(() => {
-      const has = list.children.length > 0;
-      if (has && !had) {
-        [...list.children].forEach((item, i) => item.style.setProperty('--i', Math.min(i, 8)));
-        list.classList.add('is-entering');
-        timer = setTimeout(() => list.classList.remove('is-entering'), 900);
-      } else if (has) { clearTimeout(timer); list.classList.remove('is-entering'); }
-      had = has;
-    }).observe(list, { childList: true });
-    new MutationObserver(() => { if (results.hidden) had = false; }).observe(results, { attributes: true, attributeFilter: ['hidden'] });
-  }
 })();

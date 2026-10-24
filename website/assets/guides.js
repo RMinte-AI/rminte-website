@@ -358,6 +358,8 @@
           return;
         }
 
+        // only the render that makes the panel appear animates its results; typing on replaces them without replaying it
+        list.classList.toggle('is-entering', panel.hidden);
         panel.hidden = false;
         if (loadFailed) {
           summary.textContent = RM_I18N.text({zh: '搜索暂时不可用，请刷新页面重试。', en: 'Search is unavailable. Refresh the page and try again.'}, lang);
@@ -383,7 +385,11 @@
 
         firstResultHref = results[0].href;
         summary.textContent = RM_I18N.text({zh: '显示 {count} 个最相关章节', en: '{count} most relevant sections'}, lang).replace('{count}', results.length);
-        results.forEach((entry) => list.append(createResult(entry, normalizedQuery)));
+        results.forEach((entry, index) => {
+          const item = createResult(entry, normalizedQuery);
+          item.style.setProperty('--i', index);
+          list.append(item);
+        });
       });
       markBrandText();
     }

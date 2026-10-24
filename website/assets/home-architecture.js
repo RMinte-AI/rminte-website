@@ -92,7 +92,7 @@ window.RMArchitecture = (() => {
         const interior=`<div class="part-interior${pattern?` interior-${pattern}`:''}" aria-hidden="true">${'<i></i>'.repeat(blocks)}</div>`;
         return `<div class="part-frame" data-node="${key}" style="left:${(x-w/2)/layout.width*100}%;top:${(y-h/2)/layout.height*100}%;width:${w/layout.width*100}%;height:${h/layout.height*100}%"><button type="button" class="system-part part-${type}" data-part="${key}" aria-label="${details}" aria-pressed="false">${interior}<span class="part-frost" aria-hidden="true"></span>${name?`<span class="part-name">${name}</span>`:''}</button></div>`;
       }).join('');
-      const wires=layout.routes.map(([type,route,points])=>[-2,0,2].map(offset=>`<path class="system-${type}-wire" data-route="${route}" d="${offsetPath(points,offset)}"/>`).join('')).join('');
+      const wires=layout.routes.map(([type,route,points])=>[-2,0,2].map(offset=>`<path class="system-${type}-wire" data-route="${route}" pathLength="1" d="${offsetPath(points,offset)}"/>`).join('')).join('');
       const captions=layout.captions.map(([x,y,key,type])=>`<text x="${x}" y="${y}" class="system-label label-${type}" aria-hidden="true">${escape(words[key]||key)}</text>`).join('');
       // Motion layer: the lines layer also carries a light that runs along every route, a pad at each end and the data packets. The lines,
       // the modules and the text move separately.
