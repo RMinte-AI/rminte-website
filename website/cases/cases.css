@@ -3,7 +3,6 @@
 @property --ba { syntax: "<number>"; inherits: true; initial-value: .5; }
 html { scroll-padding-top: 120px; }
 .cases-body .nav-island a { white-space: nowrap; }
-.cases-body .nav-island a[aria-current="page"] { background: rgba(255,255,255,.1); color: var(--text-1); font-weight: 450; box-shadow: inset 0 0 0 1px var(--line-2); }
 .cs-main { width: calc(100% - var(--section-x) * 2); max-width: var(--section-w); margin: 0 auto; padding-top: clamp(112px, 12vw, 150px); }
 .cs-hero { position: relative; isolation: isolate; overflow: hidden; padding: clamp(40px, 6vw, 72px) 0 clamp(48px, 7vw, 88px); }
 .cs-hero-art { position: absolute; z-index: -1; right: -12%; top: -14%; width: 85%; height: 130%; object-fit: cover; opacity: .75; pointer-events: none; -webkit-mask-image: linear-gradient(90deg, transparent, #000 35%); mask-image: linear-gradient(90deg, transparent, #000 35%); }

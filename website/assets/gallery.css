@@ -9,7 +9,7 @@
 .gallery-hdr-note { grid-column:2; display:inline-flex; align-items:center; gap:10px; max-width:520px; margin:0; padding:7px 16px 7px 12px; border:1px solid var(--line-2); border-radius:var(--radius-button); font-size:var(--fs-note); line-height:1.6; color:var(--text-3); }
 .gallery-hdr-note svg { flex:0 0 32px; width:32px; height:16px; color:var(--text-1); }
 .visual-stage { margin:0; touch-action:pan-y; }
-.product-image { display:block; width:100%; height:clamp(360px,calc(100dvh - 360px),820px); object-fit:contain; object-position:center; background:var(--n-0); user-select:none; pointer-events:none; transition:opacity var(--dur-panel) var(--ease-reveal); }
+.product-image { display:block; width:100%; height:clamp(360px,calc(100dvh - 360px),820px); object-fit:contain; object-position:center; background:var(--n-0); user-select:none; pointer-events:none; transition:opacity var(--dur-panel) var(--ease-reveal), transform var(--dur-panel) var(--ease-reveal); }
 .visual-stage.is-changing .product-image { opacity:0; transition-duration:var(--dur-hover); transition-timing-function:var(--ease-exit); }
 .gallery-details { display:flex; align-items:center; justify-content:space-between; gap:32px; margin-top:24px; }
 .caption-copy { min-width:0; }
@@ -47,3 +47,9 @@
  .gallery-navigation { width:100%; justify-content:space-between; }
 }
 @media(prefers-reduced-motion:reduce) { .product-image, .visual-stage.is-changing .product-image { transition:none; } .gallery-arrows button:active { transform:none; } }
+
+/* Caption and counter settle in after a photograph change (gallery.js replays .is-settling) */
+@keyframes caption-settle { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+@keyframes count-settle { from { opacity:.2; transform:translateY(-.18em); } to { opacity:1; transform:none; } }
+.caption-copy > div.is-settling { animation:caption-settle 560ms var(--ease-reveal) both; }
+.gallery-count strong.is-settling { animation:count-settle 560ms var(--ease-reveal) both; }

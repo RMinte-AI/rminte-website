@@ -76,7 +76,7 @@
     const desktop = $('#desktopNav');
     const mobile = $('#mobileNav');
     if (!desktop || !mobile) return;
-    desktop.replaceChildren();
+    desktop.querySelectorAll(':scope > a').forEach((link) => link.remove());
     mobile.replaceChildren();
 
     data.nav.forEach(([id, label, options = {}]) => {

@@ -508,8 +508,8 @@ function pageTemplate(config, rendered) {
   <link rel="preload" href="../assets/fonts/Geist-latin-v1800.woff2" as="font" type="font/woff2" crossorigin>
   <script src="../assets/motion.js?v=stage2-2" defer></script>
   <link rel="stylesheet" href="../assets/brand.css?v=v2-core-2">
-  <link rel="stylesheet" href="../assets/styles.css?v=shared-footer-20261019">
-  <link rel="stylesheet" href="../assets/guides.css?v=stage3-1">
+  <link rel="stylesheet" href="../assets/styles.css?v=motion-20261024">
+  <link rel="stylesheet" href="../assets/guides.css?v=motion-20261024">
   <script id="guidePageData" type="application/json">${pageData}</script>
   <script>
     // ja/ko/es/fr carry their own catalog file; zh and en need none. Resolve the language the way i18n.js does and load only that file.
@@ -539,6 +539,7 @@ function pageTemplate(config, rendered) {
   <script src="../assets/guides.js?v=${guideAssetVersion}" defer></script>
   <script src="../assets/site-data.js?v=cases-20261013" defer></script>
   <script src="../assets/footer.js?v=d9-nav-1" defer></script>
+  <script src="../assets/nav-glide.js?v=glide-1" defer></script>
 </head>
 <body class="guide-body guide-doc-body guide-accent-${config.accent}">
   <a class="skip-link" href="#guideContent" data-guide-text data-zh="跳至指南正文" data-en="Skip to guide content">跳至指南正文</a>

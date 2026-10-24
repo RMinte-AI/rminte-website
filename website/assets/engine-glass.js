@@ -8,6 +8,16 @@ const stage=document.getElementById('engineArt'),cv=document.getElementById('eng
 const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
 const labels=[...stage.querySelectorAll('.engine-label')];
 let scene=0,sceneT=performance.now(),dirty=true,vis=false,raf=0;
+// Scroll-linked opening: scrollP 0 = the plates are stacked, 1 = the layout the figure used to have. The middle of the figure
+// starts opening just below the window's bottom edge (104%) and finishes 90px after the whole figure is inside the window; the
+// names fade in over the last stretch. spread/--lab are eased copies of it. With reduced motion the figure is simply open.
+let scrollP=1,spread=1,written='',SPREAD_MIN=.18;
+function scrollProgress(){
+  const r=stage.getBoundingClientRect(),vh=innerHeight,c=r.top+r.height/2,start=vh*1.04,end=vh*.92-r.height/2-90;
+  return Math.max(0,Math.min(1,(start-c)/Math.max(1,start-end)));
+}
+function updateProgress(){scrollP=scrollProgress();dirty=true;kick()}
+const sm=(a,b,x)=>{const t=Math.max(0,Math.min(1,(x-a)/(b-a)));return t*t*(3-2*t)};
 function setScene(s,names){
   // names: the accessible name of each scene. The still always shows scene 0.
   if(names) stage.setAttribute('aria-label',names[gl?s:0]);
@@ -44,6 +54,7 @@ function view3(aspect){
   const view=m4.look(cam,tg,[0,1,0]),proj=m4.persp(.31,aspect,1,60);
   return{cam,view,vp:m4.mul(proj,view)};
 }
+const effY=pi=>{if(pi===0)return ps[0].y;const c=ps[2].y;return c+(ps[pi].y-c)*(SPREAD_MIN+(1-SPREAD_MIN)*spread)};
 // the names follow the right-most corner of each plate and move with the camera
 function placeLabels(vp){
   const W=stage.clientWidth,Hh=stage.clientHeight; // the canvas fills the figure; with the still shown it has no size of its own
@@ -57,13 +68,17 @@ function placeLabels(vp){
 if(!gl){
   // no WebGL2: the still of scene 0 stays, the names are placed once for it
   const still=stage.querySelector('.engine-still');still.src=still.dataset.src;
-  stage.classList.add('is-still');
+  stage.classList.add('is-still');stage.style.setProperty('--lab',1);
   const place=()=>{if(stage.clientWidth&&stage.clientHeight)placeLabels(view3(stage.clientWidth/stage.clientHeight).vp)};
   place();new ResizeObserver(place).observe(stage);
   return{setScene};
 }
 
 /* ---------- WebGL ---------- */
+if(!reduce){
+  scrollP=spread=scrollProgress();
+  addEventListener('scroll',updateProgress,{passive:true});addEventListener('resize',updateProgress);
+}
 const sh=(t,s)=>{const o=gl.createShader(t);gl.shaderSource(o,s);gl.compileShader(o);if(!gl.getShaderParameter(o,gl.COMPILE_STATUS))console.error(gl.getShaderInfoLog(o),s);return o};
 const prog=(v,f)=>{const p=gl.createProgram();gl.attachShader(p,sh(gl.VERTEX_SHADER,'#version 300 es\n'+v));gl.attachShader(p,sh(gl.FRAGMENT_SHADER,'#version 300 es\nprecision highp float;\n'+f));gl.linkProgram(p);if(!gl.getProgramParameter(p,gl.LINK_STATUS))console.error(gl.getProgramInfoLog(p));return p};
 const U=(p,n)=>gl.getUniformLocation(p,n);
@@ -264,6 +279,10 @@ function draw(now){
   const sinceScene=reduce?1e9:(now-sceneT);
   for(let i=0;i<4;i++){const p=plates[i];let ty=0,ts=0;for(let s=0;s<3;s++){ty+=p.y[s]*(s===scene?1:0);ts+=p.sc[s]*(s===scene?1:0)}
     ps[i].y+=(ty-ps[i].y)*(reduce?1:1-Math.exp(-dt*3.2));ps[i].s+=(ts-ps[i].s)*(reduce?1:1-Math.exp(-dt*3.6))}
+  spread+=(scrollP-spread)*(reduce?1:1-Math.exp(-dt*7));
+  const lab=sm(.78,.98,spread).toFixed(3);
+  if(lab!==written){written=lab;stage.style.setProperty('--lab',lab)}
+  const cellK=sm(.12,.7,spread);
   az+=(tAz-az)*(1-Math.exp(-dt*5));el+=(tEl-el)*(1-Math.exp(-dt*5));
   const {cam,view,vp}=view3(tw/th);
   const ctx={w:W3,t,m:Math.max(0,Math.min(1,(W3[2]-.35)/.65)),
@@ -275,13 +294,13 @@ function draw(now){
   light[0]=-.1+px*.9+(reduce?0:Math.sin(t*.25)*.35);light[1]=.55-py*.5;light[2]=.75;const ll=Math.hypot(...light);
   const order=[0,1,2,3];
   for(const pi of order){
-    const P=plates[pi],y=ps[pi].y+fl*.025*(pi-1.5),sc=ps[pi].s;
+    const P=plates[pi],y=effY(pi)+fl*.025*(pi-1.5)*(pi?sm(.3,1,spread):1),sc=ps[pi].s;
     if(sc<.02)continue;
     // content
     const arr=cpu[pi];let n=0;
     inst[pi].forEach(o=>{const r=o.f(ctx);const v=(r.vis===undefined?1:r.vis);
       const x=(r.x!==undefined?r.x:o.x)*sc,z=(r.z!==undefined?r.z:o.z)*sc;
-      const k=v*sc;
+      const k=v*sc*(pi===0?1:cellK);
       arr[n++]=x;arr[n++]=y-.045*sc;arr[n++]=z;arr[n++]=o.sx*k;arr[n++]=o.sy*Math.max(k,.0001);arr[n++]=o.sz*k;
       arr[n++]=r.col[0];arr[n++]=r.col[1];arr[n++]=r.col[2];arr[n++]=r.glow*v;arr[n++]=0});
     // packed at a 44-byte stride: x y z sx sy sz r g b glow pad, eleven floats

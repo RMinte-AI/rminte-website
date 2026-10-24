@@ -189,3 +189,9 @@ html:lang(ja) .guide-doc-hero h1 .rm-mark { margin-inline-end: .12em; }
   .guide-search-form, .guide-search-form > button, .guide-card, .guide-search-term, .guide-breadcrumb a, .guide-article :is(h2,h3,h4,h5) a, .toc-link, .guide-code button, .guide-mobile-toc summary::after { transition: none; }
   .guide-search-form > button:hover, .guide-search-form > button:active { transform: none; }
 }
+
+/* Search results rise one after another when the results panel appears (guides.js sets --i and .is-entering) */
+@keyframes guide-result-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: no-preference) {
+  .guide-search-result-list.is-entering .guide-search-result { animation: guide-result-in 460ms var(--ease-reveal) backwards; animation-delay: calc(var(--i, 0) * 45ms); }
+}

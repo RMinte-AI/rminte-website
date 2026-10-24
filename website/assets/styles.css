@@ -2436,7 +2436,9 @@ html:lang(zh) .home-body #engineTitle{word-break:keep-all}
 .home-body .engine-tag,.home-body .engine-label{z-index:1}
 .home-body .engine-tag{position:absolute;left:0;top:0;font:400 var(--fs-label)/1 var(--font-mono);letter-spacing:.12em;color:var(--text-3)}
 .home-body .engine-label{position:absolute;left:0;top:0;opacity:0;transition:opacity 500ms ease;pointer-events:none;display:flex;align-items:center;gap:10px;will-change:transform}
-.home-body .engine-label::before{content:"";width:28px;height:1px;background:linear-gradient(90deg,#ffffff8c,#ffffff1a);flex:none}
+.home-body .engine-label::before{content:"";width:28px;height:1px;background:linear-gradient(90deg,#ffffff8c,#ffffff1a);flex:none;opacity:var(--lab,0)}
+/* --lab (set by engine-glass.js) follows the scroll-linked opening of the plates; the label's own opacity still changes with the open topic */
+.home-body .engine-label>div{opacity:var(--lab,0)}
 .home-body .engine-label b{display:block;font:500 var(--fs-small)/1.3 var(--font-ui);color:var(--text-1);white-space:nowrap}
 .home-body .engine-label>div>span{display:block;font:400 var(--fs-label)/1.4 var(--font-mono);color:var(--text-3);margin-top:3px;white-space:nowrap}
 .home-body .engine-art[data-scene="0"] .l0,.home-body .engine-art[data-scene="1"] .l1,.home-body .engine-art[data-scene="2"] .l2{opacity:1;transition:opacity 700ms var(--ease-settle) 300ms}
@@ -2531,17 +2533,17 @@ html:lang(zh) .home-body #engineTitle{word-break:keep-all}
 .home-body .system-network-wire{stroke:#87959f;opacity:.64;transition:opacity 450ms ease,stroke 450ms ease}
 .home-body .system-bus-wire{stroke:#69757e;opacity:.8;transition:opacity 450ms ease,stroke 450ms ease}
 .home-body [data-route][data-lit=true]{opacity:1;stroke:var(--sapphire-300)}
-.home-body .system-label{font-family:var(--font-ui);text-anchor:middle;fill:#abb2b8;font-size:var(--fs-caption)}
+.home-body .system-label{font-family:var(--font-ui);text-anchor:middle;fill:#abb2b8;font-size:var(--fs-caption);opacity:var(--asm-late,1)}
 .home-body .label-title{fill:#e1e5e7;font-size:var(--fs-small);font-weight:500;letter-spacing:-.02em}
 .home-body .label-brand{font-family:var(--font-brand);font-weight:700;font-size:17px;letter-spacing:.01em;fill:#e5e7e8}
 .home-body .label-small{font-size:var(--fs-label)}
 .home-body .label-bus{font-size:10px;fill:#969fa6}
 /* Motion layer (D9). The light that runs along every route is white and dim; on a lit route it turns sapphire and runs faster. Pads sit at
    both ends of a route, packets are white dots. Lines, modules and text follow the pointer by 3, 11 and 15 diagram units (--px and --py are the pointer position, -0.5 to 0.5, set by home-architecture.js). */
-.home-body .system-flow{fill:none;stroke:#fff;stroke-width:1.4;stroke-linecap:round;stroke-dasharray:10 150;opacity:.16}
-.home-body .system-flow.on{stroke:var(--sapphire-300);opacity:.95}
+.home-body .system-flow{fill:none;stroke:#fff;stroke-width:1.4;stroke-linecap:round;stroke-dasharray:10 150;opacity:calc(.16 * var(--asm-late,1))}
+.home-body .system-flow.on{stroke:var(--sapphire-300);opacity:calc(.95 * var(--asm-late,1))}
 @keyframes system-flow{to{stroke-dashoffset:-160}}
-.home-body .system-pad{fill:#1b1f24;stroke:#ffffff38;stroke-width:1}
+.home-body .system-pad{fill:#1b1f24;stroke:#ffffff38;stroke-width:1;opacity:var(--asm-pad,1)}
 .home-body .system-pad.on{stroke:var(--sapphire-300)}
 .home-body .system-packet{fill:#fff;opacity:0}
 .home-body .network-graph{--px:0;--py:0}
@@ -3201,16 +3203,39 @@ html.motion-js:not(.motion-ready) .hero-section [data-enter="line"] > .line-in {
   background-image: url("images/grain.png");
 }
 
-/* The page you are on, in the navigation island of the sub-pages: a silver-white pill with dark text (boards 09 to 13).
-   The home page marks the chapter being read instead, with the quieter grey fill above. */
-.nav-island a[aria-current="page"] {
-  color: var(--n-2);
-  background: var(--text-1);
-  font-weight: 500;
-  box-shadow: none;
+/* The page you are on, in the navigation island of the sub-pages, wears the same quiet grey fill as the chapter being read on the home page
+   (user decision 2026-10-24: the silver-white pill was too glaring). */
+.nav-island a[aria-current="page"], .nav-island a[aria-current="page"]:hover {
+  color: var(--text-1);
+  background: #ffffff1a;
+  box-shadow: inset 0 0 0 1px var(--line-2);
 }
 
-.nav-island a[aria-current="page"]:hover {
-  color: var(--n-2);
-  background: var(--text-1);
+
+/* Navigation island pills (nav-glide.js): one follows the pointer and focus, one marks the current page or chapter and glides to a new link.
+   The links give up their own hover and current backgrounds while the pills are there; both pills are the same grey as the links' own fills. */
+.nav-glide { position: relative; }
+.nav-glide > a { position: relative; z-index: 1; }
+.nav-island.nav-glide > a.active, .nav-island.nav-glide > a[aria-current="page"], .nav-island.nav-glide > a:hover, .nav-island.nav-glide > a[aria-current="page"]:hover { background: transparent; box-shadow: none; }
+.nav-glide-hover, .nav-glide-current { position: absolute; left: 0; top: 0; width: 0; height: 0; border-radius: var(--radius-button); opacity: 0; pointer-events: none;
+  transition: transform 460ms var(--ease-settle), width 460ms var(--ease-settle), height 460ms var(--ease-settle), opacity var(--dur-hover) var(--ease-settle); }
+.nav-glide-hover { background: var(--line-1); }
+.nav-glide-current { background: #ffffff1a; box-shadow: inset 0 0 0 1px var(--line-2); }
+
+/* Figures that light up character by character (figure-sweep.js): the hero sweep, for the 0.13 mm of the thermal chapter and the craft values.
+   The class names differ from the hero's ".ch" because the thermal caption styles every span inside it. */
+/* the caption rule for spans would otherwise shrink the characters */
+.fig-sweep .fig-ch { font-size: inherit; }
+@media (prefers-reduced-motion: no-preference) {
+  .fig-sweep .fig-ch { --lit: var(--text-1); --dim: #20262c; color: transparent; background: linear-gradient(90deg, var(--lit) 50%, var(--dim) 50%) 100% 0 / 200% 100% no-repeat; -webkit-background-clip: text; background-clip: text; }
+  .fig-sweep .fig-ch.is-unit { --lit: var(--sapphire-300); --dim: #262c3e; }
+  .fig-sweep.is-lit .fig-ch { animation: fig-scan 408ms linear calc(var(--ci, 0) * 46.6ms + 120ms) both; }
+  .fig-sweep.is-done .fig-ch { animation: none; color: var(--lit); background: none; }
+  @keyframes fig-scan { to { background-position: 0 0; } }
 }
+
+/* The "TianshanOS" figure builds up while it scrolls in (system-power-on.js marks the figure with data-build and sets these per piece):
+   --e is how far a module is in place, --dx and --dy where it still is from its place, --w how much of a wire is drawn,
+   --asm-late and --asm-pad fade the labels, the travelling light and the pads in last. Without data-build the figure is as drawn. */
+.home-body .network-graph[data-build] .part-frame { opacity: var(--e, 1); translate: var(--dx, 0) var(--dy, 0); scale: calc(.94 + .06 * var(--e, 1)); }
+.home-body .network-graph[data-build] [data-route] { stroke-dasharray: 1 1; stroke-dashoffset: calc(1 - var(--w, 1)); }

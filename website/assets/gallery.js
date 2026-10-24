@@ -73,6 +73,9 @@
   let lang = RM_I18N.initial();
   let currentIndex = 0;
   let transitionLocked = false;
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const SLIDE = 40; // px a photograph travels as it leaves and as the next one arrives
+  const captionCopy = $('.caption-copy > div');
   let pointerStart = null;
   const markedTermPattern = /RM-01/g;
 
@@ -159,12 +162,31 @@
     RM_I18N.apply(lang);
   }
 
-  function showImage(nextIndex) {
+  // Caption and counter settle in after a change (the class is replayed)
+  function settle(element) {
+    if (reducedMotion) return;
+    element.classList.remove('is-settling');
+    void element.offsetWidth;
+    element.classList.add('is-settling');
+  }
+
+  // The photograph leaves toward the side the visitor is moving from and the next one arrives from the other side
+  function slideIn(direction) {
+    if (reducedMotion) return;
+    productImage.style.transitionProperty = 'opacity';
+    productImage.style.transform = `translateX(${direction * SLIDE}px)`;
+    void productImage.offsetWidth;
+    productImage.style.transitionProperty = '';
+    productImage.style.transform = '';
+  }
+
+  function showImage(nextIndex, direction) {
     if (transitionLocked) return;
     transitionLocked = true;
     currentIndex = (nextIndex + galleryItems.length) % galleryItems.length;
     const item = galleryItems[currentIndex];
     stage.classList.add('is-changing');
+    if (!reducedMotion) productImage.style.transform = `translateX(${-direction * SLIDE}px)`;
 
     // Fade out (240ms), swap while hidden, then fade the decoded photograph in (480ms, reveal easing)
     window.setTimeout(() => {
@@ -173,8 +195,11 @@
       productImage.src = item.src;
       updateImageCopy();
       currentCount.textContent = formatIndex(currentIndex);
+      settle(captionCopy);
+      settle(currentCount);
       const show = () => {
         stage.classList.remove('is-changing');
+        slideIn(direction);
         preloadNeighbors(currentIndex);
         window.setTimeout(() => {
           transitionLocked = false;
@@ -202,32 +227,48 @@
     menuButton.setAttribute('aria-label', RM_I18N.text({zh: open ? '关闭菜单' : '打开菜单', en: open ? 'Close menu' : 'Open menu'}, lang));
   }
 
-  previousButton.addEventListener('click', () => showImage(currentIndex - 1));
-  nextButton.addEventListener('click', () => showImage(currentIndex + 1));
+  previousButton.addEventListener('click', () => showImage(currentIndex - 1, -1));
+  nextButton.addEventListener('click', () => showImage(currentIndex + 1, 1));
   RM_I18N.mount('[data-gallery-lang-toggle]', next => applyLanguage(next));
   menuButton.addEventListener('click', () => setMenu(!menuButton.classList.contains('active')));
   closeButton.addEventListener('click', () => setMenu(false));
   $('.mobile-links a[href="#galleryMain"]').addEventListener('click', () => setMenu(false));
 
   window.addEventListener('keydown', (event) => {
-    if (event.key === 'ArrowLeft') showImage(currentIndex - 1);
-    if (event.key === 'ArrowRight') showImage(currentIndex + 1);
+    if (event.key === 'ArrowLeft') showImage(currentIndex - 1, -1);
+    if (event.key === 'ArrowRight') showImage(currentIndex + 1, 1);
     if (event.key === 'Escape') setMenu(false);
   });
 
   stage.addEventListener('pointerdown', (event) => {
     pointerStart = { x: event.clientX, y: event.clientY };
+    // a mouse drag that ends outside the figure still delivers its pointerup here, so the photograph always eases back
+    if (event.pointerType === 'mouse') stage.setPointerCapture(event.pointerId);
   });
+  // With a mouse the photograph follows the drag a little; released short of a swipe it eases back
+  stage.addEventListener('pointermove', (event) => {
+    if (!pointerStart || reducedMotion || event.pointerType === 'touch') return;
+    const deltaX = event.clientX - pointerStart.x;
+    if (Math.abs(deltaX) < 6) return;
+    productImage.style.transition = 'none';
+    productImage.style.transform = `translateX(${Math.max(-60, Math.min(60, deltaX * 0.3))}px)`;
+  });
+  function releaseDrag() {
+    productImage.style.transition = '';
+    productImage.style.transform = '';
+  }
   stage.addEventListener('pointercancel', () => {
     pointerStart = null;
+    releaseDrag();
   });
   stage.addEventListener('pointerup', (event) => {
     if (!pointerStart) return;
+    releaseDrag();
     const deltaX = event.clientX - pointerStart.x;
     const deltaY = event.clientY - pointerStart.y;
     pointerStart = null;
     if (Math.abs(deltaX) < 48 || Math.abs(deltaX) < Math.abs(deltaY)) return;
-    showImage(currentIndex + (deltaX < 0 ? 1 : -1));
+    showImage(currentIndex + (deltaX < 0 ? 1 : -1), deltaX < 0 ? 1 : -1);
   });
 
   applyLanguage(lang);
