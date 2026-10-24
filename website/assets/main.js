@@ -436,6 +436,10 @@
     const context = canvas.getContext('2d', { alpha: false, desynchronized: true }) || canvas.getContext('2d');
     if (!context) return;
 
+    // The stage is as tall as its content; styles.css centers it in the window while it sticks (see ".teardown-stage")
+    const stage = $('.teardown-stage', section);
+    new ResizeObserver(() => section.style.setProperty('--teardown-h', `${stage.offsetHeight}px`)).observe(stage);
+
     const frameCount = Number(canvas.dataset.frameCount) || 0;
     const framePad = Number(canvas.dataset.framePad) || 3;
     const framePrefix = canvas.dataset.framePrefix || '';
@@ -811,14 +815,37 @@
       // Center of the gemstone in the original 2000 x 1333 photo, not the section center.
       const centerY = rect.top + (rect.height - image.naturalHeight * scale) * positionY + 574 * scale;
       const position = centerY / window.innerHeight;
-      // Brighten only after the gemstone is visible; fade again as it passes the upper edge.
-      const glow = Math.max(0, Math.min(1, (0.78 - position) / 0.28, (position - 0.08) / 0.28));
+      // Rises while the gemstone comes up from the bottom of the window (95% to 60%), holds as it crosses the middle (60% to 34%), and falls as it
+      // leaves at the top (34% to 4%).
+      const smooth = (from, to, x) => { const k = Math.max(0, Math.min(1, (x - from) / (to - from))); return k * k * (3 - 2 * k); };
+      const glow = Math.min(smooth(0.95, 0.6, position), smooth(0.04, 0.34, position));
       image.style.setProperty('--sapphire-glow', glow.toFixed(3));
     };
     const schedule = () => { if (!frame) frame = requestAnimationFrame(update); };
     window.addEventListener('scroll', schedule, { passive: true });
     window.addEventListener('resize', schedule);
     image.addEventListener('load', schedule);
+    schedule();
+  }
+
+  // The pool of light on the glass face slides down as the chapter scrolls past the window and fades in and out at both ends (styles.css,
+  // ".glass-touch-light"). Reduced motion: no pool.
+  function setupGlassTouchLight() {
+    const section = $('#glass-touch');
+    if (!section || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const smooth = (from, to, x) => { const k = Math.max(0, Math.min(1, (x - from) / (to - from))); return k * k * (3 - 2 * k); };
+    let frame;
+    const update = () => {
+      frame = undefined;
+      const rect = section.getBoundingClientRect();
+      // 0 when the chapter's top edge is at the bottom of the window, 1 when its bottom edge is at the top
+      const progress = Math.max(0, Math.min(1, (window.innerHeight - rect.top) / (window.innerHeight + rect.height)));
+      section.style.setProperty('--gy', `${(8 + progress * 84).toFixed(1)}%`);
+      section.style.setProperty('--gl', (smooth(0.04, 0.26, progress) * (1 - smooth(0.74, 0.96, progress))).toFixed(3));
+    };
+    const schedule = () => { if (!frame) frame = requestAnimationFrame(update); };
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule);
     schedule();
   }
 
@@ -902,6 +929,7 @@
     setupControls();
     setupThermalScroll();
     setupSapphireScroll();
+    setupGlassTouchLight();
     setupCraftStory();
     setupTeardownSequence();
     setupLoopingMedia();
