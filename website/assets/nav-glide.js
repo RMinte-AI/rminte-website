@@ -20,6 +20,8 @@
   };
   let placed = false;
   const update = () => {
+    // the home page and a language change rebuild the links with replaceChildren(), which also removes the pills
+    if (!island.contains(current)) { island.prepend(hover, current); placed = false; }
     place(current, island.querySelector('a.active,a[aria-current="page"]'), !placed);
     placed = true;
   };

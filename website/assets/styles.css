@@ -2540,8 +2540,8 @@ html:lang(zh) .home-body #engineTitle{word-break:keep-all}
 .home-body .label-bus{font-size:10px;fill:#969fa6}
 /* Motion layer (D9). The light that runs along every route is white and dim; on a lit route it turns sapphire and runs faster. Pads sit at
    both ends of a route, packets are white dots. Lines, modules and text follow the pointer by 3, 11 and 15 diagram units (--px and --py are the pointer position, -0.5 to 0.5, set by home-architecture.js). */
-.home-body .system-flow{fill:none;stroke:#fff;stroke-width:1.4;stroke-linecap:round;stroke-dasharray:10 150;opacity:.16}
-.home-body .system-flow.on{stroke:var(--sapphire-300);opacity:.95}
+.home-body .system-flow{fill:none;stroke:#fff;stroke-width:1.4;stroke-linecap:round;stroke-dasharray:10 150;opacity:calc(.16 * var(--asm-late,1))}
+.home-body .system-flow.on{stroke:var(--sapphire-300);opacity:calc(.95 * var(--asm-late,1))}
 @keyframes system-flow{to{stroke-dashoffset:-160}}
 .home-body .system-pad{fill:#1b1f24;stroke:#ffffff38;stroke-width:1}
 .home-body .system-pad.on{stroke:var(--sapphire-300)}
@@ -3229,3 +3229,4 @@ html.motion-js:not(.motion-ready) .hero-section [data-enter="line"] > .line-in {
 .fig-sweep.is-lit .fig-ch { animation: fig-scan 408ms linear calc(var(--ci, 0) * 46.6ms + 120ms) both; }
 .fig-sweep.is-done .fig-ch { animation: none; color: var(--lit); background: none; }
 @keyframes fig-scan { to { background-position: 0 0; } }
+@media (prefers-reduced-motion: reduce) { .fig-sweep .fig-ch { animation: none !important; color: var(--lit); background: none; } }

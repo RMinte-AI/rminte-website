@@ -242,12 +242,12 @@
 
   stage.addEventListener('pointerdown', (event) => {
     pointerStart = { x: event.clientX, y: event.clientY };
+    // a mouse drag that ends outside the figure still delivers its pointerup here, so the photograph always eases back
+    if (event.pointerType === 'mouse') stage.setPointerCapture(event.pointerId);
   });
   // With a mouse the photograph follows the drag a little; released short of a swipe it eases back
   stage.addEventListener('pointermove', (event) => {
     if (!pointerStart || reducedMotion || event.pointerType === 'touch') return;
-    // the button was released outside the figure, so no pointerup arrived: stop following the mouse
-    if (event.buttons === 0) { pointerStart = null; releaseDrag(); return; }
     const deltaX = event.clientX - pointerStart.x;
     if (Math.abs(deltaX) < 6) return;
     productImage.style.transition = 'none';

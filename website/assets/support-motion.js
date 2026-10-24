@@ -35,10 +35,14 @@
   const list = document.querySelector('[data-guide-search-result-list]');
   if (results && list) {
     // only the first appearance animates; typing on replaces the list without replaying it
-    let had = false;
+    let had = false, timer = 0;
     new MutationObserver(() => {
       const has = list.children.length > 0;
-      if (has && !had) { [...list.children].forEach((item, i) => item.style.setProperty('--i', Math.min(i, 8))); list.classList.add('is-entering'); setTimeout(() => list.classList.remove('is-entering'), 900); }
+      if (has && !had) {
+        [...list.children].forEach((item, i) => item.style.setProperty('--i', Math.min(i, 8)));
+        list.classList.add('is-entering');
+        timer = setTimeout(() => list.classList.remove('is-entering'), 900);
+      } else if (has) { clearTimeout(timer); list.classList.remove('is-entering'); }
       had = has;
     }).observe(list, { childList: true });
     new MutationObserver(() => { if (results.hidden) had = false; }).observe(results, { attributes: true, attributeFilter: ['hidden'] });

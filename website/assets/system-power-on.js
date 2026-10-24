@@ -9,14 +9,13 @@
   const start = { switch: 0, 'nic-cuda': .08, 'nic-x86': .08, cuda: .2, x86: .2, 'storage-cuda': .3, 'storage-x86': .3, mcu: .4, ethernet: .4, config: .5 };
   const wires = { 'management-spi': ['mcu', 'ethernet'], 'management-config': ['mcu', 'config'], 'management-network': ['ethernet', 'switch'], 'cuda-pcie': ['cuda', 'nic-cuda'], 'cuda-network': ['nic-cuda', 'switch'], 'x86-pcie': ['x86', 'nic-x86'], 'x86-network': ['nic-x86', 'switch'], 'cuda-storage': ['cuda', 'storage-cuda'], 'x86-storage': ['x86', 'storage-x86'] };
   const smooth = (a, b, x) => { const k = Math.max(0, Math.min(1, (x - a) / (b - a))); return k * k * (3 - 2 * k); };
-  let parts = [], routes = [], flows = [], pads = [], names = [];
+  let parts = [], routes = [], pads = [], names = [];
   let target = 0, shown = 0, frame = 0;
 
   const collect = () => {
     parts = [...graph.querySelectorAll('.part-frame')];
     routes = [...graph.querySelectorAll('[data-route]')];
     routes.forEach((route) => route.setAttribute('pathLength', '1'));
-    flows = [...graph.querySelectorAll('[data-flow]')];
     pads = [...graph.querySelectorAll('[data-pad]')];
     names = [...graph.querySelectorAll('.system-label')];
   };
@@ -41,7 +40,7 @@
       route.style.strokeDashoffset = (1 - smooth(begin, begin + .22, p)).toFixed(3);
     });
     const late = smooth(.82, 1, p).toFixed(3), padIn = smooth(.6, .85, p).toFixed(3);
-    flows.forEach((item) => { item.style.opacity = late; });
+    graph.style.setProperty('--asm-late', late); // the travelling light fades in through styles.css, which keeps its dim and lit values
     names.forEach((item) => { item.style.opacity = late; });
     pads.forEach((item) => { item.style.opacity = padIn; });
   };
