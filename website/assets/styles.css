@@ -3384,3 +3384,50 @@ html.motion-js:not(.motion-ready) .hero-section [data-enter="line"] > .line-in {
     aspect-ratio: 1;
   }
 }
+
+/* Home: the black between neighbouring chapters is brought to one rhythm (about 160px at 1440px wide, measured on screen as the run of empty black
+   rows across each boundary). Some chapters carry black of their own inside their pictures (the engine figure's lower edge, the black frame of the
+   teardown film) and the full-height photo chapters keep a padding-sized black above and below their photograph, so those paddings are trimmed or the
+   photo chapters overlap by the difference. The photographs themselves are not resized or moved inside their chapters. */
+@media (min-width: 1200px) {
+  .home-body main > .engine-visual-section { padding-bottom: calc(var(--section-space) - 95px); }
+  .home-body main > .hardware-section { padding-top: calc(var(--section-space) - 30px); padding-bottom: calc(var(--section-space) - 90px); }
+}
+
+@media (min-width: 761px) and (max-width: 1199px) {
+  .home-body main > .engine-visual-section { padding-bottom: calc(var(--section-space) - 26px); }
+  .home-body main > .hardware-section { padding-top: calc(var(--section-space) - 25px); padding-bottom: calc(var(--section-space) - 37px); }
+}
+
+@media (min-width: 761px) {
+  .home-body main > .cartridge-section, .home-body main > .craft-section { margin-top: -74px; }
+}
+
+/* the EricLake video now fades in over its top edge, so on wide screens the chapter above gives some of that back */
+@media (min-width: 1200px) {
+  .home-body main > .tti-section { padding-bottom: calc(var(--section-space) - 40px); }
+}
+
+@media (max-width: 760px) {
+  .home-body main > .hardware-section { padding-top: calc(var(--section-space) - 62px); }
+}
+
+/* The photograph of the moving air (EricLake) and the gem photograph used to end in a hard line at the top and the bottom of their chapters; they now
+   fade out there like the photographs of the chapters below (glass, interfaces, cartridge, craft). The text and the gem are well inside the fade.
+   The dark shades over them (which keep the text readable) fade the same way: left whole, their faintly teal rectangle showed a straight edge. */
+.thermal-bg-video {
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 15%, #000 85%, transparent 100%);
+  mask-image: linear-gradient(180deg, transparent 0%, #000 15%, #000 85%, transparent 100%);
+}
+
+.thermal-shade, .sapphire-shade {
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 15%, #000 85%, transparent 100%);
+  mask-image: linear-gradient(180deg, transparent 0%, #000 15%, #000 85%, transparent 100%);
+}
+
+.sapphire-bg-image {
+  -webkit-mask-image: radial-gradient(ellipse 72% 72% at 61% 49%, #000 48%, rgba(0, 0, 0, 0.94) 62%, transparent 100%), linear-gradient(180deg, transparent 0%, #000 15%, #000 85%, transparent 100%);
+  mask-image: radial-gradient(ellipse 72% 72% at 61% 49%, #000 48%, rgba(0, 0, 0, 0.94) 62%, transparent 100%), linear-gradient(180deg, transparent 0%, #000 15%, #000 85%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
