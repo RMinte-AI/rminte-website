@@ -247,7 +247,7 @@ window.RM_SOFT = {
       craftTitle: 'Materials, finish, and fit.\nA standard for every detail.',
       thermalDetailCaption: 'Blades made with ultra-high-speed injection molding sustain cooling.',
       ttiChapter: "Smart thermal control",
-      ttiTitle: "Ahead of\nthe heat.",
+      ttiTitle: "Ahead of\nthe heat",
       ttiText1: "Inference keeps running, and so does cooling. Through TTO, TTI observes the thermal state in real time. A neural network model predicts power for the next 90 seconds, then projects the temperature at 15, 45 and 90 seconds. It looks beyond the temperature right now, and remembers how the heat built up. Before heat rises, airflow is already in place; as it settles, fan speed eases back on its own. Fewer swings, and it handles different environments and workloads with ease.",
       ttiText2: "The model is trained on real device operating data. Sudden workloads can't be foreseen, so the base curve, configured limits and an independent protection policy always stand behind it.",
       ttiNow: "Now",
