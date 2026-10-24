@@ -604,13 +604,6 @@
     ]
   },
   {
-    "zh": "推理持续，散热也持续。特制叶片、定制电机与 Z 型独立风道共同导出热量，支撑高并发任务。风道设计经过数次计算流体力学仿真优化；封闭式热管理结构大幅减少灰尘进入核心器件区域，照顾高负载下的运行，也照顾日复一日的使用。",
-    "en": "As inference runs, cooling keeps pace. Custom blades, a purpose-built motor, and a dedicated Z-shaped air duct remove heat to support high-concurrency tasks. Multiple rounds of computational fluid dynamics simulation refine the airflow design. The closed thermal system keeps most dust out of the core component area, supporting demanding workloads and everyday use.",
-    "sources": [
-      "assets/site-data.js.ui.thermalLead"
-    ]
-  },
-  {
     "zh": "0.13mm",
     "en": "0.13mm",
     "sources": [
@@ -4845,6 +4838,111 @@
     "en": "Once access is granted, try downloading again. You do not need to sign in again.",
     "sources": [
       "assets/dealer-downloads.js.COPY.forbidden.help"
+    ]
+  },
+  {
+    "zh": "智能热控",
+    "en": "Smart thermal control",
+    "sources": [
+      "assets/site-data.js.ui.ttiChapter"
+    ]
+  },
+  {
+    "zh": "热将起，\n风先知。",
+    "en": "Ahead of\nthe heat.",
+    "sources": [
+      "assets/site-data.js.ui.ttiTitle"
+    ]
+  },
+  {
+    "zh": "推理持续，散热也持续。TTI 通过 TTO 实时观测热状态，由神经网络模型预测未来 90 秒的功率变化，推演 15、45、90 秒后的温度。它不只看此刻的温度，也记得热是怎样积蓄起来的。热未起，风量已就位；热渐稳，转速自然回落。起伏更少，不同的环境与负载，都能从容应对。",
+    "en": "Inference keeps running, and so does cooling. Through TTO, TTI observes the thermal state in real time. A neural network model predicts power for the next 90 seconds, then projects the temperature at 15, 45 and 90 seconds. It looks beyond the temperature right now, and remembers how the heat built up. Before heat rises, airflow is already in place; as it settles, fan speed eases back on its own. Fewer swings, and it handles different environments and workloads with ease.",
+    "sources": [
+      "assets/site-data.js.ui.ttiText1"
+    ]
+  },
+  {
+    "zh": "该模型基于真实设备运行数据训练。突发任务无法预知，基础曲线、配置上限与独立保护策略始终托底。",
+    "en": "The model is trained on real device operating data. Sudden workloads can't be foreseen, so the base curve, configured limits and an independent protection policy always stand behind it.",
+    "sources": [
+      "assets/site-data.js.ui.ttiText2"
+    ]
+  },
+  {
+    "zh": "现在",
+    "en": "Now",
+    "sources": [
+      "assets/site-data.js.ui.ttiNow"
+    ]
+  },
+  {
+    "zh": "提前",
+    "en": "Lead",
+    "sources": [
+      "assets/site-data.js.ui.ttiLead"
+    ]
+  },
+  {
+    "zh": "温度",
+    "en": "Temp",
+    "sources": [
+      "assets/site-data.js.ui.ttiTemp"
+    ]
+  },
+  {
+    "zh": "风量",
+    "en": "Airflow",
+    "sources": [
+      "assets/site-data.js.ui.ttiAirflow"
+    ]
+  },
+  {
+    "zh": "神经网络",
+    "en": "Neural network",
+    "sources": [
+      "assets/site-data.js.ui.ttiNetwork"
+    ]
+  },
+  {
+    "zh": "观测",
+    "en": "Observe",
+    "sources": [
+      "assets/site-data.js.ui.ttiObserve"
+    ]
+  },
+  {
+    "zh": "预测",
+    "en": "Predict",
+    "sources": [
+      "assets/site-data.js.ui.ttiPredict"
+    ]
+  },
+  {
+    "zh": "调节",
+    "en": "Regulate",
+    "sources": [
+      "assets/site-data.js.ui.ttiRegulate"
+    ]
+  },
+  {
+    "zh": "散热",
+    "en": "Cool",
+    "sources": [
+      "assets/site-data.js.ui.ttiCool"
+    ]
+  },
+  {
+    "zh": "EricLake 以特制叶片、定制电机与 Z 型独立风道共同导出热量，支撑高并发任务。风道经多轮计算流体力学仿真优化，封闭式结构有效减少灰尘进入核心器件区域，照顾高负载下的运行，也照顾日复一日的使用。",
+    "en": "EricLake carries the heat out with purpose-made blades, a custom motor and a dedicated Z-shaped air duct, supporting high-concurrency workloads. The duct is refined through multiple rounds of computational fluid dynamics simulation, and the closed structure keeps dust out of the core component area, caring for demanding loads and for everyday use alike.",
+    "sources": [
+      "assets/site-data.js.ui.thermalLead"
+    ]
+  },
+  {
+    "zh": "TTI 工作示意：TTO 观测，神经网络预测，TTI 调节，EricLake 散热",
+    "en": "How TTI works: TTO observes, the neural network predicts, TTI regulates, EricLake cools",
+    "sources": [
+      "index.html:tti"
     ]
   }
 ]
