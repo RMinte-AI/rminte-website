@@ -47,17 +47,22 @@
     return clamp((innerHeight * 0.9 - (box.top + box.height / 2)) / (innerHeight * 0.4));
   };
 
+  // text is kept inside the canvas: its position is moved in if the word would run over an edge
+  const put = (text, x, y, alpha, align, color) => {
+    ctx.textAlign = align; ctx.textBaseline = 'middle'; ctx.fillStyle = `rgba(${color},${alpha})`;
+    const w = ctx.measureText(text).width, left = align === 'center' ? x - w / 2 : align === 'right' ? x - w : x;
+    const shift = Math.max(2 - left, Math.min(0, width - 2 - (left + w)));
+    ctx.fillText(text, x + shift, y);
+  };
   const mono = (text, x, y, alpha, align = 'center', color = WHITE, size = 11, weight = 400) => {
     if (alpha <= 0.01) return;
     ctx.font = `${weight} ${size}px ${fonts.mono}`;
-    ctx.textAlign = align; ctx.textBaseline = 'middle'; ctx.fillStyle = `rgba(${color},${alpha})`;
-    ctx.fillText(text, x, y);
+    put(text, x, y, alpha, align, color);
   };
   const sans = (text, x, y, alpha, align, color, size) => {
     if (alpha <= 0.01) return;
     ctx.font = `400 ${size}px ${fonts.sans}`;
-    ctx.textAlign = align; ctx.textBaseline = 'middle'; ctx.fillStyle = `rgba(${color},${alpha})`;
-    ctx.fillText(text, x, y);
+    put(text, x, y, alpha, align, color);
   };
   const dot = (x, y, r, color, alpha = 1) => { ctx.fillStyle = `rgba(${color},${alpha})`; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill(); };
   const trace = (points) => { ctx.beginPath(); ctx.moveTo(points[0][0], points[0][1]); for (let i = 1; i < points.length; i++) ctx.lineTo(points[i][0], points[i][1]); };
@@ -66,7 +71,9 @@
   const note = (name, ax, ay, dx, dy, alpha) => {
     if (alpha <= 0.01) return;
     ctx.font = `500 12px ${fonts.mono}`;
-    if (dx >= 0 && ax + dx + 8 + ctx.measureText(name).width > width - 2) dx = -dx; // would run off the right edge: lead to the left instead
+    const room = ctx.measureText(name).width + 8;
+    if (dx >= 0 && ax + dx + room > width - 2 && ax - dx - room >= 2) dx = -dx;     // would run off the right edge: lead to the left
+    else if (dx < 0 && ax + dx - room < 2 && ax - dx + room <= width - 2) dx = -dx; // would run off the left edge: lead to the right
     const ex = ax + dx, ey = ay + dy, align = dx >= 0 ? 'left' : 'right', tx = ex + (dx >= 0 ? 8 : -8);
     ctx.strokeStyle = `rgba(${WHITE},${0.45 * alpha})`; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(ex, ey); ctx.lineTo(ex + (dx >= 0 ? 6 : -6), ey); ctx.stroke();
@@ -136,9 +143,26 @@
     if (fx > g.right - g.span * 0.16) note('EricLake', fx, fy, -20, 50, smooth(0.64, 0.74, p)); else note('EricLake', fx, fy, 20, 44, smooth(0.64, 0.74, p));
   };
 
-  // the route along the bottom: four pads, lit one after another, with a light running along it once it is complete
+  // the route along the bottom: four pads, lit one after another, with a light running along it once it is complete.
+  // The labels are laid out by their real widths (in the language on screen): kept inside the canvas and apart from each other, and the type is
+  // made a little smaller if all four do not fit; the pads sit over their labels.
+  const routeLayout = (parts, g) => {
+    let x = [], k = 1;
+    for (let attempt = 0; attempt < 5; attempt++, k *= 0.9) {
+      ctx.font = `500 ${12 * k}px ${fonts.mono}`; const names = parts.map(([name]) => ctx.measureText(name).width);
+      ctx.font = `400 ${11 * k}px ${fonts.sans}`; const jobs = parts.map(([, job]) => ctx.measureText(job).width);
+      const w = names.map((n, i) => Math.max(n, jobs[i]));
+      x = [0.07, 0.37, 0.65, 0.93].map((u, i) => clamp(g.left + g.span * u, w[i] / 2 + 2, width - w[i] / 2 - 2));
+      for (let i = 1; i < 4; i++) x[i] = Math.max(x[i], x[i - 1] + (w[i - 1] + w[i]) / 2 + 10);
+      x[3] = Math.min(x[3], width - w[3] / 2 - 2);
+      for (let i = 2; i >= 0; i--) x[i] = Math.min(x[i], x[i + 1] - (w[i] + w[i + 1]) / 2 - 10);
+      if (x[0] >= w[0] / 2 + 1.5) break;
+    }
+    return { x, k };
+  };
   const drawRoute = (p, t, g) => {
-    const y = g.routeY, pads = [0.07, 0.37, 0.65, 0.93].map((k) => g.left + g.span * k), parts = [['TTO', copy.Observe], [copy.Network, copy.Predict], ['TTI', copy.Regulate], ['EricLake', copy.Cool]], on = [0.06, 0.26, 0.46, 0.66];
+    const y = g.routeY, parts = [['TTO', copy.Observe], [copy.Network, copy.Predict], ['TTI', copy.Regulate], ['EricLake', copy.Cool]], on = [0.06, 0.26, 0.46, 0.66];
+    const { x: pads, k } = routeLayout(parts, g);
     for (let i = 0; i < 3; i++) {
       const lit = smooth(on[i] + 0.06, on[i + 1], p);
       ctx.strokeStyle = `rgba(${WHITE},0.13)`; ctx.lineWidth = 1; ctx.setLineDash([2, 5]);
@@ -150,8 +174,8 @@
       dot(x, y, 6, '11,13,16');
       ctx.strokeStyle = `rgba(${alpha > 0.5 ? SAPPHIRE : WHITE},${alpha > 0.5 ? 0.95 : 0.28})`; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.arc(x, y, 6, 0, TAU); ctx.stroke();
       if (alpha > 0) dot(x, y, 2.2, WHITE, alpha);
-      mono(name, x, y + 22, 0.35 + 0.65 * alpha, 'center', WHITE, 12, 500);
-      sans(job, x, y + 38, 0.3 + 0.55 * alpha, 'center', MUTED, 11);
+      mono(name, x, y + 22, 0.35 + 0.65 * alpha, 'center', WHITE, 12 * k, 500);
+      sans(job, x, y + 38, 0.3 + 0.55 * alpha, 'center', MUTED, 11 * k);
     });
     if (p > 0.7 && !reduce) {
       const x = lerp(pads[0], pads[3], (t % 4) / 4), tail = ctx.createLinearGradient(x - 46, 0, x + 6, 0);
