@@ -192,5 +192,6 @@ html:lang(ja) .guide-doc-hero h1 .rm-mark { margin-inline-end: .12em; }
 
 /* Search results rise one after another when the results panel appears (guides.js sets --i and .is-entering) */
 @keyframes guide-result-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
-.guide-search-result-list.is-entering .guide-search-result { animation: guide-result-in 460ms var(--ease-reveal) backwards; animation-delay: calc(var(--i, 0) * 45ms); }
-@media (prefers-reduced-motion: reduce) { .guide-search-result-list.is-entering .guide-search-result { animation: none; } }
+@media (prefers-reduced-motion: no-preference) {
+  .guide-search-result-list.is-entering .guide-search-result { animation: guide-result-in 460ms var(--ease-reveal) backwards; animation-delay: calc(var(--i, 0) * 45ms); }
+}

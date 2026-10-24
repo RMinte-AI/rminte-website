@@ -53,4 +53,3 @@
 @keyframes count-settle { from { opacity:.2; transform:translateY(-.18em); } to { opacity:1; transform:none; } }
 .caption-copy > div.is-settling { animation:caption-settle 560ms var(--ease-reveal) both; }
 .gallery-count strong.is-settling { animation:count-settle 560ms var(--ease-reveal) both; }
-@media(prefers-reduced-motion:reduce) { .caption-copy > div.is-settling, .gallery-count strong.is-settling { animation:none; } }

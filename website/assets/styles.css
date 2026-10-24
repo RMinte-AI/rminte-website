@@ -3216,7 +3216,7 @@ html.motion-js:not(.motion-ready) .hero-section [data-enter="line"] > .line-in {
    The links give up their own hover and current backgrounds while the pills are there; both pills are the same grey as the links' own fills. */
 .nav-glide { position: relative; }
 .nav-glide > a { position: relative; z-index: 1; }
-.nav-glide[data-glide] > a.active, .nav-glide[data-glide] > a[aria-current="page"], .nav-glide[data-glide] > a:hover, .nav-glide[data-glide] > a[aria-current="page"]:hover { background: transparent; box-shadow: none; }
+.nav-island.nav-glide > a.active, .nav-island.nav-glide > a[aria-current="page"], .nav-island.nav-glide > a:hover, .nav-island.nav-glide > a[aria-current="page"]:hover { background: transparent; box-shadow: none; }
 .nav-glide-hover, .nav-glide-current { position: absolute; left: 0; top: 0; width: 0; height: 0; border-radius: var(--radius-button); opacity: 0; pointer-events: none;
   transition: transform 460ms var(--ease-settle), width 460ms var(--ease-settle), height 460ms var(--ease-settle), opacity var(--dur-hover) var(--ease-settle); }
 .nav-glide-hover { background: var(--line-1); }

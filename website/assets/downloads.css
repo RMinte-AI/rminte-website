@@ -104,13 +104,13 @@
 }
 @media (prefers-reduced-motion: reduce) { .download-row::before, .download-overview-item, .download-overview-item::before, .download-action { transition: none; } .download-action:hover { transform: none; } }
 
-/* Category line (support-motion.js): one sapphire line slides between the links in the wide layout; the narrow layout keeps the marker on each pill */
+/* Category line (support-motion.js): one sapphire line slides between the links in the wide layout; the narrow layout (pills in a row) keeps the marker on each pill */
 .download-overview-line { position: absolute; left: -1px; top: 0; width: 1px; height: 0; background: var(--sapphire-300); opacity: 0; pointer-events: none; transition: transform var(--dur-panel) var(--ease-settle), height var(--dur-panel) var(--ease-settle), opacity var(--dur-hover) var(--ease-settle); }
 @media (min-width: 1101px) { .download-overview.is-glide .download-overview-item::before { display: none; } }
+@media (max-width: 1100px) { .download-overview-line { display: none; } }
 /* The arrow on a download button drops into the tray when it is pressed; the label does not change */
 @keyframes download-drop { 0% { transform: none; opacity: 1; } 42% { transform: translateY(9px); opacity: 0; } 43% { transform: translateY(-9px); opacity: 0; } 100% { transform: none; opacity: 1; } }
 .download-action.is-sent > span:last-child svg { animation: download-drop 760ms var(--ease-settle); }
-@media (prefers-reduced-motion: reduce) { .download-overview-line { display: none; } .download-action.is-sent > span:last-child svg { animation: none; } }
 
 /* Dealer downloads: uses the shared case-dialog material. */
 .dealer-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 16px; }

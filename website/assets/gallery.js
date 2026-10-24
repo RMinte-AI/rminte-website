@@ -164,7 +164,7 @@
 
   // Caption and counter settle in after a change (the class is replayed)
   function settle(element) {
-    if (reducedMotion || !element) return;
+    if (reducedMotion) return;
     element.classList.remove('is-settling');
     void element.offsetWidth;
     element.classList.add('is-settling');
@@ -180,7 +180,7 @@
     productImage.style.transform = '';
   }
 
-  function showImage(nextIndex, direction = 1) {
+  function showImage(nextIndex, direction) {
     if (transitionLocked) return;
     transitionLocked = true;
     currentIndex = (nextIndex + galleryItems.length) % galleryItems.length;

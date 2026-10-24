@@ -7,7 +7,6 @@
   hover.className = 'nav-glide-hover'; current.className = 'nav-glide-current';
   hover.setAttribute('aria-hidden', 'true'); current.setAttribute('aria-hidden', 'true');
   island.classList.add('nav-glide');
-  island.setAttribute('data-glide', '');
   island.prepend(hover, current);
 
   const place = (pill, link, instant) => {
@@ -24,8 +23,8 @@
     placed = true;
   };
   const showHover = (event) => {
-    const link = event.target.closest && event.target.closest('a');
-    if (link && island.contains(link)) place(hover, link, hover.style.opacity !== '1');
+    const link = event.target.closest('a');
+    if (link) place(hover, link, hover.style.opacity !== '1');
   };
   island.addEventListener('pointerover', showHover);
   island.addEventListener('focusin', showHover);

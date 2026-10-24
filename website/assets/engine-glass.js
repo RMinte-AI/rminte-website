@@ -11,16 +11,12 @@ let scene=0,sceneT=performance.now(),dirty=true,vis=false,raf=0;
 // Scroll-linked opening: scrollP 0 = the plates are stacked, 1 = the layout the figure used to have. The middle of the figure
 // starts opening just below the window's bottom edge (104%) and finishes 90px after the whole figure is inside the window; the
 // names fade in over the last stretch. spread/--lab are eased copies of it. With reduced motion the figure is simply open.
-let scrollP=1,spread=1,SPREAD_MIN=.18;
+let scrollP=1,spread=1,written='',SPREAD_MIN=.18;
 function scrollProgress(){
   const r=stage.getBoundingClientRect(),vh=innerHeight,c=r.top+r.height/2,start=vh*1.04,end=vh*.92-r.height/2-90;
   return Math.max(0,Math.min(1,(start-c)/Math.max(1,start-end)));
 }
 function updateProgress(){scrollP=scrollProgress();dirty=true;kick()}
-if(!reduce){
-  scrollP=spread=scrollProgress();
-  addEventListener('scroll',updateProgress,{passive:true});addEventListener('resize',updateProgress);
-}
 const sm=(a,b,x)=>{const t=Math.max(0,Math.min(1,(x-a)/(b-a)));return t*t*(3-2*t)};
 function setScene(s,names){
   // names: the accessible name of each scene. The still always shows scene 0.
@@ -79,6 +75,10 @@ if(!gl){
 }
 
 /* ---------- WebGL ---------- */
+if(!reduce){
+  scrollP=spread=scrollProgress();
+  addEventListener('scroll',updateProgress,{passive:true});addEventListener('resize',updateProgress);
+}
 const sh=(t,s)=>{const o=gl.createShader(t);gl.shaderSource(o,s);gl.compileShader(o);if(!gl.getShaderParameter(o,gl.COMPILE_STATUS))console.error(gl.getShaderInfoLog(o),s);return o};
 const prog=(v,f)=>{const p=gl.createProgram();gl.attachShader(p,sh(gl.VERTEX_SHADER,'#version 300 es\n'+v));gl.attachShader(p,sh(gl.FRAGMENT_SHADER,'#version 300 es\nprecision highp float;\n'+f));gl.linkProgram(p);if(!gl.getProgramParameter(p,gl.LINK_STATUS))console.error(gl.getProgramInfoLog(p));return p};
 const U=(p,n)=>gl.getUniformLocation(p,n);
@@ -280,7 +280,8 @@ function draw(now){
   for(let i=0;i<4;i++){const p=plates[i];let ty=0,ts=0;for(let s=0;s<3;s++){ty+=p.y[s]*(s===scene?1:0);ts+=p.sc[s]*(s===scene?1:0)}
     ps[i].y+=(ty-ps[i].y)*(reduce?1:1-Math.exp(-dt*3.2));ps[i].s+=(ts-ps[i].s)*(reduce?1:1-Math.exp(-dt*3.6))}
   spread+=(scrollP-spread)*(reduce?1:1-Math.exp(-dt*7));
-  stage.style.setProperty('--lab',sm(.78,.98,spread).toFixed(3));
+  const lab=sm(.78,.98,spread).toFixed(3);
+  if(lab!==written){written=lab;stage.style.setProperty('--lab',lab)}
   const cellK=sm(.12,.7,spread);
   az+=(tAz-az)*(1-Math.exp(-dt*5));el+=(tEl-el)*(1-Math.exp(-dt*5));
   const {cam,view,vp}=view3(tw/th);

@@ -12,8 +12,7 @@
     let placed = false;
     const move = () => {
       const link = overview.querySelector('.download-overview-item.is-current');
-      // in the narrow layout the links are pills in a row and keep their own marker
-      if (!link || getComputedStyle(overview).position !== 'sticky') { line.style.opacity = 0; placed = false; return; }
+      if (!link) { line.style.opacity = 0; placed = false; return; }
       if (!placed) line.style.transition = 'none';
       line.style.opacity = 1;
       line.style.transform = `translateY(${link.offsetTop + 6}px)`;
@@ -28,6 +27,5 @@
     const button = event.target.closest('.download-action');
     if (!button) return;
     button.classList.remove('is-sent'); void button.offsetWidth; button.classList.add('is-sent');
-    setTimeout(() => button.classList.remove('is-sent'), 1000);
   });
 })();
