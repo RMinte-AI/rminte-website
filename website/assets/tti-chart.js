@@ -62,8 +62,8 @@
   const dot = (x, y, r, color, alpha = 1) => { ctx.fillStyle = `rgba(${color},${alpha})`; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill(); };
   const trace = (points) => { ctx.beginPath(); ctx.moveTo(points[0][0], points[0][1]); for (let i = 1; i < points.length; i++) ctx.lineTo(points[i][0], points[i][1]); };
 
-  // a note on the figure: a dot on the thing, a short leader, the name in mono and its job under it
-  const note = (name, job, ax, ay, dx, dy, alpha) => {
+  // a note on the figure: a dot on the thing, a short leader and its name in mono (what each part does is on the route below)
+  const note = (name, ax, ay, dx, dy, alpha) => {
     if (alpha <= 0.01) return;
     ctx.font = `500 12px ${fonts.mono}`;
     if (dx >= 0 && ax + dx + 8 + ctx.measureText(name).width > width - 2) dx = -dx; // would run off the right edge: lead to the left instead
@@ -71,8 +71,7 @@
     ctx.strokeStyle = `rgba(${WHITE},${0.45 * alpha})`; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(ex, ey); ctx.lineTo(ex + (dx >= 0 ? 6 : -6), ey); ctx.stroke();
     dot(ax, ay, 2.2, WHITE, alpha);
-    mono(name, tx, ey - 7, alpha, align, WHITE, 12, 500);
-    sans(job, tx, ey + 9, alpha * 0.85, align, MUTED, 11);
+    mono(name, tx, ey, alpha, align, WHITE, 12, 500);
   };
 
   // the dot matrix: filled in under the heat curve, brightest at the curve; paler and blue beyond "now"
@@ -131,10 +130,10 @@
     mono(copy.Airflow, g.left, g.top + 18, smooth(0.2, 0.35, p) * 0.75, 'left', SAPPHIRE);
     // TTO, the neural network, TTI and EricLake, named where they act
     const midX = (hx + fx) / 2, midY = (hy + fy) / 2, atEdge = fx > g.right - g.span * 0.2;
-    note('TTO', copy.Observe, g.x(0.05), g.y(heat(0.05)), 22, -50, smooth(0.06, 0.16, p));
-    note(copy.Network, copy.Predict, hx, g.top - 2, 18, -20, smooth(0.24, 0.34, p));
-    if (atEdge) note('TTI', copy.Regulate, midX, midY - 4, -26, -66, smooth(0.44, 0.54, p)); else note('TTI', copy.Regulate, midX, midY + 6, -22, 56, smooth(0.44, 0.54, p));
-    if (fx > g.right - g.span * 0.16) note('EricLake', copy.Cool, fx, fy, -20, 50, smooth(0.64, 0.74, p)); else note('EricLake', copy.Cool, fx, fy, 20, 44, smooth(0.64, 0.74, p));
+    note('TTO', g.x(0.05), g.y(heat(0.05)), 22, -50, smooth(0.06, 0.16, p));
+    note(copy.Network, hx, g.top - 2, 18, -20, smooth(0.24, 0.34, p));
+    if (atEdge) note('TTI', midX, midY - 4, -26, -66, smooth(0.44, 0.54, p)); else note('TTI', midX, midY + 6, -22, 56, smooth(0.44, 0.54, p));
+    if (fx > g.right - g.span * 0.16) note('EricLake', fx, fy, -20, 50, smooth(0.64, 0.74, p)); else note('EricLake', fx, fy, 20, 44, smooth(0.64, 0.74, p));
   };
 
   // the route along the bottom: four pads, lit one after another, with a light running along it once it is complete
