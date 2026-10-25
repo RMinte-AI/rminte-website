@@ -485,7 +485,7 @@ function siteNavigationTemplate() {
 
 function pageTemplate(config, rendered) {
   const guideAssetVersion = config.accent === 'network' ? 'stage3-1' : 'docs-20261013';
-  const catalogVersion = 'tti-20261026';
+  const catalogVersion = 'tti-20261027';
   const scFontVersion = '?v=cases-20261013';
   const pageData = JSON.stringify({
     title: config.title,
@@ -514,7 +514,7 @@ function pageTemplate(config, rendered) {
   <script>
     // ja/ko/es/fr carry their own catalog file; zh and en need none. Resolve the language the way i18n.js does and load only that file.
     (function (up) {
-      var ok = /^(zh|en|ja|ko|es|fr)$/, c = window.RM_CATALOG = { base: up + 'assets/translations/', v: 'tti-20261026' };
+      var ok = /^(zh|en|ja|ko|es|fr)$/, c = window.RM_CATALOG = { base: up + 'assets/translations/', v: 'tti-20261027' };
       c.load = function () {
         var s; try { s = localStorage.getItem('rm-soft-lang'); } catch (e) {}
         var l = [new URLSearchParams(location.search).get('lang'), (location.hash.match(/^#(zh|en|ja|ko|es|fr)-/) || [])[1], s, window.RM_DEFAULT_LANG].filter(function (x) { return ok.test(x); })[0];
