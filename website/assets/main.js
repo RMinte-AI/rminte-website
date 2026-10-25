@@ -682,7 +682,7 @@
 
   // The hero video has to start by itself. The autoplay attribute alone is not enough in every browser (Safari can hold an autoplaying video back
   // until the page has been scrolled or touched), so the page asks for playback itself while the video is on screen: at once, when the file has
-  // data, when the tab comes back and whenever the video scrolls into view. If the browser still refuses, the visitor's first touch, key, wheel or
+  // data, when the tab comes back and whenever the video scrolls into view. If the browser still refuses, the visitor's first tap, click, key, wheel or
   // scroll asks again; those listeners go away once the video plays. A video the browser paused off screen is left alone until it is seen again.
   function setupHeroVideo() {
     const video = $('.hero-video');
@@ -695,7 +695,9 @@
       const playback = video.play();
       if (playback) playback.catch(() => {});
     };
-    const gestures = ['pointerdown', 'touchstart', 'keydown', 'wheel', 'scroll'];
+    // Only some events give the page the user activation a browser may demand before it plays a video: a key, a mouse press, and for touch the
+    // lifting of the finger (pointerup, touchend, click), not its landing. Wheel and scroll give none, but cost nothing to try.
+    const gestures = ['keydown', 'pointerdown', 'pointerup', 'touchend', 'click', 'wheel', 'scroll'];
     gestures.forEach((name) => window.addEventListener(name, start, { passive: true }));
     video.addEventListener('playing', () => gestures.forEach((name) => window.removeEventListener(name, start)), { once: true });
     ['loadedmetadata', 'loadeddata', 'canplay'].forEach((name) => video.addEventListener(name, start));
