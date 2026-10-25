@@ -123,7 +123,9 @@
     .mp-case-detail[hidden] { display:none; }
     .mp-case-detail-eyebrow { display:block; margin:0 48px 8px 0; color:var(--muted); font-size:var(--fs-note); line-height:1.7; }
     .mp-case-detail h3 { margin:0 48px 26px 0; font-size:var(--fs-h3); font-weight:500; line-height:1.5; }
-    .mp-case-close { position:absolute; right:22px; top:22px; display:grid; place-items:center; width:44px; height:44px; padding:0; border:1px solid var(--line-2); border-radius:50%; background:var(--panel); color:var(--ink-soft); cursor:pointer; }
+    .mp-case-close { position:absolute; right:22px; top:22px; display:grid; place-items:center; width:44px; height:44px; padding:0; border:0; border-radius:50%; background:transparent; color:var(--text-2); cursor:pointer; transition:background var(--dur-hover) var(--ease-settle), color var(--dur-hover) var(--ease-settle); }
+    .mp-case-close:hover { background:var(--line-1); color:var(--text-1); }
+    .mp-case-close:active { background:var(--line-2); }
     .mp-case-flow { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:28px; }
     .mp-case-stage { position:relative; min-width:0; }
     .mp-case-stage:not(:last-child)::before { content:""; position:absolute; top:14px; left:28px; width:calc(100% + 1px); height:1px; background:var(--line-3); }
@@ -224,13 +226,13 @@
     .mp-dialog { color:var(--ink); background:var(--panel); border:1px solid var(--line); border-radius:var(--radius-panel); padding:27px; width:min(400px,calc(100vw - 32px)); max-height:calc(100dvh - 32px); overflow:auto; }
     .mp-dialog::backdrop { background:#0009; backdrop-filter:blur(12px); }
     .mp-dialog-top { display:flex; justify-content:space-between; align-items:center; gap:16px; margin-bottom:18px; }
-    .mp-close { display:grid; place-items:center; flex:none; width:44px; height:44px; border:1px solid var(--line); border-radius:50%; background:transparent; color:var(--ink); cursor:pointer; }
+    .mp-close { display:grid; place-items:center; flex:none; width:44px; height:44px; padding:0; border:0; border-radius:50%; background:transparent; color:var(--text-2); cursor:pointer; transition:background var(--dur-hover) var(--ease-settle), color var(--dur-hover) var(--ease-settle); }
+    .mp-close:hover { background:var(--line-1); color:var(--text-1); }
+    .mp-close:active { background:var(--line-2); }
     /* The phone menu follows the shared overlay (styles.css .mobile-overlay): the page ground, a 118px logo, a round 44px close button, 32px links between line-2 rules with a decorative number */
     .mp-menu-dialog { width:100%; height:100dvh; max-width:none; max-height:none; margin:0; padding:calc(28px + env(safe-area-inset-top)) max(24px,env(safe-area-inset-right)) max(24px,env(safe-area-inset-bottom)) max(24px,env(safe-area-inset-left)); border:0; border-radius:0; background:color-mix(in srgb,var(--bg) 98%,transparent); backdrop-filter:blur(30px); }
     .mp-menu-dialog .mp-dialog-top { margin-bottom:0; }
     .mp-menu-dialog img { width:118px; }
-    .mp-menu-dialog .mp-close { border:1px solid var(--line-2); background:var(--n-4); transition:background var(--dur-hover) var(--ease-settle),border-color var(--dur-hover) var(--ease-settle); }
-    .mp-menu-dialog .mp-close:hover { background:var(--n-5); border-color:var(--line-3); }
     .mp-mobile-links { display:grid; counter-reset:menu-item; margin-top:40px; }
     .mp-mobile-links a { display:grid; grid-template-columns:44px 1fr; align-items:center; padding:22px 0; border-top:1px solid var(--line-2); font-size:min(32px,9.2vw); line-height:normal; font-weight:500; letter-spacing:-.03em; color:var(--ink); }
     .mp-mobile-links a:last-child { border-bottom:1px solid var(--line-2); }
