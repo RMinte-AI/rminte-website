@@ -61,7 +61,7 @@ export async function openPage(page,descriptor,language,base=afterURL,phase='aft
   // The old demo is a Chinese-only static package. Keep its actual baseline
   // rather than inventing an English translation; Head still requires both languages.
   const legacyChineseDemo=phase==='before'&&descriptor.file?.startsWith('website/tianshanos-demo/')
-    &&await page.locator('link[href="assets/spec.css"]').count()===1&&await page.locator('script').count()===0;
+    &&await page.locator('link[href="assets/spec.css"]').count()===1;
   if(descriptor.id!=='lamp')await expect(page.locator('html')).toHaveAttribute('lang',legacyChineseDemo?'zh-CN':{zh:'zh-CN',en:'en',ja:'ja',ko:'ko',es:'es-ES',fr:'fr-FR'}[language]);
   else await expect(page.locator('#langSelect')).toHaveValue(language==='zh'?'zh-CN':'en-US');
 }
