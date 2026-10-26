@@ -53,12 +53,16 @@ export async function createBrowserAccount(base=afterURL) {
   return {...account,setPermissions:async case_ids=>{const result=await call('/api/admin/users/'+account.id+'/cases','PUT',{case_ids,dealer_download:false,version});version=result.version;return result;},remove:()=>call('/api/admin/users/'+account.id,'DELETE')};
 }
 
-export async function openPage(page,descriptor,language,base=afterURL) {
+export async function openPage(page,descriptor,language,base=afterURL,phase='after') {
   const response=await page.goto(`${base}${descriptor.path}?lang=${language}`,{waitUntil:'domcontentloaded'});
   expect(response.status()).toBe(200);
   await expect(page.locator(descriptor.contentRoot||'main').first()).toBeVisible();
   await page.evaluate(()=>document.fonts.ready);
-  if(descriptor.id!=='lamp')await expect(page.locator('html')).toHaveAttribute('lang',{zh:'zh-CN',en:'en',ja:'ja',ko:'ko',es:'es-ES',fr:'fr-FR'}[language]);
+  // The old demo is a Chinese-only static package. Keep its actual baseline
+  // rather than inventing an English translation; Head still requires both languages.
+  const legacyChineseDemo=phase==='before'&&descriptor.file?.startsWith('website/tianshanos-demo/')
+    &&await page.locator('link[href="assets/spec.css"]').count()===1&&await page.locator('script').count()===0;
+  if(descriptor.id!=='lamp')await expect(page.locator('html')).toHaveAttribute('lang',legacyChineseDemo?'zh-CN':{zh:'zh-CN',en:'en',ja:'ja',ko:'ko',es:'es-ES',fr:'fr-FR'}[language]);
   else await expect(page.locator('#langSelect')).toHaveValue(language==='zh'?'zh-CN':'en-US');
 }
 
@@ -126,8 +130,9 @@ export async function capture(page,testInfo,descriptor,language,width,phase,regi
   mkdirSync(join(directory,'screens',phase),{recursive:true});
   await screenshotRegion(page,region,file);
   expect(audit.problems).toEqual([]);
-  await testInfo.attach(`${phase}: ${descriptor.path} ${language} ${width}px ${region}`,{path:file,contentType:'image/png'});
-  return {phase,page:descriptor.id,path:descriptor.path,language,width,height:900,region,state:'reduced-motion; media at first frame',file:relative,sha256:createHash('sha256').update(readFileSync(file)).digest('hex'),externalFontIssues:audit.external};
+  const renderedLanguage=await page.locator('html').getAttribute('lang');
+  await testInfo.attach(`${phase}: ${descriptor.path} requested=${language} rendered=${renderedLanguage} ${width}px ${region}`,{path:file,contentType:'image/png'});
+  return {phase,page:descriptor.id,path:descriptor.path,language,renderedLanguage,width,height:900,region,state:'reduced-motion; media at first frame',file:relative,sha256:createHash('sha256').update(readFileSync(file)).digest('hex'),externalFontIssues:audit.external};
 }
 
 export function saveRecords(id,records) {
