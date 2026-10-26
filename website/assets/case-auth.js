@@ -11,6 +11,7 @@ window.CASE_AUTH = (()=>{
   count:{zh:'已授权 {n} 个案例',en:'{n} cases authorised'},
   changePassword:{zh:'请先到管理后台修改初始密码',en:'Change your initial password in the admin console first'},
   admin:{zh:'管理后台',en:'Admin console'},
+  sample:{zh:'样机管理',en:'Demo unit management'},
   signOut:{zh:'退出登录',en:'Sign out'},
   unavailable:{zh:'账号服务暂时不可用',en:'The account service is temporarily unavailable'}
  };
@@ -36,6 +37,7 @@ window.CASE_AUTH = (()=>{
    const item=node('li'),value=node('span','',user.must_change_password?PANEL.changePassword:granted);if(!user.all_cases&&!user.must_change_password)value.dataset.n=String(user.case_ids.length);if(user.all_cases||user.case_ids.length)item.dataset.state='ok';item.append(node('span','',PANEL.cases),value);list.append(item);
    const row=node('div','row');
    if(user.role==='admin'){const link=node('a','cs-pill ghost',PANEL.admin);link.href='/admin/';row.append(link);}
+   if(user.sampleAccess?.canManage){const link=node('a','cs-pill ghost',PANEL.sample);link.href='/sample-loan/#admin';row.append(link);}
    const out=node('button','txt',PANEL.signOut);out.type='button';out.onclick=async()=>{try{await logout();}catch(e){render(e);}};
    row.append(out);panel.append(who,list,row);
   }

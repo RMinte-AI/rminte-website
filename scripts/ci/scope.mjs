@@ -11,6 +11,7 @@ export const pages = [
   {id:'gallery', path:'/gallery/', file:'website/gallery/index.html', regions:['body']},
   {id:'models', path:'/models/', file:'website/models/index.html', regions:['body']},
   {id:'cases', path:'/cases/', file:'website/cases/index.html', regions:['body']},
+  {id:'sample-admin',path:'/sample-loan/',file:'website/sample-loan/index.html',regions:['body'],languages:['zh'],contentRoot:'body'},
   {id:'admin', path:'/admin/', file:'website/admin/index.html', regions:['main'],languages:['zh']},
   {id:'downloads', path:'/downloads/', file:'website/downloads/index.html', regions:['body']},
   {id:'guides', path:'/guides/', file:'website/guides/index.html', regions:['body']},
@@ -81,7 +82,7 @@ export function classify(changes,{all=false,staticRoutes=[],workerRoutes=[]}={})
     if(existing)existing.dependencies=[...(existing.dependencies||[]),...route.dependencies];
     else catalog.push({...route});
   }
-  const scope={files,changes,pages:[],languages:[],widths:[1440,390],fonts:false,brand:false,exif:false,guides:false,translations:false,seo:false,caseService:false,caseMigrations:false,ota:false,infrastructure:false,homeMotion:false,configurationFiles:[],navigationAll:false};
+  const scope={files,changes,pages:[],languages:[],widths:[1440,390],fonts:false,brand:false,exif:false,guides:false,translations:false,seo:false,caseService:false,sampleLoan:false,caseMigrations:false,ota:false,infrastructure:false,homeMotion:false,configurationFiles:[],navigationAll:false};
   const addAll=()=>{catalog.forEach(page=>ids.add(page.id));scope.widths=[1440,768,390,320];};
   const guidePages=()=>pages.filter(page=>page.id.startsWith('guide')).forEach(page=>ids.add(page.id));
   if(changes.some(change=>/^[DR]/.test(change.status)&&/\.html?$/i.test(change.paths[0])))scope.navigationAll=true;
@@ -89,7 +90,7 @@ export function classify(changes,{all=false,staticRoutes=[],workerRoutes=[]}={})
     for(const page of catalog)if(page.dependencies?.some(input=>input.endsWith('/')?file.startsWith(input):file===input)){ids.add(page.id);scope.fonts=true;}
     if(file===workerPageManifest) {workerRoutes.forEach(route=>ids.add(catalog.find(page=>page.path===route.path).id));scope.fonts=true;scope.navigationAll=true;continue;}
     if(document(file)) continue;
-    if(infrastructure(file)) {scope.infrastructure=true;addAll();Object.assign(scope,{fonts:true,brand:true,exif:true,guides:true,translations:true,seo:true,caseService:true,caseMigrations:true,ota:true,homeMotion:true,navigationAll:true});continue;}
+    if(infrastructure(file)) {scope.infrastructure=true;addAll();Object.assign(scope,{fonts:true,brand:true,exif:true,guides:true,translations:true,seo:true,caseService:true,sampleLoan:true,caseMigrations:true,ota:true,homeMotion:true,navigationAll:true});continue;}
     if(destinations.has(file)&&(configuredFiles.has(file)||/(?:^|\/)wrangler\.(?:jsonc?|toml)$/.test(file)))scope.configurationFiles.push(file);
     if(configuredFiles.get(file)?.kind==='d1') {scope.caseMigrations=true;continue;}
     if(file.startsWith('website/')&&/\.html?$/i.test(file)&&file!=='website/404.html'&&!pages.some(page=>page.file===file)) {
@@ -100,6 +101,8 @@ export function classify(changes,{all=false,staticRoutes=[],workerRoutes=[]}={})
     }
     if(file==='DESIGN.md'||file==='website/DESIGN.md') {addAll();continue;}
     if(file.startsWith('services/tianshanos-ota/')||file==='scripts/sync-tianshanos-release.mjs') {scope.ota=true;scope.fonts=true;continue;}
+    if(file.startsWith('services/sample-loan/')){scope.sampleLoan=true;scope.caseService=true;scope.fonts=true;ids.add('sample-admin');ids.add('cases');continue;}
+    if(file.startsWith('website/sample-loan/')){scope.sampleLoan=true;scope.fonts=true;['sample-admin','home','cases','downloads'].forEach(id=>ids.add(id));scope.widths=[1440,768,390,320];['ja','ko','es','fr'].forEach(lang=>languages.add(lang));continue;}
     if(file.startsWith('services/case-access/')||file.startsWith('services/case-demos/')) {scope.caseService=true;if(file.startsWith('services/case-access/migrations/'))scope.caseMigrations=true;ids.add('cases');ids.add('admin');continue;}
     if(file==='scripts/build-service-brand.mjs') {scope.brand=true;scope.ota=true;continue;}
     if(/(?:seo|_worker\.js|_routes\.json|_headers|_redirects|404\.html|robots\.txt|sitemap\.xml)/.test(file)) {scope.seo=true;scope.navigationAll=true;addAll();if(file.endsWith('_worker.js'))scope.caseService=true;continue;}
@@ -134,7 +137,7 @@ export function classify(changes,{all=false,staticRoutes=[],workerRoutes=[]}={})
     if(file==='website/index.html'||/website\/assets\/(?:main\.js|engine|system|images\/|videos\/|teardown-frames)/.test(file)) {ids.add('home');scope.homeMotion=true;continue;}
     addAll();scope.homeMotion=true; // Unknown production assets can also affect normal homepage motion.
   }
-  if(all) {addAll();Object.assign(scope,{fonts:true,brand:true,exif:true,guides:true,translations:true,seo:true,caseService:true,caseMigrations:true,ota:true,homeMotion:true,infrastructure:true,navigationAll:true});}
+  if(all) {addAll();Object.assign(scope,{fonts:true,brand:true,exif:true,guides:true,translations:true,seo:true,caseService:true,sampleLoan:true,caseMigrations:true,ota:true,homeMotion:true,infrastructure:true,navigationAll:true});}
   // A removed URL can still be linked by unchanged JavaScript-rendered navigation.
   if(scope.navigationAll)catalog.forEach(page=>ids.add(page.id));
   scope.pages=[...catalog,...routes.values()].filter(page=>ids.has(page.id)).map(page=>({...page}));

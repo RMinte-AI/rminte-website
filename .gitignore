@@ -10,3 +10,6 @@ output/ci/
 # Private case access initialization
 services/case-access/.dev.vars
 services/case-access/.local/
+
+# Sample-loan local secrets and synthetic runtime
+services/sample-loan/.dev.vars

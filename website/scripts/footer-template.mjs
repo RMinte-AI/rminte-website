@@ -78,6 +78,14 @@ export function renderContactPanel() {
           <span data-footer-text="communityContact">${markedText('communityContact')}</span>
           <strong>GitHub Discussions</strong><svg class="contact-link-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg>
         </a>
+        <a href="/sample-loan/#apply" data-sample-loan-open>
+          <span data-footer-text="sampleLoan">${markedText('sampleLoan')}</span>
+          <strong data-footer-text="sampleApply">${markedText('sampleApply')}</strong><svg class="contact-link-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg>
+        </a>
+      </div>
+      <div class="contact-load-error" data-sample-load-error role="alert" hidden>
+        <p data-footer-text="sampleLoadError">${markedText('sampleLoadError')}</p>
+        <button class="ghost-button" type="button" data-sample-reload data-footer-text="sampleReload">${markedText('sampleReload')}</button>
       </div>
     </div>
   </div>

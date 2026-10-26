@@ -55,6 +55,7 @@ await check('generated translations',run.scope.translations,()=>generatedCheck(r
 const unit=run.scope.infrastructure?['scripts/ci/policy.test.mjs']:[];
 if(run.scope.seo)unit.push('scripts/check-seo.test.mjs');
 if(run.scope.caseService)unit.push('services/case-access/tests/crypto.test.mjs','services/case-demos/tests/worker.test.mjs','services/case-access/tests/migration.test.mjs','services/case-access/tests/migration-d1.test.mjs','services/case-access/tests/resources.test.mjs');
+if(run.scope.sampleLoan)unit.push('services/sample-loan/tests/integration.test.mjs');
 if(run.scope.ota)unit.push('services/tianshanos-ota/tests/releases.test.mjs');
 await check('unit and gate regressions',unit.length>0,()=>command(process.execPath,['--test',...unit],'unit'),'No corresponding unit-test consumer changed.');
 await check('deployment and operational configurations',run.scope.caseService||run.scope.caseMigrations||run.scope.ota||run.scope.configurationFiles.length>0,()=>checkConfigurations(root,run.scope),'No deployment or operational configuration dependency changed.');
@@ -88,6 +89,7 @@ try {
     await command(process.execPath,['services/case-access/tests/admin-password.mjs',join(root,'node_modules/wrangler/bin/wrangler.js')],'admin-password',after.runtime,after.env);
     return 'Account service tests ran against temporary local data; connected demos are checked in browser operations.';
   },'No case-access API dependency changed.');
+  await check('sample loan PDF pipeline',run.scope.sampleLoan,()=>command(process.execPath,['services/sample-loan/tests/pdf.integration.mjs'],'sample-loan-pdf'),'No sample-loan runtime changed.');
   await check('SEO HTTP',run.scope.seo,()=>{
     if(!after)throw new Error('Local Pages runtime did not start.');
     return command(process.execPath,['scripts/check-seo.mjs',after.url,'--environment=production'],'seo-http');

@@ -25,13 +25,13 @@
   <script src="../assets/motion.js?v=stage2-2" defer></script>
   <script src="../assets/input-mode.js?v=input-2" defer></script>
   <link rel="stylesheet" href="../assets/brand.css?v=v2-core-2">
-  <link rel="stylesheet" href="../assets/styles.css?v=close-20261026">
+  <link rel="stylesheet" href="../assets/styles.css?v=sample-2">
   <link rel="stylesheet" href="../assets/guides.css?v=motion-20261024">
   <script id="guidePageData" type="application/json">{"title":{"zh":"TianshanOS 安全页面完整操作指南","en":"TianshanOS Security Page Guide","ja":"TianshanOS セキュリティページ操作ガイド","ko":"TianshanOS 보안 페이지 전체 운영 가이드","es":"Guía de la página de seguridad de TianshanOS","fr":"Guide de la page Sécurité de TianshanOS"},"copy":{"zh":"已复制","en":"Copied"},"copyDefault":{"zh":"复制","en":"Copy"}}</script>
   <script>
     // ja/ko/es/fr carry their own catalog file; zh and en need none. Resolve the language the way i18n.js does and load only that file.
     (function (up) {
-      var ok = /^(zh|en|ja|ko|es|fr)$/, c = window.RM_CATALOG = { base: up + 'assets/translations/', v: 'tti-20261027' };
+      var ok = /^(zh|en|ja|ko|es|fr)$/, c = window.RM_CATALOG = { base: up + 'assets/translations/', v: 'sample-2' };
       c.load = function () {
         var s; try { s = localStorage.getItem('rm-soft-lang'); } catch (e) {}
         var l = [new URLSearchParams(location.search).get('lang'), (location.hash.match(/^#(zh|en|ja|ko|es|fr)-/) || [])[1], s, window.RM_DEFAULT_LANG].filter(function (x) { return ok.test(x); })[0];
@@ -54,8 +54,8 @@
   </script>
   <script src="../assets/i18n.js?v=catalogs-20261004" defer></script>
   <script src="../assets/guides.js?v=docs-20261013" defer></script>
-  <script src="../assets/site-data.js?v=tti-20261026" defer></script>
-  <script src="../assets/footer.js?v=d9-nav-1" defer></script>
+  <script src="../assets/site-data.js?v=sample-2" defer></script>
+  <script src="../assets/footer.js?v=sample-2" defer></script>
   <script src="../assets/nav-glide.js?v=glide-1" defer></script>
 </head>
 <body class="guide-body guide-doc-body guide-accent-security">
@@ -1464,6 +1464,14 @@
           <span data-footer-text="communityContact">产品与技术交流</span>
           <strong>GitHub Discussions</strong><svg class="contact-link-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg>
         </a>
+        <a href="/sample-loan/#apply" data-sample-loan-open>
+          <span data-footer-text="sampleLoan">样机借用</span>
+          <strong data-footer-text="sampleApply">点此申请</strong><svg class="contact-link-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg>
+        </a>
+      </div>
+      <div class="contact-load-error" data-sample-load-error role="alert" hidden>
+        <p data-footer-text="sampleLoadError">申请表暂时无法加载，请重试或刷新页面</p>
+        <button class="ghost-button" type="button" data-sample-reload data-footer-text="sampleReload">刷新页面</button>
       </div>
     </div>
   </div>

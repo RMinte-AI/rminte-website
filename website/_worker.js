@@ -1,6 +1,8 @@
+import {handleSampleApi} from '../services/sample-loan/api.mjs';
 import { handleApi } from '../services/case-access/api.mjs';
 export default {
-  fetch(request, env) {
+  fetch(request, env, ctx) {
+    if (/^\/api\/sample-(loans|admin)\//.test(new URL(request.url).pathname)) return handleSampleApi(request,env,ctx);
     if (new URL(request.url).pathname.startsWith('/api/')) return handleApi(request, env);
     if (new URL(request.url).pathname !== '/visitor-language.js') {
       return env.ASSETS.fetch(request);

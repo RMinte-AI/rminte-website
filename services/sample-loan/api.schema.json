@@ -1,0 +1,1369 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rminte.com/contracts/sample-loan-v1",
+  "title": "Sample loan API v1",
+  "description": "Runtime domain validation remains authoritative for state, ownership, UTC order, currency balances and fixed terms. Drafts preserve unfinished values; approval requires complete validation. JSON commands are limited to 256KiB; upload parts are binary, at most 8MiB. This file describes the public DTO, not cloud deployment status.",
+  "x-approval-field-map": {
+    "company": "applicant.name",
+    "entity": "applicant.type",
+    "credit": "applicant.creditCode",
+    "contact": "applicant.contactName",
+    "phone": "applicant.phone",
+    "email": "applicant.email",
+    "registeredAddress": "applicant.registeredAddress",
+    "companyAddress": "applicant.contactAddress",
+    "receiver": "shipping.recipientName",
+    "receiverPhone": "shipping.recipientPhone",
+    "shippingAddress": "shipping.address",
+    "identityNotes": "identity.notes",
+    "identityVerified": "identity.verified",
+    "start": "schedule.startsAt",
+    "end": "schedule.dueAt",
+    "approvalNote": "approval.note",
+    "depositCurrency": "quote.deposit.currency",
+    "depositAmount": "quote.deposit.amountMinor",
+    "fxRate": "quote.fx.rateUnits",
+    "fxAt": "quote.fx.publishedAt",
+    "payer": "payment.expectedPayer",
+    "payerNotes": "payment.thirdPartyNotes",
+    "model": "modelKey",
+    "sn": "assetSnapshot.sn",
+    "no": "assetSnapshot.no",
+    "value": "billingBasis.value.amountMinor",
+    "currency": "billingBasis.value.currency",
+    "cardSpecs": "equipment.card.specification",
+    "cardSerial": "equipment.card.serial",
+    "defaultAccountInfo": "equipment.defaultAccountInfo",
+    "accessories": "equipment.accessories",
+    "inspection": "equipment.outboundInspection",
+    "carrier": "outbound.carrier",
+    "tracking": "outbound.trackingNumber",
+    "insuredValue": "insuredValue",
+    "insuranceProof": "outbound.insuranceReference",
+    "returnName": "returnTo.recipientName",
+    "returnPhone": "returnTo.phone",
+    "returnAddress": "returnTo.address",
+    "lender": "lender.name",
+    "lenderRepresentative": "lender.representative",
+    "lenderPhone": "lender.phone",
+    "lenderEmail": "lender.email",
+    "lenderAddress": "lender.address",
+    "agreementDate": "agreementDate",
+    "inspectionTime": "outbound.inspectedAt",
+    "attachmentNotes": "attachments.note"
+  },
+  "x-application-field-map": {
+    "entity": "applicant.type",
+    "company": "applicant.name",
+    "contact": "applicant.contactName",
+    "phone": "applicant.phone",
+    "email": "applicant.email",
+    "credit": "applicant.creditCode",
+    "registeredAddress": "applicant.registeredAddress",
+    "companyAddress": "applicant.contactAddress",
+    "receiver": "shipping.recipientName",
+    "receiverPhone": "shipping.recipientPhone",
+    "shippingAddress": "shipping.address",
+    "model": "modelKey",
+    "days": "requestedDays"
+  },
+  "$defs": {
+    "Money": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "currency": {
+          "enum": [
+            "CNY",
+            "USD"
+          ]
+        },
+        "amountMinor": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$",
+          "description": "Integer cents as a decimal string, <= 9007199254740991; never a floating-point yuan value."
+        }
+      },
+      "required": [
+        "currency",
+        "amountMinor"
+      ]
+    },
+    "Applicant": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "enum": [
+            "company",
+            "person"
+          ]
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 200,
+          "minLength": 1
+        },
+        "contactName": {
+          "type": "string",
+          "maxLength": 100,
+          "minLength": 1
+        },
+        "phone": {
+          "type": "string",
+          "maxLength": 64,
+          "minLength": 1
+        },
+        "email": {
+          "type": "string",
+          "maxLength": 254,
+          "minLength": 1,
+          "format": "email"
+        },
+        "creditCode": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 64
+        },
+        "registeredAddress": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 1000
+        },
+        "contactAddress": {
+          "type": "string",
+          "maxLength": 1000,
+          "minLength": 1
+        }
+      },
+      "required": [
+        "type",
+        "name",
+        "contactName",
+        "phone",
+        "email",
+        "creditCode",
+        "registeredAddress",
+        "contactAddress"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "company"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "registeredAddress": {
+                "type": "string",
+                "maxLength": 1000,
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "person"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "registeredAddress": {
+                "type": "null"
+              },
+              "creditCode": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "Shipping": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "recipientName": {
+          "type": "string",
+          "maxLength": 100,
+          "minLength": 1
+        },
+        "recipientPhone": {
+          "type": "string",
+          "maxLength": 64,
+          "minLength": 1
+        },
+        "address": {
+          "type": "string",
+          "maxLength": 1000,
+          "minLength": 1
+        }
+      },
+      "required": [
+        "recipientName",
+        "recipientPhone",
+        "address"
+      ]
+    },
+    "ApprovalDraft": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "applicant": {
+          "$ref": "#/$defs/Applicant"
+        },
+        "shipping": {
+          "$ref": "#/$defs/Shipping"
+        },
+        "modelKey": {
+          "enum": [
+            "rm01-t234-32g",
+            "rm01-t234-64g",
+            "rm01-t4000-64g",
+            "rm01-t5000-128g"
+          ]
+        },
+        "identity": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "notes": {
+              "type": "string",
+              "maxLength": 4000,
+              "minLength": 1
+            },
+            "verified": {
+              "const": true
+            }
+          },
+          "required": [
+            "notes",
+            "verified"
+          ]
+        },
+        "schedule": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "startsAt": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$"
+            },
+            "dueAt": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$",
+              "description": "Beijing due day 23:59:59.000; later than startsAt."
+            }
+          },
+          "required": [
+            "startsAt",
+            "dueAt"
+          ]
+        },
+        "quote": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "deposit": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "currency": {
+                  "enum": [
+                    "CNY",
+                    "USD"
+                  ]
+                },
+                "amountMinor": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9][0-9]*)$",
+                  "description": "Integer cents as a decimal string, <= 9007199254740991; never a floating-point yuan value.",
+                  "readOnly": true
+                }
+              },
+              "required": [
+                "currency"
+              ]
+            },
+            "fx": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "rateUnits": {
+                      "type": "string",
+                      "pattern": "^(0|[1-9][0-9]*)$",
+                      "description": "Integer cents as a decimal string, <= 9007199254740991; never a floating-point yuan value.",
+                      "not": {
+                        "const": "0"
+                      }
+                    },
+                    "rateScale": {
+                      "const": 10000
+                    },
+                    "publishedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$"
+                    },
+                    "source": {
+                      "const": "中国银行美元现汇买入价"
+                    }
+                  },
+                  "required": [
+                    "rateUnits",
+                    "rateScale",
+                    "publishedAt",
+                    "source"
+                  ]
+                }
+              ]
+            }
+          },
+          "required": [
+            "deposit",
+            "fx"
+          ]
+        },
+        "payment": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "expectedPayer": {
+              "type": "string",
+              "maxLength": 200,
+              "minLength": 1
+            },
+            "thirdPartyNotes": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 4000
+            }
+          },
+          "required": [
+            "expectedPayer",
+            "thirdPartyNotes"
+          ]
+        },
+        "billingBasis": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "value": {
+              "$ref": "#/$defs/Money"
+            }
+          },
+          "required": [
+            "value"
+          ]
+        },
+        "equipment": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "card": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "specification": {
+                  "type": "string",
+                  "maxLength": 4000,
+                  "minLength": 1
+                },
+                "serial": {
+                  "type": "string",
+                  "maxLength": 200,
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "specification",
+                "serial"
+              ]
+            },
+            "defaultAccountInfo": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 8000,
+              "description": "Preserve whitespace and special characters."
+            },
+            "accessories": {
+              "type": "string",
+              "maxLength": 8000,
+              "minLength": 1
+            },
+            "outboundInspection": {
+              "type": "string",
+              "maxLength": 8000,
+              "minLength": 1
+            }
+          },
+          "required": [
+            "card",
+            "defaultAccountInfo",
+            "accessories",
+            "outboundInspection"
+          ]
+        },
+        "outbound": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "carrier": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 100
+            },
+            "trackingNumber": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 200
+            },
+            "insuranceReference": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 1000
+            },
+            "inspectedAt": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "carrier",
+            "trackingNumber",
+            "insuranceReference",
+            "inspectedAt"
+          ]
+        },
+        "returnTo": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "recipientName": {
+              "type": "string",
+              "maxLength": 100,
+              "minLength": 1
+            },
+            "phone": {
+              "type": "string",
+              "maxLength": 64,
+              "minLength": 1
+            },
+            "address": {
+              "type": "string",
+              "maxLength": 1000,
+              "minLength": 1
+            }
+          },
+          "required": [
+            "recipientName",
+            "phone",
+            "address"
+          ]
+        },
+        "lender": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "type": "string",
+              "maxLength": 200,
+              "minLength": 1
+            },
+            "representative": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 100
+            },
+            "phone": {
+              "type": "string",
+              "maxLength": 64,
+              "minLength": 1
+            },
+            "email": {
+              "type": "string",
+              "maxLength": 254,
+              "minLength": 1,
+              "format": "email"
+            },
+            "address": {
+              "type": "string",
+              "maxLength": 1000,
+              "minLength": 1
+            }
+          },
+          "required": [
+            "name",
+            "representative",
+            "phone",
+            "email",
+            "address"
+          ]
+        },
+        "agreementDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "approval": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "note": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 4000
+            }
+          },
+          "required": [
+            "note"
+          ]
+        },
+        "attachments": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "note": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 4000
+            }
+          },
+          "required": [
+            "note"
+          ]
+        }
+      },
+      "required": [
+        "applicant",
+        "shipping",
+        "modelKey",
+        "identity",
+        "schedule",
+        "quote",
+        "payment",
+        "billingBasis",
+        "equipment",
+        "outbound",
+        "returnTo",
+        "lender",
+        "agreementDate",
+        "approval",
+        "attachments"
+      ]
+    },
+    "PartialApprovalDraft": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "applicant": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "enum": [
+                "company",
+                "person",
+                null
+              ]
+            },
+            "name": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 200
+            },
+            "contactName": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 100
+            },
+            "phone": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 64
+            },
+            "email": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 254
+            },
+            "creditCode": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 64
+            },
+            "registeredAddress": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 1000
+            },
+            "contactAddress": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 1000
+            }
+          },
+          "required": []
+        },
+        "shipping": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "recipientName": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 100
+            },
+            "recipientPhone": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 64
+            },
+            "address": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 1000
+            }
+          },
+          "required": []
+        },
+        "modelKey": {
+          "enum": [
+            "rm01-t234-32g",
+            "rm01-t234-64g",
+            "rm01-t4000-64g",
+            "rm01-t5000-128g",
+            null
+          ]
+        },
+        "identity": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "notes": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 4000
+            },
+            "verified": {
+              "type": [
+                "boolean",
+                "null"
+              ]
+            }
+          },
+          "required": []
+        },
+        "schedule": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "startsAt": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "format": "date-time",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$"
+            },
+            "dueAt": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "format": "date-time",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$",
+              "description": "Beijing due day 23:59:59.000; later than startsAt."
+            }
+          },
+          "required": []
+        },
+        "quote": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "deposit": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "currency": {
+                  "enum": [
+                    "CNY",
+                    "USD",
+                    null
+                  ]
+                },
+                "amountMinor": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "pattern": "^(0|[1-9][0-9]*)$",
+                  "description": "Integer cents as a decimal string, <= 9007199254740991; never a floating-point yuan value.",
+                  "readOnly": true
+                }
+              },
+              "required": []
+            },
+            "fx": {
+              "anyOf": [
+                {
+                  "type": [
+                    "null"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "rateUnits": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "pattern": "^(0|[1-9][0-9]*)$",
+                      "description": "Integer cents as a decimal string, <= 9007199254740991; never a floating-point yuan value."
+                    },
+                    "rateScale": {
+                      "const": 10000
+                    },
+                    "publishedAt": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "date-time",
+                      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$"
+                    },
+                    "source": {
+                      "const": "中国银行美元现汇买入价"
+                    }
+                  },
+                  "required": []
+                }
+              ]
+            }
+          },
+          "required": []
+        },
+        "payment": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "expectedPayer": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 200
+            },
+            "thirdPartyNotes": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 4000
+            }
+          },
+          "required": []
+        },
+        "billingBasis": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "value": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "currency": {
+                  "enum": [
+                    "CNY",
+                    "USD",
+                    null
+                  ]
+                },
+                "amountMinor": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "pattern": "^(0|[1-9][0-9]*)$",
+                  "description": "Integer cents as a decimal string, <= 9007199254740991; never a floating-point yuan value."
+                }
+              },
+              "required": []
+            }
+          },
+          "required": []
+        },
+        "equipment": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "card": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "specification": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "maxLength": 4000
+                },
+                "serial": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "maxLength": 200
+                }
+              },
+              "required": []
+            },
+            "defaultAccountInfo": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 8000,
+              "description": "Preserve whitespace and special characters."
+            },
+            "accessories": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 8000
+            },
+            "outboundInspection": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 8000
+            }
+          },
+          "required": []
+        },
+        "outbound": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "carrier": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 100
+            },
+            "trackingNumber": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 200
+            },
+            "insuranceReference": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 1000
+            },
+            "inspectedAt": {
+              "anyOf": [
+                {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "date-time",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$"
+                },
+                {
+                  "type": [
+                    "null"
+                  ]
+                }
+              ]
+            }
+          },
+          "required": []
+        },
+        "returnTo": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "recipientName": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 100
+            },
+            "phone": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 64
+            },
+            "address": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 1000
+            }
+          },
+          "required": []
+        },
+        "lender": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 200
+            },
+            "representative": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 100
+            },
+            "phone": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 64
+            },
+            "email": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 254
+            },
+            "address": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 1000
+            }
+          },
+          "required": []
+        },
+        "agreementDate": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date"
+        },
+        "approval": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "note": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 4000
+            }
+          },
+          "required": []
+        },
+        "attachments": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "note": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 4000
+            }
+          },
+          "required": []
+        }
+      },
+      "required": []
+    },
+    "Application": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "applicant": {
+          "$ref": "#/$defs/Applicant"
+        },
+        "shipping": {
+          "$ref": "#/$defs/Shipping"
+        },
+        "modelKey": {
+          "enum": [
+            "rm01-t234-32g",
+            "rm01-t234-64g",
+            "rm01-t4000-64g",
+            "rm01-t5000-128g"
+          ]
+        },
+        "requestedDays": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 30
+        },
+        "consent": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "termsVersion": {
+              "type": "string",
+              "maxLength": 100,
+              "minLength": 1
+            },
+            "noticeVersion": {
+              "type": "string",
+              "maxLength": 100,
+              "minLength": 1
+            },
+            "accepted": {
+              "const": true
+            },
+            "noStockShown": {
+              "type": "boolean"
+            },
+            "language": {
+              "enum": [
+                "zh",
+                "en",
+                "ja",
+                "ko",
+                "es",
+                "fr"
+              ]
+            }
+          },
+          "required": [
+            "termsVersion",
+            "noticeVersion",
+            "accepted"
+          ]
+        },
+        "device": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 1000
+        }
+      },
+      "required": [
+        "applicant",
+        "shipping",
+        "modelKey",
+        "requestedDays",
+        "consent"
+      ]
+    },
+    "ApproveCommand": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "expectedRowVersion": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "expectedAssetVersion": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "assetId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "fileIds": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "draft": {
+          "$ref": "#/$defs/ApprovalDraft"
+        }
+      },
+      "required": [
+        "expectedRowVersion",
+        "expectedAssetVersion",
+        "assetId",
+        "fileIds",
+        "draft"
+      ]
+    },
+    "DraftCommand": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "expectedRowVersion": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "assetId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "fileIds": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "draft": {
+          "$ref": "#/$defs/PartialApprovalDraft"
+        }
+      },
+      "required": [
+        "expectedRowVersion",
+        "assetId",
+        "fileIds",
+        "draft"
+      ]
+    },
+    "Asset": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "modelKey": {
+          "enum": [
+            "rm01-t234-32g",
+            "rm01-t234-64g",
+            "rm01-t4000-64g",
+            "rm01-t5000-128g"
+          ]
+        },
+        "no": {
+          "type": "string",
+          "maxLength": 200,
+          "minLength": 1
+        },
+        "sn": {
+          "type": "string",
+          "maxLength": 200,
+          "minLength": 1
+        },
+        "notes": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 8000
+        },
+        "lifecycle": {
+          "enum": [
+            "active",
+            "lost",
+            "retired"
+          ]
+        },
+        "expectedAssetVersion": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "modelKey",
+        "no",
+        "sn"
+      ]
+    },
+    "ProgressCommand": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "expectedRowVersion": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "occurredAt": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$"
+        },
+        "note": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 4000
+        }
+      },
+      "required": [
+        "expectedRowVersion",
+        "occurredAt"
+      ]
+    },
+    "Error": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "apiVersion": {
+          "const": 1
+        },
+        "serverTime": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$"
+        },
+        "traceId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "code": {
+          "type": "string",
+          "maxLength": 100,
+          "minLength": 1
+        },
+        "error": {
+          "type": "string",
+          "maxLength": 1000,
+          "minLength": 1
+        },
+        "fieldErrors": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "apiVersion",
+        "serverTime",
+        "traceId",
+        "code",
+        "error",
+        "fieldErrors"
+      ]
+    },
+    "Calendar": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "validFrom": {
+          "type": "string",
+          "format": "date"
+        },
+        "validUntil": {
+          "type": "string",
+          "format": "date"
+        },
+        "holidays": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "format": "date"
+          },
+          "maxItems": 3660
+        },
+        "workingDates": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "format": "date"
+          },
+          "maxItems": 3660
+        }
+      },
+      "required": [
+        "validFrom",
+        "validUntil",
+        "holidays",
+        "workingDates"
+      ]
+    }
+  }
+}

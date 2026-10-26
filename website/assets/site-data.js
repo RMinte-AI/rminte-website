@@ -168,7 +168,9 @@ window.RM_SOFT = {
       salesContact: '销售与渠道合作',
       manufacturingContact: '制造与供应链合作',
       supportContact: '售前与售后服务',
-      communityContact: '产品与技术交流'
+      communityContact: '产品与技术交流',
+      sampleLoan: '样机借用', sampleApply: '点此申请',
+      sampleLoadError: '申请表暂时无法加载，请重试或刷新页面', sampleReload: '刷新页面'
     },
     en: {
       chapter0: 'PURPOSE-BUILT FOR MODEL INFERENCE AND AI APPLICATIONS',
@@ -285,7 +287,9 @@ window.RM_SOFT = {
       salesContact: 'Sales & channel partnerships',
       manufacturingContact: 'Manufacturing & supply chain partnerships',
       supportContact: 'Pre-sales & after-sales service',
-      communityContact: 'Product & technical discussions'
+      communityContact: 'Product & technical discussions',
+      sampleLoan: 'Demo unit loan', sampleApply: 'Apply here',
+      sampleLoadError: 'The application could not load. Try again or refresh the page.', sampleReload: 'Refresh page'
     }
   }
 };

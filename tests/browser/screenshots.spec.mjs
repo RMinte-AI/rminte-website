@@ -8,7 +8,7 @@ for(const descriptor of run.scope.pages)for(const language of languages(descript
       const audit=await setup(page,language),records=[];
       for(const [phase,base] of [['before',beforeURL],['after',afterURL]]) {
         await page.context().clearCookies();
-        if(descriptor.id==='admin')await loginFixture(page,base,phase);
+        if(['admin','sample-admin'].includes(descriptor.id))await loginFixture(page,base,phase);
         const route=await inspectRoute(page,descriptor,language,base,phase);
         if(route.kind!=='page') {
           for(const region of descriptor.regions)records.push({...route,phase,page:descriptor.id,path:descriptor.path,language,width,region});

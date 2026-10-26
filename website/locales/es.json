@@ -659,5 +659,10 @@
   "Regulate": "Regula",
   "Cool": "Refrigera",
   "EricLake carries the heat out with purpose-made blades, a custom motor and a dedicated Z-shaped air duct, supporting high-concurrency workloads. The duct is refined through multiple rounds of computational fluid dynamics simulation, and the closed structure keeps dust out of the core component area, caring for demanding loads and for everyday use alike.": "EricLake expulsa el calor con aspas diseñadas a medida, un motor personalizado y un conducto de aire independiente en forma de Z, para sostener cargas de alta concurrencia. El conducto se ha perfeccionado con varias rondas de simulación de dinámica de fluidos computacional, y la estructura cerrada reduce eficazmente la entrada de polvo en la zona de los componentes principales, cuidando tanto el funcionamiento bajo carga alta como el uso de todos los días.",
-  "How TTI works: TTO observes, the neural network predicts, TTI regulates, EricLake cools": "Cómo funciona TTI: TTO observa, la red neuronal predice, TTI regula y EricLake refrigera"
+  "How TTI works: TTO observes, the neural network predicts, TTI regulates, EricLake cools": "Cómo funciona TTI: TTO observa, la red neuronal predice, TTI regula y EricLake refrigera",
+  "Demo unit loan": "Préstamo de equipos de demostración",
+  "Apply here": "Solicitar",
+  "Demo unit management": "Gestión de equipos de demostración",
+  "The application could not load. Try again or refresh the page.": "No se pudo cargar la solicitud. Inténtelo de nuevo o actualice la página.",
+  "Refresh page": "Actualizar página"
 }

@@ -1,0 +1,55 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "rminte-sample-loan-jobs-local",
+  "main": "jobs.mjs",
+  "compatibility_date": "2026-10-26",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": false,
+  "assets": {
+    "directory": "document-assets",
+    "binding": "DOCUMENT_ASSETS",
+    "run_worker_first": true,
+  },
+  "d1_databases": [
+    {
+      "binding": "CASE_DB",
+      "database_name": "rminte-case-access",
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "../case-access/migrations",
+    },
+  ],
+  "r2_buckets": [
+    {
+      "binding": "SAMPLE_FILES",
+      "bucket_name": "rminte-sample-loan-files-local",
+    },
+  ],
+  "browser": {
+    "binding": "BROWSER",
+  },
+  "queues": {
+    "producers": [
+      {
+        "binding": "SAMPLE_JOBS",
+        "queue": "rminte-sample-loan-jobs-local",
+      },
+    ],
+    "consumers": [
+      {
+        "queue": "rminte-sample-loan-jobs-local",
+        "max_batch_size": 1,
+        "max_concurrency": 1,
+        "max_retries": 3,
+      },
+    ],
+  },
+  "triggers": {
+    "crons": ["*/5 * * * *"],
+  },
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1,
+  },
+  "preview_urls": false,
+  "routes": [],
+}

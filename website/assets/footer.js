@@ -67,6 +67,24 @@
   });
   popover.addEventListener('click', (event) => event.stopPropagation());
   close.addEventListener('click', () => setOpen(false));
+  const applicationLink = popover.querySelector('[data-sample-loan-open]');
+  const applicationError = popover.querySelector('[data-sample-load-error]');
+  popover.querySelector('[data-sample-reload]').addEventListener('click', () => location.reload());
+  applicationLink.addEventListener('click', async event => {
+    event.preventDefault();
+    if (applicationLink.getAttribute('aria-disabled') === 'true') return;
+    applicationError.hidden = true;
+    applicationLink.setAttribute('aria-disabled', 'true');
+    try {
+      const {openApplication} = await import('/sample-loan/application.mjs?v=sample-2');
+      await openApplication(toggle);
+      setOpen(false);
+    } catch {
+      applicationError.hidden = false;
+    } finally {
+      applicationLink.removeAttribute('aria-disabled');
+    }
+  });
   document.addEventListener('click', () => setOpen(false));
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') setOpen(false);

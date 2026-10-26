@@ -659,5 +659,10 @@
   "Regulate": "조절",
   "Cool": "냉각",
   "EricLake carries the heat out with purpose-made blades, a custom motor and a dedicated Z-shaped air duct, supporting high-concurrency workloads. The duct is refined through multiple rounds of computational fluid dynamics simulation, and the closed structure keeps dust out of the core component area, caring for demanding loads and for everyday use alike.": "EricLake는 전용 설계 블레이드, 맞춤형 모터, 독립된 Z형 에어 덕트로 열을 배출하여 높은 동시 처리 작업을 지원합니다. 덕트는 여러 차례의 전산유체역학 시뮬레이션으로 최적화되었고, 밀폐형 구조가 핵심 부품 영역으로 먼지가 들어오는 것을 효과적으로 줄입니다. 고부하에서의 동작도, 매일의 사용도 함께 배려했습니다.",
-  "How TTI works: TTO observes, the neural network predicts, TTI regulates, EricLake cools": "TTI 작동 방식: TTO가 관측하고, 신경망이 예측하고, TTI가 조절하며, EricLake가 냉각합니다"
+  "How TTI works: TTO observes, the neural network predicts, TTI regulates, EricLake cools": "TTI 작동 방식: TTO가 관측하고, 신경망이 예측하고, TTI가 조절하며, EricLake가 냉각합니다",
+  "Demo unit loan": "샘플 장비 대여",
+  "Apply here": "신청하기",
+  "Demo unit management": "샘플 장비 관리",
+  "The application could not load. Try again or refresh the page.": "신청서를 불러오지 못했습니다. 다시 시도하거나 페이지를 새로고침하세요.",
+  "Refresh page": "페이지 새로고침"
 }
