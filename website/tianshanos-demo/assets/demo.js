@@ -130,10 +130,6 @@
       const toggle=byId('toggle-'+name);toggle.classList.toggle('on',led.on);toggle.setAttribute('aria-pressed',String(led.on));
       toggle.title=text(led.on?'点击关闭':'点击开启',led.on?'Click to turn off':'Click to turn on');toggle.setAttribute('aria-label',toggle.title);
       slider.closest('.sl').style.setProperty('--p',(led.brightness/255*100)+'%');
-      let preview=card.querySelector('.demo-led-preview');
-      if(!preview){preview=document.createElement('div');preview.className='demo-led-preview';preview.setAttribute('role','img');card.append(preview);}
-      preview.setAttribute('aria-label',text('灯光颜色与亮度模拟预览','Simulated light colour and brightness'));
-      preview.style.setProperty('--demo-led-color',led.color);preview.style.setProperty('--demo-led-opacity',led.brightness/255);preview.dataset.off=String(!led.on);
     }
   }
   function drawCurve(){
