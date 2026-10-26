@@ -1,8 +1,12 @@
+import {mountDemoFrame} from './tianshanos-demo-frame.mjs';
+
 (function () {
   const modal = document.querySelector('[data-demo-modal]');
   const openButton = document.querySelector('[data-demo-open]');
   const closeButton = document.querySelector('[data-demo-close]');
   const frame = document.getElementById('ts-demo');
+  const content = modal.querySelector('.demo-modal-content');
+  const preview = mountDemoFrame(frame, frame.parentElement);
   const page = document.querySelector('main');
   const header = document.querySelector('.site-shell');
 
@@ -15,10 +19,16 @@
     page.inert = open;
     header.inert = open;
     if (open) {
-      frame.style.height = '0px';
-      frame.src = frame.dataset.src;
+      preview.reset();
+      content.scrollTop = 0;
+      const source = new URL(frame.dataset.src, location.href);
+      source.searchParams.set('lang', 'en');
+      frame.src = source.href;
       closeButton.focus({ preventScroll: true });
     } else {
+      content.classList.remove('has-demo-dialog');
+      frame.removeAttribute('src');
+      preview.reset();
       openButton.focus({ preventScroll: true });
     }
   }
@@ -40,8 +50,9 @@
   });
   addEventListener('message', event => {
     if (event.origin !== location.origin || event.source !== frame.contentWindow) return;
-    if (event.data?.type !== 'tianshanos-demo-height') return;
-    const height = event.data.height;
-    if (Number.isFinite(height) && height > 0) frame.style.height = `${height}px`;
+    if (event.data?.type === 'tianshanos-demo-dialog') {
+      content.classList.toggle('has-demo-dialog', event.data.open === true);
+      return;
+    }
   });
 })();
