@@ -662,5 +662,7 @@
   "How TTI works: TTO observes, the neural network predicts, TTI regulates, EricLake cools": "TTI の仕組み：TTO が観測し、ニューラルネットワークが予測し、TTI が調整し、EricLake が冷却します",
   "Demo unit loan": "デモ機の貸出",
   "Apply here": "申請する",
-  "Demo unit management": "デモ機管理"
+  "Demo unit management": "デモ機管理",
+  "The application could not load. Try again or refresh the page.": "申請フォームを読み込めませんでした。再度お試しいただくか、ページを再読み込みしてください。",
+  "Refresh page": "ページを再読み込み"
 }

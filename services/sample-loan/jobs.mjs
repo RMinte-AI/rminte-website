@@ -286,9 +286,28 @@ export async function repairJobs(env) {
       [now, now],
     ),
   ]);
-  await enqueuePending(env);
-  await maintainData(env);
-  await sweepOrphanDocuments(env);
+  const phases = await Promise.allSettled([
+    enqueuePending(env),
+    (async () => {
+      await maintainData(env);
+      await sweepOrphanDocuments(env);
+    })(),
+  ]);
+  const failures = [];
+  phases.forEach((phase, index) => {
+    if (phase.status === "rejected") {
+      console.error(
+        JSON.stringify({
+          service: "sample-scheduler",
+          phase: index === 0 ? "enqueue" : "maintenance",
+          error: phase.reason.name,
+        }),
+      );
+      failures.push(phase.reason);
+    }
+  });
+  if (failures.length)
+    throw new AggregateError(failures, "Sample scheduler did not complete");
   await stmt(
     env,
     "INSERT INTO sample_counters(name,value) VALUES('last_scheduler_ms',?) ON CONFLICT(name) DO UPDATE SET value=excluded.value",

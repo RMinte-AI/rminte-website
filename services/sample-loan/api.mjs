@@ -430,7 +430,7 @@ export async function handleSampleApi(request, env, ctx) {
       return json({ terms: await canonicalTerms() });
     if (path === "/api/sample-loans/availability" && method === "GET") {
       const key = url.searchParams.get("modelKey");
-      assert(MODELS[key], "INVALID_MODEL", "型号不存在", 422);
+      assert(Object.hasOwn(MODELS, key), "INVALID_MODEL", "型号不存在", 422);
       const idle = await first(
         env,
         "SELECT 1 FROM sample_assets a WHERE model_key=? AND lifecycle='active' AND NOT EXISTS (SELECT 1 FROM sample_allocations x WHERE x.asset_id=a.id) LIMIT 1",

@@ -1083,7 +1083,7 @@
         "requestedDays": {
           "type": "integer",
           "minimum": 1,
-          "maximum": 9007199254740991
+          "maximum": 30
         },
         "consent": {
           "type": "object",

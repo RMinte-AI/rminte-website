@@ -662,5 +662,7 @@
   "How TTI works: TTO observes, the neural network predicts, TTI regulates, EricLake cools": "Fonctionnement de TTI : TTO observe, le réseau de neurones prévoit, TTI régule et EricLake refroidit",
   "Demo unit loan": "Prêt de machines de démonstration",
   "Apply here": "Faire une demande",
-  "Demo unit management": "Gestion des machines de démonstration"
+  "Demo unit management": "Gestion des machines de démonstration",
+  "The application could not load. Try again or refresh the page.": "Le formulaire n’a pas pu être chargé. Réessayez ou actualisez la page.",
+  "Refresh page": "Actualiser la page"
 }

@@ -14,6 +14,7 @@ import { handleSampleApi } from "../api.mjs";
 import { maintainData, workingDeadline } from "../maintenance.mjs";
 import { project } from "../finance.mjs";
 import { terms } from "../agreements.mjs";
+import { repairJobs } from "../jobs.mjs";
 import { application, draft } from "./fixtures.mjs";
 const origin = "http://127.0.0.1:8999";
 test("financial projection keeps individual debts and the latest assessment decision", () => {
@@ -177,6 +178,7 @@ test("persistent API: authorization, atomic allocation, immutable revisions, rea
     const t = (await api("/api/sample-loans/terms", { cookie: null })).terms;
     const payload = {
       ...application,
+      requestedDays: 1,
       consent: {
         termsVersion: t.version,
         noticeVersion: t.noticeVersion,
@@ -184,6 +186,63 @@ test("persistent API: authorization, atomic allocation, immutable revisions, rea
         noStockShown: false,
       },
     };
+    for (const requestedDays of [0, 31, 1.5, Number.MAX_SAFE_INTEGER]) {
+      const invalid = await api("/api/sample-loans/applications", {
+        method: "POST",
+        cookie: null,
+        data: { ...payload, requestedDays },
+      });
+      assert.equal(invalid.status, 422);
+      assert.ok(invalid.fieldErrors.requestedDays);
+    }
+    for (const modelKey of [
+      "constructor",
+      "__proto__",
+      [application.modelKey],
+    ]) {
+      assert.equal(
+        (
+          await api("/api/sample-loans/applications", {
+            method: "POST",
+            cookie: null,
+            data: { ...payload, modelKey },
+          })
+        ).status,
+        422,
+      );
+      assert.equal(
+        (
+          await api("/api/sample-admin/assets", {
+            method: "POST",
+            data: { modelKey, no: "invalid", sn: "invalid" },
+          })
+        ).status,
+        422,
+      );
+    }
+    for (const modelKey of ["constructor", "__proto__"])
+      assert.equal(
+        (
+          await api("/api/sample-loans/availability?modelKey=" + modelKey, {
+            cookie: null,
+          })
+        ).status,
+        422,
+      );
+    for (const modelKey of [
+      "rm01-t234-32g",
+      "rm01-t234-64g",
+      "rm01-t4000-64g",
+      "rm01-t5000-128g",
+    ])
+      assert.equal(
+        (
+          await api("/api/sample-loans/availability?modelKey=" + modelKey, {
+            cookie: null,
+          })
+        ).status,
+        200,
+      );
     const key = crypto.randomUUID(),
       one = await api("/api/sample-loans/applications", {
         method: "POST",
@@ -249,12 +308,16 @@ test("persistent API: authorization, atomic allocation, immutable revisions, rea
     }
     const two = await api("/api/sample-loans/applications", {
       method: "POST",
-      data: payload,
+      data: { ...payload, requestedDays: 30 },
       cookie: null,
     });
+    assert.equal(two.status, 201);
     assert.notEqual(one.publicNo, two.publicNo);
     const d = draft();
     delete d.requestedDays;
+    d.schedule.dueAt = new Date(
+      Date.parse(d.schedule.dueAt) + 30 * 86400000,
+    ).toISOString();
     const command = {
       expectedRowVersion: 1,
       expectedAssetVersion: 1,
@@ -262,6 +325,26 @@ test("persistent API: authorization, atomic allocation, immutable revisions, rea
       fileIds: [],
       draft: d,
     };
+    for (const modelKey of ["constructor", "__proto__"]) {
+      assert.equal(
+        (
+          await api(`/api/sample-admin/requests/${one.id}/draft`, {
+            method: "POST",
+            data: { expectedRowVersion: 1, draft: { modelKey } },
+          })
+        ).status,
+        422,
+      );
+      assert.equal(
+        (
+          await api(`/api/sample-admin/requests/${one.id}/approve`, {
+            method: "POST",
+            data: { ...command, draft: { ...d, modelKey } },
+          })
+        ).status,
+        422,
+      );
+    }
     const race = await Promise.all([
       api(`/api/sample-admin/requests/${one.id}/approve`, {
         method: "POST",
@@ -278,12 +361,81 @@ test("persistent API: authorization, atomic allocation, immutable revisions, rea
       JSON.stringify(race),
     );
     const winner = race.find((r) => r.status === 200).request;
+    assert.ok(winner.initialTermDays > 30);
     assert.equal(winner.currentAgreementRevision, 1);
     assert.equal(
       winner.agreement.equipment.defaultAccountInfo,
       d.equipment.defaultAccountInfo,
     );
     assert.equal(winner.agreement.billingBasis.value.amountMinor, "5000000");
+    // A queue outage must not skip maintenance or claim a successful scheduler pass.
+    await env.CASE_DB.exec(
+      "INSERT INTO sample_counters(name,value) VALUES('last_scheduler_ms',1)",
+    );
+    const queueFailure = new Error("isolated queue failure");
+    await assert.rejects(
+      repairJobs({
+        ...env,
+        SAMPLE_JOBS: {
+          async send() {
+            throw queueFailure;
+          },
+        },
+      }),
+      (e) => e instanceof AggregateError && e.errors.includes(queueFailure),
+    );
+    assert.ok(
+      await env.CASE_DB.prepare(
+        "SELECT value FROM sample_counters WHERE name='orphan_sweep_day'",
+      ).first(),
+    );
+    assert.equal(
+      (
+        await env.CASE_DB.prepare(
+          "SELECT value FROM sample_counters WHERE name='last_scheduler_ms'",
+        ).first()
+      ).value,
+      1,
+    );
+    await env.CASE_DB.exec(
+      "DELETE FROM sample_counters WHERE name='orphan_sweep_day'; INSERT INTO sample_security_events(id,action,occurred_at) VALUES('scheduler-expired','test','2000-01-01T00:00:00.000Z'); CREATE TRIGGER scheduler_maintenance_failure BEFORE DELETE ON sample_security_events WHEN OLD.id='scheduler-expired' BEGIN SELECT RAISE(ABORT,'isolated maintenance failure'); END;",
+    );
+    let sent = 0;
+    await assert.rejects(
+      repairJobs({
+        ...env,
+        SAMPLE_JOBS: {
+          async send() {
+            sent++;
+          },
+        },
+      }),
+      AggregateError,
+    );
+    assert.ok(sent > 0);
+    assert.equal(
+      await env.CASE_DB.prepare(
+        "SELECT value FROM sample_counters WHERE name='orphan_sweep_day'",
+      ).first(),
+      null,
+    );
+    assert.equal(
+      (
+        await env.CASE_DB.prepare(
+          "SELECT value FROM sample_counters WHERE name='last_scheduler_ms'",
+        ).first()
+      ).value,
+      1,
+    );
+    await env.CASE_DB.exec("DROP TRIGGER scheduler_maintenance_failure");
+    await repairJobs(env);
+    assert.ok(
+      (
+        await env.CASE_DB.prepare(
+          "SELECT value FROM sample_counters WHERE name='last_scheduler_ms'",
+        ).first()
+      ).value > 1,
+    );
     assert.equal(
       (
         await api(

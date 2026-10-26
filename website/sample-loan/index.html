@@ -16,10 +16,10 @@
       rel="stylesheet"
       href="/assets/fonts/noto-sans-sc.css?v=sample-20261026"
     />
-    <link rel="stylesheet" href="preview.css?v=close-20261026" />
-    <link rel="stylesheet" href="operations.css" />
+    <link rel="stylesheet" href="preview.css?v=sample-2" />
+    <link rel="stylesheet" href="operations.css?v=sample-2" />
 
-    <script type="module" src="admin.mjs?v=sample-1"></script>
+    <script type="module" src="admin.mjs?v=sample-2"></script>
   </head>
   <body>
     <svg class="svg-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -52,7 +52,7 @@
       </defs>
     </svg>
 
-    <div id="admin-view">
+    <div id="admin-view" hidden>
       <header class="admin-header wrap">
         <a href="#admin" class="logo-link" aria-label="返回样机申请列表"
           ><img src="/assets/images/logo-white.svg" alt="RMinte"
@@ -891,13 +891,21 @@
             </div>
           </form>
         </section>
-        <section id="admin-denied" hidden>
-          <h1>没有访问权限</h1>
-          <p class="muted">样机申请后台仅限主管理员和具备批复权限的管理员。</p>
-          <a class="pill ghost" href="/cases/">前往案例页登录</a>
-        </section>
       </main>
     </div>
+
+    <section id="admin-denied" class="admin-main wrap" hidden>
+      <h1>没有访问权限</h1>
+      <p class="muted">样机申请后台仅限主管理员和具备批复权限的管理员。</p>
+      <a class="pill ghost" href="/cases/">前往案例页登录</a>
+    </section>
+    <section id="application-load-error" class="admin-main wrap" hidden>
+      <h1>申请表暂时无法加载</h1>
+      <p class="muted">请稍后重试。</p>
+      <button id="retry-application" class="pill primary" type="button">
+        重新加载申请表
+      </button>
+    </section>
 
     <dialog
       id="agreement-dialog"

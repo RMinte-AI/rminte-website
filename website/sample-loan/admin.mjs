@@ -14,7 +14,7 @@ import {
   localInput,
 } from "./fields.mjs";
 import { renderContract, escapeHtml } from "./contract.mjs";
-import { openApplication } from "./application.mjs";
+import { openApplication } from "./application.mjs?v=sample-2";
 const {
   $,
   $$,
@@ -618,6 +618,7 @@ function syncEntityFields(container, attr, company) {
 }
 function deny(e) {
   if (e.status === 401 || e.status === 403) {
+    $("#admin-view").hidden = true;
     state.role = "user";
     state.requests = [];
     state.current = null;
@@ -769,7 +770,12 @@ command.keys = new Map();
 async function route() {
   const hash = location.hash || "#admin";
   if (hash.startsWith("#section-")) return;
+  if (hash === "#apply") {
+    await openPublicApplication();
+    return;
+  }
   if (state.role === "user" || !clock.server) return;
+  $("#admin-view").hidden = false;
   for (const dialog of $$("dialog[open]")) dialog.close();
   operations.progress = null;
   operations.edit = null;
@@ -1836,6 +1842,17 @@ async function refreshDocumentStatus() {
   }
 }
 setInterval(refreshDocumentStatus, 5000);
+async function openPublicApplication() {
+  $("#admin-view").hidden = true;
+  $("#admin-denied").hidden = true;
+  $("#application-load-error").hidden = true;
+  try {
+    await openApplication(null, () => location.replace("/cases/"));
+  } catch {
+    $("#application-load-error").hidden = false;
+  }
+}
+$("#retry-application").addEventListener("click", openPublicApplication);
 async function initialize() {
   for (const select of $$("[data-model-options]"))
     for (const model of MODELS) select.add(new Option(model, model));
@@ -1843,8 +1860,7 @@ async function initialize() {
   wireDialogs();
   try {
     if (location.hash === "#apply") {
-      $("#admin-view").hidden = true;
-      await openApplication(null, () => location.replace("/cases/"));
+      await route();
       return;
     }
     const auth = await api("/api/session");
@@ -1871,6 +1887,7 @@ async function initialize() {
       );
       return;
     }
+    $("#admin-view").hidden = false;
     await syncClock();
     if (!clock.server) return;
     await route();

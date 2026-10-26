@@ -181,7 +181,12 @@ export function application(d) {
     "consent",
     "device",
   ]);
-  assert(MODELS[d.modelKey], "VALIDATION_FAILED", "请选择申请型号", 422);
+  assert(
+    typeof d.modelKey === "string" && Object.hasOwn(MODELS, d.modelKey),
+    "VALIDATION_FAILED",
+    "请选择申请型号",
+    422,
+  );
   exact(d.consent, [
     "termsVersion",
     "noticeVersion",
@@ -214,7 +219,7 @@ export function application(d) {
     applicant: applicant(d.applicant),
     shipping: shipping(d.shipping),
     modelKey: d.modelKey,
-    requestedDays: integer(d.requestedDays, "requestedDays"),
+    requestedDays: integer(d.requestedDays, "requestedDays", 1, 30),
     consent: d.consent,
     device,
   };
@@ -278,7 +283,12 @@ export function approval(d) {
   const result = structuredClone(d);
   result.applicant = applicant(d.applicant);
   result.shipping = shipping(d.shipping);
-  assert(MODELS[d.modelKey], "VALIDATION_FAILED", "型号不存在", 422);
+  assert(
+    typeof d.modelKey === "string" && Object.hasOwn(MODELS, d.modelKey),
+    "VALIDATION_FAILED",
+    "型号不存在",
+    422,
+  );
   exact(d.identity, ["notes", "verified"]);
   result.identity = {
     notes: text(d.identity.notes, "identity.notes", 4000),
@@ -447,7 +457,12 @@ export function partialDraft(d, fieldMap) {
     else if (path === "quote.fx.rateScale")
       assert(value === 10000, "VALIDATION_FAILED", "牌价精度应为10000", 422);
     else if (path === "modelKey")
-      assert(MODELS[value], "VALIDATION_FAILED", "请选择固定型号", 422);
+      assert(
+        typeof value === "string" && Object.hasOwn(MODELS, value),
+        "VALIDATION_FAILED",
+        "请选择固定型号",
+        422,
+      );
     else if (path === "applicant.type")
       assert(
         ["person", "company"].includes(value),

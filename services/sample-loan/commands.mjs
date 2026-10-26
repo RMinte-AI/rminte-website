@@ -31,7 +31,12 @@ export async function assetCommand(request, env, user, id, d) {
     "lifecycle",
     "expectedAssetVersion",
   ]);
-  assert(MODELS[d.modelKey], "VALIDATION_FAILED", "请选择有效型号", 422);
+  assert(
+    typeof d.modelKey === "string" && Object.hasOwn(MODELS, d.modelKey),
+    "VALIDATION_FAILED",
+    "请选择有效型号",
+    422,
+  );
   const sn = code(d.sn, "sn"),
     no = code(d.no, "no"),
     notes = text(d.notes, "notes", 8000, true) || "",

@@ -17,6 +17,9 @@ if (run.scope.sampleLoan)
     await page.locator("[data-sample-loan-open]").click();
     const app = page.locator("[data-sample-loan-host]");
     await app.locator("#application-dialog").waitFor({ state: "visible" });
+    const applicationStyles = await app
+      .locator('link[rel="stylesheet"]')
+      .evaluateAll((links) => links.map((link) => link.href));
     await page.evaluate(() => document.fonts.ready);
 
     await app.locator("#application-form button[type=submit]").click();
@@ -45,15 +48,39 @@ if (run.scope.sampleLoan)
         exact: true,
       })
       .click();
-    await app.locator("[name=days]").fill("10000000000000000");
+    await app.locator("[name=days]").fill("31");
+    await app.locator("#application-form button[type=submit]").click();
+    await expect(app.locator("#confirmation-dialog")).not.toBeVisible();
+    await expect(app.locator("[name=days]")).toHaveAttribute(
+      "aria-invalid",
+      "true",
+    );
+    await expect(app.locator(".field-error[data-auto]")).toContainText("1—30");
+    await app.locator("[name=days]").fill("1");
     await app.locator("#application-form button[type=submit]").click();
     await expect(app.locator("#confirmation-dialog")).toBeVisible();
+    await app.locator("#confirmation-dialog .contact-close").click();
+    await app.locator("[name=days]").fill("30");
+    await app.locator("#application-form button[type=submit]").click();
+    await expect(app.locator("#confirmation-dialog")).toBeVisible();
+    // Bypass the client boundary in transit and observe the actual server error in the form.
+    await page.route(
+      "**/api/sample-loans/applications",
+      (route) =>
+        route.continue({
+          postData: JSON.stringify({
+            ...route.request().postDataJSON(),
+            requestedDays: 31,
+          }),
+        }),
+      { times: 1 },
+    );
     await app.locator("#confirm-application").click();
     await expect(app.locator("[name=days]")).toHaveAttribute(
       "aria-invalid",
       "true",
     );
-    await app.locator("[name=days]").fill("15");
+    await app.locator("[name=days]").fill("30");
     await app.locator("#application-form button[type=submit]").click();
     await expect(app.locator("[aria-invalid=true]")).toHaveCount(0);
 
@@ -77,6 +104,16 @@ if (run.scope.sampleLoan)
       page.locator('#access a[href="/sample-loan/#admin"]'),
     ).toBeVisible();
     await page.goto(server.url + "/sample-loan/#admin");
+    const adminStyles = await page
+      .locator('link[rel="stylesheet"]')
+      .evaluateAll((links) =>
+        links
+          .map((link) => link.href)
+          .filter((href) =>
+            /\/sample-loan\/(preview|operations)\.css/.test(href),
+          ),
+      );
+    expect(adminStyles).toEqual(applicationStyles);
     await page.locator("[data-request]").first().waitFor();
     await page.locator("[data-request]").filter({ hasText: requestNo }).click();
     await page.locator("#admin-detail").waitFor({ state: "visible" });
@@ -183,5 +220,100 @@ if (run.scope.sampleLoan)
       });
     }
 
+    await page.route("**/api/sample-admin/assets", (route) =>
+      route.fulfill({
+        status: 403,
+        json: { error: "已撤销样机权限", code: "FORBIDDEN" },
+      }),
+    );
+    await page.locator("[data-admin-tab=machines]").click();
+    await expect(page.locator("#admin-view")).not.toBeVisible();
+    await expect(page.locator("#admin-denied")).toBeVisible();
     if (errors.length) throw new Error(errors.join("\n"));
+  });
+
+if (run.scope.sampleLoan)
+  test("sample loan: load failures recover without duplicate instances and anonymous visitors see no admin shell", async ({
+    page,
+  }) => {
+    await setup(page, "en");
+    const errors = [];
+    page.on("pageerror", (error) => errors.push(error.message));
+    const openContact = async () => {
+      await page.locator("[data-contact-toggle]").scrollIntoViewIfNeeded();
+      await page.locator("[data-contact-toggle]").click();
+    };
+    // Failed module fetches remain in the browser module map; the explicit refresh resets it.
+    await page.route("**/sample-loan/application.mjs?*", (route) =>
+      route.abort(),
+    );
+    await page.goto(afterURL + "/?lang=en");
+    await openContact();
+    await page.locator("[data-sample-loan-open]").click();
+    await expect(page.locator("[data-sample-load-error]")).toBeVisible();
+    await expect(page.locator("[data-sample-load-error]")).toContainText(
+      "could not load",
+    );
+    await expect(page.locator("[data-sample-loan-host]")).toHaveCount(0);
+    await page.unroute("**/sample-loan/application.mjs?*");
+    await Promise.all([
+      page.waitForEvent("domcontentloaded"),
+      page.locator("[data-sample-reload]").click(),
+    ]);
+    await openContact();
+    await page.locator("[data-sample-loan-open]").click();
+    await expect(
+      page.locator("[data-sample-loan-host]").locator("#application-dialog"),
+    ).toBeVisible();
+
+    for (const resource of [
+      "application.json",
+      "locales.json",
+      "preview.css?*",
+    ]) {
+      await page.goto(afterURL + "/?lang=en");
+      const pattern = "**/sample-loan/" + resource;
+      await page.route(pattern, (route) => route.abort());
+      await openContact();
+      await page.locator("[data-sample-loan-open]").click();
+      await expect(page.locator("[data-sample-load-error]")).toBeVisible();
+      await expect(page.locator("[data-sample-loan-host]")).toHaveCount(0);
+      await page.unroute(pattern);
+      await page.locator("[data-sample-loan-open]").click();
+      const host = page.locator("[data-sample-loan-host]");
+      await expect(host).toHaveCount(1);
+      await expect(host.locator("#application-dialog")).toBeVisible();
+      await host.locator("#application-dialog .contact-close").click();
+      await expect(page.locator("[data-contact-toggle]")).toBeFocused();
+    }
+
+    let releaseSession;
+    const session = new Promise((resolve) => {
+      releaseSession = resolve;
+    });
+    await page.route("**/api/session", async (route) => {
+      await session;
+      await route.continue();
+    });
+    const requested = page.waitForRequest("**/api/session");
+    await page.goto(afterURL + "/sample-loan/#admin");
+    await requested;
+    await expect(page.locator("#admin-view")).not.toBeVisible();
+    releaseSession();
+    await expect(page.locator("#admin-denied")).toBeVisible();
+    await expect(page.locator("#logout")).not.toBeVisible();
+    await page.unroute("**/api/session");
+    await page.route("**/sample-loan/application.json", (route) =>
+      route.abort(),
+    );
+    await page.goto(afterURL + "/sample-loan/#apply");
+    await expect(page.locator("#application-load-error")).toBeVisible();
+    await expect(page.locator("#admin-view")).not.toBeVisible();
+    await page.unroute("**/sample-loan/application.json");
+    await page.locator("#retry-application").click();
+    await expect(
+      page.locator("[data-sample-loan-host]").locator("#application-dialog"),
+    ).toBeVisible();
+    await expect(page.locator("#admin-view")).not.toBeVisible();
+    expect(errors).toEqual([]);
   });

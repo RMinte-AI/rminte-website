@@ -4,27 +4,40 @@ import { MODELS, modelKey, applicationDTO, fields } from "./fields.mjs";
 import { renderContract, escapeHtml } from "./contract.mjs";
 let mounted;
 async function mount() {
-  const response = await fetch("/sample-loan/application.json");
+  const [response, catalogResponse] = await Promise.all([
+    fetch("/sample-loan/application.json"),
+    fetch("/sample-loan/locales.json"),
+  ]);
   if (!response.ok) throw new Error("申请表暂时无法加载，请稍后重试");
+  if (!catalogResponse.ok) throw new Error("申请表语言资源未能加载");
+  const [definition, catalog] = await Promise.all([
+    response.json(),
+    catalogResponse.json(),
+  ]);
   const host = document.createElement("div");
   host.dataset.sampleLoanHost = "";
   host.style.cssText =
     "color:var(--text-1);font:400 15px/1.7 var(--font-ui);-webkit-font-smoothing:antialiased;color-scheme:dark";
   const root = host.attachShadow({ mode: "open" });
   root.innerHTML =
-    '<link rel="stylesheet" href="/sample-loan/preview.css?v=sample-1"><link rel="stylesheet" href="/sample-loan/operations.css?v=sample-1"><style>:host([data-input="pointer"]) button:focus-visible,:host([data-input="pointer"]) a:focus-visible{outline:none}</style>' +
-    (await response.json()).html;
+    '<link rel="stylesheet" href="/sample-loan/preview.css?v=sample-2"><link rel="stylesheet" href="/sample-loan/operations.css?v=sample-2"><style>:host([data-input="pointer"]) button:focus-visible,:host([data-input="pointer"]) a:focus-visible{outline:none}</style>' +
+    definition.html;
   document.body.append(host);
-  await Promise.all(
-    [...root.querySelectorAll("link[rel=stylesheet]")].map((link) =>
-      link.sheet
-        ? Promise.resolve()
-        : new Promise((resolve, reject) => {
-            link.onload = resolve;
-            link.onerror = () => reject(new Error("申请表样式未能加载"));
-          }),
-    ),
-  );
+  try {
+    await Promise.all(
+      [...root.querySelectorAll("link[rel=stylesheet]")].map((link) =>
+        link.sheet
+          ? Promise.resolve()
+          : new Promise((resolve, reject) => {
+              link.onload = resolve;
+              link.onerror = () => reject(new Error("申请表样式未能加载"));
+            }),
+      ),
+    );
+  } catch (e) {
+    host.remove();
+    throw e;
+  }
   if (!document.querySelector("link[data-sample-font]")) {
     const link = document.createElement("link");
     link.rel = "stylesheet";
@@ -42,9 +55,6 @@ async function mount() {
     attributes: true,
     attributeFilter: ["data-input"],
   });
-  const catalogResponse = await fetch("/sample-loan/locales.json");
-  if (!catalogResponse.ok) throw new Error("申请表语言资源未能加载");
-  const catalog = await catalogResponse.json();
   let language = "zh";
   const languages = ["en", "ja", "ko", "es", "fr"];
   const t = (value) =>
@@ -105,6 +115,12 @@ async function mount() {
       $("#application-error").hidden = false;
     }
   };
+  function validateApplication() {
+    if (!validateForm(form)) return false;
+    if (Number(form.elements.days.value) <= 30) return true;
+    error({ fieldErrors: { requestedDays: "申请天数须为1—30天的整数" } });
+    return false;
+  }
   function entity() {
     const company = form.elements.entity.value === "公司";
     $$("[data-application-company]").forEach((section) => {
@@ -159,11 +175,11 @@ async function mount() {
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     $("#application-error").hidden = true;
-    if (!validateForm(form)) return;
+    if (!validateApplication()) return;
     try {
       if (!terms) await loadTerms();
       await stock();
-      if (!validateForm(form)) return;
+      if (!validateApplication()) return;
       const values = Object.fromEntries(new FormData(form));
       pending = applicationDTO(values, {
         termsVersion: terms.version,
@@ -271,17 +287,9 @@ async function mount() {
   };
 }
 export async function openApplication(opener, onClose) {
-  try {
-    mounted ||= mount().catch((e) => {
-      mounted = null;
-      throw e;
-    });
-    await (await mounted).open(opener, onClose);
-  } catch (e) {
-    const note = document.createElement("p");
-    note.setAttribute("role", "alert");
-    note.textContent = e.message;
-    if (opener) opener.after(note);
-    else document.body.append(note);
-  }
+  mounted ||= mount().catch((e) => {
+    mounted = null;
+    throw e;
+  });
+  await (await mounted).open(opener, onClose);
 }

@@ -509,13 +509,13 @@ function pageTemplate(config, rendered) {
   <script src="../assets/motion.js?v=stage2-2" defer></script>
   <script src="../assets/input-mode.js?v=input-2" defer></script>
   <link rel="stylesheet" href="../assets/brand.css?v=v2-core-2">
-  <link rel="stylesheet" href="../assets/styles.css?v=close-20261026">
+  <link rel="stylesheet" href="../assets/styles.css?v=sample-2">
   <link rel="stylesheet" href="../assets/guides.css?v=motion-20261024">
   <script id="guidePageData" type="application/json">${pageData}</script>
   <script>
     // ja/ko/es/fr carry their own catalog file; zh and en need none. Resolve the language the way i18n.js does and load only that file.
     (function (up) {
-      var ok = /^(zh|en|ja|ko|es|fr)$/, c = window.RM_CATALOG = { base: up + 'assets/translations/', v: 'sample-20261026' };
+      var ok = /^(zh|en|ja|ko|es|fr)$/, c = window.RM_CATALOG = { base: up + 'assets/translations/', v: 'sample-2' };
       c.load = function () {
         var s; try { s = localStorage.getItem('rm-soft-lang'); } catch (e) {}
         var l = [new URLSearchParams(location.search).get('lang'), (location.hash.match(/^#(zh|en|ja|ko|es|fr)-/) || [])[1], s, window.RM_DEFAULT_LANG].filter(function (x) { return ok.test(x); })[0];
@@ -538,8 +538,8 @@ function pageTemplate(config, rendered) {
   </script>
   <script src="../assets/i18n.js?v=catalogs-20261004" defer></script>
   <script src="../assets/guides.js?v=${guideAssetVersion}" defer></script>
-  <script src="../assets/site-data.js?v=sample-20261026" defer></script>
-  <script src="../assets/footer.js?v=sample-20261026" defer></script>
+  <script src="../assets/site-data.js?v=sample-2" defer></script>
+  <script src="../assets/footer.js?v=sample-2" defer></script>
   <script src="../assets/nav-glide.js?v=glide-1" defer></script>
 </head>
 <body class="guide-body guide-doc-body guide-accent-${config.accent}">
