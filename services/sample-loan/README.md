@@ -98,6 +98,8 @@ D1 与 R2 必须做关联备份，恢复后核对授权、原始申请、台账/
 
 `package.json` 对两个实际存在的传递依赖使用定点覆盖，并由锁文件固定：Miniflare 的 `undici` → `7.30.1`，`get-uri` 的 `basic-ftp` → `6.2.3`。前者修复 EventSource、完整性校验与内容编码相关告警；后者修复 FTP 列表解析等问题。FTP 6.x 默认不允许独立传输主机，项目没有 FTP 业务，也没有启用旧行为。Wrangler 4.152.0 仍声明旧 Undici，单升 Wrangler 不能解决该告警，不为此引入无关升级。
 
+为兼容 CI 的 npm 10，Undici 按依赖名覆盖（目前唯一调用链是 Miniflare），FTP 保留 `get-uri` 作用域；npm 10.9.9 与 npm 11.6.0 的隔离干净 `npm ci` 均验证实际只安装 Undici 7.30.1 和 FTP 6.2.3，不能用重新装回旧版来满足锁文件。
+
 2026-10-26 的审计由 10 项降至 3 项高危：均属于 `@cloudflare/puppeteer → @puppeteer/browsers → extract-zip` 的同一传递链，根包 `extract-zip@2.0.1` 有两项符号链接路径穿越公告，尚无修复版本。保留真实告警，不强降官方 Puppeteer、不替换空包、不放宽审计门槛。项目不使用该包的浏览器下载/解压功能；PDF Worker dry-run 的构建元数据证实 `extract-zip`、`basic-ftp`、`undici` 均未进入输入图或最终代码。此结论限于当前入口；以后引入 Node 浏览器安装、ZIP 解压或变更打包方式时必须重新评估。
 
 API、Pages 浏览器、真实 PDF 和配置构建已在修复后重跑；它们不证明真实 Cloudflare 套餐、队列、D1/R2 与 Browser Run 已验收。
