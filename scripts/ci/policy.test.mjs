@@ -67,7 +67,7 @@ test('production Markdown, shared dependencies and new production files cannot u
   assert.ok(translated.languages.includes('fr'));
   assert.deepEqual(translated.pages.find(page=>page.id==='lamp').languages,['zh','en']);
   const standalone=classify([{status:'M',paths:['website/tianshanos-demo/system.html']}]).pages.find(page=>page.file==='website/tianshanos-demo/system.html');
-  assert.deepEqual(standalone.languages,['zh']);assert.equal(standalone.contentRoot,'body');
+  assert.deepEqual(standalone.languages,['zh','en']);assert.equal(standalone.contentRoot,'body');
   assert.equal(classify([{status:'M',paths:['docs/example.md']}]).pages.length,0);
   assert.equal(classify([{status:'M',paths:['services/case-access/README.md']}]).pages.length,0);
   assert.equal(classify([{status:'M',paths:['services/case-demos/cases/example/public/app.js']}]).caseService,true);

@@ -1,0 +1,14 @@
+{
+  "version": "0.6.2",
+  "default_language": "en",
+  "fan_id": 0,
+  "recommended_mode": "auto",
+  "demo_viewport_width": 1440,
+  "commit": "88dd98079ce14d2180afef8efc41d742735568da",
+  "source": "https://github.com/RMinte/TianshanOS/tree/v0.6.2/components/ts_webui/web",
+  "adaptations": [
+    "One fan, ID 0; Smart (TTI) selected and recommended",
+    "Static Chinese and English page snapshots with local demo interactions",
+    "No device scripts, API client, WebSocket, real credentials, or firmware"
+  ]
+}

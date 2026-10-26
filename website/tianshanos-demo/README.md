@@ -1,36 +1,25 @@
-# 天山OS 界面演示包
+# TianshanOS 0.6.2 界面演示
 
-纯静态网页，用来在官网里展示天山OS 的界面。共 7 个页面，顶部菜单可以互相跳转。没有后端，页面里的数据全是示例数据，除菜单跳转外的按钮都不会有动作。
+官网使用的纯静态模拟展示，无后端。页面结构与样式取自正式 [v0.6.2](https://github.com/RMinte/TianshanOS/tree/v0.6.2/components/ts_webui/web)，提交为 `88dd98079ce14d2180afef8efc41d742735568da`，来源记录在 `source.json`。不复制固件的 API 客户端、WebSocket 或认证脚本。
 
-## 文件
+图标沿用该版本的 Phosphor 矢量，保留站内已有的 [MIT 许可](../assets/icons/phosphor/LICENSE)。
 
-- `index.html`：入口，自动跳到 `system.html`。
-- `system.html` 系统、`network.html` 网络、`files.html` 文件、`terminal.html` 终端、`automation.html` 自动化、`commands.html` 指令、`security.html` 安全。
-- `assets/spec.css`、`assets/quantify.css`：样式和字体，所有页面共用。
+## 结构与范围
 
-所有引用都是相对路径，整个文件夹放到网站任意子路径都能用，例如 `https://www.rminte.com/tianshanos-demo/`。页面不请求任何外部资源。
+- `index.html` 是桌面演示窗口；七个命名入口及 `ota.html` 保留实际静态页面，均直接返回 200。页面内使用 hash 导航。
+- `assets/pages.js`：中英文的已渲染静态页面、页头和 TTI、曲线、组件管理、LED 设置弹窗。只保留已映射的点击标记，未实现的操作明确标为 `previewOnly()`；未知点击映射直接报错，不用通用提示掩盖接线错误。无用的原生输入事件、国际化与权限标记已移除。
+- `assets/upstream.css`：0.6.2 原样式，仅调整 Quantify 字体引用，复用本站 `assets/fonts/Quantify-Bold.ttf`。
+- `assets/demo.js` 与 `demo.css`：单风扇、模拟数据与本地交互。只展示“风扇 0”，默认智能（TTI），标注推荐。曲线选择器也只有风扇 0。
+- `assets/viewer.js` 与站内共用的 `../assets/tianshanos-demo-frame.mjs`：把真实页面放进固定 1440px 的 iframe，再按窗口等比缩放，保留设备面板与风扇同排的桌面布局。
 
-## 嵌入方式
+可以体验模式切换、手动调速、编辑和保存示例曲线、TTI 说明、灯光颜色／亮度、网络分组、示例目录与文件、预设终端命令、规则启停／模拟执行、示例主机指令和 OTA 进度。停用规则或停止引擎后不会模拟执行，执行计数跨页面保持一致。其他设备操作明确提示仅供查看，不伪造成功；账号密码输入禁用，不生成可用凭据。关闭或重置演示后恢复英文与初始状态；演示不使用真实账号的本地存储。
 
-推荐用 iframe，官网点“天山OS”后打开一个独立的演示页，或直接跳到 `/tianshanos-demo/`：
+所有数据均为示例；IP 使用 `192.0.2.x`，域名使用 `demo.invalid`。不会运行真实 TTI 模型，转速与预测读数也不证明设备性能。页面 CSP 设置 `connect-src 'none'` 和 `form-action 'none'`，不能连接设备、上传表单或请求升级服务器。
 
-```html
-<iframe id="ts-demo" src="/tianshanos-demo/index.html"
-        style="width:100%;border:0;height:900px" title="天山OS 演示"></iframe>
-<script>
-  // 页面高度随宽度变化，演示页会把自己的高度发给父页面，用来自动撑开 iframe
-  addEventListener('message', function (e) {
-    if (e.data && e.data.type === 'tianshanos-demo-height')
-      document.getElementById('ts-demo').style.height = e.data.height + 'px';
-  });
-</script>
-```
+## 查看与维护
 
-- 页面按 1440px 宽的设计整体缩放到容器宽度，文字和图形是矢量，缩放后仍然清晰。
-- 桌面和平板宽度（约 900px 以上）显示正常；手机上会被缩得很小，建议手机端引导用户用电脑查看，或只放一张截图。
-- 如果官网设置了 CSP 或 `X-Frame-Options`，需要允许同源 iframe。
-- 想改页面内容，只需要改对应的 `.html` 文件，样式在 `assets/spec.css`。
+从仓库根运行静态文件服务，以 `website/` 为根，访问 `/tianshanos-demo/`，默认英文。可以在演示内主动切换中文，也可用 `?lang=zh` 直接核对中文。字体引用依赖站内目录，不再支持将文件夹单独搬离本站资源树。
 
-## 内容说明
+首页与独立入口均使用同源的 1440px 桌面画布，每次打开默认英文，接收 `tianshanos-demo-height` 调整缩放后的高度；长内容由窗口滚动。手机保留电脑查看提示。内部弹窗和反馈按缩放后的可见范围定位，弹窗先响应 Escape，再按一次才关闭外层窗口。外窗标题的 TianshanOS 复用站内专属字体，语言切换后仍保留标记。
 
-页面里的 IP、密钥、规则名称等都是虚构的示例值（例如 192.0.2.x），不对应真实设备。
+下次更新时从目标发布标签的干净源码启动本地模拟数据环境，核对并提取八个页面及关键弹窗的中英文已渲染结构，转换事件标记，替换 `pages.js` 与原样式，同时更新 `source.json`。保留单风扇与本地模拟层，不从未提交工作区或真实设备拷贝凭据及状态。浏览器核对七页、OTA、关键交互、语言、窄屏和网络请求，再运行仓库字体与静态检查。

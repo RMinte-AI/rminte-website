@@ -59,12 +59,12 @@
   <link rel="preload" href="assets/fonts/GeistPixel-Circle.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="assets/brand.css?v=v2-core-2">
   <link rel="stylesheet" href="assets/styles.css?v=close-20261026">
-  <link rel="stylesheet" href="assets/tianshanos-demo-modal.css?v=close-1">
-  <script src="assets/site-data.js?v=tti-20261026" defer></script>
+  <link rel="stylesheet" href="assets/tianshanos-demo-modal.css?v=demo-062-wide-1">
+  <script src="assets/site-data.js?v=demo-062-wide-1" defer></script>
   <script src="assets/home-architecture.js?v=motion-d9-1" defer></script>
   <script src="assets/engine-glass.js?v=d9-1" defer></script>
   <script src="assets/main.js?v=light-1" defer></script>
-  <script src="assets/tianshanos-demo-modal.js" defer></script>
+  <script src="assets/tianshanos-demo-modal.js?v=demo-062-wide-1" type="module"></script>
   <script src="assets/footer.js?v=d9-nav-1" defer></script>
   <script src="assets/nav-glide.js?v=glide-1" defer></script>
   <script src="assets/system-power-on.js?v=poweron-1" defer></script>
@@ -402,12 +402,14 @@
   <div class="demo-modal" id="tsDemoModal" role="dialog" aria-modal="true" aria-labelledby="tsDemoTitle" aria-hidden="true" data-demo-modal>
     <div class="demo-modal-panel">
       <div class="demo-modal-head">
-        <h2 id="tsDemoTitle" data-i18n-text data-zh="TianshanOS 界面演示" data-en="TianshanOS interface demo">TianshanOS 界面演示</h2>
+        <h2 id="tsDemoTitle" data-ui="systemDemoTitle"><span class="rm-mark">TianshanOS</span> 界面演示</h2>
         <button class="demo-modal-close" type="button" aria-label="关闭演示" data-i18n-aria-label-zh="关闭演示" data-i18n-aria-label-en="Close demo" data-demo-close><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       </div>
       <div class="demo-modal-content">
         <p class="demo-modal-note" data-i18n-text data-zh="以下为 TianshanOS 界面演示，数据仅供展示，不代表真实设备状态。" data-en="This is a TianshanOS interface demo. All data is illustrative and does not represent a real device.">以下为 TianshanOS 界面演示，数据仅供展示，不代表真实设备状态。</p>
-        <iframe id="ts-demo" data-src="/tianshanos-demo/index.html" title="天山OS 界面预览" data-i18n-title-zh="天山OS 界面预览" data-i18n-title-en="TianshanOS interface preview"></iframe>
+        <div class="demo-frame-viewport">
+          <iframe id="ts-demo" data-src="/tianshanos-demo/system.html" title="天山OS 界面预览" data-i18n-title-zh="天山OS 界面预览" data-i18n-title-en="TianshanOS interface preview"></iframe>
+        </div>
         <p class="demo-mobile-message" data-i18n-text data-zh="请用电脑查看完整演示。" data-en="Please use a computer to view the full demo.">请用电脑查看完整演示。</p>
       </div>
     </div>
