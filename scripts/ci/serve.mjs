@@ -11,13 +11,14 @@ import {caseConfiguration,caseResources} from './config.mjs';
 const toolsRoot=resolve(dirname(fileURLToPath(import.meta.url)),'../..');
 export const wrangler=join(toolsRoot,'node_modules/wrangler/bin/wrangler.js');
 
-export async function startServer(root,port,logFile,{withoutDemoBinding=false}={}) {
+export async function startServer(root,port,logFile,{withoutDemoBinding=false,withBindings=false}={}) {
   const runtime=mkdtempSync(join(toolsRoot,'output/ci/runtime-')),children=[];
   const fixtures=join(runtime,'services/case-access'),secret=randomBytes(32).toString('base64'),password='Ci-'+randomBytes(16).toString('hex');
   const env={...process.env,XDG_CONFIG_HOME:join(runtime,'config'),WRANGLER_REGISTRY_PATH:join(runtime,'registry'),WRANGLER_LOG_PATH:join(runtime,'logs'),WRANGLER_SEND_METRICS:'false',CHOKIDAR_USEPOLLING:'true'};
-  let output='';
+  let output='',worker,bindings;
   const command=args=>execFileSync(process.execPath,[wrangler,...args],{cwd:runtime,env,encoding:'utf8',stdio:'pipe',timeout:90_000});
   const stop=async()=>{
+    await worker?.dispose();
     for(const child of children.reverse())if(child.exitCode===null&&child.signalCode===null) {
       const exited=new Promise(done=>child.once('exit',done));child.kill('SIGTERM');
       await Promise.race([exited,delay(3000,undefined,{ref:false})]);
@@ -47,6 +48,7 @@ export async function startServer(root,port,logFile,{withoutDemoBinding=false}={
     const assets=join(runtime,'website');cpSync(source.assets,assets,{recursive:true});
     mkdirSync(fixtures,{recursive:true});
     for(const name of ['api.mjs','crypto.mjs']){copyFileSync(join(root,'services/case-access',name),join(fixtures,name));}
+    if(existsSync(join(root,'services/sample-loan')))cpSync(join(root,'services/sample-loan'),join(runtime,'services/sample-loan'),{recursive:true});
     const dealerCatalog=join(root,'services/case-access/dealer-materials.mjs');
     if(existsSync(dealerCatalog))copyFileSync(dealerCatalog,join(fixtures,'dealer-materials.mjs')); // Base snapshots can predate dealer resources.
     const registry=join(root,'services/case-access/tests/resources.json');
@@ -61,9 +63,10 @@ export async function startServer(root,port,logFile,{withoutDemoBinding=false}={
       const probe=createServer();probe.once('error',()=>reject(new Error(`CI port ${requiredPort} is occupied.`)));probe.listen(requiredPort,'127.0.0.1',()=>probe.close(done));
     });
     mkdirSync(join(fixtures,'.local'),{recursive:true,mode:0o700});mkdirSync(join(fixtures,'tests'));
-    const config={name:'rminte-ci-local',pages_build_output_dir:assets,compatibility_date:source.compatibility_date,compatibility_flags:source.compatibility_flags||[],services,r2_buckets:bucket?[{binding:'CASE_FILES',bucket_name:bucket}]:[],d1_databases:[{binding:'CASE_DB',database_name:'rminte-ci-local',database_id:randomUUID(),migrations_dir:source.migrations}]};
+    const sampleBucket=source.r2_buckets?.some(b=>b.binding==='SAMPLE_FILES')?'rminte-ci-sample-files':null;
+    const config={name:'rminte-ci-local',pages_build_output_dir:assets,compatibility_date:source.compatibility_date,compatibility_flags:source.compatibility_flags||[],services,r2_buckets:[...(bucket?[{binding:'CASE_FILES',bucket_name:bucket}]:[]),...(sampleBucket?[{binding:'SAMPLE_FILES',bucket_name:sampleBucket}]:[])],d1_databases:[{binding:'CASE_DB',database_name:'rminte-ci-local',database_id:randomUUID(),migrations_dir:source.migrations}]};
     for(const destination of [join(runtime,'wrangler.jsonc'),join(fixtures,'wrangler.jsonc')])writeFileSync(destination,JSON.stringify(config));
-    for(const destination of [join(runtime,'.dev.vars'),join(fixtures,'.dev.vars')])writeFileSync(destination,`CASE_SECRET="${secret}"\n`,{mode:0o600});
+    for(const destination of [join(runtime,'.dev.vars'),join(fixtures,'.dev.vars')])writeFileSync(destination,`CASE_SECRET="${secret}"\nSAMPLE_SECRET="${secret}"\n`,{mode:0o600});
     writeFileSync(join(fixtures,'.local/admin-login.txt'),`本地 CI 临时数据（未部署）\n用户名：admin\n密码：${password}\n`,{mode:0o600});
     const {hashAdminPassword}=await import(pathToFileURL(join(root,'services/case-access/crypto.mjs'))),mac=await hashAdminPassword(secret,'admin',password),sql=join(runtime,'seed.sql');
     const modern=existsSync(join(root,'services/case-access/migrations/0002_account_permissions.sql'));
@@ -82,14 +85,27 @@ export async function startServer(root,port,logFile,{withoutDemoBinding=false}={
       const demoConfig=join(runtime,'demo.jsonc');writeFileSync(demoConfig,JSON.stringify(source.demo));
       await start(['dev','--config',demoConfig,'--port',String(port+100),'--inspector-port',String(port+200)],`http://127.0.0.1:${port+100}`);
     }
-    await start(['pages','dev','--port',String(port),'--inspector-port',String(port+300),'--persist-to',join(fixtures,'.wrangler/state'),'--d1',`CASE_DB=${config.d1_databases[0].database_id}`,...(bucket?['--r2',`CASE_FILES=${bucket}`]:[]),'--binding',`CASE_SECRET=${secret}`,...services.flatMap(service=>['--service',`${service.binding}=${service.service}`])],url);
+    if(withBindings) {
+      // The interactive PDF preview must use this worker's own D1/R2 proxies.
+      // A second getPlatformProxy process would open the same SQLite files twice.
+      const workerConfig=join(runtime,'preview-worker.json');
+      const {pages_build_output_dir,...workerBindings}=config;
+      writeFileSync(workerConfig,JSON.stringify({...workerBindings,main:join(assets,'_worker.js'),assets:{directory:assets,binding:'ASSETS',run_worker_first:['/api/*','/visitor-language.js']}}));
+      for(const name of ['XDG_CONFIG_HOME','WRANGLER_LOG_PATH','WRANGLER_REGISTRY_PATH','WRANGLER_SEND_METRICS','CHOKIDAR_USEPOLLING'])process.env[name]=env[name];
+      const {unstable_startWorker}=await import('wrangler');
+      worker=await unstable_startWorker({config:workerConfig,dev:{server:{hostname:'127.0.0.1',port},inspector:false,persist:join(fixtures,'.wrangler/state'),registry:env.WRANGLER_REGISTRY_PATH,watch:false,logLevel:'error'}});
+      await worker.ready;
+      bindings=await worker.raw.runtimes[0].mf.getBindings(config.name);
+    } else {
+      await start(['pages','dev','--port',String(port),'--inspector-port',String(port+300),'--persist-to',join(fixtures,'.wrangler/state'),'--d1',`CASE_DB=${config.d1_databases[0].database_id}`,...(bucket?['--r2',`CASE_FILES=${bucket}`]:[]),...(sampleBucket?['--r2',`SAMPLE_FILES=${sampleBucket}`]:[]),'--binding',`CASE_SECRET=${secret}`,'--binding',`SAMPLE_SECRET=${secret}`,...services.flatMap(service=>['--service',`${service.binding}=${service.service}`])],url);
+    }
     const probe=await fetch(url+'/api/admin/users');await probe.body?.cancel();
     if(probe.status!==401)throw new Error(`Local Pages account bindings failed readiness: HTTP ${probe.status}`);
     const login=await fetch(url+'/api/login',{method:'POST',headers:{Origin:url,'Content-Type':'application/json'},body:JSON.stringify({username:'admin',password})});await login.body?.cancel();
     if(login.status!==200)throw new Error(`Local Pages fixture database failed readiness: HTTP ${login.status}`);
     const cookie=login.headers.get('set-cookie').split(';')[0];
     writeFileSync(join(fixtures,'.local/admin-session.txt'),cookie,{mode:0o600});
-    return {url,runtime,env,command,stop};
+    return {url,runtime,env,bindings,command,stop};
   }catch(error){await stop();throw error;}
 }
 

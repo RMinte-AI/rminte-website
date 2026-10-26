@@ -55,7 +55,7 @@ SC_CHARS = FONTS / 'noto-sans-sc.chars.txt'
 SOURCE_EXT = {'.html', '.js', '.mjs', '.json', '.css', '.svg'}
 SKIP_DIRS = {'node_modules', '.git', 'fonts', 'licenses', 'images', 'videos', 'review', 'translations'}
 SKIP_NAMES = {'ja.json', 'ko.json', 'es.json', 'fr.json'}
-SOURCE_ROOTS = [SITE, ROOT / 'services' / 'tianshanos-ota' / 'src']
+SOURCE_ROOTS = [SITE, ROOT / 'services' / 'tianshanos-ota' / 'src', ROOT / 'services' / 'sample-loan']
 # Worker-generated pages use the same font; include their declared source inputs in check AND build.
 WORKER_PAGES = ROOT / 'tests' / 'browser' / 'worker-pages.json'
 if WORKER_PAGES.exists():
@@ -93,7 +93,7 @@ def source_files():
                 yield root
             continue
         for dirpath, dirnames, filenames in os.walk(root):
-            dirnames[:] = [d for d in dirnames if d not in SKIP_DIRS]
+            dirnames[:] = [d for d in dirnames if d not in SKIP_DIRS and not (root == ROOT / 'services' / 'sample-loan' and d in {'tests', 'document-assets'})]
             for name in filenames:
                 path = Path(dirpath) / name
                 if path.suffix not in SOURCE_EXT:

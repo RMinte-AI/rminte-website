@@ -31,7 +31,7 @@
   <script>
     // ja/ko/es/fr carry their own catalog file; zh and en need none. Resolve the language the way i18n.js does and load only that file.
     (function (up) {
-      var ok = /^(zh|en|ja|ko|es|fr)$/, c = window.RM_CATALOG = { base: up + 'assets/translations/', v: 'tti-20261027' };
+      var ok = /^(zh|en|ja|ko|es|fr)$/, c = window.RM_CATALOG = { base: up + 'assets/translations/', v: 'sample-20261026' };
       c.load = function () {
         var s; try { s = localStorage.getItem('rm-soft-lang'); } catch (e) {}
         var l = [new URLSearchParams(location.search).get('lang'), (location.hash.match(/^#(zh|en|ja|ko|es|fr)-/) || [])[1], s, window.RM_DEFAULT_LANG].filter(function (x) { return ok.test(x); })[0];
@@ -54,8 +54,8 @@
   </script>
   <script src="../assets/i18n.js?v=catalogs-20261004" defer></script>
   <script src="../assets/guides.js?v=docs-20261013" defer></script>
-  <script src="../assets/site-data.js?v=tti-20261026" defer></script>
-  <script src="../assets/footer.js?v=d9-nav-1" defer></script>
+  <script src="../assets/site-data.js?v=sample-20261026" defer></script>
+  <script src="../assets/footer.js?v=sample-20261026" defer></script>
   <script src="../assets/nav-glide.js?v=glide-1" defer></script>
 </head>
 <body class="guide-body guide-doc-body guide-accent-admin">
@@ -1691,6 +1691,10 @@
         <a href="https://github.com/orgs/RMinte-AI/discussions" target="_blank" rel="noopener noreferrer">
           <span data-footer-text="communityContact">产品与技术交流</span>
           <strong>GitHub Discussions</strong><svg class="contact-link-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg>
+        </a>
+        <a href="/sample-loan/#apply" data-sample-loan-open>
+          <span data-footer-text="sampleLoan">样机借用</span>
+          <strong data-footer-text="sampleApply">点此申请</strong><svg class="contact-link-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg>
         </a>
       </div>
     </div>

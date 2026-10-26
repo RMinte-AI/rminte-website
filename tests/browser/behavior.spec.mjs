@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 import {join} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {operationName,operationLanguages,navigationPath,checkNavigation} from '../../scripts/ci/routes.mjs';
-import {run,setup,openPage,inspectRoute,layout,afterURL,createBrowserAccount} from './helpers.mjs';
+import {run,setup,openPage,inspectRoute,layout,afterURL,createBrowserAccount,loginFixture} from './helpers.mjs';
 
 for(const descriptor of run.scope.pages)for(const language of operationLanguages(descriptor,run.scope.languages))for(const width of [1440,390]) {
   test.describe(operationName(descriptor,language,width),()=>{
@@ -23,6 +23,7 @@ for(const descriptor of run.scope.pages)for(const language of operationLanguages
         await testInfo.attach('HTTP route transition',{body:Buffer.from(JSON.stringify(route)),contentType:'application/json'});
         return;
       }
+      if(descriptor.id==='sample-admin')await loginFixture(page,afterURL,'after');
       await openPage(page,descriptor,language);
       await layout(page);
       const links=(await page.locator('a[href],area[href]').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('href')))).map(link=>navigationPath(link,page.url())).filter(Boolean);
@@ -30,7 +31,15 @@ for(const descriptor of run.scope.pages)for(const language of operationLanguages
       if(descriptor.generic) {
         expect(audit.problems).toEqual([]);return;
       }
-      if(descriptor.id==='admin') {
+      if(descriptor.id==='sample-admin') {
+        await expect(page.locator('#admin-view')).toBeVisible();
+        await page.locator('[data-admin-tab=machines]').click();
+        await expect(page.locator('#inventory-view')).toBeVisible();
+        await page.locator('#new-machine').click();
+        await page.locator('#machine-form button[type=submit]').click();
+        await expect(page.locator('#machine-form [aria-invalid=true]')).toHaveCount(2);
+        await page.keyboard.press('Escape');await expect(page.locator('#machine-dialog')).not.toBeVisible();
+      } else if(descriptor.id==='admin') {
         await expect(page.locator('#admin-login')).toBeVisible();
         const credentials=readFileSync(join(process.env.RMINTE_AFTER_FIXTURE,'services/case-access/.local/admin-login.txt'),'utf8');
         await page.locator('#admin-login input[name=username]').fill('admin');

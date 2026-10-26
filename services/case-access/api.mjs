@@ -1,3 +1,4 @@
+import {sampleAccess} from '../sample-loan/access.mjs';
 import {digest,passwordMac,hashAdminPassword,verifyPassword,encryptPassword,decryptPassword,randomString,randomPassword} from './crypto.mjs';
 import {resources} from './resources.mjs';
 import {dealerMaterials,MAX_DEALER_PDF_BYTES} from './dealer-materials.mjs';
@@ -23,12 +24,12 @@ function audit(env,actor,target,action,details){return env.CASE_DB.prepare('INSE
 export async function session(request,env){
  const raw=(request.headers.get('cookie')||'').split(';').map(x=>x.trim()).find(x=>x.startsWith(cookieName(request)+'='))?.split('=')[1];
  if(!raw||!/^[A-Za-z0-9]{48}$/.test(raw))return null;
- return env.CASE_DB.prepare('SELECT u.id,u.username,u.role,u.is_owner,u.disabled_at,u.must_change_password,u.can_download_dealer FROM sessions s JOIN users u ON u.id=s.user_id WHERE s.token_hash=? AND s.expires_at>? AND u.disabled_at IS NULL').bind(await digest(raw),now()).first();
+ return env.CASE_DB.prepare('SELECT s.token_hash AS session_hash,u.id,u.username,u.role,u.is_owner,u.disabled_at,u.must_change_password,u.can_download_dealer FROM sessions s JOIN users u ON u.id=s.user_id WHERE s.token_hash=? AND s.expires_at>? AND u.disabled_at IS NULL').bind(await digest(raw),now()).first();
 }
 async function publicUser(u,env){
  if(!u)return null;
  const grants=u.role==='user'?await env.CASE_DB.prepare('SELECT case_id FROM case_grants WHERE user_id=? ORDER BY case_id').bind(u.id).all():{results:[]};
- return {id:u.id,username:u.username,role:u.role,is_owner:!!u.is_owner,must_change_password:!!u.must_change_password,case_ids:grants.results.map(g=>g.case_id),all_cases:u.role==='admin'&&!u.must_change_password,resources:Object.fromEntries(caseIds.map(id=>[id,{demo:!!(resources[id]?.demoUrl||(resources[id]?.demoPath&&env.CASE_DEMOS)),download:!!(resources[id]?.fileKey&&env.CASE_FILES)}]))};
+ return {sampleAccess:await sampleAccess(u,env),id:u.id,username:u.username,role:u.role,is_owner:!!u.is_owner,must_change_password:!!u.must_change_password,case_ids:grants.results.map(g=>g.case_id),all_cases:u.role==='admin'&&!u.must_change_password,resources:Object.fromEntries(caseIds.map(id=>[id,{demo:!!(resources[id]?.demoUrl||(resources[id]?.demoPath&&env.CASE_DEMOS)),download:!!(resources[id]?.fileKey&&env.CASE_FILES)}]))};
 }
 async function limit(env,key,max,seconds){
  const t=now();const row=await env.CASE_DB.prepare('INSERT INTO rate_limits(key,hits,expires_at) VALUES(?,1,?) ON CONFLICT(key) DO UPDATE SET hits=CASE WHEN expires_at<=? THEN 1 ELSE hits+1 END,expires_at=CASE WHEN expires_at<=? THEN excluded.expires_at ELSE expires_at END RETURNING hits').bind(key,t+seconds,t,t).first();

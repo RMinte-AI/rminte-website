@@ -11,7 +11,10 @@
     "test:browser": "playwright test",
     "preview:ci": "node scripts/ci/serve.mjs",
     "build:footer": "node website/scripts/build-guides.mjs && node website/scripts/build-footer.mjs",
-    "check:footer": "node website/scripts/build-footer.mjs --check"
+    "check:footer": "node website/scripts/build-footer.mjs --check",
+    "test:sample-loan": "node --test services/sample-loan/tests/integration.test.mjs",
+    "test:sample-loan-pdf": "node services/sample-loan/tests/pdf.integration.mjs",
+    "preview:sample-loan": "node services/sample-loan/dev.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.64.1",
@@ -19,5 +22,16 @@
     "parse5": "8.0.1",
     "postcss": "8.5.30",
     "wrangler": "4.151.0"
+  },
+  "dependencies": {
+    "@cloudflare/puppeteer": "1.4.0"
+  },
+  "overrides": {
+    "miniflare": {
+      "undici": "7.30.1"
+    },
+    "get-uri": {
+      "basic-ftp": "6.2.3"
+    }
   }
 }

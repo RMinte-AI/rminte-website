@@ -1,0 +1,1333 @@
+<!doctype html>
+<html lang="zh-CN" class="product-theme">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <meta name="robots" content="noindex,nofollow" />
+    <script src="/assets/input-mode.js?v=input-2" defer></script>
+    <title>样机申请 · RMinte</title>
+    <link rel="icon" href="/assets/images/favicon.svg" />
+    <link rel="preload" as="image" href="assets/logo-print.svg" />
+    <link rel="stylesheet" href="/assets/brand.css?v=d10-1" />
+    <link
+      rel="stylesheet"
+      href="/assets/fonts/noto-sans-sc.css?v=sample-20261026"
+    />
+    <link rel="stylesheet" href="preview.css?v=close-20261026" />
+    <link rel="stylesheet" href="operations.css" />
+
+    <script type="module" src="admin.mjs?v=sample-1"></script>
+  </head>
+  <body>
+    <svg class="svg-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs>
+        <symbol id="i-close" viewBox="0 0 24 24">
+          <path d="m6 6 12 12M18 6 6 18" />
+        </symbol>
+        <symbol id="i-arrow" viewBox="0 0 24 24">
+          <path d="M4 12h16m-6-6 6 6-6 6" />
+        </symbol>
+        <symbol id="i-diagonal" viewBox="0 0 24 24">
+          <path d="M7 17 17 7M7 7h10v10" />
+        </symbol>
+        <symbol id="i-back" viewBox="0 0 24 24">
+          <path d="M20 12H4m6-6-6 6 6 6" />
+        </symbol>
+        <symbol id="i-check" viewBox="0 0 24 24">
+          <path d="m5 12 4.5 4.5L19 7" />
+        </symbol>
+        <symbol id="i-plus" viewBox="0 0 24 24">
+          <path d="M12 5v14M5 12h14" />
+        </symbol>
+        <symbol id="i-download" viewBox="0 0 24 24">
+          <path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5" />
+        </symbol>
+        <symbol id="i-search" viewBox="0 0 24 24">
+          <circle cx="10.5" cy="10.5" r="6.5" />
+          <path d="m16 16 5 5" />
+        </symbol>
+      </defs>
+    </svg>
+
+    <div id="admin-view">
+      <header class="admin-header wrap">
+        <a href="#admin" class="logo-link" aria-label="返回样机申请列表"
+          ><img src="/assets/images/logo-white.svg" alt="RMinte"
+        /></a>
+        <div class="admin-identity">
+          <span class="mono">—</span><span>—</span
+          ><a class="pill ghost" href="/cases/">返回案例</a
+          ><button class="pill ghost" type="button" id="configuration" hidden>
+            权限与收款配置</button
+          ><button class="pill ghost" type="button" id="logout">
+            退出登录
+          </button>
+        </div>
+      </header>
+      <nav class="admin-tabs wrap" aria-label="样机后台导航">
+        <a href="#admin" data-admin-tab="requests">样机申请</a
+        ><a href="#admin-machines" data-admin-tab="machines">样机管理</a>
+      </nav>
+      <main class="admin-main wrap">
+        <section id="inventory-view" hidden>
+          <div class="list-heading">
+            <div>
+              <p class="eyebrow">样机台账</p>
+              <h1>样机管理</h1>
+              <p class="muted">登记机器，查看当前借用与空闲状态。</p>
+            </div>
+          </div>
+          <div class="inventory-tools">
+            <p id="inventory-summary" class="fine"></p>
+            <div class="tools-right">
+              <label class="search"
+                ><svg><use href="#i-search" /></svg
+                ><span class="sr-only">搜索样机</span
+                ><input
+                  id="inventory-search"
+                  type="search"
+                  placeholder="SN / NO / 型号 / 备注" /></label
+              ><button type="button" class="pill primary" id="new-machine">
+                添加样机<svg><use href="#i-plus" /></svg>
+              </button>
+            </div>
+          </div>
+          <div class="inventory-table">
+            <div class="inventory-head">
+              <span>机器型号</span><span>NO / SN</span
+              ><span>备注 / 存储卡与配件</span><span>借用状态</span
+              ><span>操作</span>
+            </div>
+            <div id="inventory-rows"></div>
+          </div>
+          <p id="inventory-empty" class="empty" hidden>没有符合条件的样机。</p>
+          <p class="fine">
+            批复完成即占用样机并标记“已借出”，归还后恢复“空闲”。押金结算单独跟进；
+          </p>
+        </section>
+        <section id="admin-list">
+          <div class="list-heading">
+            <div>
+              <p class="eyebrow">管理后台</p>
+              <h1>样机申请</h1>
+              <p class="muted">查看申请、批复借期，并生成交付协议。</p>
+            </div>
+            <span class="list-total" id="list-total"></span>
+          </div>
+          <div class="list-tools">
+            <nav class="filter-tabs" aria-label="申请状态筛选">
+              <button type="button" data-filter="pending" aria-pressed="true">
+                待批复 <span id="pending-count"></span></button
+              ><button
+                type="button"
+                data-filter="approved"
+                aria-pressed="false"
+              >
+                已批复</button
+              ><button
+                type="button"
+                data-filter="rejected"
+                aria-pressed="false"
+              >
+                未通过</button
+              ><button
+                type="button"
+                data-filter="completed"
+                aria-pressed="false"
+              >
+                已完成</button
+              ><button type="button" data-filter="all" aria-pressed="false">
+                全部
+              </button>
+            </nav>
+            <label class="search"
+              ><svg><use href="#i-search" /></svg
+              ><span class="sr-only">搜索申请</span
+              ><input
+                type="search"
+                id="search"
+                placeholder="经销商名称 / 申请编号"
+            /></label>
+          </div>
+          <button type="button" class="sort-time sort-mobile" data-sort-time>
+            <span>提交时间</span><span data-sort-label>最晚优先</span
+            ><span data-sort-direction aria-hidden="true">↓</span>
+          </button>
+          <div class="request-table">
+            <div class="table-head">
+              <span>经销商 / 申请编号</span><span>申请型号</span
+              ><span>归还日期 / 剩余时间</span
+              ><button type="button" class="sort-time" data-sort-time>
+                <span>提交时间</span
+                ><span data-sort-direction aria-hidden="true">↓</span></button
+              ><span>状态</span><span id="list-action-label">详情</span>
+            </div>
+            <div id="request-rows"></div>
+            <p class="empty" id="list-empty" hidden>没有符合条件的申请。</p>
+          </div>
+          <button type="button" class="pill ghost" id="load-more" hidden>
+            加载更多
+          </button>
+          <p class="fine">
+            申请天数与批复借期分别记录。审批完成后下载 PDF，由工作人员人工发送。
+          </p>
+          <p class="fine" id="completion-hint" hidden>
+            右侧打勾表示已归还，单据将移入“已完成”。
+          </p>
+        </section>
+
+        <section id="admin-detail" hidden>
+          <button type="button" class="text-button back" id="back-to-list">
+            <svg><use href="#i-back" /></svg>返回申请列表
+          </button>
+          <div class="detail-heading">
+            <div>
+              <div class="detail-kicker">
+                <span class="mono" id="detail-id"></span
+                ><span class="status" id="detail-status"></span>
+              </div>
+              <h1 id="detail-title"></h1>
+              <p class="muted" id="detail-summary"></p>
+            </div>
+            <button type="button" class="pill ghost" id="preview-agreement">
+              <svg><use href="#i-diagonal" /></svg>预览协议
+            </button>
+          </div>
+          <div id="approval-result" class="result-strip" hidden>
+            <div>
+              <strong>批复已完成</strong>
+              <p>
+                请下载协议，人工发送至
+                <span id="approved-email"></span
+                >。系统不会自动发送邮件。邮件须载明报价及编号；实际足额到账、主体及授权核验完成后再发货。
+              </p>
+            </div>
+            <button type="button" class="pill primary" id="download-agreement">
+              <svg><use href="#i-download" /></svg>下载 PDF
+            </button>
+          </div>
+          <div id="rejected-result" class="result-strip" hidden>
+            <div>
+              <strong>申请未通过</strong>
+              <p id="rejected-reason"></p>
+              <p>请由工作人员将原因通知申请人。</p>
+            </div>
+          </div>
+          <div id="completion-result" class="completion-note" hidden>
+            <strong>已完成 · 已归还</strong>
+            <p id="completion-summary"></p>
+          </div>
+          <section id="loan-operations" class="loan-operations" hidden>
+            <div class="operations-top">
+              <div>
+                <h2>借用进度</h2>
+                <p id="detail-deadline" class="deadline-detail"></p>
+                <p class="fine">
+                  <span id="clock-status">正在校准服务器时间</span>
+                </p>
+              </div>
+              <div class="operations-actions">
+                <button type="button" class="pill ghost" id="edit-approved">
+                  修改资料</button
+                ><button type="button" class="pill ghost" id="extend-loan">
+                  延期处理</button
+                ><button type="button" class="text-button" id="cancel-loan">
+                  取消单据
+                </button>
+              </div>
+            </div>
+            <div id="detail-progress" class="progress-tags"></div>
+            <p id="progress-facts" class="fine"></p>
+            <section class="finance-panel">
+              <h3>押金与费用</h3>
+              <p id="finance-summary" class="fine"></p>
+              <div class="document-actions">
+                <button
+                  type="button"
+                  class="text-button"
+                  data-finance="deposit"
+                >
+                  登记收款</button
+                ><button
+                  type="button"
+                  class="text-button"
+                  data-finance="assessment"
+                >
+                  核定损坏 / 费用</button
+                ><button type="button" class="text-button" data-finance="apply">
+                  押金抵扣</button
+                ><button
+                  type="button"
+                  class="text-button"
+                  data-finance="refund"
+                >
+                  登记退款</button
+                ><button type="button" class="text-button" data-finance="close">
+                  确认结清
+                </button>
+              </div>
+              <div id="financial-events"></div>
+            </section>
+            <div class="document-actions" id="special-actions">
+              <button
+                type="button"
+                class="text-button"
+                data-special="reschedules"
+              >
+                更正发货前排期</button
+              ><button type="button" class="text-button" data-special="quotes">
+                更新报价</button
+              ><button
+                type="button"
+                class="text-button"
+                data-special="billing-basis-corrections"
+              >
+                更正整机价值</button
+              ><button type="button" class="text-button" data-special="loss">
+                核实丢失</button
+              ><button
+                type="button"
+                class="text-button"
+                data-special="loss-notice"
+              >
+                转赔偿通知</button
+              ><button
+                type="button"
+                class="text-button"
+                data-special="loss-close"
+              >
+                赔偿结案</button
+              ><button
+                type="button"
+                class="text-button"
+                data-special="correction"
+              >
+                更正操作记录</button
+              ><button
+                type="button"
+                class="text-button"
+                data-special="reversal"
+              >
+                更正资金录入</button
+              ><button
+                type="button"
+                class="text-button"
+                data-special="reconcile"
+              >
+                核对待认领款项</button
+              ><button
+                type="button"
+                class="text-button"
+                data-special="preservation"
+              >
+                资料保留 / 解除保留
+              </button>
+            </div>
+            <div id="edit-note" class="edit-note" hidden>
+              <p class="fine">
+                借期、报价及整机价值通过专门更正操作处理；本次只修改交付资料。
+              </p>
+              <label class="field"
+                ><span>修改原因 <em>必填</em></span
+                ><input
+                  id="revision-reason"
+                  placeholder="说明补充或更正了哪些内容" /></label
+              ><label class="check-field"
+                ><input id="sameLegalEntityConfirmed" type="checkbox" /><span
+                  >如更正名称或信用代码，确认仍为同一法律主体，并已更新核验记录；更换主体须另立申请</span
+                ></label
+              >
+              <div class="footer-actions">
+                <button type="button" class="pill ghost" id="cancel-revision">
+                  取消修改</button
+                ><button type="button" class="pill primary" id="save-revision">
+                  保存修改并生成新版本
+                </button>
+              </div>
+            </div>
+            <div class="document-actions">
+              <button type="button" class="text-button" id="agreement-history">
+                协议历史版本</button
+              ><button type="button" class="text-button" id="copy-email">
+                复制确认邮件正文</button
+              ><span id="current-revision" class="fine"></span>
+            </div>
+            <p id="cancelled-summary" class="fine" hidden></p>
+          </section>
+          <form id="approval-form" novalidate>
+            <div class="approval-layout">
+              <nav class="section-nav" aria-label="审批内容">
+                <a href="#section-applicant">申请人信息</a
+                ><a href="#section-schedule">借用安排</a
+                ><a href="#section-deposit">押金安排</a
+                ><a href="#section-machine">机器与配件</a
+                ><a href="#section-delivery">物流与地址</a
+                ><a href="#section-lender">出借方信息</a
+                ><a href="#section-photos">照片与附件</a
+                ><a href="#section-records">申请与批复记录</a>
+              </nav>
+              <div class="approval-sections">
+                <section class="form-section" id="section-applicant">
+                  <div class="section-heading">
+                    <div>
+                      <h2>申请人信息</h2>
+                      <p>信息将写入协议。原始提交内容另行保留。</p>
+                    </div>
+                  </div>
+                  <div class="field-grid">
+                    <label class="field span-2"
+                      ><span>经销商 / 借用主体名称 <em>必填</em></span
+                      ><input
+                        name="company"
+                        required
+                        autocomplete="organization"
+                    /></label>
+                    <label class="field"
+                      ><span>主体类型</span
+                      ><select name="entity">
+                        <option>公司</option>
+                        <option>个人</option>
+                      </select></label
+                    ><label class="field" data-admin-company
+                      ><span>统一社会信用代码 <em>选填</em></span
+                      ><input name="credit" placeholder="可不填写"
+                    /></label>
+                    <label class="field"
+                      ><span>联系人姓名 <em>必填</em></span
+                      ><input
+                        name="contact"
+                        required
+                        autocomplete="name" /></label
+                    ><label class="field"
+                      ><span>联系电话 <em>必填</em></span
+                      ><input
+                        name="phone"
+                        type="tel"
+                        required
+                        autocomplete="tel"
+                    /></label>
+                    <label class="field span-2"
+                      ><span>联系邮箱 <em>必填</em></span
+                      ><input
+                        name="email"
+                        type="email"
+                        required
+                        autocomplete="email"
+                      /><small
+                        >协议与通知按此邮箱处理，请核对申请人填写的信息。</small
+                      ></label
+                    >
+                    <label class="field span-2" data-admin-company
+                      ><span>注册地址 <em>必填</em></span
+                      ><textarea
+                        name="registeredAddress"
+                        required
+                        rows="2"
+                        placeholder="填写企业注册地址"
+                      ></textarea></label
+                    ><label class="field span-2"
+                      ><span>联系地址 <em>必填</em></span
+                      ><textarea
+                        name="companyAddress"
+                        required
+                        rows="2"
+                        placeholder="填写协议中的借用方联系地址"
+                      ></textarea>
+                    </label>
+                    <label class="field span-2"
+                      ><span>主体及授权核验记录 <em>必填</em></span
+                      ><textarea
+                        name="identityNotes"
+                        required
+                        rows="2"
+                        placeholder="记录核验方式、授权材料及结论；记录实际核验结果"
+                      ></textarea>
+                    </label>
+                    <label class="check-field span-2"
+                      ><input
+                        type="checkbox"
+                        name="identityVerified"
+                        value="yes"
+                        required
+                      /><span
+                        >已核对借用主体、申请人员身份及授权关系</span
+                      ></label
+                    >
+                  </div>
+                </section>
+                <section class="form-section" id="section-schedule">
+                  <div class="section-heading">
+                    <div>
+                      <h2>借用安排</h2>
+                      <p>申请人填写天数；具体出借日期和实际借期由你批复。</p>
+                    </div>
+                  </div>
+                  <div class="requested-note">
+                    <span>原始申请</span
+                    ><strong><b id="requested-days"></b> 天</strong
+                    ><span id="original-model"></span>
+                  </div>
+                  <div class="field-grid">
+                    <label class="field"
+                      ><span>借用起始时间 <em>必填</em></span
+                      ><input
+                        name="start"
+                        type="datetime-local"
+                        step="1"
+                        required /><small id="start-utc"></small></label
+                    ><label class="field"
+                      ><span>归还截止时间 <em>必填</em></span
+                      ><input name="end" type="date" required /><small
+                        >截止日北京时间23:59:59前实际送达，逾期从次日开始。</small
+                      ><small id="end-utc"></small
+                    ></label>
+                    <div class="schedule-summary span-2">
+                      <strong id="approved-days">请填写起止时间</strong
+                      ><span>含往返运输，到期前必须实际送达厂家。</span>
+                    </div>
+                    <label class="field span-2"
+                      ><span>批复备注</span
+                      ><textarea
+                        name="approvalNote"
+                        rows="2"
+                        placeholder="补充本次出借安排，不改写统一协议条款"
+                      ></textarea>
+                    </label>
+                  </div>
+                </section>
+                <section class="form-section" id="section-deposit">
+                  <div class="section-heading">
+                    <div>
+                      <h2>押金安排</h2>
+                      <p>
+                        押金24小时内汇出、足额到账后发货；报价人工核对，汇率由员工核对，邮件人工发送。
+                      </p>
+                    </div>
+                  </div>
+                  <div class="field-grid">
+                    <label class="field"
+                      ><span>押金币种 <em>必填</em></span
+                      ><select name="depositCurrency" required>
+                        <option value="CNY">CNY · 人民币</option>
+                        <option value="USD">USD · 美元</option>
+                      </select></label
+                    >
+                    <label class="field"
+                      ><span>应汇押金</span
+                      ><input
+                        name="depositAmount"
+                        readonly
+                        aria-describedby="deposit-help"
+                      /><small id="deposit-help"
+                        >人民币30,000元；美元按所填现汇买入价向上保留两位小数。</small
+                      ></label
+                    >
+                    <label class="field" data-usd-quote hidden
+                      ><span>中国银行美元现汇买入价 <em>必填</em></span
+                      ><input
+                        name="fxRate"
+                        type="number"
+                        min="0.0001"
+                        step="0.0001"
+                        placeholder="每100美元折合人民币"
+                        disabled
+                        required
+                    /></label>
+                    <label class="field" data-usd-quote hidden
+                      ><span>牌价发布时间（北京时间） <em>必填</em></span
+                      ><input
+                        name="fxAt"
+                        type="datetime-local"
+                        step="1"
+                        disabled
+                        required
+                      /><small
+                        >发送前核对最近一期牌价，报价在24小时汇款期限内固定。</small
+                      ></label
+                    >
+                    <label class="field span-2"
+                      ><span>拟付款主体 <em>必填</em></span
+                      ><input
+                        name="payer"
+                        required
+                        placeholder="原则上与借用主体一致"
+                    /></label>
+                    <label class="field span-2"
+                      ><span>第三方代付说明</span
+                      ><textarea
+                        name="payerNotes"
+                        rows="2"
+                        placeholder="如有代付，记录关系、申请编号及已确认的授权；否则留空"
+                      ></textarea>
+                    </label>
+                    <p class="fine span-2">
+                      人民币押金退人民币，美元押金退美元，原则上原路退回。实际手续费由申请人承担；甲方操作错误导致的额外费用由甲方承担。汇款截图不代表到账，确认邮件及到账须由员工实际核对。
+                    </p>
+                  </div>
+                </section>
+                <section class="form-section" id="section-machine">
+                  <div class="section-heading">
+                    <div>
+                      <h2>机器与配件</h2>
+                      <p>型号、SN、NO、整机价值和交付信息一并进入协议。</p>
+                    </div>
+                  </div>
+                  <div class="field-grid">
+                    <label class="field span-2"
+                      ><span>出借型号 <em>必填</em></span
+                      ><select name="model" required data-model-options></select
+                      ><small
+                        >沿用申请型号，在该配置下分配具体样机；申请型号保留在原始记录中。</small
+                      ></label
+                    >
+                    <div class="machine-picker span-2">
+                      <div class="picker-heading">
+                        <span>从台账选择实际出借样机 <em>必选</em></span
+                        ><a href="#admin-machines">管理样机 →</a>
+                      </div>
+                      <div id="machine-options" class="machine-options"></div>
+                      <p id="machine-selection-note" class="fine"></p>
+                    </div>
+                    <label class="field"
+                      ><span>机器序列号 SN <em>必填</em></span
+                      ><input
+                        name="sn"
+                        readonly
+                        required
+                        placeholder="填写该台机器的 SN" /></label
+                    ><label class="field"
+                      ><span>产品编号 NO <em>必填</em></span
+                      ><input
+                        name="no"
+                        readonly
+                        required
+                        placeholder="填写内部产品编号"
+                    /></label>
+                    <label class="field"
+                      ><span>所选配置整机价值 <em>必填</em></span
+                      ><input
+                        name="value"
+                        inputmode="decimal"
+                        type="number"
+                        min="0.01"
+                        step="0.01"
+                        required
+                        placeholder="审批时核定金额"
+                      /><small
+                        >每日 1% 的计费基数，不以未付赔偿款为基数。</small
+                      ></label
+                    ><label class="field"
+                      ><span>币种 <em>必填</em></span
+                      ><select name="currency">
+                        <option value="CNY">CNY · 人民币</option>
+                        <option value="USD">USD · 美元</option>
+                      </select></label
+                    >
+                    <label class="field span-2"
+                      ><span>存储卡品牌、型号及技术规格 <em>必填</em></span
+                      ><textarea
+                        name="cardSpecs"
+                        required
+                        rows="2"
+                        placeholder="品牌、型号、容量、接口及性能等级"
+                      ></textarea>
+                    </label>
+                    <label class="field span-2"
+                      ><span>存储卡可见序列号 <em>必填</em></span
+                      ><input
+                        name="cardSerial"
+                        required
+                        placeholder="与卡上可见序列号及交付照片一致"
+                    /></label>
+                    <label class="field span-2"
+                      ><span>样机默认账户信息</span
+                      ><textarea
+                        name="defaultAccountInfo"
+                        rows="6"
+                        autocomplete="off"
+                        placeholder="填写本台样机的默认账户、密码及相关说明，可分行填写"
+                      ></textarea
+                      ><small
+                        >内容将原样写入借用协议。借用方如有修改，归还前须恢复至此处记录的初始状态。</small
+                      ></label
+                    >
+                    <label class="field span-2"
+                      ><span>配件与包装清单 <em>必填</em></span
+                      ><textarea
+                        name="accessories"
+                        required
+                        rows="3"
+                        placeholder="逐项填写名称、数量与状态"
+                      ></textarea>
+                    </label>
+                    <label class="field span-2"
+                      ><span>外观与功能检查 <em>必填</em></span
+                      ><textarea
+                        name="inspection"
+                        required
+                        rows="3"
+                        placeholder="记录外观、划伤 / 损坏检查和功能测试结果"
+                      ></textarea>
+                    </label>
+                  </div>
+                </section>
+                <section class="form-section" id="section-delivery">
+                  <div class="section-heading">
+                    <div>
+                      <h2>物流与地址</h2>
+                      <p>
+                        往返运费及保价费均由申请人承担：寄出运费到付，寄回预付，双向足额保价。
+                      </p>
+                    </div>
+                  </div>
+                  <div class="field-grid">
+                    <label class="field"
+                      ><span>收件人 <em>必填</em></span
+                      ><input name="receiver" required /></label
+                    ><label class="field"
+                      ><span>收件电话 <em>必填</em></span
+                      ><input name="receiverPhone" type="tel" required
+                    /></label>
+                    <label class="field span-2"
+                      ><span>收货地址 <em>必填</em></span
+                      ><textarea
+                        name="shippingAddress"
+                        required
+                        rows="2"
+                        placeholder="省市区、街道及详细地址"
+                      ></textarea>
+                    </label>
+                    <label class="field"
+                      ><span>发出承运商</span
+                      ><input name="carrier" placeholder="填写承运商" /></label
+                    ><label class="field"
+                      ><span>发出快递单号</span
+                      ><input
+                        name="tracking"
+                        placeholder="填写已取得的快递单号"
+                    /></label>
+                    <label class="field"
+                      ><span>发出保价金额</span
+                      ><input name="insuredValue" readonly /><small
+                        >与审批填写的整机价值及币种一致，覆盖随附配件。</small
+                      ></label
+                    >
+                    <label class="field"
+                      ><span>保价凭证编号</span
+                      ><input
+                        name="insuranceProof"
+                        placeholder="已办理时填写凭证编号"
+                    /></label>
+                    <label class="field"
+                      ><span>归还收件人 <em>必填</em></span
+                      ><input name="returnName" required /></label
+                    ><label class="field"
+                      ><span>归还联系电话 <em>必填</em></span
+                      ><input name="returnPhone" type="tel" required /></label
+                    ><label class="field span-2"
+                      ><span>归还地址 <em>必填</em></span
+                      ><textarea
+                        name="returnAddress"
+                        required
+                        rows="2"
+                      ></textarea>
+                    </label>
+                  </div>
+                </section>
+                <section class="form-section" id="section-lender">
+                  <div class="section-heading">
+                    <div>
+                      <h2>出借方信息</h2>
+                      <p>沿用原协议信息，可在审批时核对、填写。</p>
+                    </div>
+                  </div>
+                  <div class="field-grid">
+                    <label class="field span-2"
+                      ><span>出借方名称 <em>必填</em></span
+                      ><input name="lender" required /></label
+                    ><label class="field"
+                      ><span>法定代表人</span
+                      ><input name="lenderRepresentative" /></label
+                    ><label class="field"
+                      ><span>联系电话 <em>必填</em></span
+                      ><input name="lenderPhone" type="tel" required /></label
+                    ><label class="field span-2"
+                      ><span>联系邮箱 <em>必填</em></span
+                      ><input name="lenderEmail" type="email" required /></label
+                    ><label class="field span-2"
+                      ><span>出借方地址 <em>必填</em></span
+                      ><textarea
+                        name="lenderAddress"
+                        required
+                        rows="2"
+                      ></textarea></label
+                    ><label class="field"
+                      ><span>协议日期 <em>必填</em></span
+                      ><input
+                        name="agreementDate"
+                        type="date"
+                        required /></label
+                    ><label class="field"
+                      ><span>交付检查时间</span
+                      ><input
+                        name="inspectionTime"
+                        type="datetime-local"
+                        step="1"
+                    /></label>
+                  </div>
+                </section>
+                <section class="form-section" id="section-photos">
+                  <div class="section-heading">
+                    <div>
+                      <h2>照片与附件</h2>
+                      <p>
+                        记录机器外观、SN /
+                        NO、存储卡可见序列号、配件、包装及保价凭证。图片随协议展示。
+                      </p>
+                    </div>
+                  </div>
+                  <label class="upload-zone"
+                    ><input
+                      id="photo-upload"
+                      type="file"
+                      accept="image/*"
+                      multiple
+                    /><svg><use href="#i-plus" /></svg><strong>添加图片</strong
+                    ><span>可多选，支持继续追加</span></label
+                  >
+                  <div class="photo-grid" id="photo-grid"></div>
+                  <p class="fine">
+                    原图单独保留；生成PDF时要求每张图片不超过 500K，并保留原图。
+                  </p>
+                  <label class="field attachment-notes"
+                    ><span>附件说明</span
+                    ><textarea
+                      name="attachmentNotes"
+                      rows="2"
+                      placeholder="补充照片对应的物品、位置或检查情况"
+                    ></textarea>
+                  </label>
+                </section>
+                <section class="form-section" id="section-records">
+                  <div class="section-heading">
+                    <div>
+                      <h2>申请与批复记录</h2>
+                      <p>系统记录单独保存，不覆盖为协议中的可编辑日期。</p>
+                    </div>
+                  </div>
+                  <dl class="audit-facts">
+                    <div>
+                      <dt>申请编号</dt>
+                      <dd id="record-id" class="mono"></dd>
+                    </div>
+                    <div>
+                      <dt>原始提交时间</dt>
+                      <dd id="record-submitted"></dd>
+                    </div>
+                    <div>
+                      <dt>协议条款版本</dt>
+                      <dd class="mono" id="record-version"></dd>
+                    </div>
+                    <div>
+                      <dt>重点条款二次确认</dt>
+                      <dd id="record-acceptance"></dd>
+                    </div>
+                    <div>
+                      <dt>批复人员</dt>
+                      <dd id="record-actor"></dd>
+                    </div>
+                    <div>
+                      <dt>审批完成时间</dt>
+                      <dd id="record-approved">尚未完成</dd>
+                    </div>
+                    <div>
+                      <dt>PDF 文件核验</dt>
+                      <dd><span id="pdf-status">尚未生成</span></dd>
+                    </div>
+                  </dl>
+                  <details class="original-details">
+                    <summary>查看原始申请与操作记录</summary>
+                    <div id="original-record"></div>
+                    <ol id="event-list" class="events"></ol>
+                    <p class="fine">提交来源及操作时间由服务器记录。</p>
+                  </details>
+                </section>
+              </div>
+            </div>
+            <div class="approval-footer">
+              <p id="form-message" role="status">
+                填写完成后，一次批复并生成协议。
+              </p>
+              <div class="footer-actions">
+                <button
+                  type="button"
+                  class="text-button"
+                  id="cancel-revision-bottom"
+                  hidden
+                >
+                  取消修改</button
+                ><button
+                  type="button"
+                  class="pill primary"
+                  id="save-revision-bottom"
+                  hidden
+                >
+                  保存修改</button
+                ><button type="button" class="text-button" id="reject-request">
+                  不予通过</button
+                ><button type="button" class="pill ghost" id="save-draft">
+                  保存草稿</button
+                ><button
+                  type="submit"
+                  class="pill primary"
+                  id="complete-approval"
+                >
+                  完成批复<svg><use href="#i-check" /></svg>
+                </button>
+              </div>
+            </div>
+          </form>
+        </section>
+        <section id="admin-denied" hidden>
+          <h1>没有访问权限</h1>
+          <p class="muted">样机申请后台仅限主管理员和具备批复权限的管理员。</p>
+          <a class="pill ghost" href="/cases/">前往案例页登录</a>
+        </section>
+      </main>
+    </div>
+
+    <dialog
+      id="agreement-dialog"
+      class="large-dialog agreement-dialog"
+      aria-labelledby="agreement-title"
+    >
+      <div class="dialog-top">
+        <h2 id="agreement-title">借用协议</h2>
+        <span id="agreement-mode">申请前查看</span
+        ><button
+          class="contact-close"
+          type="button"
+          data-close
+          aria-label="关闭借用协议"
+        >
+          <svg><use href="#i-close" /></svg>
+        </button>
+      </div>
+      <div class="agreement-scroll">
+        <p class="document-notice" id="document-notice">
+          在线阅读视图；交付以对应版本的存档PDF为准
+        </p>
+        <article id="agreement-document" class="agreement-document"></article>
+      </div>
+      <div class="agreement-footer">
+        <p id="agreement-footer-note">
+          固定条款在申请时展示，实际交付信息由管理员批复填入。
+        </p>
+        <button class="pill ghost" type="button" id="print-agreement" hidden>
+          <svg><use href="#i-download" /></svg>下载存档 PDF</button
+        ><button class="pill primary" type="button" data-close>返回</button>
+      </div>
+    </dialog>
+    <dialog
+      id="reject-dialog"
+      class="small-dialog"
+      aria-labelledby="reject-title"
+    >
+      <form id="reject-form" novalidate>
+        <div class="contact-top">
+          <h2 id="reject-title">不予通过</h2>
+          <button
+            type="button"
+            class="contact-close"
+            data-close
+            aria-label="关闭拒绝申请"
+          >
+            <svg><use href="#i-close" /></svg>
+          </button>
+        </div>
+        <p class="muted">记录原因，由工作人员人工通知申请人。</p>
+        <label class="field"
+          ><span>未通过原因</span
+          ><textarea
+            id="reject-reason"
+            required
+            rows="4"
+            placeholder="填写具体原因"
+          ></textarea>
+        </label>
+        <div class="footer-actions">
+          <button type="button" class="pill ghost" data-close>取消</button
+          ><button class="pill primary" type="submit">确认不予通过</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog
+      id="machine-dialog"
+      class="small-dialog"
+      aria-labelledby="machine-title"
+    >
+      <form id="machine-form" novalidate>
+        <div class="contact-top">
+          <h2 id="machine-title">添加样机</h2>
+          <button
+            type="button"
+            class="contact-close"
+            data-close
+            aria-label="关闭样机登记"
+          >
+            <svg><use href="#i-close" /></svg>
+          </button>
+        </div>
+        <div class="dialog-fields">
+          <label class="field"
+            ><span>机器型号</span
+            ><select name="model" required data-model-options></select></label
+          ><label class="field"
+            ><span>产品编号 NO</span><input name="no" required /></label
+          ><label class="field"
+            ><span>序列号 SN</span><input name="sn" required /></label
+          ><label class="field"
+            ><span>台账状态</span
+            ><select name="lifecycle">
+              <option value="active">正常可借</option>
+              <option value="lost">已丢失，不可借</option>
+              <option value="retired">停用，不可借</option></select
+            ><small
+              >找回后检查合格才恢复可借，并在备注记录实际情况；不自动撤销原赔偿。</small
+            ></label
+          ><label class="field"
+            ><span>备注 / 存储卡及配件</span
+            ><textarea
+              name="notes"
+              rows="4"
+              placeholder="记录存储卡、配件和其他说明"
+            ></textarea>
+          </label>
+          <p class="fine" id="machine-edit-note"></p>
+          <p class="inline-message" id="machine-error" role="alert" hidden></p>
+        </div>
+        <div class="footer-actions">
+          <button type="button" class="pill ghost" data-close>取消</button
+          ><button type="submit" class="pill primary">保存样机</button>
+        </div>
+      </form>
+    </dialog>
+    <dialog
+      id="progress-dialog"
+      class="small-dialog"
+      aria-labelledby="progress-title"
+    >
+      <form id="progress-form" novalidate>
+        <div class="contact-top">
+          <h2 id="progress-title">完成标记</h2>
+          <button
+            type="button"
+            class="contact-close"
+            data-close
+            aria-label="关闭进度确认"
+          >
+            <svg><use href="#i-close" /></svg>
+          </button>
+        </div>
+        <p class="muted" id="progress-description"></p>
+        <div class="dialog-fields">
+          <label class="field" id="progress-time-field"
+            ><span id="progress-time-label">实际发生时间（北京时间）</span
+            ><input
+              id="progress-time"
+              type="datetime-local"
+              step="1"
+              required /></label
+          ><label class="field"
+            ><span>备注</span
+            ><textarea id="progress-note" rows="2"></textarea></label
+          ><label class="field" data-finance-field id="finance-money-field"
+            ><span>实际金额</span
+            ><input
+              id="finance-amount"
+              inputmode="decimal"
+              type="number"
+              step="0.01"
+              min="0.01"
+          /></label>
+          <label class="field" data-finance-field
+            ><span>币种</span
+            ><select id="finance-currency">
+              <option>CNY</option>
+              <option>USD</option>
+            </select></label
+          >
+          <label class="field" data-finance-field id="finance-reference-field"
+            ><span>银行 / 业务凭证编号</span><input id="finance-reference"
+          /></label>
+          <label class="field" data-finance-field id="finance-purpose-field"
+            ><span>收款用途</span
+            ><select id="finance-purpose">
+              <option value="deposit">押金</option>
+              <option value="compensation">额外赔偿款</option>
+              <option value="unmatched">待核对款项</option>
+            </select></label
+          >
+          <label class="field" data-finance-field
+            ><span>对应冻结报价</span
+            ><select id="finance-quote"></select
+          ></label>
+          <label class="field" data-finance-field
+            ><span>对应应收项目（赔偿 / 抵扣时选择）</span
+            ><select id="finance-assessment"></select
+          ></label>
+          <label
+            class="check-field"
+            data-finance-field
+            id="finance-complete-field"
+            ><input id="finance-complete" type="checkbox" /><span
+              >本次已完成全部损坏、缺件及费用核定；零元也须在备注说明</span
+            ></label
+          >
+          <label
+            class="check-field"
+            data-finance-field
+            id="finance-exception-field"
+            ><input id="finance-exception" type="checkbox" /><span
+              >登记已经实际发生的异常收支（保留待核对，不能自动结清）</span
+            ></label
+          >
+          <p id="progress-error" class="inline-message" role="alert" hidden></p>
+        </div>
+        <div class="footer-actions">
+          <button type="button" class="pill ghost" data-close>取消</button
+          ><button type="submit" class="pill primary">确认完成</button>
+        </div>
+      </form>
+    </dialog>
+    <dialog
+      id="extension-dialog"
+      class="small-dialog"
+      aria-labelledby="extension-title"
+    >
+      <form id="extension-form" novalidate>
+        <div class="contact-top">
+          <h2 id="extension-title">延期处理</h2>
+          <button
+            type="button"
+            class="contact-close"
+            data-close
+            aria-label="关闭延期处理"
+          >
+            <svg><use href="#i-close" /></svg>
+          </button>
+        </div>
+        <p id="extension-current" class="muted"></p>
+        <div class="dialog-fields">
+          <label class="field"
+            ><span>收到延期申请的时间（北京时间）</span
+            ><input
+              id="extension-received"
+              type="datetime-local"
+              step="1"
+              required /></label
+          ><label class="field"
+            ><span>处理结果</span
+            ><select id="extension-decision">
+              <option value="approve">批准延期</option>
+              <option value="reject">拒绝延期</option>
+            </select></label
+          ><label class="field"
+            ><span>申请延至 / 新归还截止日</span
+            ><input id="extension-end" type="date" required /></label
+          ><label class="field"
+            ><span>处理原因</span
+            ><textarea id="extension-reason" required rows="3"></textarea>
+          </label>
+          <p
+            id="extension-error"
+            class="inline-message"
+            role="alert"
+            hidden
+          ></p>
+        </div>
+        <div class="footer-actions">
+          <button type="button" class="pill ghost" data-close>取消</button
+          ><button type="submit" class="pill primary">保存处理结果</button>
+        </div>
+      </form>
+    </dialog>
+    <dialog
+      id="cancel-loan-dialog"
+      class="small-dialog"
+      aria-labelledby="cancel-loan-title"
+    >
+      <form id="cancel-loan-form" novalidate>
+        <div class="contact-top">
+          <h2 id="cancel-loan-title">取消单据</h2>
+          <button
+            type="button"
+            class="contact-close"
+            data-close
+            aria-label="关闭取消单据"
+          >
+            <svg><use href="#i-close" /></svg>
+          </button>
+        </div>
+        <p class="muted">
+          仅适用于尚未实际寄出的单据。机器已寄出时，请完成归还流程；取消不删除原协议和押金记录。
+        </p>
+        <label class="field"
+          ><span>取消原因</span
+          ><textarea id="cancel-loan-reason" required rows="3"></textarea>
+        </label>
+        <p
+          id="cancel-loan-error"
+          class="inline-message"
+          role="alert"
+          hidden
+        ></p>
+        <div class="footer-actions">
+          <button type="button" class="pill ghost" data-close>保留单据</button
+          ><button type="submit" class="pill primary">确认取消</button>
+        </div>
+      </form>
+    </dialog>
+    <dialog
+      id="history-dialog"
+      class="small-dialog"
+      aria-labelledby="history-title"
+    >
+      <div class="contact-top">
+        <h2 id="history-title">协议历史版本</h2>
+        <button
+          type="button"
+          class="contact-close"
+          data-close
+          aria-label="关闭协议历史"
+        >
+          <svg><use href="#i-close" /></svg>
+        </button>
+      </div>
+      <p class="muted">
+        每次修改保留原版和原因；历史版本供核对，交付请使用当前版本。
+      </p>
+      <div id="history-list" class="history-list"></div>
+    </dialog>
+    <dialog
+      id="email-dialog"
+      class="large-dialog"
+      aria-labelledby="email-title"
+    >
+      <div class="dialog-top">
+        <h2 id="email-title">确认邮件正文</h2>
+        <button
+          type="button"
+          class="contact-close"
+          data-close
+          aria-label="关闭邮件正文"
+        >
+          <svg><use href="#i-close" /></svg>
+        </button>
+      </div>
+      <div class="email-content">
+        <p class="fine">
+          请先下载当前版本协议并作为附件添加。收款账户未配置时须补充后再发送；复制不代表已发送或已送达。
+        </p>
+        <label class="field"
+          ><span>主题</span><input id="email-subject" readonly /></label
+        ><label class="field"
+          ><span>正文</span
+          ><textarea id="email-body" rows="20" readonly></textarea>
+        </label>
+        <p id="clipboard-status" class="fine" role="status"></p>
+      </div>
+      <div class="agreement-footer">
+        <button type="button" class="pill ghost" id="copy-email-subject">
+          复制主题</button
+        ><button type="button" class="pill primary" id="copy-email-body">
+          复制正文
+        </button>
+      </div>
+    </dialog>
+    <dialog id="special-dialog" class="small-dialog">
+      <form id="special-form" novalidate>
+        <div class="contact-top">
+          <h2 id="special-title"></h2>
+          <button
+            class="contact-close"
+            type="button"
+            data-close
+            aria-label="关闭"
+          >
+            <svg><use href="#i-close" /></svg>
+          </button>
+        </div>
+        <div class="dialog-fields" id="special-fields"></div>
+        <label class="field"
+          ><span>原因 / 核对说明</span
+          ><textarea name="reason" required rows="3"></textarea>
+        </label>
+        <div class="footer-actions">
+          <button type="button" class="pill ghost" data-close>取消</button
+          ><button type="submit" class="pill primary">保存处理结果</button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="settings-dialog" class="small-dialog">
+      <div class="contact-top">
+        <h2>权限与收款配置</h2>
+        <button
+          class="contact-close"
+          type="button"
+          data-close
+          aria-label="关闭"
+        >
+          <svg><use href="#i-close" /></svg>
+        </button>
+      </div>
+      <p class="fine">
+        只保存已核对的公司收款信息。配置变更留存版本；不自动汇款或发邮件。
+      </p>
+      <form id="settings-form" novalidate>
+        <div class="dialog-fields">
+          <label class="field"
+            ><span>人民币收款信息</span
+            ><textarea name="CNY" rows="5"></textarea></label
+          ><label class="field"
+            ><span>美元收款信息</span><textarea name="USD" rows="5"></textarea>
+          </label>
+        </div>
+        <div class="footer-actions">
+          <button type="submit" class="pill primary">保存收款配置</button>
+        </div>
+      </form>
+      <div id="grant-list"></div>
+      <form id="calendar-form" novalidate>
+        <h3>退款工作日历</h3>
+        <p class="fine">
+          按已核对的法定假日与调休维护；未覆盖的日期不推算退款截止日。
+        </p>
+        <div class="dialog-fields">
+          <label class="field"
+            ><span>覆盖开始日期</span
+            ><input name="validFrom" type="date" required /></label
+          ><label class="field"
+            ><span>覆盖截止日期</span
+            ><input name="validUntil" type="date" required /></label
+          ><label class="field"
+            ><span>额外休息日（每行 YYYY-MM-DD）</span
+            ><textarea name="holidays" rows="4"></textarea></label
+          ><label class="field"
+            ><span>调休工作日（每行 YYYY-MM-DD）</span
+            ><textarea name="workingDates" rows="4"></textarea>
+          </label>
+        </div>
+        <div class="footer-actions">
+          <button type="submit" class="pill primary">保存工作日历</button>
+        </div>
+      </form>
+    </dialog>
+    <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+    <div id="print-root"></div>
+  </body>
+</html>

@@ -9,6 +9,7 @@ export const configurationProfiles={
   caseService:[
     {file:'services/case-access/wrangler.jsonc',kind:'pages'}
   ],
+  sampleLoan:[{file:'services/sample-loan/wrangler.jsonc',kind:'worker'}],
   caseMigrations:[{file:'services/case-access/production.jsonc',kind:'d1',binding:'CASE_DB'}],
   ota:[{file:'services/tianshanos-ota/wrangler.jsonc',kind:'worker'}],
   caseDemos:[{file:'services/case-demos/wrangler.jsonc',kind:'worker'}]

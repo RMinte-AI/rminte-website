@@ -67,6 +67,7 @@
   });
   popover.addEventListener('click', (event) => event.stopPropagation());
   close.addEventListener('click', () => setOpen(false));
+  popover.querySelector('[data-sample-loan-open]')?.addEventListener('click',async event=>{event.preventDefault();setOpen(false);const {openApplication}=await import('/sample-loan/application.mjs?v=sample-1');await openApplication(toggle);});
   document.addEventListener('click', () => setOpen(false));
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') setOpen(false);

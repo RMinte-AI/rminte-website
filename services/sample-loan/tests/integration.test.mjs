@@ -1,0 +1,664 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+  writeFileSync,
+  rmSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { digest } from "../../case-access/crypto.mjs";
+import { handleSampleApi } from "../api.mjs";
+import { maintainData, workingDeadline } from "../maintenance.mjs";
+import { project } from "../finance.mjs";
+import { terms } from "../agreements.mjs";
+import { application, draft } from "./fixtures.mjs";
+const origin = "http://127.0.0.1:8999";
+test("financial projection keeps individual debts and the latest assessment decision", () => {
+  const assessments = [
+    { id: "a", currency: "CNY", amount_minor: 100, completed: 1 },
+    { id: "b", currency: "CNY", amount_minor: 100, completed: 1 },
+  ];
+  const entries = [
+    {
+      id: "cash",
+      kind: "receipt",
+      currency: "CNY",
+      amount_minor: 200,
+      assessment_id: "a",
+      details_json: '{"purpose":"compensation"}',
+    },
+  ];
+  const invalid = project(entries, assessments, [], null);
+  assert.equal(invalid.balanced, false);
+  assert.equal(invalid.reconciliation, true);
+  assert.equal(
+    project(
+      [],
+      [
+        { ...assessments[0], amount_minor: 0 },
+        { ...assessments[1], amount_minor: 0, completed: 0 },
+      ],
+      [],
+      null,
+    ).assessmentComplete,
+    false,
+  );
+});
+test("persistent API: authorization, atomic allocation, immutable revisions, real money and late receipts", async () => {
+  const root = mkdtempSync(join(tmpdir(), "sample-loan-api-"));
+  writeFileSync(
+    join(root, "wrangler.jsonc"),
+    JSON.stringify({
+      name: "sample-loan-fixture",
+      compatibility_date: "2026-10-26",
+      compatibility_flags: ["nodejs_compat"],
+      d1_databases: [
+        {
+          binding: "CASE_DB",
+          database_name: "sample",
+          database_id: "00000000-0000-0000-0000-000000000001",
+        },
+      ],
+      r2_buckets: [{ binding: "SAMPLE_FILES", bucket_name: "sample-files" }],
+    }),
+  );
+  process.env.XDG_CONFIG_HOME = join(root, "config");
+  process.env.WRANGLER_LOG_PATH = join(root, "logs");
+  process.env.WRANGLER_REGISTRY_PATH = join(root, "registry");
+  process.env.WRANGLER_SEND_METRICS = "false";
+  const { getPlatformProxy } = await import("wrangler");
+  const platform = await getPlatformProxy({
+    configPath: join(root, "wrangler.jsonc"),
+    persist: false,
+    remoteBindings: false,
+    envFiles: [],
+  });
+  const env = {
+    ...platform.env,
+    CASE_SECRET: "c".repeat(64),
+    SAMPLE_SECRET: "s".repeat(64),
+  };
+  const api = async (
+    path,
+    { method = "GET", data, cookie = "owner", key = crypto.randomUUID() } = {},
+  ) => {
+    const response = await handleSampleApi(
+      new Request(origin + path, {
+        method,
+        headers: {
+          Origin: origin,
+          ...(cookie
+            ? { Cookie: "rminte_local_session=" + cookie.padEnd(48, "x") }
+            : {}),
+          "Idempotency-Key": key,
+          ...(data ? { "Content-Type": "application/json" } : {}),
+        },
+        body: data ? JSON.stringify(data) : undefined,
+      }),
+      env,
+    );
+    const result = await response.json();
+    return { status: response.status, ...result };
+  };
+  try {
+    const migrations = new URL(
+      "../../case-access/migrations/",
+      import.meta.url,
+    );
+    for (const name of readdirSync(migrations)
+      .filter((f) => f.endsWith(".sql"))
+      .sort()) {
+      const sql = readFileSync(new URL(name, migrations), "utf8")
+        .replace(/^--.*$/gm, "")
+        .replaceAll("\n", " ");
+      await env.CASE_DB.exec(sql);
+    }
+    await env.CASE_DB.exec(
+      "UPDATE access_settings SET ready=1; INSERT INTO users(id,username,role,password_mac,created_at,is_owner,must_change_password) VALUES('owner','admin','admin','unused',1,1,0),('reviewer','reviewer','admin','unused',1,0,0),('ordinary','ordinary','user','unused',1,0,0)",
+    );
+    for (const id of ["owner", "reviewer", "ordinary"])
+      await env.CASE_DB.prepare(
+        "INSERT INTO sessions(token_hash,user_id,expires_at) VALUES(?,?,?)",
+      )
+        .bind(
+          await digest(id.padEnd(48, "x")),
+          id,
+          Math.floor(Date.now() / 1000) + 86400,
+        )
+        .run();
+    assert.equal(
+      (await api("/api/sample-admin/assets", { cookie: null })).status,
+      401,
+    );
+    assert.equal(
+      (await api("/api/sample-admin/assets", { cookie: "reviewer" })).status,
+      403,
+    );
+    assert.equal(
+      (await api("/api/sample-admin/assets", { cookie: "ordinary" })).status,
+      403,
+    );
+    assert.equal(
+      (
+        await api("/api/sample-admin/grants", {
+          method: "POST",
+          data: { userId: "reviewer", enabled: true },
+        })
+      ).status,
+      200,
+    );
+    assert.equal(
+      (await api("/api/sample-admin/assets", { cookie: "reviewer" })).status,
+      200,
+    );
+    const asset = await api("/api/sample-admin/assets", {
+      method: "POST",
+      data: {
+        modelKey: application.modelKey,
+        no: " NO-a ",
+        sn: "SN-a",
+        notes: "验证样机",
+      },
+    });
+    assert.equal(asset.status, 201, JSON.stringify(asset));
+    const duplicate = await api("/api/sample-admin/assets", {
+      method: "POST",
+      data: {
+        modelKey: application.modelKey,
+        no: "no-A",
+        sn: "other",
+        notes: "",
+      },
+    });
+    assert.equal(duplicate.status, 409);
+    const t = (await api("/api/sample-loans/terms", { cookie: null })).terms;
+    const payload = {
+      ...application,
+      consent: {
+        termsVersion: t.version,
+        noticeVersion: t.noticeVersion,
+        accepted: true,
+        noStockShown: false,
+      },
+    };
+    const key = crypto.randomUUID(),
+      one = await api("/api/sample-loans/applications", {
+        method: "POST",
+        data: payload,
+        cookie: null,
+        key,
+      }),
+      same = await api("/api/sample-loans/applications", {
+        method: "POST",
+        data: payload,
+        cookie: null,
+        key,
+      });
+    assert.equal(one.status, 201, JSON.stringify(one));
+    assert.equal(one.id, same.id);
+    const previousClauses = terms.clauses,
+      previousVersion = terms.version;
+    try {
+      terms.version = "NEXT-TERMS-VERSION";
+      const replayOld = await api("/api/sample-loans/applications", {
+        method: "POST",
+        data: payload,
+        cookie: null,
+        key,
+      });
+      assert.equal(replayOld.id, one.id);
+      assert.equal(
+        (
+          await api("/api/sample-loans/applications", {
+            method: "POST",
+            data: payload,
+            cookie: null,
+          })
+        ).code,
+        "TERMS_CHANGED",
+      );
+      terms.version = previousVersion;
+      terms.clauses += "\n变更条款但未更新版本号";
+      const replay = await api("/api/sample-loans/applications", {
+        method: "POST",
+        data: payload,
+        cookie: null,
+        key,
+      });
+      assert.equal(replay.id, one.id);
+      const collision = await api("/api/sample-loans/applications", {
+        method: "POST",
+        data: payload,
+        cookie: null,
+      });
+      assert.equal(collision.code, "TERMS_VERSION_CONFLICT");
+      assert.equal(
+        (
+          await env.CASE_DB.prepare(
+            "SELECT COUNT(*) AS n FROM sample_requests",
+          ).first()
+        ).n,
+        1,
+      );
+    } finally {
+      terms.clauses = previousClauses;
+      terms.version = previousVersion;
+    }
+    const two = await api("/api/sample-loans/applications", {
+      method: "POST",
+      data: payload,
+      cookie: null,
+    });
+    assert.notEqual(one.publicNo, two.publicNo);
+    const d = draft();
+    delete d.requestedDays;
+    const command = {
+      expectedRowVersion: 1,
+      expectedAssetVersion: 1,
+      assetId: asset.id,
+      fileIds: [],
+      draft: d,
+    };
+    const race = await Promise.all([
+      api(`/api/sample-admin/requests/${one.id}/approve`, {
+        method: "POST",
+        data: command,
+      }),
+      api(`/api/sample-admin/requests/${two.id}/approve`, {
+        method: "POST",
+        data: command,
+      }),
+    ]);
+    assert.deepEqual(
+      race.map((r) => r.status).sort(),
+      [200, 409],
+      JSON.stringify(race),
+    );
+    const winner = race.find((r) => r.status === 200).request;
+    assert.equal(winner.currentAgreementRevision, 1);
+    assert.equal(
+      winner.agreement.equipment.defaultAccountInfo,
+      d.equipment.defaultAccountInfo,
+    );
+    assert.equal(winner.agreement.billingBasis.value.amountMinor, "5000000");
+    assert.equal(
+      (
+        await api(
+          "/api/sample-loans/availability?modelKey=" + application.modelKey,
+          { cookie: null },
+        )
+      ).availability,
+      "unavailable",
+    );
+    assert.equal(
+      (await api(`/api/sample-admin/requests/${winner.id}/versions/1/delivery`))
+        .code,
+      "DOCUMENT_NOT_READY",
+    );
+    // The consumer may acquire a failed job between the retry read and its transaction.
+    await env.CASE_DB.prepare(
+      "UPDATE sample_jobs SET status='retry_wait' WHERE request_id=?",
+    )
+      .bind(winner.id)
+      .run();
+    const racingDb = {
+      prepare: env.CASE_DB.prepare.bind(env.CASE_DB),
+      batch: async (statements) => {
+        await env.CASE_DB.prepare(
+          "UPDATE sample_jobs SET status='processing' WHERE request_id=?",
+        )
+          .bind(winner.id)
+          .run();
+        return env.CASE_DB.batch(statements);
+      },
+    };
+    const retry = await handleSampleApi(
+      new Request(
+        origin + `/api/sample-admin/requests/${winner.id}/versions/1/retry`,
+        {
+          method: "POST",
+          headers: {
+            Origin: origin,
+            Cookie: "rminte_local_session=" + "owner".padEnd(48, "x"),
+            "Content-Type": "application/json",
+            "Idempotency-Key": crypto.randomUUID(),
+          },
+          body: JSON.stringify({ expectedRowVersion: winner.rowVersion }),
+        },
+      ),
+      { ...env, CASE_DB: racingDb },
+    );
+    assert.equal(retry.status, 409);
+    assert.equal(
+      (
+        await env.CASE_DB.prepare(
+          "SELECT status FROM sample_jobs WHERE request_id=?",
+        )
+          .bind(winner.id)
+          .first()
+      ).status,
+      "processing",
+    );
+    const cancelled = await api(
+      `/api/sample-admin/requests/${winner.id}/cancel`,
+      {
+        method: "POST",
+        data: { expectedRowVersion: winner.rowVersion, reason: "暂缓未发出" },
+      },
+    );
+    assert.equal(cancelled.request.status, "cancelled");
+    const late = await api(
+      `/api/sample-admin/requests/${winner.id}/finances/receipts`,
+      {
+        method: "POST",
+        data: {
+          expectedRowVersion: cancelled.request.rowVersion,
+          money: { currency: "CNY", amountMinor: "3000000" },
+          occurredAt: new Date().toISOString(),
+          reference: "BANK-001",
+          quoteId: winner.quotes[0].id,
+          purpose: "deposit",
+          note: "取消后真实到账",
+        },
+      },
+    );
+    assert.equal(late.status, 200, JSON.stringify(late));
+    assert.equal(late.request.status, "cancelled");
+    assert.equal(late.request.finance.byCurrency.CNY.balanceMinor, "3000000");
+    assert.equal(
+      (
+        await api(
+          "/api/sample-loans/availability?modelKey=" + application.modelKey,
+          { cookie: null },
+        )
+      ).availability,
+      "available",
+    );
+    const wrong = await api(
+      `/api/sample-admin/requests/${winner.id}/finances/refunds`,
+      {
+        method: "POST",
+        data: {
+          expectedRowVersion: late.request.rowVersion,
+          money: { currency: "CNY", amountMinor: "3000001" },
+          occurredAt: new Date().toISOString(),
+          reference: "OUT-001",
+          note: "超额计划",
+        },
+      },
+    );
+    assert.equal(wrong.code, "REFUND_EXCEEDS_BALANCE");
+    const refundData = {
+        expectedRowVersion: late.request.rowVersion,
+        money: { currency: "CNY", amountMinor: "1000000" },
+        occurredAt: new Date().toISOString(),
+        reference: "OUT-002",
+        note: "部分原币退还",
+      },
+      refundKey = crypto.randomUUID();
+    const partial = await api(
+      `/api/sample-admin/requests/${winner.id}/finances/refunds`,
+      { method: "POST", data: refundData, key: refundKey },
+    );
+    assert.equal(
+      partial.request.finance.byCurrency.CNY.balanceMinor,
+      "2000000",
+    );
+    const repeat = await api(
+      `/api/sample-admin/requests/${winner.id}/finances/refunds`,
+      { method: "POST", data: refundData, key: refundKey },
+    );
+    assert.equal(repeat.status, 200);
+    assert.equal(
+      repeat.request.entries.filter((e) => e.kind === "refund").length,
+      1,
+    );
+    const moneyChange = async (action, data) => {
+      const current = (await api(`/api/sample-admin/requests/${winner.id}`))
+        .request;
+      const response = await api(
+        `/api/sample-admin/requests/${winner.id}/finances/${action}`,
+        {
+          method: "POST",
+          data: { ...data, expectedRowVersion: current.rowVersion },
+        },
+      );
+      assert.equal(response.status, 200, JSON.stringify(response));
+      return response;
+    };
+    await moneyChange("reversal", {
+      money: refundData.money,
+      occurredAt: new Date().toISOString(),
+      note: "纠正退款录入",
+      reversesEntryId: partial.entryId,
+      confirmedRecordingError: true,
+    });
+    const correctedRefund = await moneyChange("refunds", {
+      ...refundData,
+      money: { currency: "CNY", amountMinor: "2000000" },
+    });
+    assert.equal(
+      correctedRefund.request.finance.byCurrency.CNY.refundedMinor,
+      "2000000",
+    );
+    assert.equal(
+      correctedRefund.request.entries.filter((e) => e.reference === "OUT-002")
+        .length,
+      2,
+    );
+    const unmatched = await moneyChange("receipts", {
+      money: { currency: "CNY", amountMinor: "1" },
+      occurredAt: new Date().toISOString(),
+      reference: "UNMATCHED-001",
+      purpose: "unmatched",
+    });
+    const classified = await moneyChange("reconcile", {
+      sourceEntryId: unmatched.entryId,
+      purpose: "deposit",
+      quoteId: winner.quotes[0].id,
+      note: "首次核对",
+    });
+    const undone = await moneyChange("reversal", {
+      money: { currency: "CNY", amountMinor: "0" },
+      occurredAt: new Date().toISOString(),
+      note: "纠正用途核对",
+      reversesEntryId: classified.entryId,
+      confirmedRecordingError: true,
+    });
+    assert.equal(undone.request.finance.reconciliation, true);
+    const reclassified = await moneyChange("reconcile", {
+      sourceEntryId: unmatched.entryId,
+      purpose: "refund_only",
+      note: "仅退款，未计入足额押金",
+    });
+    assert.equal(reclassified.request.finance.reconciliation, false);
+    const listed = (
+      await api("/api/sample-admin/requests?status=all")
+    ).requests.find((r) => r.id === winner.id);
+    assert.deepEqual(listed.depositDue, winner.agreement.quote.deposit);
+    assert.equal(listed.financialClosedAt, null);
+    await api("/api/sample-admin/grants", {
+      method: "POST",
+      data: { userId: "reviewer", enabled: false },
+    });
+    assert.equal(
+      (
+        await api(`/api/sample-admin/requests/${winner.id}`, {
+          cookie: "reviewer",
+        })
+      ).status,
+      403,
+    );
+    const calendar = {
+      validFrom: "2026-01-01",
+      validUntil: "2027-12-31",
+      holidays: ["2026-11-02"],
+      workingDates: ["2026-10-31"],
+    };
+    assert.equal(
+      (
+        await api("/api/sample-admin/calendar", {
+          method: "POST",
+          data: calendar,
+        })
+      ).status,
+      200,
+    );
+    assert.equal(
+      workingDeadline("2026-10-30T04:00:00.000Z", calendar),
+      "2026-11-06T15:59:59.000Z",
+    );
+    assert.equal(workingDeadline("2028-01-01T04:00:00.000Z", calendar), null);
+    const expired = await api("/api/sample-loans/applications", {
+      method: "POST",
+      data: payload,
+      cookie: null,
+    });
+    const cancelledOld = await api(
+      `/api/sample-admin/requests/${expired.id}/cancel`,
+      {
+        method: "POST",
+        data: { expectedRowVersion: 1, reason: "资料保留期限测试" },
+      },
+    );
+    assert.equal(cancelledOld.status, 200);
+    await env.CASE_DB.prepare(
+      "UPDATE sample_requests SET closed_at='2020-01-01T00:00:00.000Z' WHERE id=?",
+    )
+      .bind(expired.id)
+      .run();
+    // Older unresolved balances must not occupy the entire cleanup page forever.
+    const blocked = [];
+    for (let i = 0; i < 51; i++) {
+      const id = "cleanup-unresolved-" + i;
+      blocked.push(
+        env.CASE_DB.prepare(
+          "INSERT INTO sample_requests(id,public_no,status,original_json,consent_json,requested_days,model_key,search_text,display_name,submitted_at,closed_at) SELECT ?,?,'cancelled',original_json,consent_json,requested_days,model_key,search_text,display_name,submitted_at,'2019-01-01T00:00:00.000Z' FROM sample_requests WHERE id=?",
+        ).bind(id, id, expired.id),
+      );
+      blocked.push(
+        env.CASE_DB.prepare(
+          "INSERT INTO sample_financial_projections VALUES(?,?,?)",
+        ).bind(id, '{"balanced":false}', new Date().toISOString()),
+      );
+    }
+    await env.CASE_DB.batch(blocked);
+    const firstPass = await maintainData(env);
+    assert.equal(firstPass.marked, 1);
+    assert(
+      await env.CASE_DB.prepare("SELECT id FROM sample_requests WHERE id=?")
+        .bind(expired.id)
+        .first(),
+    );
+    const secondPass = await maintainData(env, {
+      now: Date.now() + 2 * 86400000,
+    });
+    assert.equal(secondPass.purged, 1);
+    assert.equal(
+      await env.CASE_DB.prepare("SELECT id FROM sample_requests WHERE id=?")
+        .bind(expired.id)
+        .first(),
+      null,
+    );
+    const held = await api("/api/sample-loans/applications", {
+      method: "POST",
+      data: payload,
+      cookie: null,
+    });
+    await api(`/api/sample-admin/requests/${held.id}/cancel`, {
+      method: "POST",
+      data: { expectedRowVersion: 1, reason: "争议资料" },
+    });
+    await env.CASE_DB.prepare(
+      "UPDATE sample_requests SET closed_at='2020-01-01T00:00:00.000Z' WHERE id=?",
+    )
+      .bind(held.id)
+      .run();
+    const heldVersion = (await api(`/api/sample-admin/requests/${held.id}`))
+      .request.rowVersion;
+    assert.equal(
+      (
+        await api(`/api/sample-admin/requests/${held.id}/preservation`, {
+          method: "POST",
+          data: {
+            expectedRowVersion: heldVersion,
+            enabled: true,
+            reason: "争议尚未结束",
+          },
+        })
+      ).status,
+      200,
+    );
+    await env.CASE_DB.prepare(
+      "UPDATE sample_requests SET closed_at='2020-01-01T00:00:00.000Z' WHERE id=?",
+    )
+      .bind(winner.id)
+      .run();
+    await maintainData(env, { now: Date.now() + 3 * 86400000 });
+    assert.equal(
+      (
+        await env.CASE_DB.prepare(
+          "SELECT purge_after_at FROM sample_requests WHERE id=?",
+        )
+          .bind(held.id)
+          .first()
+      ).purge_after_at,
+      null,
+    );
+    assert.equal(
+      (
+        await env.CASE_DB.prepare(
+          "SELECT purge_after_at FROM sample_requests WHERE id=?",
+        )
+          .bind(winner.id)
+          .first()
+      ).purge_after_at,
+      null,
+    );
+    const beforeFailure = (await api(`/api/sample-admin/requests/${winner.id}`))
+      .request;
+    await env.CASE_DB.exec(
+      "CREATE TRIGGER sample_late_failure BEFORE INSERT ON sample_events WHEN NEW.action='finance.receipts' BEGIN SELECT RAISE(ABORT,'injected late failure'); END",
+    );
+    const injected = {
+      expectedRowVersion: beforeFailure.rowVersion,
+      money: { currency: "CNY", amountMinor: "1" },
+      occurredAt: new Date().toISOString(),
+      reference: "ROLLBACK-001",
+      quoteId: winner.quotes[0].id,
+      purpose: "deposit",
+      note: "隔离故障注入",
+    };
+    const rollback = await api(
+      `/api/sample-admin/requests/${winner.id}/finances/receipts`,
+      { method: "POST", data: injected },
+    );
+    assert.equal(rollback.status, 503);
+    assert.equal(
+      (await api(`/api/sample-admin/requests/${winner.id}`)).request.rowVersion,
+      beforeFailure.rowVersion,
+    );
+    assert.equal(
+      (
+        await env.CASE_DB.prepare(
+          "SELECT COUNT(*) AS n FROM sample_financial_entries WHERE reference='ROLLBACK-001'",
+        ).first()
+      ).n,
+      0,
+    );
+    await env.CASE_DB.exec("DROP TRIGGER sample_late_failure");
+    const old = await api(
+      `/api/sample-admin/requests/${winner.id}/versions/1/preview`,
+    );
+    assert.equal(
+      old.snapshot.equipment.defaultAccountInfo,
+      d.equipment.defaultAccountInfo,
+    );
+  } finally {
+    await platform.dispose();
+    rmSync(root, { recursive: true, force: true });
+  }
+});

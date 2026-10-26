@@ -4,6 +4,8 @@
 
 RMinte RM-01 官网源码。页面使用原生 HTML、CSS 和 JavaScript，正式站点目录为 `website/`，由 Cloudflare Pages 托管。`website/_worker.js` 提供访客语言与案例账号 API，账号数据保存在 Cloudflare D1；OTA 使用独立 Worker 和 R2。
 
+样机借用的前后端、隔离本地预览、数据库迁移与云端接入说明见 [样机借用模块](services/sample-loan/README.md)。
+
 ## 网站与服务
 
 - 主站：首页、图册、模型、应用案例、下载中心与多语言指南。
