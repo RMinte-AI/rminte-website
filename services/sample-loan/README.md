@@ -82,6 +82,14 @@ python3 services/sample-loan/build-document-assets.py
 
 `wrangler.jsonc` 只声明本地资源名和占位数据库 ID；执行前按实际账号配置独立生产/Preview 资源，不能直接把本地占位当生产配置。任务 Worker 关闭 workers.dev、预览 URL 和公开路由，HTTP 入口返回 404，不能把照片或合同放进公开 assets。Secrets 不写进仓库。
 
+Pages 的 Git 构建使用仓库锁定的 Wrangler 预先打包，并输出为 ES2020；平台内置的 Wrangler 3 不支持源码中的 JSON 导入属性，且会错误转换预打包代码的类静态块。构建命令为：
+
+```sh
+./node_modules/.bin/wrangler pages functions build --project-directory . --build-output-directory website --outdir /tmp/rminte-pages-worker --compatibility-date 2026-10-26 --compatibility-flags nodejs_compat && ./node_modules/.bin/esbuild /tmp/rminte-pages-worker/_worker.js --target=es2020 --format=esm --outfile=website/_worker.js
+```
+
+更新 Pages 配置时，不得把 GET 返回的 Secret 空值占位写回；只提交需要变更的变量，保留既有 `CASE_SECRET`。新密钥必须在发布前存入受限备份。
+
 后续获得发布授权时：先确认备份和环境隔离，应用 `0004` 迁移，核对 Pages 绑定/兼容标记及任务 Worker/队列/定时任务，再上线和逐一验证真实版本。Owner 合并带来的自动上线仍遵守仓库原规则；不要顺带发布 OTA。
 
 `GET /api/sample-admin/health` 检查绑定、最老待办、失败数和最近成功补查时间。任务未入队、消息过期、消费者中断均由 D1 待办恢复。租约修复后，队列投递与资料维护分别执行；任一失败仍使当轮调度报错，最近成功补查时间只在整轮成功后更新。资料清理失败不能吞成成功。
