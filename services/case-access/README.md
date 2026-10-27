@@ -126,18 +126,28 @@ npx wrangler dev --config services/case-access/wrangler.jsonc --port 8788 --ip 1
 
 `node --test services/case-access/tests/*.test.mjs` 包含加密、SQLite 迁移事务、本地 D1 原子迁移与权限代理测试（Node 22.13+ 或 24）。资源测试使用明确的隔离演示／文件 fixture，不能证明真实私有服务可用。既有 `integration.mjs` 扩展了真实本地 Pages/D1 上的管理员与案例权限矩阵。浏览器 `account-permissions.spec.mjs` 覆盖创建、首次改密、跨管理员管理普通用户、授权保存、取消与停用，使用 CI 临时数据库和账号。
 
-## 经销商资料（本地实现，未部署）
+## 经销商资料
 
-下载中心新增经销商资料分类，公开文案覆盖六种语言。当前仅列出《RM-01 产品横向参数对比（中文）》；PDF 文件不翻译，网页标题标明中文版本。文件不放在 `website/` 或公开下载域名中。
+后台以列表管理多份 PDF：添加、修改名称、替换文件、删除。`dealer_materials` 表保存标题、实际文件语言、原文件名、大小、状态、版本和私有 R2 对象位置；文件不放在 `website/` 或公开下载域名中。既有资料迁移保留 ID 和原对象位置；旧文件实际不存在时，公开列表不展示。
 
-- `dealer-materials.mjs` 固定资料 ID、私有对象 key 和下载文件名。
-- `GET/HEAD /api/dealer-materials/:id/download` 每次复用案例页会话，普通用户必须获得独立的经销商资料下载权限，该权限不要求任何案例授权；初始密码未修改、失效或停用的账号仍按既有规则拒绝访问。响应为 PDF 附件，禁止缓存。
-- `GET /api/admin/dealer-materials` 返回已配置资料的上传状态和大小。
-- `PUT /api/admin/dealer-materials/:id` 供已完成首次改密的管理员上传或替换 PDF，要求同源和 PDF 内容类型，最大 20 MB。后台“经销商资料”页签提供该入口。替换对象是原子的，校验失败不覆盖旧文件。网页标题由六语言文案维护，替换文件后不会改变其名称。
+每份资料至少填写一种网站语言的名称，支持 zh/en/ja/ko/es/fr，各语言最多一行。名称完全由管理员手工填写，与原文件名分开保存；不自动翻译标题或 PDF。当前语言没有名称时不展示，不回退到其他语言。文件实际语言可选上述六种或 multi；不同内容语言的 PDF 可作为独立资料登记。
 
-本地 `wrangler.jsonc` 已声明 `CASE_FILES` 模拟 R2。正式上线时需将私有 bucket 绑定到 Pages Production 的 `CASE_FILES`，关闭该 bucket 的公开访问，并通过后台上传原始 PDF。Preview 使用独立存储；不要误将本地 bucket 名当成已存在的生产资源。`production.jsonc` 仍只用于既有数据库运维，不通过它部署 Worker。
+| 接口 | 用途 |
+| --- | --- |
+| `GET /api/dealer-materials?lang=zh` | 公开元信息，只返回该语言已发布且有文件的资料，不返回私有对象位置 |
+| `GET/HEAD /api/dealer-materials/:id/download` | 按当前会话及独立下载权限读取 PDF；附件使用原文件名，禁止缓存 |
+| `GET /api/admin/dealer-materials` | 管理员列表，包含草稿、删除未完成、旧文件待清理状态及版本 |
+| `POST /api/admin/dealer-materials` | JSON `{titles:{zh:"名称"},fileLanguage:"zh"}`，创建待上传草稿，返回 id/version |
+| `PATCH /api/admin/dealer-materials/:id` | 同上并携带 expectedVersion，修改名称及实际文件语言 |
+| `PUT /api/admin/dealer-materials/:id` | PDF 二进制，`If-Match` 传版本，`X-File-Name` 传 encodeURIComponent 后的原文件名，最大 20 MiB |
+| `POST /api/admin/dealer-materials/:id` | `If-Match` 传版本，清理替换后遗留的旧对象 |
+| `DELETE /api/admin/dealer-materials/:id` | `If-Match` 传版本，停止展示/下载后删除文件和资料记录 |
 
-新增下载、上传和权限测试纳入既有 `tests/resources.test.mjs`，与案例资源回归一起运行。本地验收以原始 PDF 上传、普通登录用户下载后的字节一致性为准；不代表生产存储或正式下载已配置。
+所有写操作要求同源、有效且完成首次改密的管理员；数据库写入再次核对当前会话与权限，版本冲突返回 409。原有普通用户下载授权语义不变。
+
+上传先校验 PDF 和大小，再写新对象，数据库原子切换指向后发布；失败不覆盖原 PDF。替换后旧对象位置保存在 obsolete_key，后台立即清理；失败明确展示“旧文件待清理”，管理员可继续处理，清理前不能再次替换。删除先将状态变为 deleting，再清理当前/旧对象，最后移除记录；中途失败保留“删除未完成”，可按列表最新版本继续删除。上传失败的新增草稿可继续编辑上传或删除。
+
+`0006_dealer_materials.sql` 需在上线新代码前应用，保留当前资料 ID、六语言旧名称及私有文件位置。开发、验证只用隔离本地 D1/R2；生产迁移和发布另按授权执行。
 
 ### 独立经销商下载权限（0003）
 

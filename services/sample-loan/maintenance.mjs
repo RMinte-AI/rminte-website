@@ -206,6 +206,27 @@ export async function maintainData(env, { now = Date.now() } = {}) {
     ]);
     purged++;
   }
+  // Retain history for three years after its last recorded handling, including backdated returns.
+  const legacyCutoff = new Date(now);
+  legacyCutoff.setUTCFullYear(legacyCutoff.getUTCFullYear() - 3);
+  const legacy = await rows(
+    env,
+    "SELECT id FROM sample_legacy_loans WHERE status<>'active' AND updated_at<=? AND hold_reason IS NULL AND NOT EXISTS (SELECT 1 FROM sample_allocations x WHERE x.legacy_loan_id=sample_legacy_loans.id) LIMIT 50",
+    [legacyCutoff.toISOString()],
+  );
+  for (const l of legacy)
+    await env.CASE_DB.batch([
+      stmt(
+        env,
+        "DELETE FROM sample_events WHERE json_extract(details_json,'$.legacyLoanId')=? AND EXISTS (SELECT 1 FROM sample_legacy_loans WHERE id=? AND status<>'active' AND updated_at<=? AND hold_reason IS NULL)",
+        [l.id, l.id, legacyCutoff.toISOString()],
+      ),
+      stmt(
+        env,
+        "DELETE FROM sample_legacy_loans WHERE id=? AND status<>'active' AND updated_at<=? AND hold_reason IS NULL",
+        [l.id, legacyCutoff.toISOString()],
+      ),
+    ]);
   // Populate dates only from an explicitly maintained working-day calendar.
   const missing = await rows(
     env,

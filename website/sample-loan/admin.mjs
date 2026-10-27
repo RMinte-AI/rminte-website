@@ -14,7 +14,7 @@ import {
   localInput,
 } from "./fields.mjs";
 import { renderContract, escapeHtml } from "./contract.mjs";
-import { openApplication } from "./application.mjs?v=sample-2";
+import { openApplication } from "./application.mjs?v=sample-3";
 const {
   $,
   $$,
@@ -62,7 +62,8 @@ const icon = (name) => `<svg aria-hidden="true"><use href="#i-${name}"/></svg>`;
 const actor = () => state.user?.username || "";
 let clock = { server: 0, baseline: 0, available: false },
   listGeneration = 0,
-  detailGeneration = 0;
+  detailGeneration = 0,
+  machineEditGeneration = 0;
 const loanClock = () => clock.server + performance.now() - clock.baseline;
 const localDate = (v = new Date(loanClock()).toISOString()) =>
   localInput(v).slice(0, 10);
@@ -83,13 +84,20 @@ function toast(message) {
 function busyLoan(id) {
   const a = operations.machines.find((m) => m.id === id),
     x = a?.allocation;
-  return x
-    ? state.requests.find((r) => r.id === x.requestId) || {
-        id: x.requestId,
+  return x?.source === "legacy"
+    ? {
+        id: x.legacyLoanId,
+        source: "legacy",
         company: x.name,
-        snapshot: { end: localInput(x.dueAt).slice(0, 10) },
+        snapshot: { end: x.dueAt ? localInput(x.dueAt).slice(0, 10) : "" },
       }
-    : null;
+    : x
+      ? state.requests.find((r) => r.id === x.requestId) || {
+          id: x.requestId,
+          company: x.name,
+          snapshot: { end: localInput(x.dueAt).slice(0, 10) },
+        }
+      : null;
 }
 function adapt(raw) {
   const original = { ...flat(raw.original), days: raw.original.requestedDays };
@@ -460,7 +468,25 @@ function countdownText(request) {
     ? `${request.status === "loss_pending" ? "赔偿付款 · " : ""}剩余 ${duration}`
     : `已逾期 ${duration}${request.status === "loss_pending" ? " · 赔偿付款" : ""}`;
 }
+function refreshLegacyCountdowns() {
+  $$("[data-legacy-deadline]").forEach((el) => {
+    const due = Date.parse(el.dataset.legacyDeadline);
+    if (!Number.isFinite(due)) {
+      el.textContent = "归还日期待补录";
+      return;
+    }
+    const remaining = due - loanClock();
+    el.dataset.overdue = String(remaining < 0);
+    el.textContent =
+      (remaining < 0 ? "已逾期 " : "剩余 ") +
+      Math.ceil(Math.abs(remaining) / 86400000) +
+      " 天 · " +
+      localInput(el.dataset.legacyDeadline).slice(0, 10) +
+      " 前归还";
+  });
+}
 function refreshCountdowns() {
+  refreshLegacyCountdowns();
   $$("[data-loan-countdown]").forEach((element) => {
     const request = state.requests.find(
       (r) => r.id === element.dataset.loanCountdown,
@@ -530,10 +556,11 @@ function renderInventory() {
   $("#inventory-rows").innerHTML = machines
     .map((machine) => {
       const loan = busyLoan(machine.id);
-      return `<article class="inventory-row"><h2>${escapeHtml(machine.model)}</h2><dl><div><dt>NO</dt><dd>${escapeHtml(machine.no)}</dd></div><div><dt>SN</dt><dd>${escapeHtml(machine.sn)}</dd></div></dl><p class="machine-notes">${escapeHtml(machine.notes || "暂无备注")}</p><div class="inventory-state"><span class="status" data-status="${loan ? "approved" : "idle"}">${loan ? "已借出" : machine.lifecycle === "active" ? "空闲" : machine.lifecycle === "lost" ? "已丢失" : "停用"}</span>${loan ? `<a class="inventory-loan" href="#admin/${encodeURIComponent(loan.id)}">${escapeHtml(loan.company)}<span>${escapeHtml(loan.snapshot.end)} 前归还</span></a>` : '<p class="fine">可在审批时分配</p>'}</div><button type="button" class="pill ghost" data-edit-machine="${machine.id}">修改</button></article>`;
+      return `<article class="inventory-row"><h2>${escapeHtml(machine.model)}</h2><dl><div><dt>NO</dt><dd>${escapeHtml(machine.no)}</dd></div><div><dt>SN</dt><dd>${escapeHtml(machine.sn)}</dd></div></dl><p class="machine-notes">${escapeHtml(machine.notes || "暂无备注")}</p><div class="inventory-state"><span class="status" data-status="${loan ? "approved" : "idle"}">${loan ? "已借出" : machine.lifecycle === "active" ? "空闲" : machine.lifecycle === "lost" ? "已丢失" : "停用"}</span>${loan?.source === "legacy" ? `<div class="inventory-loan"><strong>历史登记 · ${escapeHtml(loan.company)}</strong><span data-legacy-deadline="${escapeHtml(machine.allocation.dueAt || "")}"></span></div>` : loan ? `<a class="inventory-loan" href="#admin/${encodeURIComponent(loan.id)}">${escapeHtml(loan.company)}<span>${escapeHtml(loan.snapshot.end)} 前归还</span></a>` : '<p class="fine">可在审批时分配</p>'}</div><button type="button" class="pill ghost" data-edit-machine="${machine.id}">修改</button></article>`;
     })
     .join("");
   $("#inventory-empty").hidden = machines.length > 0;
+  refreshLegacyCountdowns();
 }
 function renderMachinePicker() {
   const request = state.current;
@@ -655,6 +682,11 @@ async function checked(action, button = null, formNode = form) {
     if (
       !serverErrors(formNode, e.fieldErrors, {
         ...fields,
+        legacyBorrower: "legacyLoan.borrower",
+        legacyContact: "legacyLoan.contact",
+        legacyLent: "legacyLoan.lentAt",
+        legacyDue: "legacyLoan.dueAt",
+        legacyNotes: "legacyLoan.notes",
         "finance-amount": "money",
         "finance-currency": "money.currency",
         "finance-reference": "reference",
@@ -909,8 +941,107 @@ $("#inventory-rows").addEventListener("click", (e) => {
       operations.machines.find((a) => a.id === b.dataset.editMachine),
     );
 });
+function legacyFields() {
+  const f = $("#machine-form"),
+    on = f.elements.lifecycle.value === "borrowed";
+  $("#legacy-fields").hidden = !on;
+  $("#legacy-fields").disabled = !on;
+}
+$("#machine-form").elements.lifecycle.addEventListener("change", legacyFields);
+async function loadLegacyHistory(machine, generation) {
+  const slot = $("#legacy-history");
+  const isCurrent = () =>
+    generation === machineEditGeneration && $("#machine-dialog").open;
+  slot.textContent = "正在读取历史借出记录…";
+  try {
+    const { loans } = await api(
+      "/api/sample-admin/assets/" + machine.id + "/legacy-loans",
+    );
+    if (!isCurrent()) return;
+    operations.legacyHistory = loans;
+    slot.innerHTML =
+      "<h3>历史借出记录</h3>" +
+      loans
+        .map(
+          (l) =>
+            `<article class="legacy-record"><strong>${escapeHtml(l.borrower)} · ${{ active: "借出中", returned: "已归还", lost: "已确认丢失", corrected: "误登记已更正" }[l.status]}</strong><p>${l.lentAt ? escapeHtml(timePair(l.lentAt)) : "借出时间待补录"} → ${l.dueAt ? escapeHtml(timePair(l.dueAt)) : "归还日期待补录"}</p><p>${escapeHtml(l.contact || "")} ${escapeHtml(l.notes)}</p><p class="fine">登记时间：${escapeHtml(timePair(l.recordedAt))}${l.endedAt ? " · 结束时间：" + escapeHtml(timePair(l.endedAt)) : ""}</p>${l.endReason ? "<p>" + escapeHtml(l.endReason) + "</p>" : ""}${l.holdReason ? "<p>保留原因：" + escapeHtml(l.holdReason) + "</p>" : ""}${l.status === "active" ? `<div class="legacy-actions"><button type="button" class="pill ghost" data-legacy-action="return" data-legacy-id="${l.id}">登记归还</button><button type="button" class="pill ghost" data-legacy-action="loss" data-legacy-id="${l.id}">登记丢失</button><button type="button" class="pill ghost" data-legacy-action="correct" data-legacy-id="${l.id}">更正误登记</button></div>` : ""}${state.role === "owner" ? `<button type="button" class="text-button" data-legacy-action="preservation" data-legacy-id="${l.id}">${l.holdReason ? "修改 / 解除档案保留" : "设置档案保留"}</button>` : ""}</article>`,
+        )
+        .join("") +
+      (loans.length ? "" : '<p class="fine">尚无历史借出登记</p>');
+  } catch (e) {
+    if (isCurrent()) slot.textContent = e.message;
+  }
+}
+$("#legacy-history").addEventListener("click", (e) => {
+  const button = e.target.closest("[data-legacy-action]");
+  if (!button) return;
+  operations.legacyEnd = {
+    machine: operations.machineEdit,
+    id: button.dataset.legacyId,
+    action: button.dataset.legacyAction,
+  };
+  const f = $("#legacy-end-form");
+  f.reset();
+  const preserving = operations.legacyEnd.action === "preservation",
+    correcting = operations.legacyEnd.action === "correct" || preserving;
+  f.elements.reason.disabled = preserving;
+  f.elements.reason.closest("label").hidden = preserving;
+  f.elements.holdReason.value =
+    operations.legacyHistory.find((l) => l.id === button.dataset.legacyId)
+      ?.holdReason || "";
+  f.elements.holdReason.readOnly = !preserving && !!f.elements.holdReason.value;
+  $("#legacy-end-title").textContent = button.textContent;
+  $("#legacy-end-help").textContent = preserving
+    ? "填写争议或待结事项原因以暂停清理；留空并确认可解除保留。"
+    : correcting
+      ? "仅用于纠正原登记有误，记录更正原因后释放占用，不记作实际归还。"
+      : "请核对实物情况，确认后结束这次历史借出并保留记录。";
+  if (f.elements.holdReason.readOnly)
+    $("#legacy-end-help").textContent +=
+      "已有档案保留继续生效，修改或解除须由主管理员单独处理。";
+  $("#legacy-time-field").hidden = correcting;
+  f.elements.occurredAt.disabled = correcting;
+  f.elements.occurredAt.value = localInput(new Date(loanClock()).toISOString());
+  showDialog($("#legacy-end-dialog"));
+});
+$("#legacy-end-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const f = e.currentTarget;
+  if (!validateForm(f)) return;
+  const { machine, id, action } = operations.legacyEnd;
+  await checked(
+    async () => {
+      await api(
+        `/api/sample-admin/assets/${machine.id}/legacy-loans/${id}/${action}`,
+        {
+          data: {
+            expectedAssetVersion: machine.assetVersion,
+            ...(action === "preservation"
+              ? {}
+              : {
+                  occurredAt:
+                    action === "correct"
+                      ? null
+                      : inputUtc(f.elements.occurredAt.value),
+                  reason: f.elements.reason.value,
+                }),
+            holdReason: f.elements.holdReason.value || null,
+          },
+          key: crypto.randomUUID(),
+        },
+      );
+      $("#legacy-end-dialog").close();
+      await loadAssets();
+      openMachine(operations.machines.find((m) => m.id === machine.id));
+    },
+    e.submitter,
+    f,
+  );
+});
 function openMachine(machine = null) {
+  const generation = ++machineEditGeneration;
   operations.machineEdit = machine;
+  operations.legacyHistory = [];
   const f = $("#machine-form");
   f.reset();
   for (const key of ["model", "no", "sn", "notes", "lifecycle"])
@@ -918,11 +1049,34 @@ function openMachine(machine = null) {
       machine?.[key] ||
       (key === "model" ? MODELS[0] : key === "lifecycle" ? "active" : "");
   const busy = machine?.allocation;
+  if (busy) f.elements.lifecycle.value = "borrowed";
+  legacyFields();
+  for (const [name, key] of Object.entries({
+    legacyBorrower: "name",
+    legacyContact: "contact",
+    legacyLent: "lentAt",
+    legacyDue: "dueAt",
+    legacyNotes: "notes",
+  }))
+    f.elements[name].value =
+      key === "lentAt" || key === "dueAt"
+        ? localInput(busy?.[key])
+        : busy?.source === "legacy"
+          ? busy[key] || ""
+          : "";
+  if (busy?.source === "request") {
+    $("#legacy-fields").hidden = true;
+    $("#legacy-fields").disabled = true;
+  }
+  $("#legacy-history").replaceChildren();
+  if (machine) loadLegacyHistory(machine, generation);
   for (const key of ["model", "no", "sn", "lifecycle"])
     f.elements[key].disabled = !!busy;
   $("#machine-title").textContent = machine ? "修改样机" : "添加样机";
   $("#machine-edit-note").textContent = busy
-    ? "该机器已借出，NO、SN、型号锁定；备注可改"
+    ? busy.source === "legacy"
+      ? "该机器已借出，NO、SN、型号锁定；借用资料和备注可补充"
+      : "该机器已借出，NO、SN、型号锁定；备注可改"
     : "NO 和 SN 分别唯一；修改台账不改写历史协议";
   $("#machine-error").hidden = true;
   refreshSelects(f);
@@ -938,7 +1092,22 @@ $("#machine-form").addEventListener("submit", async (event) => {
       no: f.elements.no.value,
       sn: f.elements.sn.value,
       notes: f.elements.notes.value,
-      lifecycle: f.elements.lifecycle.value,
+      lifecycle:
+        f.elements.lifecycle.value === "borrowed"
+          ? "active"
+          : f.elements.lifecycle.value,
+      ...(f.elements.lifecycle.value === "borrowed" &&
+      existing?.allocation?.source !== "request"
+        ? {
+            legacyLoan: {
+              borrower: f.elements.legacyBorrower.value,
+              contact: f.elements.legacyContact.value || null,
+              lentAt: inputUtc(f.elements.legacyLent.value),
+              dueAt: inputUtc(f.elements.legacyDue.value),
+              notes: f.elements.legacyNotes.value,
+            },
+          }
+        : {}),
       ...(existing ? { expectedAssetVersion: existing.assetVersion } : {}),
     };
   await checked(

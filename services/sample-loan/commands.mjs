@@ -18,6 +18,7 @@ import { mutation, first, eventStatement, detail } from "./store.mjs";
 import { versionStatements } from "./agreements.mjs";
 import { refundDeadline } from "./maintenance.mjs";
 import { financialState } from "./finance.mjs";
+import { legacyData } from "./legacy.mjs";
 const touch = (r, closed = null) => [
   "UPDATE sample_requests SET row_version=row_version+1,closed_at=? WHERE id=? AND $gate",
   [closed, r.id],
@@ -30,6 +31,7 @@ export async function assetCommand(request, env, user, id, d) {
     "notes",
     "lifecycle",
     "expectedAssetVersion",
+    "legacyLoan",
   ]);
   assert(
     typeof d.modelKey === "string" && Object.hasOwn(MODELS, d.modelKey),
@@ -55,7 +57,7 @@ export async function assetCommand(request, env, user, id, d) {
     asset &&
     (await first(
       env,
-      "SELECT request_id FROM sample_allocations WHERE asset_id=?",
+      "SELECT request_id,legacy_loan_id FROM sample_allocations WHERE asset_id=?",
       [id],
     ));
   if (busy)
@@ -65,7 +67,7 @@ export async function assetCommand(request, env, user, id, d) {
         asset.model_key === d.modelKey &&
         asset.lifecycle === life,
       "ASSET_IDENTITY_LOCKED",
-      "已借出时仅可更改备注",
+      "已借出时不能更改 NO、SN、型号或台账状态",
     );
   if (asset?.lifecycle === "lost" && life === "active")
     assert(
@@ -74,6 +76,19 @@ export async function assetCommand(request, env, user, id, d) {
       "找回后检查并填写备注才能恢复可借状态",
       422,
     );
+  const legacy = d.legacyLoan === undefined ? null : legacyData(d.legacyLoan);
+  assert(
+    !legacy || (life === "active" && !busy?.request_id),
+    "ASSET_OCCUPIED",
+    "只有正常且未关联审批单的机器能登记历史借出",
+    422,
+  );
+  assert(
+    !busy?.legacy_loan_id || legacy,
+    "RETURN_REQUIRED",
+    "请通过登记归还或更正处理历史借出",
+    422,
+  );
   const next = id || crypto.randomUUID(),
     now = iso();
   const statements = asset
@@ -111,28 +126,84 @@ export async function assetCommand(request, env, user, id, d) {
           ],
         ],
       ];
+  if (legacy) {
+    const legacyId = busy?.legacy_loan_id || crypto.randomUUID();
+    if (busy?.legacy_loan_id)
+      statements.push([
+        "UPDATE sample_legacy_loans SET borrower=?,contact=?,lent_at=?,due_at=?,notes=?,updated_at=?,row_version=row_version+1 WHERE id=? AND $gate",
+        [
+          legacy.borrower,
+          legacy.contact,
+          legacy.lentAt,
+          legacy.dueAt,
+          legacy.notes,
+          now,
+          legacyId,
+        ],
+      ]);
+    else
+      statements.push(
+        [
+          "INSERT INTO sample_legacy_loans(id,asset_id,borrower,contact,lent_at,due_at,notes,created_by,recorded_at,updated_at) SELECT ?,?,?,?,?,?,?,?,?,? WHERE $gate",
+          [
+            legacyId,
+            next,
+            legacy.borrower,
+            legacy.contact,
+            legacy.lentAt,
+            legacy.dueAt,
+            legacy.notes,
+            user.id,
+            now,
+            now,
+          ],
+        ],
+        [
+          "INSERT INTO sample_allocations(asset_id,legacy_loan_id,allocated_at,operation_id) SELECT ?,?,?,? WHERE $gate",
+          [next, legacyId, now, "$operation"],
+        ],
+      );
+    statements.push(
+      eventStatement(
+        null,
+        next,
+        user,
+        busy ? "legacy.updated" : "legacy.created",
+        { legacyLoanId: legacyId, ...legacy },
+        legacy.lentAt || now,
+      ),
+    );
+  }
   if (asset?.lifecycle === "lost" && life === "active")
     statements.push([
       "UPDATE sample_losses SET recovered_at=? WHERE asset_id=? AND recovered_at IS NULL AND $gate",
       [now, next],
     ]);
-  statements.push(
-    eventStatement(
-      null,
-      next,
-      user,
-      asset ? "asset.updated" : "asset.created",
-      { modelKey: d.modelKey, lifecycle: life },
-    ),
-  );
+  if (!legacy)
+    statements.push(
+      eventStatement(
+        null,
+        next,
+        user,
+        asset ? "asset.updated" : "asset.created",
+        { modelKey: d.modelKey, lifecycle: life },
+      ),
+    );
   return mutation(env, request, user, {
     scope: asset ? "assets/" + id : "assets",
     data: d,
     condition: asset
-      ? "EXISTS (SELECT 1 FROM sample_assets WHERE id=? AND row_version=?)"
+      ? "EXISTS (SELECT 1 FROM sample_assets WHERE id=? AND row_version=?)" +
+        (legacy && !busy
+          ? " AND NOT EXISTS (SELECT 1 FROM sample_allocations WHERE asset_id=?)"
+          : "")
       : "1",
     conditionValues: asset
-      ? [id, integer(d.expectedAssetVersion, "expectedAssetVersion")]
+      ? [
+          id,
+          integer(d.expectedAssetVersion, "expectedAssetVersion"),
+          ...(legacy && !busy ? [id] : []),
+        ]
       : [],
     statements,
     result: { id: next },

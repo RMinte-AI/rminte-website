@@ -1,0 +1,172 @@
+/* Reuse the sample-loan form treatment without changing other account screens. */
+.dealer-editor {
+  width: min(840px, calc(100vw - 32px));
+  max-width: 840px;
+  max-height: 90dvh;
+  overflow: auto;
+}
+.dealer-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+.dealer-editor .field {
+  min-width: 0;
+}
+.dealer-editor .field > span {
+  display: block;
+}
+.translation-row {
+  display: grid;
+  grid-template-columns: minmax(130px, 1fr) minmax(180px, 2fr) auto;
+  gap: 12px;
+  align-items: start;
+}
+.translation-row > .ad-btn {
+  margin-top: 30px;
+  min-height: 44px;
+}
+#add-dealer-language {
+  margin-bottom: 24px;
+  min-height: 44px;
+}
+#dealer-panel .select-control {
+  position: relative;
+}
+#dealer-panel .select-option svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+}
+#dealer-panel .select-option[aria-selected="false"] > svg {
+  visibility: hidden;
+}
+#dealer-panel .select-trigger:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+@media (max-width: 600px) {
+  .translation-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .translation-row > .field:first-child {
+    grid-column: 1/-1;
+  }
+  .translation-row > .ad-btn {
+    margin-top: 30px;
+  }
+  .dealer-editor {
+    padding: 24px 18px;
+  }
+}
+#dealer-panel .field-error {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--text-2);
+  padding: 6px 12px;
+  border: 1px solid var(--line-2);
+  border-radius: 4px;
+}
+#dealer-panel .field [aria-invalid="true"] {
+  border-color: var(--line-3);
+}
+#dealer-panel .select-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 48px;
+  padding: 11px 14px;
+  text-align: left;
+  border: 1px solid var(--line-2);
+  border-radius: 8px;
+  background: var(--n-2);
+  color: var(--text-1);
+  font-size: 14px;
+  line-height: 1.65;
+}
+#dealer-panel .select-trigger > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+#dealer-panel .select-trigger > svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  width: 16px;
+  height: 16px;
+  color: var(--text-2);
+  transition: transform var(--dur-hover) var(--ease-settle);
+}
+#dealer-panel .select-trigger[aria-expanded="true"] {
+  border-color: var(--line-3);
+}
+#dealer-panel .select-trigger[aria-expanded="true"] > svg {
+  transform: rotate(180deg);
+}
+#dealer-panel .select-trigger[data-empty="true"] > span {
+  color: var(--text-3);
+}
+#dealer-panel .select-options {
+  position: absolute;
+  inset: calc(100% + 8px) 0 auto;
+  z-index: 8;
+  min-width: 100%;
+  padding: 4px;
+  overflow: auto;
+  max-height: 280px;
+  border: 1px solid var(--line-3);
+  border-radius: 8px;
+  background: var(--n-3);
+}
+#dealer-panel .select-control[data-direction="up"] > .select-options {
+  top: auto;
+  bottom: calc(100% + 8px);
+}
+#dealer-panel .select-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 12px;
+  min-height: 40px;
+  border: 0;
+  border-radius: 4px;
+  text-align: left;
+  background: transparent;
+  color: var(--text-2);
+  font-size: 14px;
+  line-height: 1.65;
+}
+#dealer-panel .select-option:hover,
+#dealer-panel .select-option:focus-visible {
+  background: var(--line-1);
+  color: var(--text-1);
+}
+#dealer-panel .select-option[aria-selected="true"] {
+  color: var(--text-1);
+}
+#dealer-panel .select-option > svg {
+  width: 16px;
+  height: 16px;
+  color: var(--sapphire-300);
+}
+#dealer-panel .select-option:focus-visible {
+  outline-offset: -2px;
+}
+
+#dealer-files .ad-table {
+  table-layout: fixed;
+}
+#dealer-files td {
+  overflow-wrap: anywhere;
+}
+
+.dealer-editor input[type="file"] { height: auto; min-height: 48px; padding: 12px; }
+.dealer-editor input::file-selector-button { margin-right: 12px; border: 1px solid var(--line-2); border-radius: var(--radius-button); background: var(--n-3); color: var(--text-1); padding: 8px 12px; font: inherit; cursor: pointer; }

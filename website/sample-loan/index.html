@@ -14,12 +14,12 @@
     <link rel="stylesheet" href="/assets/brand.css?v=d10-1" />
     <link
       rel="stylesheet"
-      href="/assets/fonts/noto-sans-sc.css?v=sample-20261026"
+      href="/assets/fonts/noto-sans-sc.css?v=sample-20261027"
     />
-    <link rel="stylesheet" href="preview.css?v=sample-2" />
-    <link rel="stylesheet" href="operations.css?v=sample-2" />
+    <link rel="stylesheet" href="preview.css?v=sample-3" />
+    <link rel="stylesheet" href="operations.css?v=sample-3" />
 
-    <script type="module" src="admin.mjs?v=sample-2"></script>
+    <script type="module" src="admin.mjs?v=sample-4"></script>
   </head>
   <body>
     <svg class="svg-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -1001,7 +1001,7 @@
           ><label class="field"
             ><span>台账状态</span
             ><select name="lifecycle">
-              <option value="active">正常可借</option>
+              <option value="active">空闲</option><option value="borrowed">已借出（历史登记）</option>
               <option value="lost">已丢失，不可借</option>
               <option value="retired">停用，不可借</option></select
             ><small
@@ -1015,6 +1015,13 @@
               placeholder="记录存储卡、配件和其他说明"
             ></textarea>
           </label>
+          <fieldset id="legacy-fields" class="legacy-fields" hidden disabled><legend>历史借出登记</legend>
+<label class="field"><span>借用方名称（必填）</span><input name="legacyBorrower" required maxlength="200"></label>
+<label class="field"><span>联系方式（选填）</span><input name="legacyContact" maxlength="200"></label>
+<label class="field"><span>实际借出时间（北京时间，选填）</span><input name="legacyLent" type="datetime-local" step="1"></label>
+<label class="field"><span>预计归还时间（北京时间，选填）</span><input name="legacyDue" type="datetime-local" step="1"></label>
+<label class="field"><span>借出备注 / 原合同编号（选填）</span><textarea name="legacyNotes" rows="3" maxlength="4000"></textarea></label>
+<p class="fine">未知日期留空，不按今天补写。登记会占用样机，不生成新的合同或押金流水。</p></fieldset>
           <p class="fine" id="machine-edit-note"></p>
           <p class="inline-message" id="machine-error" role="alert" hidden></p>
         </div>
@@ -1023,6 +1030,7 @@
           ><button type="submit" class="pill primary">保存样机</button>
         </div>
       </form>
+      <section id="legacy-history" class="legacy-history" aria-label="历史借出记录"></section>
     </dialog>
     <dialog
       id="progress-dialog"
@@ -1281,6 +1289,7 @@
         </div>
       </form>
     </dialog>
+    <dialog id="legacy-end-dialog" class="large-dialog" aria-labelledby="legacy-end-title"><form id="legacy-end-form" novalidate><div class="dialog-top"><h2 id="legacy-end-title">登记归还</h2><button type="button" class="contact-close" data-close aria-label="关闭历史登记处理"><svg><use href="#i-close"/></svg></button></div><div class="dialog-fields"><p id="legacy-end-help"></p><label class="field" id="legacy-time-field"><span>实际发生时间（北京时间）</span><input name="occurredAt" type="datetime-local" step="1" required></label><label class="field"><span>情况说明（必填）</span><textarea name="reason" rows="3" required maxlength="4000"></textarea></label><label class="field"><span>争议 / 待结事项保留原因（选填）</span><textarea name="holdReason" rows="2" maxlength="4000"></textarea></label></div><div class="footer-actions"><button type="button" class="pill ghost" data-close>取消</button><button type="submit" class="pill primary">确认处理</button></div></form></dialog>
     <dialog id="settings-dialog" class="small-dialog">
       <div class="contact-top">
         <h2>权限与收款配置</h2>

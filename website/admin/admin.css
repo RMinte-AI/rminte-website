@@ -73,10 +73,6 @@
 
 .summary{max-width:360px;line-height:1.7}.footnote{font-size:13px;color:var(--text-3);line-height:1.8}#admin-credentials .ad-note{line-height:1.8}
 
-.dealer-upload h3 { margin: 0 0 12px; font-size: var(--fs-lead-l); font-weight: 500; }
-.dealer-upload .cs-field { max-width: 560px; }
-.dealer-upload input[type="file"] { height: auto; min-height: 48px; padding: 12px; }
-.dealer-upload input::file-selector-button { margin-right: 12px; border: 1px solid var(--line-2); border-radius: var(--radius-button); background: var(--n-3); color: var(--text-1); padding: 8px 12px; font: inherit; cursor: pointer; }
 
 .dealer-grant-group { margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid var(--line-2); }
 .dealer-grant-group .name { min-width: 0; }

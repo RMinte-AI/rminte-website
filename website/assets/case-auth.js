@@ -21,7 +21,7 @@ window.CASE_AUTH = (()=>{
    response=await fetch(path,{credentials:'same-origin',...options,headers:{...(options.body?{'Content-Type':'application/json'}:{}),...options.headers}});
    data=await response.json();
   }catch{const error=new Error('服务暂时不可用，请稍后重试');error.unavailable=true;if(response)error.status=response.status;throw error;}
-  if(!response.ok){const error=new Error(data.error||'操作失败');error.status=response.status;throw error;}return data;
+  if(!response.ok){const error=new Error(data.error||'操作失败');Object.assign(error,{status:response.status,code:data.code,fieldErrors:data.fieldErrors});throw error;}return data;
  }
  function node(tag,className,pair){const n=document.createElement(tag);if(className)n.className=className;if(pair){n.textContent=pair.zh;n.dataset.caseText='';n.dataset.zh=pair.zh;n.dataset.en=pair.en;}return n;}
  // problem: the error of a failed call, shown under the panel
