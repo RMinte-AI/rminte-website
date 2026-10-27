@@ -815,7 +815,7 @@ async function route() {
     id = hash.startsWith("#admin/") ? decodeURIComponent(hash.slice(7)) : null;
   $("#inventory-view").hidden = !inventory;
   $("#admin-list").hidden = inventory || !!id;
-  $("#admin-detail").hidden = !id;
+  $("#admin-detail").hidden = true;
   $("#admin-denied").hidden = true;
   $$("[data-admin-tab]").forEach((a) =>
     a.toggleAttribute(
@@ -828,6 +828,7 @@ async function route() {
     else if (id) {
       await loadAssets();
       await loadDetail(id);
+      if (location.hash === hash) $("#admin-detail").hidden = false;
     } else await loadList();
   } catch (e) {
     deny(e);

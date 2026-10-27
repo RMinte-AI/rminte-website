@@ -142,12 +142,27 @@ if (run.scope.sampleLoan)
     await mf.locator("button[type=submit]").click();
     await page.locator("#machine-dialog").waitFor({ state: "hidden" });
     await page.locator("[data-admin-tab=requests]").click();
+    let releaseDetail;
+    const heldDetail = new Promise((resolve) => (releaseDetail = resolve));
+    await page.route(
+      "**/api/sample-admin/requests/*",
+      async (route) => {
+        await heldDetail;
+        await route.continue();
+      },
+      { times: 1 },
+    );
+    const detailRequest = page.waitForRequest("**/api/sample-admin/requests/*");
     await page.locator("[data-request]").filter({ hasText: requestNo }).click();
+    await detailRequest;
+    await expect(page.locator("#admin-detail")).toBeHidden();
+    releaseDetail();
     await page.locator("#machine-options button").first().waitFor();
     await page
       .locator("#machine-options button")
       .filter({ hasText: machineNo })
       .click();
+    await expect(page.locator("#approval-form [name=no]")).toHaveValue(machineNo);
     const af = page.locator("#approval-form"),
       today = new Date().toISOString().slice(0, 10),
       due = new Date(Date.now() + 15 * 86400000).toISOString().slice(0, 10);
