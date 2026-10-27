@@ -760,16 +760,16 @@ async function loadList(append = false) {
   $("#load-more").hidden = !r.cursor;
   renderList();
 }
-async function loadDetail(id) {
-  const generation = ++detailGeneration,
-    result = await api("/api/sample-admin/requests/" + encodeURIComponent(id));
-  if (generation !== detailGeneration || state.role === "user") return;
+async function loadDetail(id, generation = ++detailGeneration) {
+  const result = await api("/api/sample-admin/requests/" + encodeURIComponent(id));
+  if (generation !== detailGeneration || state.role === "user") return false;
   const request = adapt(result.request);
   const at = state.requests.findIndex((r) => r.id === id);
   if (at >= 0) state.requests[at] = request;
   else state.requests.push(request);
   openRequest(request);
   renderFinance(request);
+  return true;
 }
 async function command(tail, data, button, formNode = form) {
   const r = state.current,
@@ -802,6 +802,10 @@ command.keys = new Map();
 async function route() {
   const hash = location.hash || "#admin";
   if (hash.startsWith("#section-")) return;
+  // Invalidate the previous detail before any navigation request can finish.
+  const generation = ++detailGeneration;
+  state.current = null;
+  $("#detail-loading").hidden = true;
   if (hash === "#apply") {
     await openPublicApplication();
     return;
@@ -816,6 +820,7 @@ async function route() {
   $("#inventory-view").hidden = !inventory;
   $("#admin-list").hidden = inventory || !!id;
   $("#admin-detail").hidden = true;
+  $("#detail-loading").hidden = !id;
   $("#admin-denied").hidden = true;
   $$("[data-admin-tab]").forEach((a) =>
     a.toggleAttribute(
@@ -827,11 +832,13 @@ async function route() {
     if (inventory) await loadAssets();
     else if (id) {
       await loadAssets();
-      await loadDetail(id);
-      if (location.hash === hash) $("#admin-detail").hidden = false;
+      if (generation !== detailGeneration) return;
+      if (await loadDetail(id, generation)) $("#admin-detail").hidden = false;
     } else await loadList();
   } catch (e) {
-    deny(e);
+    if (generation === detailGeneration) deny(e);
+  } finally {
+    if (generation === detailGeneration) $("#detail-loading").hidden = true;
   }
 }
 window.addEventListener("hashchange", route);
@@ -851,8 +858,8 @@ $("#back-to-list").addEventListener("click", () => {
 $("#request-rows").addEventListener("click", async (event) => {
   const complete = event.target.closest("[data-complete]");
   if (complete) {
-    await loadDetail(complete.dataset.complete);
-    openProgress(state.current, "return");
+    if (await loadDetail(complete.dataset.complete))
+      openProgress(state.current, "return");
     return;
   }
   const b = event.target.closest("[data-request]");
@@ -1551,11 +1558,9 @@ document.addEventListener("click", async (event) => {
       toast("请先保存或取消资料修改");
       return;
     }
-    await loadDetail(id);
-    if (state.current?.id === id) {
-      if (b.dataset.progress === "reconcile") openSpecial("reconcile");
-      else openProgress(state.current, b.dataset.progress);
-    }
+    if (!(await loadDetail(id))) return;
+    if (b.dataset.progress === "reconcile") openSpecial("reconcile");
+    else openProgress(state.current, b.dataset.progress);
   }
   const f = event.target.closest("[data-finance]");
   if (f) {
@@ -1564,8 +1569,7 @@ document.addEventListener("click", async (event) => {
       toast("请先保存或取消资料修改");
       return;
     }
-    await loadDetail(id);
-    if (state.current?.id === id)
+    if (await loadDetail(id))
       openProgress(state.current, f.dataset.finance);
   }
 });

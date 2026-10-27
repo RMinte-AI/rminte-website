@@ -397,6 +397,8 @@ test("persistent API: authorization, atomic allocation, immutable revisions, rea
       data: { modelKey: application.modelKey, no: "another-product", sn: "sn-A" },
     });
     assert.equal(duplicateSn.status, 409, "SN remains unique after normalization");
+    assert.equal(duplicateSn.code, "DUPLICATE_SN");
+    assert.equal(duplicateSn.fieldErrors.sn, "该 SN 已登记，请检查后重新填写");
     const editable = (await api("/api/sample-admin/assets")).assets.find(a => a.id === duplicate.id);
     for (const no of ["NEW-PRODUCT", "NO-A"]) {
       assert.equal((await api("/api/sample-admin/assets/" + duplicate.id, {
@@ -405,6 +407,22 @@ test("persistent API: authorization, atomic allocation, immutable revisions, rea
       })).status, 200, "editing a stopped machine to a shared NO is allowed");
       editable.assetVersion++;
     }
+    const duplicateSnUpdate = await api(
+      "/api/sample-admin/assets/" + duplicate.id,
+      {
+        method: "PATCH",
+        data: {
+          modelKey: application.modelKey,
+          no: "NO-A",
+          sn: "sn-A",
+          lifecycle: "retired",
+          expectedAssetVersion: editable.assetVersion,
+        },
+      },
+    );
+    assert.equal(duplicateSnUpdate.status, 409);
+    assert.equal(duplicateSnUpdate.code, "DUPLICATE_SN");
+    assert.deepEqual(duplicateSnUpdate.fieldErrors, duplicateSn.fieldErrors);
     const t = (await api("/api/sample-loans/terms", { cookie: null })).terms;
     const payload = {
       ...application,
