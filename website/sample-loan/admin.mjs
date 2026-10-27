@@ -1077,7 +1077,7 @@ function openMachine(machine = null) {
     ? busy.source === "legacy"
       ? "该机器已借出，NO、SN、型号锁定；借用资料和备注可补充"
       : "该机器已借出，NO、SN、型号锁定；备注可改"
-    : "NO 和 SN 分别唯一；修改台账不改写历史协议";
+    : "型号和 NO 可重复，SN 唯一；修改台账不改写历史协议";
   $("#machine-error").hidden = true;
   refreshSelects(f);
   showDialog($("#machine-dialog"));
