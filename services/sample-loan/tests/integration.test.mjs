@@ -109,6 +109,7 @@ test("persistent API: authorization, atomic allocation, immutable revisions, rea
       "../../case-access/migrations/",
       import.meta.url,
     );
+    let assetMigrationBefore;
     for (const name of readdirSync(migrations)
       .filter((f) => f.endsWith(".sql"))
       .sort()) {
@@ -120,7 +121,29 @@ test("persistent API: authorization, atomic allocation, immutable revisions, rea
           "INSERT INTO users(id,username,role,password_mac,created_at) VALUES('migration-user','migration','admin','unused',0); INSERT INTO sample_assets(id,model_key,no,sn,no_key,sn_key,created_by,created_at,updated_at) VALUES('migration-asset','rm01-t234-32g','N','S','N','S','migration-user','2026-01-01','2026-01-01'); INSERT INTO sample_requests(id,public_no,original_json,consent_json,requested_days,model_key,search_text,display_name,submitted_at) VALUES('migration-request','RM01-1','{}','{}',1,'rm01-t234-32g','fixture','fixture','2026-01-01'); INSERT INTO sample_allocations VALUES('migration-asset','migration-request','2026-01-01','migration-operation');",
         );
       }
+      if (name === "0007_sample_no_repeat.sql") {
+        await env.CASE_DB.exec(
+          "INSERT INTO users(id,username,role,password_mac,created_at) VALUES('migration-user','migration','admin','unused',0); INSERT INTO sample_assets(id,model_key,no,sn,no_key,sn_key,created_by,created_at,updated_at) VALUES('migration-asset','rm01-t234-32g','N1','S1','N1','S1','migration-user','2026-01-01','2026-01-01'),('migration-legacy-asset','rm01-t234-32g','N2','S2','N2','S2','migration-user','2026-01-01','2026-01-01'); INSERT INTO sample_requests(id,public_no,original_json,consent_json,requested_days,model_key,search_text,display_name,submitted_at,asset_id) VALUES('migration-request','RM01-1','{}','{}',1,'rm01-t234-32g','fixture','fixture','2026-01-01','migration-asset'); INSERT INTO sample_legacy_loans(id,asset_id,borrower,created_by,recorded_at,updated_at) VALUES('migration-legacy','migration-legacy-asset','fixture','migration-user','2026-01-01','2026-01-01'); INSERT INTO sample_allocations(asset_id,request_id,allocated_at,operation_id) VALUES('migration-asset','migration-request','2026-01-01','op1'); INSERT INTO sample_allocations(asset_id,legacy_loan_id,allocated_at,operation_id) VALUES('migration-legacy-asset','migration-legacy','2026-01-01','op2'); INSERT INTO sample_events(id,asset_id,action,details_json,occurred_at,recorded_at,operation_id) VALUES('migration-event','migration-asset','asset.created','{}','2026-01-01','2026-01-01','op3');",
+        );
+        assetMigrationBefore = await env.CASE_DB.prepare(
+          "SELECT * FROM sample_assets ORDER BY id",
+        ).all();
+      }
       await env.CASE_DB.exec(sql);
+      if (name === "0007_sample_no_repeat.sql") {
+        assert.deepEqual(
+          (await env.CASE_DB.prepare("SELECT * FROM sample_assets ORDER BY id").all()).results,
+          assetMigrationBefore.results,
+        );
+        assert.deepEqual((await env.CASE_DB.prepare("PRAGMA foreign_key_check").all()).results, []);
+        assert.equal((await env.CASE_DB.prepare("SELECT COUNT(*) AS n FROM sample_allocations").first()).n, 2);
+        assert.equal((await env.CASE_DB.prepare("SELECT asset_id FROM sample_requests WHERE id='migration-request'").first()).asset_id, 'migration-asset');
+        assert.equal((await env.CASE_DB.prepare("SELECT asset_id FROM sample_legacy_loans WHERE id='migration-legacy'").first()).asset_id, 'migration-legacy-asset');
+        assert.equal((await env.CASE_DB.prepare("SELECT asset_id FROM sample_events WHERE id='migration-event'").first()).asset_id, 'migration-asset');
+        await env.CASE_DB.exec(
+          "DELETE FROM sample_events WHERE id='migration-event'; DELETE FROM sample_allocations; DELETE FROM sample_legacy_loans WHERE id='migration-legacy'; DELETE FROM sample_requests WHERE id='migration-request'; DELETE FROM sample_assets; DELETE FROM users WHERE id='migration-user';",
+        );
+      }
       if (name === "0005_sample_legacy_loans.sql") {
         const migrated = await env.CASE_DB.prepare(
           "SELECT * FROM sample_allocations WHERE asset_id='migration-asset'",
@@ -368,7 +391,20 @@ test("persistent API: authorization, atomic allocation, immutable revisions, rea
         notes: "",
       },
     });
-    assert.equal(duplicate.status, 409);
+    assert.equal(duplicate.status, 201, "same model and NO with a distinct SN is allowed");
+    const duplicateSn = await api("/api/sample-admin/assets", {
+      method: "POST",
+      data: { modelKey: application.modelKey, no: "another-product", sn: "sn-A" },
+    });
+    assert.equal(duplicateSn.status, 409, "SN remains unique after normalization");
+    const editable = (await api("/api/sample-admin/assets")).assets.find(a => a.id === duplicate.id);
+    for (const no of ["NEW-PRODUCT", "NO-A"]) {
+      assert.equal((await api("/api/sample-admin/assets/" + duplicate.id, {
+        method: "PATCH",
+        data: { modelKey: application.modelKey, no, sn: "other", lifecycle: "retired", expectedAssetVersion: editable.assetVersion },
+      })).status, 200, "editing a stopped machine to a shared NO is allowed");
+      editable.assetVersion++;
+    }
     const t = (await api("/api/sample-loans/terms", { cookie: null })).terms;
     const payload = {
       ...application,

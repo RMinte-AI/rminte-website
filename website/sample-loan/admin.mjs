@@ -815,7 +815,7 @@ async function route() {
     id = hash.startsWith("#admin/") ? decodeURIComponent(hash.slice(7)) : null;
   $("#inventory-view").hidden = !inventory;
   $("#admin-list").hidden = inventory || !!id;
-  $("#admin-detail").hidden = !id;
+  $("#admin-detail").hidden = true;
   $("#admin-denied").hidden = true;
   $$("[data-admin-tab]").forEach((a) =>
     a.toggleAttribute(
@@ -828,6 +828,7 @@ async function route() {
     else if (id) {
       await loadAssets();
       await loadDetail(id);
+      if (location.hash === hash) $("#admin-detail").hidden = false;
     } else await loadList();
   } catch (e) {
     deny(e);
@@ -1077,7 +1078,7 @@ function openMachine(machine = null) {
     ? busy.source === "legacy"
       ? "该机器已借出，NO、SN、型号锁定；借用资料和备注可补充"
       : "该机器已借出，NO、SN、型号锁定；备注可改"
-    : "NO 和 SN 分别唯一；修改台账不改写历史协议";
+    : "型号和 NO 可重复，SN 唯一；修改台账不改写历史协议";
   $("#machine-error").hidden = true;
   refreshSelects(f);
   showDialog($("#machine-dialog"));
