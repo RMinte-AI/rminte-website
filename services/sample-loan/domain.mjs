@@ -1,8 +1,8 @@
 export const MODELS = Object.freeze({
-  "rm01-t234-32g": "RM-01 32G T234 (275 TOPS)",
-  "rm01-t234-64g": "RM-01 64G T234 (275 TOPS)",
-  "rm01-t4000-64g": "RM-01 64G T4000 (1200 TFLOPS)",
-  "rm01-t5000-128g": "RM-01 128G T5000 (2070 TFLOPS)",
+  "rm01-t234-32g": "RM-01 32G T234 ( 275 TOPS )",
+  "rm01-t234-64g": "RM-01 64G T234 ( 275 TOPS )",
+  "rm01-t4000-64g": "RM-01 64G T4000 ( 1200 TFLOPS )",
+  "rm01-t5000-128g": "RM-01 128G T5000 ( 2070 TFLOPS )",
 });
 export class LoanError extends Error {
   constructor(status, code, message, fieldErrors = {}) {

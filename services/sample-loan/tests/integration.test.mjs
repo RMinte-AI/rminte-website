@@ -115,7 +115,32 @@ test("persistent API: authorization, atomic allocation, immutable revisions, rea
       const sql = readFileSync(new URL(name, migrations), "utf8")
         .replace(/^--.*$/gm, "")
         .replaceAll("\n", " ");
+      if (name === "0005_sample_legacy_loans.sql") {
+        await env.CASE_DB.exec(
+          "INSERT INTO users(id,username,role,password_mac,created_at) VALUES('migration-user','migration','admin','unused',0); INSERT INTO sample_assets(id,model_key,no,sn,no_key,sn_key,created_by,created_at,updated_at) VALUES('migration-asset','rm01-t234-32g','N','S','N','S','migration-user','2026-01-01','2026-01-01'); INSERT INTO sample_requests(id,public_no,original_json,consent_json,requested_days,model_key,search_text,display_name,submitted_at) VALUES('migration-request','RM01-1','{}','{}',1,'rm01-t234-32g','fixture','fixture','2026-01-01'); INSERT INTO sample_allocations VALUES('migration-asset','migration-request','2026-01-01','migration-operation');",
+        );
+      }
       await env.CASE_DB.exec(sql);
+      if (name === "0005_sample_legacy_loans.sql") {
+        const migrated = await env.CASE_DB.prepare(
+          "SELECT * FROM sample_allocations WHERE asset_id='migration-asset'",
+        ).first();
+        assert.deepEqual(migrated, {
+          asset_id: "migration-asset",
+          request_id: "migration-request",
+          legacy_loan_id: null,
+          allocated_at: "2026-01-01",
+          operation_id: "migration-operation",
+        });
+        await assert.rejects(
+          env.CASE_DB.exec(
+            "UPDATE sample_allocations SET request_id=NULL WHERE asset_id='migration-asset'",
+          ),
+        );
+        await env.CASE_DB.exec(
+          "DELETE FROM sample_allocations WHERE asset_id='migration-asset'; DELETE FROM sample_requests WHERE id='migration-request'; DELETE FROM sample_assets WHERE id='migration-asset'; DELETE FROM users WHERE id='migration-user';",
+        );
+      }
     }
     await env.CASE_DB.exec(
       "UPDATE access_settings SET ready=1; INSERT INTO users(id,username,role,password_mac,created_at,is_owner,must_change_password) VALUES('owner','admin','admin','unused',1,1,0),('reviewer','reviewer','admin','unused',1,0,0),('ordinary','ordinary','user','unused',1,0,0)",
@@ -130,6 +155,175 @@ test("persistent API: authorization, atomic allocation, immutable revisions, rea
           Math.floor(Date.now() / 1000) + 86400,
         )
         .run();
+    const legacyAsset = await api("/api/sample-admin/assets", {
+      method: "POST",
+      data: {
+        modelKey: application.modelKey,
+        no: "HIST-01",
+        sn: "HIST-SN-01",
+        legacyLoan: {
+          borrower: "上线前借用方",
+          contact: null,
+          lentAt: null,
+          dueAt: null,
+          notes: "原纸质合同",
+        },
+      },
+    });
+    assert.equal(legacyAsset.status, 201);
+    let inventory = (await api("/api/sample-admin/assets")).assets;
+    let historic = inventory.find((a) => a.id === legacyAsset.id);
+    assert.equal(historic.allocation.source, "legacy");
+    assert.equal(historic.allocation.dueAt, null);
+    assert.equal(
+      (
+        await api(
+          "/api/sample-loans/availability?modelKey=" + application.modelKey,
+        )
+      ).availability,
+      "unavailable",
+    );
+    const historyPath =
+      "/api/sample-admin/assets/" + legacyAsset.id + "/legacy-loans";
+    const historical = (await api(historyPath)).loans[0];
+    assert.equal(historical.lentAt, null);
+    assert.equal(historical.status, "active");
+    const change = {
+      modelKey: application.modelKey,
+      no: "HIST-01",
+      sn: "HIST-SN-01",
+      expectedAssetVersion: historic.assetVersion,
+      legacyLoan: {
+        borrower: "更正后的借用方",
+        contact: "联系人",
+        lentAt: "2020-01-01T00:00:00.000Z",
+        dueAt: "2020-02-01T00:00:00.000Z",
+        notes: "补充资料",
+      },
+    };
+    assert.equal(
+      (
+        await api("/api/sample-admin/assets/" + legacyAsset.id, {
+          method: "PATCH",
+          data: change,
+        })
+      ).status,
+      200,
+    );
+    assert.equal(
+      (
+        await api("/api/sample-admin/assets/" + legacyAsset.id, {
+          method: "PATCH",
+          data: change,
+        })
+      ).status,
+      409,
+    );
+    historic = (await api("/api/sample-admin/assets")).assets.find(
+      (a) => a.id === legacyAsset.id,
+    );
+    assert.equal(
+      (
+        await api("/api/sample-admin/assets/" + legacyAsset.id, {
+          method: "PATCH",
+          data: {
+            modelKey: application.modelKey,
+            no: "HIST-01",
+            sn: "CHANGED",
+            expectedAssetVersion: historic.assetVersion,
+          },
+        })
+      ).status,
+      409,
+    );
+    const ending = historyPath + "/" + historical.id;
+    const endData = {
+      expectedAssetVersion: historic.assetVersion,
+      occurredAt: "2020-03-01T00:00:00.000Z",
+      reason: "实际归还",
+      holdReason: "离线押金尚未结清",
+    };
+    const returnKey = crypto.randomUUID();
+    assert.equal(
+      (
+        await api(ending + "/return", {
+          method: "POST",
+          data: endData,
+          key: returnKey,
+        })
+      ).status,
+      200,
+    );
+    assert.equal(
+      (
+        await api(ending + "/return", {
+          method: "POST",
+          data: endData,
+          key: returnKey,
+        })
+      ).status,
+      200,
+      "replayed return must not execute twice",
+    );
+    assert.equal(
+      (await api(ending + "/return", { method: "POST", data: endData })).status,
+      404,
+    );
+    assert.equal(
+      (
+        await api(
+          "/api/sample-loans/availability?modelKey=" + application.modelKey,
+        )
+      ).availability,
+      "available",
+    );
+    await maintainData(env, { now: Date.parse("2031-01-01T00:00:00.000Z") });
+    assert.equal(
+      (await api(historyPath)).loans.length,
+      1,
+      "held historical data must remain",
+    );
+    historic = (await api("/api/sample-admin/assets")).assets.find(
+      (a) => a.id === legacyAsset.id,
+    );
+    assert.equal(
+      (
+        await api(ending + "/preservation", {
+          method: "POST",
+          data: {
+            expectedAssetVersion: historic.assetVersion,
+            holdReason: null,
+          },
+        })
+      ).status,
+      200,
+    );
+    await maintainData(env, { now: Date.now() });
+    assert.equal(
+      (await api(historyPath)).loans.length,
+      1,
+      "newly recorded backdated returns must not be purged",
+    );
+    await maintainData(env, { now: Date.parse("2031-01-01T00:00:00.000Z") });
+    assert.equal((await api(historyPath)).loans.length, 0);
+    historic = (await api("/api/sample-admin/assets")).assets.find(
+      (a) => a.id === legacyAsset.id,
+    );
+    assert.equal(
+      (
+        await api("/api/sample-admin/assets/" + historic.id, {
+          method: "PATCH",
+          data: {
+            modelKey: application.modelKey,
+            no: "HIST-01",
+            sn: "HIST-SN-01",
+            lifecycle: "retired",
+            expectedAssetVersion: historic.assetVersion,
+          },
+        })
+      ).status,
+      200,
+    );
     assert.equal(
       (await api("/api/sample-admin/assets", { cookie: null })).status,
       401,
@@ -802,6 +996,224 @@ test("persistent API: authorization, atomic allocation, immutable revisions, rea
       0,
     );
     await env.CASE_DB.exec("DROP TRIGGER sample_late_failure");
+    // A legacy registration and a normal approval must compete for the same physical asset.
+    const raceAsset = await api("/api/sample-admin/assets", {
+      method: "POST",
+      data: {
+        modelKey: application.modelKey,
+        no: "CROSS-RACE",
+        sn: "CROSS-RACE",
+      },
+    });
+    const pending = { id: winner.id === one.id ? two.id : one.id };
+    const legacyRace = await Promise.all([
+      api("/api/sample-admin/assets/" + raceAsset.id, {
+        method: "PATCH",
+        data: {
+          modelKey: application.modelKey,
+          no: "CROSS-RACE",
+          sn: "CROSS-RACE",
+          expectedAssetVersion: 1,
+          legacyLoan: { borrower: "线下借用方" },
+        },
+      }),
+      api("/api/sample-admin/requests/" + pending.id + "/approve", {
+        method: "POST",
+        data: { ...command, assetId: raceAsset.id, draft: d },
+      }),
+    ]);
+    assert.deepEqual(
+      legacyRace.map((r) => r.status).sort(),
+      [200, 409],
+      JSON.stringify(legacyRace),
+    );
+    const occupied = (await api("/api/sample-admin/assets")).assets.find(
+      (a) => a.id === raceAsset.id,
+    );
+    assert.ok(occupied.allocation);
+    assert.equal(
+      (
+        await env.CASE_DB.prepare(
+          "SELECT COUNT(*) AS n FROM sample_allocations WHERE asset_id=?",
+        )
+          .bind(raceAsset.id)
+          .first()
+      ).n,
+      1,
+    );
+    // Loss, erroneous registration, permissions, and later re-loaning preserve independent histories.
+    const manual = await api("/api/sample-admin/assets", {
+      method: "POST",
+      data: {
+        modelKey: application.modelKey,
+        no: "LEGACY-END",
+        sn: "LEGACY-END",
+        legacyLoan: { borrower: "历史借用方" },
+      },
+    });
+    const endingPath =
+      "/api/sample-admin/assets/" + manual.id + "/legacy-loans";
+    let endedLoan = (await api(endingPath)).loans[0];
+    assert.equal(
+      (
+        await api(endingPath + "/" + endedLoan.id + "/loss", {
+          method: "POST",
+          cookie: "ordinary",
+          data: {},
+        })
+      ).status,
+      403,
+    );
+    assert.equal(
+      (
+        await api("/api/sample-admin/grants", {
+          method: "POST",
+          data: { userId: "reviewer", enabled: true },
+        })
+      ).status,
+      200,
+    );
+    assert.equal(
+      (
+        await api(endingPath + "/" + endedLoan.id + "/preservation", {
+          method: "POST",
+          cookie: "reviewer",
+          data: { expectedAssetVersion: 1, holdReason: "hold" },
+        })
+      ).status,
+      403,
+    );
+    assert.equal(
+      (
+        await api(endingPath + "/" + endedLoan.id + "/loss", {
+          method: "POST",
+          data: {
+            expectedAssetVersion: 1,
+            occurredAt: new Date().toISOString(),
+            reason: "已核实丢失",
+          },
+        })
+      ).status,
+      200,
+    );
+    let manualAsset = (await api("/api/sample-admin/assets")).assets.find(
+      (a) => a.id === manual.id,
+    );
+    assert.equal(manualAsset.lifecycle, "lost");
+    assert.equal(manualAsset.allocation, null);
+    assert.equal(
+      (
+        await api("/api/sample-admin/assets/" + manual.id, {
+          method: "PATCH",
+          data: {
+            modelKey: application.modelKey,
+            no: "LEGACY-END",
+            sn: "LEGACY-END",
+            expectedAssetVersion: manualAsset.assetVersion,
+            lifecycle: "active",
+            notes: "找回后已检查",
+            legacyLoan: { borrower: "再次借用方" },
+          },
+        })
+      ).status,
+      200,
+    );
+    manualAsset = (await api("/api/sample-admin/assets")).assets.find(
+      (a) => a.id === manual.id,
+    );
+    const newer = (await api(endingPath)).loans.find(
+      (l) => l.status === "active",
+    );
+    assert.equal(
+      (
+        await api(endingPath + "/" + endedLoan.id + "/correct", {
+          method: "POST",
+          data: {
+            expectedAssetVersion: manualAsset.assetVersion,
+            reason: "不能撤销旧记录",
+          },
+        })
+      ).status,
+      404,
+    );
+    assert.equal(
+      (
+        await api(endingPath + "/" + newer.id + "/correct", {
+          method: "POST",
+          data: {
+            expectedAssetVersion: manualAsset.assetVersion,
+            reason: "本次登记有误",
+          },
+        })
+      ).status,
+      200,
+    );
+    assert.deepEqual(
+      (await api(endingPath)).loans.map((l) => l.status).sort(),
+      ["corrected", "lost"],
+    );
+    // Physical endings must not bypass the owner-only archive hold operation.
+    for (const action of ["return", "loss", "correct"]) {
+      const heldAsset = await api("/api/sample-admin/assets", {
+        method: "POST",
+        data: {
+          modelKey: application.modelKey,
+          no: "HOLD-" + action,
+          sn: "HOLD-" + action,
+          legacyLoan: { borrower: "保留档案的借用方" },
+        },
+      });
+      assert.equal(heldAsset.status, 201);
+      const history = `/api/sample-admin/assets/${heldAsset.id}/legacy-loans`,
+        loan = (await api(history)).loans[0],
+        path = history + "/" + loan.id,
+        holdReason = "押金争议未结清";
+      assert.equal(
+        (await api(path + "/preservation", {
+          method: "POST",
+          data: { expectedAssetVersion: 1, holdReason },
+        })).status,
+        200,
+      );
+      assert.equal(
+        (await api(path + "/preservation", {
+          method: "POST",
+          cookie: "reviewer",
+          data: { expectedAssetVersion: 2, holdReason: null },
+        })).status,
+        403,
+      );
+      assert.equal(
+        (await api(path + "/" + action, {
+          method: "POST",
+          cookie: "reviewer",
+          data: {
+            expectedAssetVersion: 2,
+            occurredAt: new Date().toISOString(),
+            reason: "已核实实物状态",
+            holdReason: action === "loss" ? "试图覆盖原保留原因" : null,
+          },
+        })).status,
+        200,
+      );
+      assert.equal((await api(history)).loans[0].holdReason, holdReason);
+      const asset = (await api("/api/sample-admin/assets")).assets.find(
+        (a) => a.id === heldAsset.id,
+      );
+      assert.equal(asset.allocation, null);
+      assert.equal(asset.lifecycle, action === "loss" ? "lost" : "active");
+      await maintainData(env, { now: Date.parse("2031-01-01T00:00:00.000Z") });
+      assert.equal((await api(history)).loans.length, 1);
+      assert.equal(
+        (await api(path + "/preservation", {
+          method: "POST",
+          data: { expectedAssetVersion: 3, holdReason: null },
+        })).status,
+        200,
+      );
+      await maintainData(env, { now: Date.parse("2031-01-01T00:00:00.000Z") });
+      assert.equal((await api(history)).loans.length, 0);
+    }
     const old = await api(
       `/api/sample-admin/requests/${winner.id}/versions/1/preview`,
     );

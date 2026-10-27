@@ -182,6 +182,7 @@
     });
   }
 
+  window.addEventListener('download-resources-change',()=>{nameActions();applyBrandFonts(document.querySelector('#dealer-list'));});
   nameActions();
   setupLanguage();
   setupMenu();

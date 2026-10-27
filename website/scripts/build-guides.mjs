@@ -539,7 +539,7 @@ function pageTemplate(config, rendered) {
   <script src="../assets/i18n.js?v=catalogs-20261004" defer></script>
   <script src="../assets/guides.js?v=${guideAssetVersion}" defer></script>
   <script src="../assets/site-data.js?v=sample-2" defer></script>
-  <script src="../assets/footer.js?v=sample-2" defer></script>
+  <script src="../assets/footer.js?v=sample-3" defer></script>
   <script src="../assets/nav-glide.js?v=glide-1" defer></script>
 </head>
 <body class="guide-body guide-doc-body guide-accent-${config.accent}">

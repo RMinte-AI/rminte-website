@@ -1,7 +1,8 @@
 import {sampleAccess} from '../sample-loan/access.mjs';
 import {digest,passwordMac,hashAdminPassword,verifyPassword,encryptPassword,decryptPassword,randomString,randomPassword} from './crypto.mjs';
 import {resources} from './resources.mjs';
-import {dealerMaterials,MAX_DEALER_PDF_BYTES} from './dealer-materials.mjs';
+import {listDealerMaterials,dealerDownload,dealerCommand} from './dealer-materials.mjs';
+import {LoanError} from '../sample-loan/domain.mjs';
 import {caseIds} from '../../website/assets/case-catalog.mjs';
 const H={'Content-Type':'application/json; charset=utf-8','Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff','Referrer-Policy':'no-referrer'};
 const json=(data,status=200,extra={})=>new Response(JSON.stringify(data),{status,headers:{...H,...extra}});
@@ -38,8 +39,10 @@ async function limit(env,key,max,seconds){
 function ipOf(request){return request.headers.get('CF-Connecting-IP')||'本地开发';}
 export async function handleApi(request,env){
  try{
- if(!env.CASE_DB||!env.CASE_SECRET)fail(503,'账号服务尚未配置');
  const url=new URL(request.url),path=url.pathname,method=request.method;
+ if(!env.CASE_DB)fail(503,'账号服务尚未配置');
+ if(path==='/api/dealer-materials'&&method==='GET')return json(await listDealerMaterials(env,url.searchParams.get('lang')||'zh'));
+ if(!env.CASE_SECRET)fail(503,'账号服务尚未配置');
  if(!['GET','HEAD'].includes(method)){
   if(request.headers.get('origin')!==url.origin)fail(403,'请求来源不正确');
  }
@@ -77,13 +80,10 @@ export async function handleApi(request,env){
  if(method==='GET'&&path==='/api/session')return json({user:await publicUser(user,env)});
  if(!user)fail(401,'请先登录');
  if(user.must_change_password&&path!=='/api/admin/password')fail(403,'请先修改初始密码','password_change_required');
- const dealerDownload=path.match(/^\/api\/dealer-materials\/([a-z0-9-]+)\/download$/);
- if(dealerDownload&&['GET','HEAD'].includes(method)){
+ const dealerFile=path.match(/^\/api\/dealer-materials\/([a-z0-9-]+)\/download$/);
+ if(dealerFile&&['GET','HEAD'].includes(method)){
   if(user.role!=='admin'&&!user.can_download_dealer)fail(403,'此账号没有经销商资料下载权限','dealer_download_forbidden');
-  const item=dealerMaterials.find(item=>item.id===dealerDownload[1]);if(!item)fail(404,'资料不存在');
-  if(!env.CASE_FILES)fail(503,'经销商资料存储尚未配置');
-  const object=await env.CASE_FILES[method==='HEAD'?'head':'get'](item.fileKey);if(!object)fail(404,'资料不存在');
-  return new Response(method==='HEAD'?null:object.body,{headers:{'Content-Type':'application/pdf','Content-Length':String(object.size),'Content-Disposition':`attachment; filename*=UTF-8''${encodeURIComponent(item.fileName)}`,'Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff'}});
+  return await dealerDownload(env,dealerFile[1],method);
  }
  const resource=path.match(/^\/api\/resources\/([a-z0-9-]+)\/(preview|demo|download)(\/.*)?$/);
  if(resource&&['GET','HEAD'].includes(method)){
@@ -118,24 +118,9 @@ export async function handleApi(request,env){
   return new Response(method==='HEAD'?null:object.body,{headers:{'Content-Type':object.httpMetadata?.contentType||'application/octet-stream','Content-Disposition':`attachment; filename*=UTF-8''${encodeURIComponent(r.fileName||'document.pdf')}`,'Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff'}});
  }
  if(user.role!=='admin')fail(403,'仅管理员可操作');
- if(path==='/api/admin/dealer-materials'&&method==='GET'){
-  if(!env.CASE_FILES)fail(503,'经销商资料存储尚未配置');
-  const files=await Promise.all(dealerMaterials.map(async item=>{const stored=await env.CASE_FILES.head(item.fileKey);return {id:item.id,title:item.title,uploaded:!!stored,size:stored?.size||0};}));
-  return json({files});
- }
- const dealerUpload=path.match(/^\/api\/admin\/dealer-materials\/([a-z0-9-]+)$/);
- if(dealerUpload&&method==='PUT'){
-  const item=dealerMaterials.find(item=>item.id===dealerUpload[1]);if(!item)fail(404,'资料不存在');
-  if(!env.CASE_FILES)fail(503,'经销商资料存储尚未配置');
-  if(request.headers.get('content-type')?.split(';')[0].trim()!=='application/pdf')fail(415,'请选择 PDF 文件');
-  const reader=request.body?.getReader();if(!reader)fail(400,'缺少 PDF 文件');
-  const chunks=[];let size=0;
-  while(true){const {done,value}=await reader.read();if(done)break;size+=value.length;if(size>MAX_DEALER_PDF_BYTES){await reader.cancel();fail(413,'PDF 不能超过 20 MB');}chunks.push(value);}
-  const bytes=new Uint8Array(size);let offset=0;for(const chunk of chunks){bytes.set(chunk,offset);offset+=chunk.length;}
-  if(new TextDecoder().decode(bytes.subarray(0,5))!=='%PDF-')fail(400,'文件不是有效的 PDF');
-  await env.CASE_FILES.put(item.fileKey,bytes,{httpMetadata:{contentType:'application/pdf'}});
-  return json({ok:true,size});
- }
+ if(path==='/api/admin/dealer-materials'&&method==='GET')return json(await listDealerMaterials(env));
+ const dealerEdit=path.match(/^\/api\/admin\/dealer-materials(?:\/([a-z0-9-]+))?$/);
+ if(dealerEdit && ((!dealerEdit[1]&&method==='POST') || (dealerEdit[1]&&['PATCH','PUT','DELETE','POST'].includes(method))))return json(await dealerCommand(request,env,user,dealerEdit[1],(method==='PATCH'||(method==='POST'&&!dealerEdit[1]))?await payload(request):null),method==='POST'&&!dealerEdit[1]?201:200);
  if(path==='/api/admin/password'&&method==='POST'){
   await limit(env,'password-change:'+user.id,5,900);
   const data=await payload(request),current=passwordField(data,'current_password'),next=passwordField(data,'new_password');
@@ -229,5 +214,5 @@ export async function handleApi(request,env){
  const message=path.match(/^\/api\/admin\/inbox\/([a-f0-9-]+)$/);
  if(message&&method==='PATCH'){await env.CASE_DB.prepare('UPDATE applications SET read_at=? WHERE id=?').bind(now(),message[1]).run();return json({ok:true});}
  fail(404,'接口不存在');
- }catch(e){if(e instanceof HttpError)return json({error:e.message,...(e.code?{code:e.code}:{})},e.status);console.error('case_access_error',e.name);return json({error:'服务暂时不可用，请稍后重试'},500);}
+ }catch(e){if(e instanceof LoanError)return json({error:e.message,code:e.code,fieldErrors:e.fieldErrors},e.status);if(e instanceof HttpError)return json({error:e.message,...(e.code?{code:e.code}:{})},e.status);console.error('case_access_error',e.name);return json({error:'服务暂时不可用，请稍后重试'},500);}
 }

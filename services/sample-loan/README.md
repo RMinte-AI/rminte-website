@@ -15,7 +15,7 @@
 | --- | --- |
 | `website/sample-loan/` | 定稿界面、字段适配、逐字段错误、真实列表与台账、确认窗口、合同阅读视图 |
 | `api.mjs` / `domain.mjs` | 同源 API、DTO 与业务校验；JSON 请求最多 256KiB，图片走独立二进制分片 |
-| `commands.mjs` / `store.mjs` | D1 原子门槛、初审、分配、修订、排期、延期、归还、丢失与更正 |
+| `commands.mjs` / `legacy.mjs` / `store.mjs` | D1 原子门槛、初审、分配、修订、排期、延期、归还、丢失与更正 |
 | `finance.mjs` | 原币实收、退款、核定、押金抵扣、核对及冲销；不代替实际银行操作 |
 | `files.mjs` / `render.mjs` / `jobs.mjs` | 私有原图、图片衍生、完整字体、PDF、SHA-256、租约与幂等发布 |
 | `dispatcher.mjs` / `maintenance.mjs` | 事务待办补投、过期租约恢复、工作日历、保留清理与孤立 PDF 清理 |
@@ -35,6 +35,20 @@
 6. 所有事实保存 UTC 毫秒 ISO 时间，显示北京时间及 UTC。`submittedAt` / `recordedAt` 来自服务器；员工核对的实际发生时间单独保存，不能晚于服务器现在。归还按实际到厂时间停表。退款五个工作日只按主管理员核对的工作日历计算，日历缺失或未覆盖时明确提示，不猜中国节假日。
 7. 修订不覆盖旧 PDF、旧照片或初次申请。主体名称或信用代码更正必须重新核验并确认仍是同一法律主体；更换主体另立申请。误归还更正若机器已分配给新单，必须拒绝，不抢新单资产。
 8. 下载取指定 ready 版本的真实存档，不重新打印。下载无需先配置收款账户；正式邮件正文须核对当前合同版本、documentId 和有效收款配置。文件版本过时返回冲突，禁止把 R1 附件配 R2 正文；下载、复制不表示邮件已发送或送达。
+
+## 历史借出登记
+
+台账新增/编辑可选择“已借出（历史登记）”。提交到资产接口时 lifecycle 仍为 active，附带 `legacyLoan:{borrower,contact,lentAt,dueAt,notes}`；borrower 必填，其余选填，未知日期保存 null。lentAt 为过去的实际时间，dueAt 如填写且借出时间已知，不得早于 lentAt。recordedAt/updatedAt 使用服务器时间，独立于历史实际日期。
+
+`0005_sample_legacy_loans.sql` 新增历史记录并迁移 sample_allocations，保留原在线占用。每条占用恰好引用 request_id 或 legacy_loan_id，asset_id 仍唯一；库存、选机及初审使用同一占用约束。借出锁定 NO/SN/型号，历史资料和备注可补充，不能通过普通资产编辑释放占用，也不伪造申请、协议或账务。
+
+- `GET /api/sample-admin/assets/:assetId/legacy-loans`：历史记录。
+- `POST .../legacy-loans/:id/return|loss|correct`：`{expectedAssetVersion,occurredAt,reason,holdReason?}`；归还/丢失需核实过去实际时间，更正误登记使用服务器时间。归还/更正释放该记录的占用；丢失同时将资产设为 lost，不恢复空闲。已结束记录不能释放后来借出的占用。可新增保留原因，已有原因必须原样保留；修改或解除需主管理员单独调用 preservation，实物归还不解除档案保留。
+- `POST .../legacy-loans/:id/preservation`：仅主管理员，`{expectedAssetVersion,holdReason}`，null 解除保留。
+
+上述接口复用样机授权、事务门槛、幂等和事件记录。列表直接显示历史来源、借用方和服务器校时后的剩余/逾期时间；缺日期明确显示待补录。最近一次记录处理满三年后清理已结束记录及对应含个人信息事件，进行中或设置保留原因的记录不清理；补录多年前归还不会立即丢失档案。线下押金等未结事项应填写保留原因，由主管理员核实解除。
+
+四款型号名称统一为 `( 275 TOPS )` 等括号内留空格格式，modelKey 不变；固定条款使用新版本，旧快照/PDF/哈希保持原样。
 
 ## 本地运行与验收
 

@@ -1,3 +1,4 @@
+import { setupDealerLibrary } from './dealer-admin.mjs?v=library-2';
 import {enhancePasswords} from '../assets/password-field.mjs';
 import {groups,caseCatalog} from '../assets/case-catalog.mjs';
 const $=s=>document.querySelector(s),api=CASE_AUTH.api;
@@ -52,7 +53,7 @@ $('#users').addEventListener('click',async e=>{const b=e.target.closest('button'
  if(b.hasAttribute('data-history')){historyId=id;historyOffset=0;$('#history-user').textContent=u.username;await loadHistory();$('#history').showModal();}
  }catch(e){report(e);}finally{b.disabled=false;}});
 async function loadHistory(){const data=await api(`/api/admin/users/${historyId}/logins?offset=${historyOffset}`);$('#events').innerHTML=data.events.length?data.events.map(e=>`<div class="e"><strong data-time="${e.occurred_at}">${ago(e.occurred_at)}</strong><p>${date(e.occurred_at)} · ${escapeHtml(e.ip)} · ${escapeHtml(region(e))}</p></div>`).join(''):'<p class="ad-note">暂无登录记录。</p>';$('#history-prev').disabled=historyOffset===0;$('#history-next').disabled=!data.more;$('#history-pager').hidden=historyOffset===0&&!data.more;}
-document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>b.closest('dialog').close());$('#history').addEventListener('close',()=>$('#events').replaceChildren());
+document.querySelectorAll('dialog:not(#dealer-editor) [data-close]').forEach(b=>b.onclick=()=>b.closest('dialog').close());$('#history').addEventListener('close',()=>$('#events').replaceChildren());
 $('#history-prev').onclick=()=>{historyOffset-=50;loadHistory().catch(report)};$('#history-next').onclick=()=>{historyOffset+=50;loadHistory().catch(report)};
 async function loadInbox(){try{const data=await api(`/api/admin/inbox?offset=${inboxOffset}`);
  $('#messages').innerHTML=data.messages.length?data.messages.map(m=>`<article class="ad-msg"${m.read_at?' data-read':''}><div class="top"><span class="st">${m.read_at?'已读':'未读'}</span><span>${date(m.created_at)}</span></div><h3>${escapeHtml(m.company)} · ${escapeHtml(m.name)}</h3><a class="m" href="mailto:${encodeURIComponent(m.email)}">${escapeHtml(m.email)}</a><dl><div><dt>应用与合作构想</dt><dd${m.read_at?' class="a"':''}>${escapeHtml(m.message)}</dd></div><div><dt>产品理解与开发经验</dt><dd${m.read_at?' class="a"':''}>${escapeHtml(m.experience)}</dd></div></dl>${m.read_at?'':`<div class="row"><button class="ad-btn solid" type="button" data-read="${m.id}">标为已读</button></div>`}</article>`).join(''):'<p class="ad-note">暂无软件合作伙伴申请。</p>';
@@ -179,23 +180,5 @@ $('#cancel-status').onclick=()=>$('#admin-status-dialog').close();
 let statusSaving=false;
 $('#admin-status-dialog').addEventListener('cancel',e=>{if(statusSaving)e.preventDefault();});
 $('#confirm-status').onclick=async()=>{const u=statusAdmin;statusSaving=true;$('#admin-status-dialog').querySelectorAll('button').forEach(b=>b.disabled=true);try{await api(`/api/admin/admins/${u.id}`,{method:'PATCH',body:JSON.stringify({enabled:u.disabled_at!==null})});$('#admin-status-dialog').close();await loadAdmins();document.querySelector(`[data-admin-status="${u.id}"]`)?.focus();toast('已保存','管理员状态已更新。');}catch(e){if(e.status===401)report(e);else $('#admin-status-help').textContent=e.message;}finally{statusSaving=false;$('#admin-status-dialog').querySelectorAll('button').forEach(b=>b.disabled=false);}};
+const {load:loadDealerMaterials}=setupDealerLibrary({api,toast,report});
 init();
-
-// Dealer resources use the existing case-page session and private file bucket.
-async function loadDealerMaterials(){
- const slot=$('#dealer-files');
- try{
-  const {files}=await api('/api/admin/dealer-materials');
-  slot.innerHTML=files.map(file=>`<form class="ad-panel dealer-upload" data-dealer-id="${escapeHtml(file.id)}"><h3>${escapeHtml(file.title)}</h3><p class="ad-note" data-upload-status>${file.uploaded?'已上传 · '+(file.size/1024/1024).toFixed(1)+' MB':'尚未上传'}</p><label class="cs-field"><span>选择 PDF（最大 20 MB）</span><input type="file" name="pdf" accept="application/pdf,.pdf" required></label><p class="ad-note">上传会替换这份资料，网页名称保持不变。文件内容仅提供中文版本。</p><button class="cs-pill primary" type="submit">上传 / 替换 PDF</button></form>`).join('');
- }catch(e){say(slot,e.message,'未能读取资料');if(e.status===401)showLogin();}
-}
-$('#refresh-dealer').onclick=loadDealerMaterials;
-$('#dealer-files').addEventListener('submit',async event=>{
- event.preventDefault();const form=event.target,file=form.pdf.files[0],button=form.querySelector('[type=submit]');
- if(!file)return;if(file.size>20*1024*1024){toast('未能上传','PDF 不能超过 20 MB');return;}
- button.disabled=true;form.pdf.disabled=true;
- try{
-  const {size}=await api('/api/admin/dealer-materials/'+encodeURIComponent(form.dataset.dealerId),{method:'PUT',headers:{'Content-Type':'application/pdf'},body:file});
-  form.querySelector('[data-upload-status]').textContent='已上传 · '+(size/1024/1024).toFixed(1)+' MB';form.reset();toast('已上传','经销商资料已更新。');
- }catch(e){report(e);}finally{button.disabled=false;form.pdf.disabled=false;}
-});

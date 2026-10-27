@@ -37,6 +37,7 @@ import { financeCommand } from "./finance.mjs";
 import { validateCalendar } from "./maintenance.mjs";
 import { enqueuePending } from "./dispatcher.mjs";
 import { uploadCommand } from "./files.mjs";
+import { legacyRows, endLegacy } from "./legacy.mjs";
 const headers = {
   "Content-Type": "application/json; charset=utf-8",
   "Cache-Control": "private, no-store",
@@ -505,7 +506,7 @@ export async function handleSampleApi(request, env, ctx) {
     if (path === "/api/sample-admin/assets" && method === "GET") {
       const assets = await rows(
         env,
-        "SELECT a.*,x.request_id,r.public_no,r.effective_due_at,r.original_json FROM sample_assets a LEFT JOIN sample_allocations x ON x.asset_id=a.id LEFT JOIN sample_requests r ON r.id=x.request_id ORDER BY a.created_at,a.id",
+        "SELECT a.*,x.request_id,x.legacy_loan_id,r.public_no,r.effective_due_at,r.original_json,l.borrower,l.contact,l.lent_at,l.due_at,l.notes AS loan_notes FROM sample_assets a LEFT JOIN sample_allocations x ON x.asset_id=a.id LEFT JOIN sample_requests r ON r.id=x.request_id LEFT JOIN sample_legacy_loans l ON l.id=x.legacy_loan_id ORDER BY a.created_at,a.id",
       );
       return json({
         assets: assets.map((a) => ({
@@ -516,17 +517,45 @@ export async function handleSampleApi(request, env, ctx) {
           notes: a.notes,
           lifecycle: a.lifecycle,
           assetVersion: a.row_version,
-          allocation: a.request_id
+          allocation: a.legacy_loan_id
             ? {
-                requestId: a.request_id,
-                publicNo: a.public_no,
-                dueAt: a.effective_due_at,
-                name: JSON.parse(a.original_json).applicant.name,
+                source: "legacy",
+                legacyLoanId: a.legacy_loan_id,
+                name: a.borrower,
+                contact: a.contact,
+                lentAt: a.lent_at,
+                dueAt: a.due_at,
+                notes: a.loan_notes,
               }
-            : null,
+            : a.request_id
+              ? {
+                  source: "request",
+                  requestId: a.request_id,
+                  publicNo: a.public_no,
+                  dueAt: a.effective_due_at,
+                  name: JSON.parse(a.original_json).applicant.name,
+                }
+              : null,
         })),
       });
     }
+    const legacy = path.match(
+      /^\/api\/sample-admin\/assets\/([a-f0-9-]+)\/legacy-loans(?:\/([a-f0-9-]+)\/(return|loss|correct|preservation))?$/,
+    );
+    if (legacy && method === "GET" && !legacy[2])
+      return json({ loans: await legacyRows(env, legacy[1]) });
+    if (legacy && method === "POST" && legacy[2])
+      return json(
+        await endLegacy(
+          request,
+          env,
+          user,
+          legacy[1],
+          legacy[2],
+          legacy[3],
+          await payload(request),
+        ),
+      );
     const asset = path.match(
       /^\/api\/sample-admin\/assets(?:\/([a-f0-9-]+))?$/,
     );
