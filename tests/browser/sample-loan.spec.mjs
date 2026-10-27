@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
-import { run, afterURL, setup } from "./helpers.mjs";
+import { run, afterURL, setup, loginFixture } from "./helpers.mjs";
 import { readFileSync } from "node:fs";
+import { application } from "../../services/sample-loan/tests/fixtures.mjs";
 
 if (run.scope.sampleLoan)
   test("sample loan: public application, approval and machine allocation", async ({
@@ -125,8 +126,9 @@ if (run.scope.sampleLoan)
     await page.locator("#new-machine").click();
     const mf = page.locator("#machine-form");
     const machineNo = "BROWSER-NO-" + crypto.randomUUID();
+    const machineSn = "BROWSER-SN-" + crypto.randomUUID();
     await mf.locator("[name=no]").fill(machineNo);
-    await mf.locator("[name=sn]").fill("BROWSER-SN-" + crypto.randomUUID());
+    await mf.locator("[name=sn]").fill(machineSn);
     await mf.locator("[name=notes]").fill("存储卡、电源与包装齐全");
     await mf
       .locator("[name=model]")
@@ -139,6 +141,26 @@ if (run.scope.sampleLoan)
         exact: true,
       })
       .click();
+    const registered = await page.request.post(
+      server.url + "/api/sample-admin/assets",
+      {
+        headers: { Origin: server.url, "Idempotency-Key": crypto.randomUUID() },
+        data: {
+          modelKey: application.modelKey,
+          no: "SN-CONFLICT-" + crypto.randomUUID(),
+          sn: machineSn,
+        },
+      },
+    );
+    expect(registered.status()).toBe(201);
+    await mf.locator("button[type=submit]").click();
+    await expect(mf.locator("[name=sn]")).toBeFocused();
+    await expect(mf.locator("[name=sn]")).toHaveAttribute("aria-invalid", "true");
+    await expect(mf.locator(".field-error[data-auto]")).toHaveText(
+      "该 SN 已登记，请检查后重新填写",
+    );
+    await mf.locator("[name=sn]").fill(machineSn + "-CORRECTED");
+    await expect(mf.locator(".field-error[data-auto]")).toHaveCount(0);
     await mf.locator("button[type=submit]").click();
     await page.locator("#machine-dialog").waitFor({ state: "hidden" });
     await page.locator("[data-admin-tab=requests]").click();
@@ -245,6 +267,87 @@ if (run.scope.sampleLoan)
     await expect(page.locator("#admin-view")).not.toBeVisible();
     await expect(page.locator("#admin-denied")).toBeVisible();
     if (errors.length) throw new Error(errors.join("\n"));
+  });
+
+if (run.scope.sampleLoan)
+  test("sample loan: navigation owns delayed detail responses and errors", async ({ page }) => {
+    await setup(page, "zh");
+    await loginFixture(page, afterURL, "after");
+    const { terms } = await (
+      await page.request.get(afterURL + "/api/sample-loans/terms")
+    ).json();
+    const names = ["切换验证 A ", "切换验证 B "].map(
+      (name) => name + crypto.randomUUID(),
+    );
+    const ids = [];
+    for (const name of names) {
+      const response = await page.request.post(
+        afterURL + "/api/sample-loans/applications",
+        {
+          headers: { Origin: afterURL, "Idempotency-Key": crypto.randomUUID() },
+          data: {
+            ...application,
+            applicant: { ...application.applicant, name },
+            consent: {
+              termsVersion: terms.version,
+              noticeVersion: terms.noticeVersion,
+              accepted: true,
+              noStockShown: false,
+            },
+          },
+        },
+      );
+      expect(response.status()).toBe(201);
+      ids.push((await response.json()).id);
+    }
+    await page.goto(afterURL + "/sample-loan/#admin");
+    for (const [path, fail] of [
+      ["/api/sample-admin/assets", false],
+      ["/api/sample-admin/requests/" + ids[0], false],
+      ["/api/sample-admin/requests/" + ids[0], true],
+    ]) {
+      await page.locator("[data-admin-tab=requests]").click();
+      const row = (id) => page.locator(`[data-request="${id}"]`);
+      await row(ids[0]).waitFor();
+      let release;
+      const held = new Promise((resolve) => (release = resolve));
+      await page.route(
+        afterURL + path,
+        async (route) => {
+          await held;
+          if (fail)
+            await route.fulfill({
+              status: 500,
+              json: { error: "已过期的请求错误" },
+            });
+          else await route.continue();
+        },
+        { times: 1 },
+      );
+      try {
+        const started = page.waitForRequest(afterURL + path);
+        await row(ids[0]).click();
+        await started;
+        await expect(page.locator("#detail-loading")).toBeVisible();
+        await expect(page.locator("#admin-detail")).toBeHidden();
+        await page.locator("[data-admin-tab=requests]").click();
+        await row(ids[1]).click();
+        await expect(page.locator("#detail-title")).toHaveText(names[1]);
+        const company = page.locator("#approval-form [name=company]");
+        await company.fill(names[1] + " 补充资料");
+        const finished = page.waitForResponse(afterURL + path);
+        release();
+        await (await finished).finished();
+        await page.evaluate(() => new Promise(requestAnimationFrame));
+        await expect(page).toHaveURL(afterURL + "/sample-loan/#admin/" + ids[1]);
+        await expect(page.locator("#detail-title")).toHaveText(names[1]);
+        await expect(company).toHaveValue(names[1] + " 补充资料");
+        await expect(page.locator("#detail-loading")).toBeHidden();
+        await expect(page.locator("#toast")).not.toContainText("已过期的请求错误");
+      } finally {
+        release();
+      }
+    }
   });
 
 if (run.scope.sampleLoan)

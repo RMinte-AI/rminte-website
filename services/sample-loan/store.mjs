@@ -165,6 +165,10 @@ export async function mutation(
         [fullScope, key],
       );
       if (dup && dup.payload_hash === hash) return JSON.parse(dup.result_json);
+      if (/UNIQUE constraint failed: sample_assets\.sn_key\b/.test(e.message)) {
+        const message = "该 SN 已登记，请检查后重新填写";
+        fail(409, "DUPLICATE_SN", message, { sn: message });
+      }
       fail(409, "RESOURCE_CONFLICT", "记录已被其他操作使用，请刷新核对");
     }
     throw e;
