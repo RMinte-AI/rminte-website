@@ -128,13 +128,13 @@ npx wrangler dev --config services/case-access/wrangler.jsonc --port 8788 --ip 1
 
 ## 经销商资料
 
-后台以列表管理多份 PDF：添加、修改名称、替换文件、删除。`dealer_materials` 表保存标题、实际文件语言、原文件名、大小、状态、版本和私有 R2 对象位置；文件不放在 `website/` 或公开下载域名中。既有资料迁移保留 ID 和原对象位置；旧文件实际不存在时，公开列表不展示。
+后台以列表管理多份 PDF：添加、修改名称、替换文件、删除。`dealer_materials` 表保存标题、实际文件语言、原文件名、大小、状态、版本和私有 R2 对象位置；文件不放在 `website/` 或公开下载域名中。目录只读取 D1，不逐次查询 R2；文件信息由上传或下述一次性迁移核实后写入。
 
 每份资料至少填写一种网站语言的名称，支持 zh/en/ja/ko/es/fr，各语言最多一行。名称完全由管理员手工填写，与原文件名分开保存；不自动翻译标题或 PDF。当前语言没有名称时不展示，不回退到其他语言。文件实际语言可选上述六种或 multi；不同内容语言的 PDF 可作为独立资料登记。
 
 | 接口 | 用途 |
 | --- | --- |
-| `GET /api/dealer-materials?lang=zh` | 公开元信息，只返回该语言已发布且有文件的资料，不返回私有对象位置 |
+| `GET /api/dealer-materials?lang=zh` | 公开元信息，只返回该语言已发布且大小已记录的资料，不返回私有对象位置 |
 | `GET/HEAD /api/dealer-materials/:id/download` | 按当前会话及独立下载权限读取 PDF；附件使用原文件名，禁止缓存 |
 | `GET /api/admin/dealer-materials` | 管理员列表，包含草稿、删除未完成、旧文件待清理状态及版本 |
 | `POST /api/admin/dealer-materials` | JSON `{titles:{zh:"名称"},fileLanguage:"zh"}`，创建待上传草稿，返回 id/version |
@@ -147,7 +147,28 @@ npx wrangler dev --config services/case-access/wrangler.jsonc --port 8788 --ip 1
 
 上传先校验 PDF 和大小，再写新对象，数据库原子切换指向后发布；失败不覆盖原 PDF。替换后旧对象位置保存在 obsolete_key，后台立即清理；失败明确展示“旧文件待清理”，管理员可继续处理，清理前不能再次替换。删除先将状态变为 deleting，再清理当前/旧对象，最后移除记录；中途失败保留“删除未完成”，可按列表最新版本继续删除。上传失败的新增草稿可继续编辑上传或删除。
 
-`0006_dealer_materials.sql` 需在上线新代码前应用，保留当前资料 ID、六语言旧名称及私有文件位置。开发、验证只用隔离本地 D1/R2；生产迁移和发布另按授权执行。
+R2 写入与 D1 更新不属于同一事务。进程若在写入新对象后、更新数据库前终止，可能留下未引用的私有文件；目录不会展示它，但它仍占用存储。需要处理时，在暂停资料写入的维护窗口核对 `dealer/` 下对象与表内全部 `object_key`、`obsolete_key` 引用，确认无引用后人工删除，不能按文件年龄直接删除；当前没有自动清扫任务。
+
+### 旧资料迁移与发布顺序
+
+`0006_dealer_materials.sql` 尚未应用到生产，需在上线新代码前应用。它保留原资料 ID、六语言名称、文件名和对象位置，先登记为 `draft`、`size=NULL`；未知大小不填 0，也不提前发布。
+
+在已授权的发布维护窗口，关联备份 D1/R2，依次应用 0005、0006 并核对结果；单个迁移失败应停止后续发布，不能把前一文件成功当作全部迁移成功。然后一次性核实生产 `CASE_FILES` 实际绑定的私有 bucket 中的 `dealer/rm01-product-comparison.pdf`：
+
+- 对象存在：核对其内容和精确字节数，用下列 SQL 模板回填并发布。将 `<VERIFIED_BYTES>` 替换为核实后的正整数字节数，不能直接执行占位模板；核对恰好更新一行，再查询确认 ID、对象位置、大小、状态及原六语言名称。
+- 对象不存在：保留待上传草稿，公开目录及下载不发布它；部署后由管理员上传真实 PDF，上传操作会记录真实大小并发布。不伪造大小、不将读取失败当作对象不存在。
+- R2 核实失败或更新行数不符：停止发布并查明原因，不能跳过核实，也不能覆盖已经被修改的记录。
+
+```sql
+UPDATE dealer_materials
+SET size=<VERIFIED_BYTES>, status='published', row_version=row_version+1,
+    updated_at=strftime('%Y-%m-%dT%H:%M:%fZ','now')
+WHERE id='rm01-product-comparison'
+  AND object_key='dealer/rm01-product-comparison.pdf'
+  AND status='draft' AND size IS NULL AND row_version=1;
+```
+
+上述步骤完成后才合并 main 并让自动部署运行，避免新接口先于表结构上线；验证目录显示、原下载链接与授权。开发、验证只用隔离本地 D1/R2；本 PR 未执行生产回填、迁移或发布。
 
 ### 独立经销商下载权限（0003）
 

@@ -44,7 +44,7 @@ if (run.scope.sampleLoan)
     await model.click();
     await app
       .getByRole("option", {
-        name: "RM-01 128G T5000 (2070 TFLOPS)",
+        name: "RM-01 128G T5000 ( 2070 TFLOPS )",
         exact: true,
       })
       .click();
@@ -135,7 +135,7 @@ if (run.scope.sampleLoan)
       .click();
     await mf
       .getByRole("option", {
-        name: "RM-01 128G T5000 (2070 TFLOPS)",
+        name: "RM-01 128G T5000 ( 2070 TFLOPS )",
         exact: true,
       })
       .click();

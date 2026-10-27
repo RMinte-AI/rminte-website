@@ -73,20 +73,13 @@ export async function listDealerMaterials(env, lang = null) {
     env,
     "SELECT * FROM dealer_materials" +
       (lang
-        ? " WHERE status='published' AND json_extract(titles_json,?) IS NOT NULL"
+        ? " WHERE status='published' AND size IS NOT NULL AND json_extract(titles_json,?) IS NOT NULL"
         : "") +
       " ORDER BY created_at,id",
     ...(lang ? ["$." + lang] : []),
   );
-  const files = [];
-  for (const r of items) {
-    let size = r.size;
-    if (size === null && r.status === "published") {
-      if (!env.CASE_FILES) fail(503, "STORAGE_UNAVAILABLE", "资料存储尚未配置");
-      size = (await env.CASE_FILES.head(r.object_key))?.size ?? null;
-    }
-    if (lang && size === null) continue;
-    files.push({
+  return {
+    files: items.map((r) => ({
       id: r.id,
       ...(lang
         ? { title: JSON.parse(r.titles_json)[lang] }
@@ -98,12 +91,11 @@ export async function listDealerMaterials(env, lang = null) {
             updatedAt: r.updated_at,
           }),
       fileLanguage: r.file_language,
-      size,
+      size: r.size,
       fileName: r.file_name,
       downloadUrl: "/api/dealer-materials/" + r.id + "/download",
-    });
-  }
-  return { files };
+    })),
+  };
 }
 export async function dealerDownload(env, id, method) {
   const item = await get(

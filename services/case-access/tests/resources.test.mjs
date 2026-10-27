@@ -57,6 +57,30 @@ async function uploadPdf(f,cookie,body,headers={}) {
 }
 const currentObject=f=>f.db.prepare('SELECT object_key FROM dealer_materials WHERE id=?').get(item.id).object_key;
 const pdf=new TextEncoder().encode('%PDF-1.7\nlocal PDF fixture\n%%EOF');
+test('legacy dealer metadata is explicitly verified before publishing; catalogue reads never access R2',async()=>{
+ const f=fixture();try{
+  const admin=await f.cookie('admin'),catalog=async()=>(await (await f.request('/api/dealer-materials?lang=zh')).json()).files;
+  const before=f.db.prepare('SELECT * FROM dealer_materials WHERE id=?').get(item.id);
+  assert.equal(before.status,'draft');assert.equal(before.size,null);
+  assert.deepEqual(await catalog(),[]);
+  assert.equal((await f.request(download,{cookie:admin})).status,404);
+  const pending=(await (await f.request('/api/admin/dealer-materials',{cookie:admin})).json()).files[0];
+  assert.equal(pending.status,'draft');assert.equal(pending.size,null);
+  // An existing private object also stays unpublished until its metadata is verified.
+  f.objects.set(before.object_key,{bytes:pdf,size:pdf.length,httpMetadata:{contentType:'application/pdf'}});
+  assert.deepEqual(await catalog(),[]);assert.equal(f.calls.length,0);
+  const updated=f.db.prepare("UPDATE dealer_materials SET size=?,status='published',row_version=row_version+1,updated_at=strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id='rm01-product-comparison' AND object_key='dealer/rm01-product-comparison.pdf' AND status='draft' AND size IS NULL AND row_version=1").run(pdf.length);
+  assert.equal(updated.changes,1);
+  for(let i=0;i<2;i++){
+   const listed=await catalog();assert.equal(listed.length,1);assert.equal(listed[0].id,item.id);assert.equal(listed[0].size,pdf.length);
+  }
+  assert.equal(f.calls.length,0,'public and admin catalogues must use stored metadata only');
+  const after=f.db.prepare('SELECT * FROM dealer_materials WHERE id=?').get(item.id);
+  for(const key of ['id','object_key','file_name','titles_json'])assert.equal(after[key],before[key]);
+  const file=await f.request(download,{cookie:admin});assert.equal(file.status,200);
+  assert.deepEqual(new Uint8Array(await file.arrayBuffer()),pdf);
+ }finally{f.db.close();}
+});
 test('dealer downloads require an explicit grant, apply revocation to an existing session, and keep case access independent',async()=>{
  const f=fixture();try{
   const reader=await f.cookie('reader'),admin=await f.cookie('admin'),first=await f.cookie('first');
