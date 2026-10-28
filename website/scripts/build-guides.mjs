@@ -52,7 +52,7 @@ const guideConfig = {
       zh: '面向使用 root 账户管理 TianshanOS 的运维人员，包含共用日常功能以及终端、指令与自动化。',
       en: 'For operators managing TianshanOS with the root account, including shared daily tasks, terminal, commands, and automation.'
     },
-    chapterCount: { zh: '12 个章节', en: '12 chapters' },
+    chapterCount: { zh: '13 个章节', en: '13 chapters' },
     next: { href: 'security.html', zh: '继续阅读安全指南', en: 'Continue to the Security guide' }
   },
   security: {
@@ -484,9 +484,9 @@ function siteNavigationTemplate() {
 }
 
 function pageTemplate(config, rendered) {
-  const guideAssetVersion = config.accent === 'network' ? 'stage3-1' : 'docs-20261013';
+  const guideAssetVersion = 'guides-063-20261028';
   const catalogVersion = 'tti-20261027';
-  const scFontVersion = '?v=cases-20261013';
+  const scFontVersion = config.accent === 'admin' || config.accent === 'root' ? '?v=guides-063-20261028' : '?v=cases-20261013';
   const pageData = JSON.stringify({
     title: config.title,
     copy: { zh: '已复制', en: 'Copied' },
@@ -515,7 +515,7 @@ function pageTemplate(config, rendered) {
   <script>
     // ja/ko/es/fr carry their own catalog file; zh and en need none. Resolve the language the way i18n.js does and load only that file.
     (function (up) {
-      var ok = /^(zh|en|ja|ko|es|fr)$/, c = window.RM_CATALOG = { base: up + 'assets/translations/', v: 'sample-2' };
+      var ok = /^(zh|en|ja|ko|es|fr)$/, c = window.RM_CATALOG = { base: up + 'assets/translations/', v: 'guides-063-20261028' };
       c.load = function () {
         var s; try { s = localStorage.getItem('rm-soft-lang'); } catch (e) {}
         var l = [new URLSearchParams(location.search).get('lang'), (location.hash.match(/^#(zh|en|ja|ko|es|fr)-/) || [])[1], s, window.RM_DEFAULT_LANG].filter(function (x) { return ok.test(x); })[0];

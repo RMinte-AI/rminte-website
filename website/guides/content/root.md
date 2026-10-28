@@ -1,16 +1,16 @@
 # TianshanOS root 运维指南
 
-本指南依据 TianshanOS 0.6.2 编写。后续版本中未变化的功能和操作，仍可参考本指南。若界面、提示或操作结果不同，请查阅所用版本的说明。
+本指南依据 TianshanOS 0.6.3 编写。使用其他版本时，请结合对应版本的说明核对操作。
 
-本指南面向使用 root 账户的用户。第一部分包含日常功能，第二部分介绍终端、远程指令与自动化。root 操作可能影响设备和远程主机；执行前确认目标和正在运行的任务。安全管理请参阅单独的安全指南。
+本指南面向使用 root 账户的用户。第一部分包含日常功能，第二部分介绍终端、远程指令、自动化和配置备份。root 操作可能影响设备和远程主机；执行前确认目标和正在运行的任务。安全管理请参阅单独的安全指南。
 
-按设备页面显示的功能操作。部分选项需要指定硬件或配置才会出现。电脑上将指针停在图标按钮上，可查看按钮名称。
+按设备页面显示的功能操作。部分选项需要指定硬件或配置才会出现。电脑上将指针停在图标按钮上，可查看按钮名称。手机表格较宽时，在表格内左右滑动查看其他列。
 
 ## 第一部分：日常功能
 
-## 1. 开始使用
+### 1. 开始使用
 
-### 进入 WebUI
+#### 进入 WebUI
 
 1. 在浏览器中打开管理员提供的设备网页地址（WebUI）。
 2. 点击页面右上角的“登录”。
@@ -21,11 +21,11 @@
 
 使用完毕后，点击右上角的“退出登录”。再次操作设备时需要重新登录。
 
-### 切换语言
+#### 切换语言
 
 点击页面顶部的语言按钮，在菜单中选择中文或 English。页面内容和按钮名称会立即切换到所选语言。
 
-### 页面导航
+#### 页面导航
 
 root 可使用以下入口：
 
@@ -34,14 +34,14 @@ root 可使用以下入口：
 - “文件”：管理 SD 卡和 SPIFFS 中的文件。
 - “终端”：执行设备命令并查看系统日志。
 - “指令”：管理和运行远程 SSH 指令。
-- “自动化”：配置数据源、规则和动作模板。
+- “自动化”：配置任务并保存应急副本。
 - “安全”：进入单独的安全管理页面，详细操作请查看安全指南。
 
-## 2. 系统状态与常用操作
+### 2. 系统状态与常用操作
 
 点击顶部导航中的“系统”进入系统页面。
 
-### 查看资源与服务状态
+#### 查看资源与服务状态
 
 “带外管理芯片资源监控”显示管理芯片的 CPU、DRAM 和 PSRAM 使用情况。这些读数不代表 AGX 或 LPMU 的资源使用率。
 
@@ -49,15 +49,17 @@ root 可使用以下入口：
 - “服务”按钮显示运行中的服务数和服务总数。点击后可查看各项服务的状态和启动阶段。
 - 服务状态异常时，先刷新。需要重启的服务按下方“重启单项服务”操作。
 
-### 查看系统与电源信息
+#### 查看系统与电源信息
 
 “系统总览”显示芯片、固件版本、ESP-IDF 版本和运行时间。日常使用主要核对固件版本；ESP-IDF 是设备所用系统框架的版本。
 
 卡片右侧显示输入电压、内部电压、电流、功率和保护状态。
 
+网络、风扇、温度和灯光等系统设置保存在设备内部。插入旧 SD 卡不会自动恢复这些设置。自动化配置另行管理，不要把应急副本当作整机备份。
+
 保护状态旁的开关用于启用或停用低电压保护。启用后，设备会按保存的电压和等待时间，在低电压时关机、供电恢复后重新启动。
 
-### 查看网络与时间
+#### 查看网络与时间
 
 “网络与时间”显示以太网、WiFi、IP 地址、当前时间、同步状态、时间源和时区。
 
@@ -65,17 +67,17 @@ root 可使用以下入口：
 - 点击“时区”，选择预设时区或填写页面支持的时区设置，然后保存。
 - 点击“OTA 升级”，进入固件升级页面。
 
-### 高级操作
+#### 高级操作
 
-#### 重启 TianshanOS
+##### 重启 TianshanOS
 
 重启会暂时中断 WebUI 和设备管理功能。先完成正在进行的操作，再点击“重启”并确认。等待设备恢复，然后重新打开 WebUI。
 
-#### 重启单项服务
+##### 重启单项服务
 
 重启服务会暂时中断该服务提供的功能。在“服务状态”中找到异常服务，点击该行的“重启”。操作完成后重新查看服务状态。
 
-#### 调整关机设置
+##### 调整关机设置
 
 这些设置决定设备在低电压时何时关机，以及供电恢复后何时重新启动。请按设备的供电要求填写电压和等待时间。
 
@@ -89,17 +91,17 @@ root 可使用以下入口：
 
 保存后，页面会应用新的保护设置。
 
-#### 切换顶部 USB 连接目标
+##### 切换顶部 USB 连接目标
 
 切换 USB 目标可能使当前连接的外设暂时断开。确认目标设备和正在进行的工作后再操作。
 
 设备提供 USB 切换功能时，页面会显示“USB”按钮。每点击一次，顶部 USB 接口按 ESP、AGX、LPMU 的顺序切换到下一个目标。查看按钮上的目标名称和页面提示，确认切换结果。
 
-## 3. 设备面板
+### 3. 设备面板
 
 “设备面板”位于“系统”页面，包含模组电源控制、快捷操作和数据组件。
 
-### 控制 AGX 和 LPMU
+#### 控制 AGX 和 LPMU
 
 关闭模组前，先保存其中的工作并完成正常关机流程。强制断电可能造成未保存的数据丢失。
 
@@ -107,39 +109,32 @@ root 可使用以下入口：
 - “LPMU 电源”显示“在线”“离线”或“未知”。在线表示网络能够连通，离线表示网络无法连通。这些状态不能单独证明模组已开机或关机。
 - 点击 LPMU 按钮会触发一次与物理电源按钮相同的操作。随后等待检测和页面提示；结果未知时，先检查模组和网络，不要连续点击。
 
-### 使用快捷操作
+#### 使用快捷操作
 
 快捷操作卡片由 root 用户配置。显示卡片和允许手动运行是两项设置；看得到卡片，不代表可以启动任务。
 
-1. 查看卡片名称、状态和可用按钮，确认目标任务。
-2. 点击可执行的卡片，等待本次操作的状态更新。处理中不要再次启动。
-3. 后台任务可能提供日志、核验状态或停止按钮。查看日志可了解任务输出。点击停止后，检查任务是否已停止。
-4. 状态未知或启动被阻止时，先使用页面提供的核验功能，或检查规则、远程指令和主机连接，方法见第 11、12 章。
+1. 查看卡片名称和说明，确认将要执行的任务。
+2. 点击卡片，阅读结果提示。处理中不要再次启动。
+3. 提示已执行或已排队后，还要确认目标设备或任务的实际结果。需要核验、查看日志或停止后台服务时，点击“后台运行”，步骤见第 11 章。
 
 无法启动时，按提示处理，不要连续点击：
 
-- 规则已停用，或不允许手动触发：在“自动化”检查规则设置（见第 12 章），不要把看到卡片当作运行许可。
-- 任务正在执行、启动、核验或停止：等待状态更新。
-- 关联服务已在运行：无需再启动。需要重启服务时，先停止并确认结果。
-- 服务是否停止尚未确认：先核验状态。无法确认时，在“安全”检查主机连接（见第 11 章）。
-- 规则尚未加载，或等待重启移除：在“自动化”核对规则版本和待重启提示（见第 12 章）。
-- 自动化暂不接受启动请求：在“自动化”检查引擎和配置状态。按提示处理；重启前检查正在运行的任务。
+- 规则已停用，或不允许手动触发：在“自动化”检查规则设置，方法见第 12 章。看得到卡片，不代表可以运行。
+- 任务或后台操作正在处理：等待结果，不要重复启动。
+- 同一任务已有后台运行记录：在“后台运行”核验原任务，确认结束后再启动。
+- 配置尚未加载、缺少关联项或自动化已暂停：在“自动化”检查配置和启停状态，方法见第 12、13 章。
 
-重新启动服务前，先确认它已停止。页面接受启动或停止请求后，任务可能仍在处理中；等待最终状态。完成一次点击后，等待几秒再启动其他操作。
+完成一次点击后，等待几秒再启动其他操作。关闭页面、删除卡片或重启 TianshanOS，都不会替你停止远程主机上的后台服务。
 
 长按卡片，出现排序提示后拖动，可以调整显示顺序。
 
-没有可用卡片时，先分清页面提示：
+没有卡片时，先阅读说明。配置加载中就等待；页面报告无法加载时，保留原因，在“终端”打开“系统日志”检查。只是没有配置快捷操作时，点击“打开自动化”，检查规则的“显示在面板”设置。
 
-- “快捷操作正在加载”：等待配置加载完成；长时间没有变化时，可点击“前往自动化”，并在“终端”的“系统日志”查看原因。
-- “快捷操作暂不可用”：点击“前往自动化”，检查状态；在“终端”打开“系统日志”查找原因。恢复配置后再使用卡片，不要反复点击启动。
-- 没有已配置的快捷操作：可点击“前往自动化”，新建规则或检查已有规则的“显示在面板”设置。
-
-导入规则包后，卡片可能仍运行旧任务，直到设备重启。新导入或待移除的规则也可能无法启动。任务刚被调整时，先核对规则列表中的当前运行版本，再执行。
+规则修改或导入后，当前配置会更新，不需要为了切换规则而重启。卡片任务刚被调整时，先核对规则的条件、动作和目标，再执行。
 
 不要为了恢复卡片，自行重启正在提供服务的设备。
 
-### 管理数据组件
+#### 管理数据组件
 
 数据组件用于在“设备面板”中持续显示设备数据。
 
@@ -150,11 +145,11 @@ root 可使用以下入口：
 
 已有组件可以编辑、删除和调整顺序。也可以直接点击组件卡片进入编辑界面。长按组件后拖动，可以改变它在面板中的位置。
 
-## 4. 风扇管理
+### 4. 风扇管理
 
 “风扇控制”位于“系统”页面。卡片显示设备提供的风扇。设置曲线前，核对风扇编号。
 
-### 查看风扇状态
+#### 查看风扇状态
 
 顶部显示“有效温度”和“当前输出”。卡片上的大百分比是设备确认已设置的调速值，不是实测转速。RPM 表示测得的每分钟转数，没有有效读数时不显示。大百分比显示 `--`，表示当前输出尚未确认。
 
@@ -166,7 +161,7 @@ root 可使用以下入口：
 
 点击区域顶部的刷新按钮，重新获取状态。出现“未能完成风扇调节”或输出未确认时，检查设备状态后再决定是否重试。
 
-### 选择运行模式
+#### 选择运行模式
 
 | 模式 | 作用 |
 | --- | --- |
@@ -177,7 +172,7 @@ root 可使用以下入口：
 
 关闭风扇或设置过低的手动值会降低散热能力。执行前确认设备负载和温度，并持续观察。只有在手动模式且当前输出已确认时，滑块才可调节。
 
-### 设置风扇曲线
+#### 设置风扇曲线
 
 点击“风扇控制”区域顶部的“曲线”，打开“风扇曲线管理”。卡片内的“曲线”只切换运行模式。
 
@@ -191,12 +186,12 @@ root 可使用以下入口：
 
 保存失败时，先查看具体提示并检查当前状态，再决定是否重试。解除温度绑定后，也应检查有效温度和风扇状态。
 
-### 导入和导出曲线
+#### 导入和导出曲线
 
 - 点击“导入配置”，选择曲线 JSON 文件。JSON 是保存曲线数据的文件格式。检查载入的节点、限制和风扇编号，再点击“保存曲线”使其生效。
 - 点击“导出配置”，浏览器会下载当前曲线，并尝试将副本保存到 SD 卡的 `/sdcard/config` 目录。分别检查浏览器下载结果和页面提示的 SD 卡保存结果。
 
-### 使用测试温度
+#### 使用测试温度
 
 测试温度会临时替代正常温度来源，并影响曲线或智能调速。测试期间持续观察风扇和设备状态。
 
@@ -204,11 +199,11 @@ root 可使用以下入口：
 2. 点击“测试”，观察当前输出、状态和风扇响应。
 3. 测试结束后点击“清除测试”，恢复正常温度来源，并确认有效温度已恢复。
 
-## 5. LED 管理
+### 5. LED 管理
 
 “LED 控制”位于“系统”页面，只显示设备提供的 LED。不同 LED 可用的功能不同。
 
-### 常用控制
+#### 常用控制
 
 - 使用卡片底部的灯泡按钮开启或关闭 LED。
 - 拖动“亮度”滑块调整亮度，或选择颜色和预设色。
@@ -216,7 +211,7 @@ root 可使用以下入口：
 - 点击卡片右下角的保存图标，保存当前 LED 配置。
 - 点击“全部关闭”关闭所有 LED，并查看页面报告的结果。部分关闭失败时，检查对应设备。
 
-### LED 矩阵高级功能
+#### LED 矩阵高级功能
 
 矩阵设备的卡片提供相应功能图标，打开后可在“LED 设置”中切换分组：
 
@@ -228,17 +223,17 @@ root 可使用以下入口：
 
 操作后检查灯光或矩阵画面。只使用页面提供的功能。设置失败时，按提示检查文件、输入和设备状态。
 
-## 6. 网络管理
+### 6. 网络管理
 
 点击顶部导航中的“网络”进入“网络设置”。修改网络模式、热点或 NAT 设置可能断开 WebUI。保存前，确认能用新的网络地址重新连接设备。
 
-### 查看网络状态
+#### 查看网络状态
 
 页面顶部显示以太网、WiFi 客户端和 WiFi 热点的连接状态。进入对应面板，可以查看 IP 地址、子网掩码、网关、DNS、MAC 地址、SSID、信号和接入设备数量等信息。
 
 以太网面板用于查看当前链路和地址信息，不提供地址修改入口。
 
-### 选择 WiFi 模式
+#### 选择 WiFi 模式
 
 | 模式 | 作用 |
 | --- | --- |
@@ -249,7 +244,7 @@ root 可使用以下入口：
 
 选择模式后等待页面刷新状态。切换模式期间，当前无线连接可能暂时断开。
 
-### 连接 WiFi
+#### 连接 WiFi
 
 1. 将 WiFi 模式设置为“站点 (STA)”或“STA+AP”。
 2. 在“站点连接”中点击“扫描”。
@@ -259,7 +254,7 @@ root 可使用以下入口：
 
 点击“断开”可以结束当前 WiFi 客户端连接。
 
-### 配置 WiFi 热点
+#### 配置 WiFi 热点
 
 1. 将 WiFi 模式设置为“热点 (AP)”或“STA+AP”。
 2. 在“热点”区域点击“配置”。
@@ -269,21 +264,21 @@ root 可使用以下入口：
 
 点击“设备”可以查看当前连接到热点的设备。
 
-### 设置主机名
+#### 设置主机名
 
 在“网络服务”的“主机名”区域输入新名称，然后点击“设置”。主机名更新后，页面会显示当前名称。
 
-### 查看 DHCP 客户端
+#### 查看 DHCP 客户端
 
 DHCP 会自动为接入设备分配网络地址。点击“客户端”，选择“WiFi AP”或“Ethernet”，查看当前分配记录。点击刷新按钮可以重新加载列表。
 
-### 高级网络操作
+#### 高级网络操作
 
-#### 设置 NAT 网关
+##### 设置 NAT 网关
 
 NAT 用于在设备的网络接口之间转发网络流量。启用或停用 NAT 后，点击“保存”保留当前设置。操作完成后检查 WiFi 和 Ethernet 状态。
 
-#### 通过 LPMU 接入上层网络
+##### 通过 LPMU 接入上层网络
 
 此操作通过已配置的 LPMU 主机接入网络。先确认能连接 LPMU、网络线缆已接好，再准备该主机 SSH 账号的 sudo 密码。这个密码用于允许账号修改系统设置，可能与 WebUI 登录密码不同。
 
@@ -295,13 +290,13 @@ NAT 用于在设备的网络接口之间转发网络流量。启用或停用 NAT
 
 状态获取失败不等于脚本已经停止。先点击页面提供的“刷新状态”确认当前执行情况，再决定是否重新接入。
 
-## 7. 文件管理
+### 7. 文件管理
 
 点击顶部导航中的“文件”进入“文件管理”。
 
 SD 卡是可插拔存储，SPIFFS 是设备内部文件存储。点击“SD 卡”或“SPIFFS”切换位置。页面上方显示当前文件夹路径；点击路径中的文件夹名称，可以返回上一级或更早的目录。
 
-### 浏览和管理文件
+#### 浏览和管理文件
 
 - 点击文件夹名称进入该目录。
 - 点击文件右侧的下载按钮，将文件保存到浏览器的下载位置。
@@ -309,7 +304,7 @@ SD 卡是可插拔存储，SPIFFS 是设备内部文件存储。点击“SD 卡�
 - 点击“新建文件夹”，输入文件夹名称并创建。
 - 点击刷新按钮重新加载当前目录和存储状态。
 
-### 上传文件
+#### 上传文件
 
 文件只能上传到 SD 卡，不能上传到 SPIFFS。先确认 SD 卡已挂载。
 
@@ -323,7 +318,7 @@ SD 卡是可插拔存储，SPIFFS 是设备内部文件存储。点击“SD 卡�
 
 规则配置包请从“自动化”页面导入，步骤见第 12 章。不要用普通文件上传代替规则导入。其他配置包的来源和签名说明见安全指南。
 
-### 批量操作
+#### 批量操作
 
 勾选文件或文件夹后，页面会显示批量工具栏。
 
@@ -331,25 +326,39 @@ SD 卡是可插拔存储，SPIFFS 是设备内部文件存储。点击“SD 卡�
 - “批量删除”删除选中的文件和文件夹。
 - “取消选择”清除当前选择。
 
-### 删除文件或文件夹
+#### 删除文件或文件夹
 
 删除操作无法从 WebUI 撤销。删除文件夹时，其中的全部内容也会被删除。确认名称和路径后，再点击“删除”或“批量删除”并确认。
 
-### 挂载和卸载 SD 卡
+自动化管理的文件受到保护。向 `/sdcard/config/automation` 上传或覆盖文件，以及删除、重命名这个目录或包含它的父目录，可能被拒绝。看到“这是自动化使用的配置文件”时，请从“自动化”的“配置与备份”或对应列表处理，不要改用终端绕过限制。
+
+#### 挂载和卸载 SD 卡
 
 卸载后，SD 卡中的文件会暂时无法访问。先确认上传、下载等文件操作已结束，再点击“卸载 SD”。
 
-设备用 SD 卡保存自动化配置时，拔卡或换卡可能导致重启后无法加载配置。先确认配置和正在运行的任务允许卸载。页面要求保留 SD 卡时，不要卸载或拔出。
+卸载或换卡可能让自动化改用内部应急配置。这份配置可能较旧，已启用的自动规则仍可能运行；没有可用副本时，自动化可能无法运行。先核对应急配置和任务，确认允许卸载，方法见第 13 章。卡上的图片、字体和日志会暂时无法访问。
 
 SD 卡未挂载时，页面会显示“挂载 SD”。点击该按钮，等待存储状态变为“已挂载”，随后重新进入 SD 卡目录。
 
-## 8. OTA 更新
+挂载成功不等于已改用卡内自动化配置。重新插卡后，按第 13 章选择使用哪份配置，不会自动覆盖或合并。
+
+### 8. OTA 更新
 
 在“系统”页面的“网络与时间”区域点击“OTA 升级”，进入“固件升级”。
 
 更新过程中设备会重启，WebUI 会暂时断开。开始前应保存正在进行的工作，并保持设备供电稳定。升级进度尚未完成时不要关闭设备。
 
-### 从 OTA 服务器检查更新
+#### 首次从旧版本升级到 0.6.3
+
+首次从 0.6.2 等旧存储布局升级时，需要发行方确认的配套 USB／串口升级包。只上传主固件或 WebUI，不能完成这次升级。请设备管理员或提供方按包内说明操作，不要自行全片擦除或使用旧分区表。
+
+升级前保存重要文件，保留原 SD 卡。首次启动会迁移原配置，期间不要断电。完成后，检查登录、网络、风扇、灯光、SSH 主机和自动化规则。不要在尚未确认规则内容时测试带有断电、重启或远程命令的任务。
+
+该配套包会更新两个应用槽，不能假定另一个槽仍保留旧版本。忘记 root 密码时，只使用提供方确认与 0.6.3 布局匹配的恢复方案，不要刷入旧版密码重置固件。
+
+下面的网页更新方法用于发行方确认可通过 OTA 安装的版本，不能代替首次布局升级。
+
+#### 从 OTA 服务器检查更新
 
 1. 查看页面显示的“当前版本”。
 2. 在“OTA 服务器”中输入管理员或发行方提供的服务器地址。
@@ -357,11 +366,13 @@ SD 卡未挂载时，页面会显示“挂载 SD”。点击该按钮，等待�
 4. 页面会显示“发现新版本”“已是最新版本”“服务器版本较旧”或错误信息。
 5. 确认目标版本后，点击“立即升级”或页面显示的升级按钮。
 6. 等待下载、安装和重启完成。需要中止时，使用页面显示的中止按钮；只在按钮可用的阶段操作。
-7. 设备重新上线后，重新连接 WebUI，并核对“当前版本”。
+7. 等待页面确认升级后的固件，再重新连接 WebUI，核对“当前版本”和设备状态。
 
-升级同时包含 WebUI 时，固件和 WebUI 会依次更新。升级到 0.6.2 时，请使用发行方提供的配套主固件和 WebUI 资源，两者应来自同一发布版本。升级后仍显示旧界面时，尝试强制刷新浏览器，再核对版本和页面。
+“升级进度”单独显示当前阶段。进度达到 100% 或显示文件已写入，不代表重启和版本核对已完成。出现“升级结果未确认”或“启动的固件与升级目标不符”时，保留提示，检查设备当前版本；不要直接重复升级。无法确认时，先查看系统日志，需要时联系设备提供方。
 
-### 手动升级
+升级同时包含 WebUI 时，固件和 WebUI 会依次更新。请使用同一发布版本的配套主固件和 WebUI 资源。升级后仍显示旧界面时，尝试强制刷新浏览器，再核对版本和页面。
+
+#### 手动升级
 
 展开“手动升级”后，可以选择以下方式：
 
@@ -370,7 +381,7 @@ SD 卡未挂载时，页面会显示“挂载 SD”。点击该按钮，等待�
 
 从 URL 升级时，“跳过证书校验”用于跳过 HTTPS 服务器证书验证。勾选后，设备无法通过该证书确认下载服务器的身份。日常升级请保持未勾选；遇到证书错误时，请先联系管理员检查服务器地址和证书。
 
-### 分区管理与回滚
+#### 分区管理与回滚
 
 “分区管理”显示当前运行分区和其他可用分区。
 
@@ -379,33 +390,33 @@ SD 卡未挂载时，页面会显示“挂载 SD”。点击该按钮，等待�
 
 操作完成并重启后，重新打开 WebUI，核对当前版本和设备状态。
 
-0.6.2 改变了自动化配置的保存方式。回退旧固件前，请确认旧固件能否读取这些配置，必要时联系设备提供方，并准备备份和恢复方法。
+0.6.3 改变了配置保存方式和设备分区布局。不要直接回退到不兼容的旧固件。确需降级时，请设备提供方确认完整的固件、布局和配置恢复方案。
 
-回滚只切换固件，不会把配置恢复成旧格式。回退后，原有规则不一定能继续使用。
+回滚不会恢复旧配置格式，也不保证旧规则可用。
 
-## 9. 安全管理入口
+### 9. 安全管理入口
 
 点击顶部导航中的“安全”进入安全管理页面。SSH 密钥、远程主机、主机指纹、HTTPS 证书、配置包和账户管理的操作请查看《TianshanOS 安全指南》。本指南不重复这些内容。
 
-### 遇到失败或结果未确认
+#### 遇到失败或结果未确认
 
-填写表单时，字段旁可能出现红色标记和错误说明。先按说明修正该字段，再保存。标记消失不代表已经保存成功；还要检查保存提示和列表。
+字段旁出现红色错误说明时，按提示修正后再保存。标记消失不代表已经保存成功；还要检查保存提示和列表。
 
 先看哪项操作失败，再阅读原因和下一步。提示没有说明原因时，不要猜测。
 
-如果提示提供“详情”，点击后可查看更多信息。点击“收起”可隐藏详情。页面提供 × 时，可点击它关闭提示。需要进一步检查时，保留提示和详情，在“终端”打开“系统日志”检查。
+有“详情”时，点击查看。点击“收起”可隐藏详情。页面提供 × 时，可点击它关闭提示。需要进一步检查时，保留提示和详情，在“终端”打开“系统日志”检查。
 
 出现“结果未确认”时，先刷新并检查设备、文件或任务状态。超时或断开连接不代表操作没有执行；不要立即重复断电、删除、启动任务或升级。仍无法确认时，在“终端”打开“系统日志”查看原因。
 
-批量操作后，分别检查成功、失败和未确认的项目。下载文件后，在浏览器下载列表中确认文件已保存。
+批量操作后，分别核对成功、失败和未确认的项目。下载文件后，检查浏览器下载列表。
 
 ## 第二部分：root 专属功能
 
-## 10. 终端与系统日志
+### 10. 终端与系统日志
 
 “终端”只对 root 显示。它可以直接执行设备控制台命令，也可以查看设备日志。命令可能立即改变设备状态，输入前应确认命令来源、参数和影响。
 
-### 连接并使用终端
+#### 连接并使用终端
 
 1. 点击顶部导航中的“终端”。
 2. 等待页面显示“已连接到设备”和 `tianshan>` 提示符。
@@ -425,7 +436,7 @@ SD 卡未挂载时，页面会显示“挂载 SD”。点击该按钮，等待�
 
 页面顶部的“清屏”只清除当前显示，不会撤销已经执行的命令。“断开”会结束当前终端连接。
 
-### 进入远程 SSH Shell
+#### 进入远程 SSH Shell
 
 SSH Shell 会把后续键盘输入发送到远程主机。连接前应确认目标地址、用户和认证方式，并完成安全指南中的 SSH 准备工作。
 
@@ -436,7 +447,7 @@ SSH Shell 会把后续键盘输入发送到远程主机。连接前应确认目�
 
 不要在屏幕共享、录屏或可被他人查看的终端中输入明文凭据。
 
-### 查看系统日志
+#### 查看系统日志
 
 点击终端页顶部的“系统日志”打开日志窗口。
 
@@ -449,11 +460,15 @@ SSH Shell 会把后续键盘输入发送到远程主机。连接前应确认目�
 
 筛选后没有内容时，可以先清空 TAG 和关键词，再调整级别。关闭日志窗口不会停止设备服务。
 
-## 11. 管理和运行远程指令
+#### 查询自动化保存位置
+
+需要命令行检查时，可输入 `auto --config status` 查看当前配置位置和副本状态。其他可用选项以 `auto --help` 为准。旧的 `config --sync` 已移除；日常备份和恢复请使用第 13 章的网页操作。
+
+### 11. 管理和运行远程指令
 
 “指令”用于保存可重复使用的 SSH 命令，并在选定的远程主机上运行。远程主机及其认证信息在“安全”页面管理；具体操作请查看安全指南。
 
-### 连接前核对主机指纹
+#### 连接前核对主机指纹
 
 指纹用于核对你连接的是哪台主机。以下步骤适用于网页“安全”中的 SSH 主机测试，不是终端 SSH Shell 的确认流程。提示主机指纹未登记或发生变化时，不要反复执行指令。进入“安全”，找到目标 SSH 主机，点击“测试”。
 
@@ -463,15 +478,15 @@ SSH Shell 会把后续键盘输入发送到远程主机。连接前应确认目�
 
 核对地址，并通过可信渠道确认变化原因。不能确认时，点击“取消”。不要删除旧指纹来跳过核对。确认新指纹可信后，才点击“更新主机密钥”。
 
-### 选择主机并查看指令
+#### 选择主机并查看指令
 
 1. 点击顶部导航中的“指令”。
 2. 在“选择主机”中选择页面显示的主机。
 3. 在“命令列表”中查看该主机已有的指令。
 
-“孤儿命令”表示指令引用的主机已经不存在。这类指令无法执行。可以删除它，或通过导入时的主机绑定功能重新关联到有效主机。
+“孤儿命令”表示指令引用的主机已经不存在，不能执行。先核对主机配置。需要保留任务时，在有效主机下重建指令，更新使用它的模板和规则，检查结果后再清理孤儿命令。
 
-### 新建或编辑指令
+#### 新建或编辑指令
 
 保存的指令会在远程主机上执行。创建前应先在目标主机上人工确认命令及权限，避免把删除、关机、重启或覆盖文件等操作配置成容易误触的指令。
 
@@ -483,7 +498,7 @@ SSH Shell 会把后续键盘输入发送到远程主机。连接前应确认目�
 
 名称帮助你辨认指令，ID 用于让自动化找到它。编辑现有指令时，ID 不能修改。要使用新 ID，请新建指令，并更新使用它的动作模板和数据源。
 
-### 执行并查看结果
+#### 执行并查看结果
 
 1. 点击指令卡片上的执行按钮。
 2. 在“执行结果”中观察输出和状态。
@@ -492,7 +507,7 @@ SSH Shell 会把后续键盘输入发送到远程主机。连接前应确认目�
 
 “清除”不会撤销远程主机已经完成的操作。执行结果中的成功、失败、提取内容和最终状态取决于指令的匹配设置。
 
-### 配置结果匹配
+#### 配置结果匹配
 
 结果匹配用于把远程输出转换为容易判断的状态。
 
@@ -505,19 +520,24 @@ SSH Shell 会把后续键盘输入发送到远程主机。连接前应确认目�
 
 成功和失败文本应选择稳定、明确的输出。过于宽泛的文字可能造成误判。保存后先执行一次并检查“匹配结果”，再把变量用于规则。
 
-### 使用后台执行和服务模式
+#### 使用后台执行和服务模式
 
 nohup 表示命令在远程主机后台继续运行，SSH 断开后仍可继续。后台任务不会因为关闭 WebUI 自动停止。
 
-启用“后台运行 (nohup)”后，可以使用：
+后台运行需要 SSH 密钥认证。先在“安全”完成公钥部署，再选择关联主机。不要在后台命令中保存明文密码。需要停止或核验原任务时，对应的密钥也必须仍然可用。
 
-- “查看日志”：读取后台任务的当前日志。
-- “实时跟踪”：持续刷新日志。
-- “停止跟踪”：停止页面刷新，不停止远程任务。
-- “检查进程”：查看后台任务是否仍在运行。
-- “停止进程”：请求结束对应后台任务，随后检查进程状态。
+启用“后台运行 (nohup)”并执行后，从“指令”页点击“后台运行”。系统页的 root 入口和“自动化”页也可以打开同一列表。
 
-“查看日志”或“检查进程”失败时，先阅读原因并检查主机连接。读取失败不等于日志没有内容，也不代表进程已经退出。恢复连接后再检查；不要因为检查失败而重新启动任务。
+1. 按任务名称、用户名、主机地址和端口找到原任务。
+2. 点击“核验远端状态”，连接原主机检查这次运行。列表“刷新”只读取已知记录，不代替核验。
+3. 点击“查看日志”读取原主机日志的最近 100 行。需要持续查看时，点击“实时查看”；“停止查看”只停止页面刷新。
+4. 需要结束任务时，点击该记录的“停止”并确认。等待结果，再核验是否已停止；不要直接重复启动。
+
+设备重启后，原记录会显示“待检查”。“无法确认远端状态”表示尚无法判断任务是已停止还是仍在运行。“上次结果”只说明上一次确认的结果，不保证此刻仍然相同。
+
+读取失败不等于日志没有内容，也不代表进程已经退出。先检查原主机连接、日志路径和 SSH 密钥，恢复后再核验；不要因为检查失败而重新启动任务。
+
+删除命令、更换主机配置或切换自动化配置，不会结束已运行的远端进程。原任务仍从“后台运行”管理；重建同名、同 ID 的命令，不会接管原任务。不要删除仍需用来控制原任务的密钥。
 
 “服务模式”用于持续观察后台任务是否进入可用状态。启用后，必须填写“就绪匹配”和“变量名”；失败匹配和等待设置可按需要调整：
 
@@ -527,24 +547,24 @@ nohup 表示命令在远程主机后台继续运行，SSH 断开后仍可继续�
 - “检测间隔 (毫秒)”：检查日志的间隔，1000 毫秒等于 1 秒。
 - “变量名”：保存 checking、ready、timeout 等状态。
 
-停止跟踪只结束页面的日志刷新，不停止远程进程。“停止进程”用于请求结束后台任务；操作后检查进程状态。服务模式任务还可能显示启动中、核验中、停止中或结果未确认。请求被接受后继续等待最终状态；状态未知时先核验，确认已停止后再启动。
+服务模式任务可能显示启动中、核验中、停止中或结果未确认。请求被接受后继续等待最终结果。若提示已有后台运行记录，回到原记录核验；确认任务结束后再启动。自动规则仍启用且条件满足时，服务可能再次启动；需要保持停止时，先停用这条自动规则。
 
-### 导入和导出指令
+#### 导入和导出指令
 
 - 点击指令的导出按钮，可以导出该指令，并按页面选项包含依赖的主机配置。
-- 点击“导入指令”，选择 `.tscfg` 配置包，预览内容，并按需覆盖已有配置或绑定到页面显示的主机。
+- 点击“导入指令”，选择 `.tscfg` 配置包，预览内容，再决定是否覆盖已有配置。
 
-导入可能覆盖同 ID 配置，也可能包含远程主机信息。按安全指南检查包的来源和签名。页面要求重启时，先结束终端和自动化任务，再安排重启。
+导入可能同时带入远程主机，并覆盖同 ID 配置。先核对预览中的指令、主机和覆盖内容，再确认导入。保存到当前配置后生效，不需要为此重启。已有远端进程不会因此停止或迁移到新主机。
 
-### 删除指令前检查哪些规则使用它
+新包导入会检查来源、签名、签发权限和目标设备。导出成功不保证能再次导入；设备证书仅用于 HTTPS 时，可能没有签发配置包的权限。遇到这类提示，请配置提供方处理，不要关闭验证。
 
-删除指令不会撤销远程主机已经完成的操作，也无法从指令页面撤销。删除前检查数据源、动作模板和规则是否仍需使用它。
+#### 删除指令前检查影响
 
-- 服务还在运行或状态未知：点击指令的刷新图标，核验状态。需要停止时，停止服务并确认结果。正在启动、停止或核验，请等待完成。删除按钮不会停止远程任务。
-- 服务已停止，仍无法删除：检查哪些导入规则还在使用这条指令。先调整这些规则，再删除。停止服务或自动化引擎，不会让规则停止使用这条指令。更换指令使用的主机或替换主机配置，也可能被阻止。
-- 规则只读或等待重启：按第 12 章处理。不要删除 SD 文件来绕过保护。确认调整后的规则和连接正常，再清理不再需要的配置。
+点击删除后，先查看关联模板和规则。可以选择可用指令替换关联，或解除关联并停用相关规则；完整步骤见第 12 章。删除只修改当前使用的配置，另一份应急副本不会自动更新。
 
-## 12. 自动化管理
+删除配置与停止远端服务是分开的操作。删除按钮不会停止服务，也不会撤销已经完成的操作。需要结束远端任务时，另到“后台运行”停止并确认结果。
+
+### 12. 自动化管理
 
 “自动化”把数据和操作连接成可重复执行的流程。先建立数据源和动作模板，再用规则决定何时执行。
 
@@ -555,20 +575,22 @@ nohup 表示命令在远程主机后台继续运行，SSH 断开后仍可继续�
 
 数据源读取数据，变量保存值，规则判断条件，动作模板定义任务。规则是否显示在设备面板、是否允许手动触发分别设置；自动规则也可以显示在面板中。
 
-### 查看和控制自动化引擎
+#### 查看和控制自动化引擎
 
 页面顶部显示引擎状态、规则数、变量数、数据源数、触发次数和运行时长。
 
 | 操作 | 影响 |
 | --- | --- |
-| “启动” | 启动已停止的引擎，开始处理已启用规则。 |
+| “启动” | 启动已停止的引擎；只有当前配置允许运行时，才会执行已启用规则。 |
 | “暂停” | 暂停后续自动判断，已有动作可能继续。需要恢复时先停止，再启动。 |
 | “停止” | 尝试停止规则判断、数据读取和后续动作安排，保留配置。等待确认；超时不表示已停止。 |
-| “重载” | 重新读取已保存配置；原本运行的引擎加载后恢复运行。先保存编辑内容。有待重启规则时会被阻止，不能用它代替设备重启。 |
+| “重载” | 重新读取当前使用位置的配置。先保存编辑内容，检查结果；已有的配置暂停设置不会因此解除。 |
 
-操作前检查是否影响散热、告警或其他持续任务。停止引擎不能代替停止远程后台进程；远程任务需要在“指令”或对应服务卡片中停止并确认。
+操作前检查是否影响散热、告警或其他持续任务。停止引擎不能代替停止远程后台进程；远程任务需要在“后台运行”中停止并确认。
 
-### 完成一条最小自动化流程
+“配置与备份”中的“停用自动化”和引擎“暂停”不是同一项操作。页面显示“自动化已暂停”时，先检查配置，再点击“启用自动化”。仅重启设备、重载或停止再启动引擎，不会解除这项配置暂停。详见第 13 章。
+
+#### 完成一条最小自动化流程
 
 1. 创建数据源，用测试功能确认连接及需要读取的字段。
 2. 启用数据源，点击该行的“查看变量”图标，检查数值和更新时间。
@@ -577,7 +599,7 @@ nohup 表示命令在远程主机后台继续运行，SSH 断开后仍可继续�
 5. 按需要设置“显示在面板”和“允许手动触发”。
 6. 保存后再启用，观察变量、触发次数及实际结果。
 
-### 管理数据源
+#### 管理数据源
 
 点击“数据源”区域的“添加”，选择类型：
 
@@ -592,13 +614,13 @@ nohup 表示命令在远程主机后台继续运行，SSH 断开后仍可继续�
 2. 使用测试功能确认连接。网络地址、认证和字段以数据提供方的信息为准。
 3. 对前三种类型，从测试结果选择需要的数据字段。Socket.IO 事件名称留空时，测试可尝试发现事件。
 4. 对“指令变量”，选择主机及已经配置变量名的指令，再设置检测间隔。
-5. 保存、启用，然后用该行的“查看变量”检查结果。
+5. 在表单中检查启用开关，保存后用该行的“查看变量”检查结果。
 
 数据源行提供启用开关、查看变量、导出和删除。停用或删除前，检查哪些规则还在使用它，以免影响任务。
 
 导入和导出使用配置包。导入前预览 ID、类型及覆盖内容，按安全指南检查来源和信任要求。
 
-### 查看变量
+#### 查看变量
 
 点击数据源行的眼睛图标“查看变量”，在弹窗中查看名称、类型、值和更新时间。远程指令也可从其变量入口查看结果。
 
@@ -606,7 +628,7 @@ nohup 表示命令在远程主机后台继续运行，SSH 断开后仍可继续�
 - 检查更新时间是否符合预期。窗口中的时间用于判断数据是否仍在更新。
 - 没有数据时，检查数据源是否启用，再测试连接和字段选择；远程指令变量还需检查对应指令的执行结果。
 
-### 创建和测试动作模板
+#### 创建和测试动作模板
 
 点击“动作模板”区域的“添加”，选择任务类型：
 
@@ -628,23 +650,31 @@ nohup 表示命令在远程主机后台继续运行，SSH 断开后仍可继续�
 - 设置变量：填写变量名和值。
 - Webhook：当前暂不可用，请选择其他已支持的动作。含 Webhook 的规则包也不能导入。
 
-“测试”会执行动作。涉及断电、重启、远程命令或外部请求时，先确认影响，再测试。
+“测试”会执行动作。涉及断电、重启、远程命令或外部请求时，先确认影响，再测试。提示“已排队”只表示任务已接收，不代表执行成功；还要查看系统日志和目标设备的结果。
 
-编辑后保存，再检查参数。保存失败，请保留草稿并按提示修正。导入可能覆盖已有模板；删除前检查哪些规则还在使用它。关联服务尚未确认停止，请先核验；需要停止时，停止后再确认。
+编辑后保存，再检查参数。保存失败，请保留草稿并按提示修正。导入可能覆盖已有模板；删除前检查影响清单。缺少图片或字体时，插入原 SD 卡，或重新选择可用资源。应急副本不会保存这些文件。
 
-### 按提示处理动作模板删除
+#### 删除和替换关联配置
 
-看到“无法删除动作模板”时，先阅读阻止原因，本次模板没有被删除：
+规则、动作模板、SSH 命令和主机的删除，会影响其他配置。删除前先保存所需应急副本；删除后不能从页面撤销。
 
-1. 提示规则还在使用模板：点击“查看规则”。先从这些规则中移除模板，或删除不再需要且允许删除的规则，再删除模板。停用规则或停止引擎，不会从规则里移除模板。
-2. 提示服务尚未停止：点击“查看指令”。核验状态，停止服务并确认结果，再回来删除。
-3. 提示配置正在更新或加载：等待完成。提示需要恢复或无法检查使用关系：在“终端”打开“系统日志”，查看原因并恢复配置。不要反复点击删除。
+1. 在对应列表点击删除图标，核对目标名称和受影响项。
+2. 没有关联时，确认删除。有其他配置使用它时，按页面选择可用替换项，或选择“解除关联并停用相关规则”。
+3. 确认后刷新列表。检查目标已移除，并核对关联模板、规则和启用状态。
 
-只读导入规则不能直接编辑。请配置提供方调整规则包，移除不再需要的模板。
+删除动作模板时，解除关联会从相关规则中移除该动作，并停用规则。删除 SSH 命令时，关联模板会保留为停用草稿并清空命令引用；相关规则解除关联并停用。使用替换项时，先核对替换后的目标和动作，不能只看名称相似。
 
-保存规则时，若提示某个模板已不存在，本次保存没有成功。重新选择已有模板，核对后再保存。
+删除主机时，也要检查受影响的指令和数据源。缺少主机的指令不能执行；在有效主机下重建需要的指令并更新关联，检查后再使用。不要把删除本地主机配置与撤销远端公钥当作同一操作，具体见安全指南。
 
-### 创建规则
+#### 需要最终强制删除时
+
+普通方式无法完成时，可选择“最终强制删除”。阅读说明后再确认；它会删除目标，并清理能确认的关联、停用受影响规则。强制删除不会停止远端后台服务。
+
+影响无法完整确认时，页面会要求勾选“我确认暂停自动化，并继续删除。”。确认后自动化保持暂停。检查剩余配置并修正问题，再从“配置与备份”点击“启用自动化”。不要靠重启恢复运行。
+
+配置在确认期间变化时，点击“重新检查删除影响”，重新核对清单，再确认。存储写入失败时，强制删除也不能保证完成；重新读取列表检查，不要把卡片消失当作删除已保存。
+
+#### 创建规则
 
 1. 点击“规则列表”区域的“添加”，填写唯一规则 ID、名称和图标。
 2. 选择“条件逻辑”：AND 表示所有条件都满足；OR 表示任一条件满足。
@@ -654,11 +684,13 @@ nohup 表示命令在远程主机后台继续运行，SSH 断开后仍可继续�
 6. 决定是否开启“显示在面板”及“允许手动触发”。前者控制系统页是否出现卡片，后者控制能否手动运行。
 7. 检查后保存，再启用。初次配置可先关闭“立即启用”。
 
-保存、启用或停用后，若提示“备用副本未同步”，本次操作已经成功，但备用副本还未同步。这不是保存失败，也不表示必须重启。不要移除或更换 SD 卡。刷新规则列表，确认内容和启用状态；不要重复创建规则。提示持续出现时，在“终端”打开“系统日志”检查存储问题。
+保存、启用或停用成功后，当前配置会更新，不需要为此重启。若整套自动化已暂停，保存不会自动恢复运行。刷新列表并检查实际结果；重要调整完成后，按第 13 章更新应急副本。
+
+最多保存 64 条规则。这不是同时运行任务的数量保证；命令长度、条件和动作数量也会影响空间和内存。容量不足时，先删除不需要的配置或减少内容，再保存。
 
 比较值要符合所选类型。数字填写具体数值，不要填写无穷大或 NaN（无效数字）。文本、布尔值（真或假）和空值按对应类型填写。不要把整段 JSON 对象或数组作为比较值。页面报错时，检查变量、比较方式和值，修正后再保存。
 
-### 配置动作重复和执行条件
+#### 配置动作重复和执行条件
 
 | 方式 | 含义 |
 | --- | --- |
@@ -670,7 +702,7 @@ nohup 表示命令在远程主机后台继续运行，SSH 断开后仍可继续�
 
 停用规则会阻止新的触发，已经开始的一轮动作可能继续。要停止安排后续动作，点击引擎“停止”并等待确认。已发出的动作和远程进程仍需检查；完成的操作不会撤销。
 
-### 创建快捷操作
+#### 创建快捷操作
 
 “仅手动触发”“显示在面板”“允许手动触发”分别决定是否只手动运行、是否显示卡片、是否允许用户执行。
 
@@ -679,51 +711,36 @@ nohup 表示命令在远程主机后台继续运行，SSH 断开后仍可继续�
 3. 开启“显示在面板”和“允许手动触发”，保存并启用规则。
 4. 返回“系统”的设备面板，确认卡片名称和状态，再执行一次并检查结果。
 
-自动规则也可显示在面板；显示卡片不会把它改成仅手动运行。停用规则仍可能显示卡片，但不能启动。面向 admin 提供操作时，名称应让用户知道会发生什么，并提供适用的日志或停止方式。
+自动规则也可显示在面板；显示卡片不会把它改成仅手动运行。停用规则仍可能显示卡片，但不能启动。面向 admin 提供操作时，名称应说明会发生什么，并告诉用户需要核验或停止后台任务时联系谁。root 从“后台运行”查看日志、核验和停止服务。
 
-### 导入规则配置包
+#### 导入规则配置包
 
-规则配置包请从“自动化”导入，不要用安全页“仅验证”或文件上传代替。此入口会检查签发方是否可信、包是否属于本设备，以及规则需要的配置是否齐全。其他配置包不能套用这个验证结果。
+规则配置包请从“自动化”导入，不要用安全页“仅验证”或文件上传代替。此入口会检查签发方、目标设备和规则需要的配置。每个包都要在对应入口验证，不能沿用另一个包的结果。
 
 导入前准备好以下内容：
 
-- SD 卡已挂载且可写。规则包保存在卡中；导入后保留这张卡，不要在待重启时拔出或换卡。
+- 确认当前使用 SD 卡配置还是内部应急配置，并确认该位置可以保存。查看方法见第 13 章。
 - 设备已安装有效证书、匹配的私钥和 CA 链，时间已确认。CA 链用于核验证书来源，安装方法见安全指南。
 - 部署管理员已指定可信签发方。root 登录或安装 HTTPS 证书不等于完成这项设置；缺少时请部署管理员处理。
 - 规则使用的动作模板、指令和主机已经准备好。导入不会自动补齐这些配置。缺少哪项，先补齐哪项。规则已启用时，还要核对所用配置的启用状态。
 
-重启会中断 WebUI 和设备管理服务。先检查规则是否已启用、是否会自动执行。确认重启后可以运行，再导入；暂不运行时，请配置提供方提供禁用版本。重启 TianshanOS 不会结束远程主机上的后台进程。
+导入保存后会更新当前配置，不需要重启。点击确认前，检查启用状态、条件、动作和目标，确认允许执行。已有的配置暂停设置会保留；暂不允许运行时，可先停用整套自动化，或向提供方取得禁用版本。
 
 1. 在“规则列表”点击导入图标，打开“导入规则配置”，选择 `.tscfg` 文件。页面会开始验证并显示预览。
 2. 等待“来源、目标设备和规则内容已验证。”；核对名称、规则 ID 和“规则摘要”。在“查看规则内容”中检查条件、动作、目标和启用状态，不要只看文件名。
-3. 已有同 ID 配置，先阅读“覆盖影响”。确定要替换已保存版本，才勾选“覆盖已存在的配置”。预览后文件、凭证或配置有变化，请重新选择文件并验证。
-4. 点击“确认导入”，等待结果。显示“已保存，重启后生效；当前运行版本未改变。”时，表示保存已确认，不表示新版已经运行。若提示当前运行版本已是这一版，则不需要为这次重复导入再次重启。
-5. 需要重启时，保存其他工作、检查自动化和远程任务，再从“系统”页重启 TianshanOS。保留原 SD 卡并等待 WebUI 恢复。
-6. 回到“自动化”，确认规则的待重启提示已消失。检查启用状态、所需变量和日志。规则允许手动执行且能安全检查时，再执行一次并检查目标设备或远程主机的结果。不能手动执行的规则，观察正常触发后的日志和结果。不能只看保存成功提示。
+3. 已有同 ID 配置时，核对替换内容。确定要覆盖，才勾选“覆盖已存在的配置”。预览后文件、凭证或配置有变化，点击“重新检查配置包”；页面要求重开时，关闭后重新打开并验证。
+4. 点击“确认导入”，等待保存结果，再核对规则列表、启用状态和所需变量。不要把保存成功当成任务已经执行成功。
+5. 规则允许手动执行且能安全检查时，执行一次并核对目标设备或主机。其他规则观察正常触发后的日志和结果。需要解除整套自动化的暂停时，检查后再点击“启用自动化”。
 
-导入的规则包为只读，不能直接编辑、启停或删除。要调整规则，请配置提供方重新签发本设备的规则包，再按本节导入。要停用规则，请取得禁用版本，并按提示重启；重启前旧版仍可能运行。
+导入后的规则可以编辑、启停和删除。修改后检查当前配置，并按需要更新应急副本。再次导入仍要重新验签，本地编辑权限不代表可以跳过验证。
 
-引擎“停止”可以停止安排后续动作，但不会修改规则或撤销已完成的操作。远程后台任务仍需单独停止并确认。
+仅用于 HTTPS 的证书不一定有配置包签发权限。即使本机导出成功，也可能无法导回；请配置提供方按提示处理证书用途，不要关闭验证或反复导入。
 
-修改或导入后，检查引擎、规则和任务结果。按提示重载或重启，再确认任务正常。只读和待重启规则的限制见下表。
+导入和修改不会撤销已经执行的动作，也不会停止远端后台进程。需要结束任务时，在“后台运行”单独处理并确认。
 
-### 分清已保存版本与正在运行的版本
+#### 导入未完成时怎么办
 
-| 页面提示或状态 | 如何处理 |
-| --- | --- |
-| “已保存，待重启” | 新配置已保存，但尚未切换。普通编辑、启停和删除暂不可用；先安排设备重启。 |
-| 更新前已有运行版本 | 重启前仍可能执行旧规则。手动按钮提示“执行正在使用的旧版本”；执行前确认旧任务的影响。导出按钮导出正在使用的版本，不是待重启的新包。 |
-| 新规则尚未加载 | 不能手动执行。重启后检查启用状态和手动权限。 |
-| “已保存删除，待重启移除” | 重启后才会从运行列表移除。不能再手动或自动触发新一轮；已发出的动作和远程任务仍需检查。重启后确认规则已移除。 |
-| 只读规则 | 即使待重启提示已消失，也不能普通编辑、启停或删除。按上一节取得并导入调整后的包。 |
-
-不是所有保存都需要重启。可编辑规则新建、修改或启停成功后，当前规则就会更新。请检查操作结果和规则状态。
-
-有规则等待重启时，“重载”不可用。停止再启动引擎也不能切换这些版本；需要重启设备。
-
-### 导入未完成时怎么办
-
-#### 验证未通过
+##### 验证未通过
 
 | 提示内容 | 下一步 |
 | --- | --- |
@@ -734,42 +751,112 @@ nohup 表示命令在远程主机后台继续运行，SSH 断开后仍可继续�
 | 配置加载失败 | 查看系统日志，处理原因并恢复配置，再重新验证。 |
 | 规则需要的配置缺失 | 补齐页面指出的动作模板、指令或主机，再重新验证。 |
 | 规则需要的配置已禁用 | 核对是否应启用这些配置。确认允许执行后，启用并重新验证。 |
-| 绑定服务仍在运行或状态未确认 | 在“指令”页核验服务，按需停止并确认结果；启动、停止或核验未结束时先等待，再重新选择文件验证。 |
 | 不支持包中的动作 | 请配置提供方调整。当前规则包导入不支持 Webhook；模板选择器有此选项不代表可以导入。 |
-| 预览后文件、凭证或配置发生变化 | 重新选择文件并验证，重新核对覆盖影响后再确认。 |
+| 预览后文件、凭证或配置发生变化 | 点击“重新检查配置包”，按提示重新打开编辑器或选择文件，再核对并确认。 |
 
-#### 保存未完成
+##### 保存未完成
 
 | 提示内容 | 下一步 |
 | --- | --- |
-| SD 卡不可用 | 检查卡是否插好、已挂载且可写，再重新验证。 |
-| 配置来源只读 | 恢复可写来源。不要删除文件来绕过保护。 |
-| 未能可靠保存 | 检查存储状态，解决问题后重新验证。 |
-| 保存结果尚未确认 | 刷新列表，核对规则和待重启状态；仍无法确认时查系统日志。保留原文件，不要重复导入。 |
+| 当前存储位置不可用或空间不足 | 在“配置与备份”确认位置，检查存储，减少不需要的内容后再验证。 |
+| 当前配置或保存位置已经改变 | 保留并复制草稿，重新打开后核对最新配置，再提交。不要连续点击保存。 |
+| 保存结果尚未确认 | 刷新并核对规则内容和启用状态；仍无法确认时查系统日志。保留原包，不要重复导入。 |
 
-条件变量暂时没有采样值，不一定是缺少配置；请检查它何时更新。页面提示旧存储对象尚待清理时，保留 SD 卡，重启后核对。
+条件变量暂时没有采样值，不一定是缺少配置；请检查它何时更新。配置本身无法读取时，先保留原文件并查看系统日志，不要当作空配置覆盖。
 
-### 维护规则和配置
+#### 维护规则和配置
 
 - 手动执行要求规则已启用且允许手动触发，并且没有正在执行的同一规则。它不等待自动条件，也不受自动触发冷却时间限制；动作条件、延迟和重复仍生效。
 - 停用规则不会撤销已完成的动作；删除也不能从页面撤销。
-- 编辑前检查哪些规则使用了这些数据源、模板和指令。关联服务还在运行、状态未知或操作未结束，请先核验或停止服务。规则仍在使用某项配置时，还需调整规则；停止服务不等于解除这种使用关系。
-- 导入规则按本章的专用流程处理；其他配置包仍按安全指南核对，不能套用规则包的验证结果。
+- 编辑前检查哪些规则使用了这些数据源、模板和指令。修改配置不会停止原来的远端任务；需要停止时，单独核验和停止。
+- 每种配置包使用对应列表的导入入口并核对预览；签名和账户管理的完整步骤见安全指南。
 - 保存失败时查看提示并保留草稿；保存已成功但列表刷新失败时，先刷新核对，不要直接重复创建。
+
+### 13. 配置与备份
+
+在“自动化”页点击“配置与备份”。先看“当前使用”，再决定保存、恢复或切换哪份配置。操作前检查是否影响散热、告警或远端任务。
+
+#### 分清三类内容
+
+| 内容 | 保存方式 |
+| --- | --- |
+| 网络、风扇、温度、灯光等系统设置 | 保存在设备内部，不随自动化副本恢复。 |
+| 当前自动化配置 | 日常使用 SD 卡时，新增、修改和删除保存到卡；应急模式下保存到设备内部。 |
+| 内部应急副本 | 使用 SD 卡时，点击“保存应急副本”才更新；应急模式下的编辑直接更新这份内部配置。 |
+
+应急副本整套保存规则、动作模板、SSH 命令、关联主机、数据源和用户变量的初始定义。它不保存私钥、图片、字体、日志或远端运行状态。主机设置只记住使用哪个密钥，不复制密钥本身。
+
+这不是整机备份。重要文件和密钥应按各自的方法保管；副本恢复不代表远端服务已经停止，也不保证规则依赖的文件都可用。
+
+#### 保存应急副本
+
+1. 确认“当前使用”为“SD 卡配置”，并检查当前规则和任务。
+2. 点击“保存应急副本”，等待完成提示。
+3. 检查“内部保存时间”和“副本状态”。“已包含当前修改”表示这份内部副本与当前配置相符。
+
+保存会替换上一次应急副本。之后继续修改 SD 卡配置，不会自动更新内部副本；显示“尚未包含最新修改”时，先核对当前内容，再决定是否重新保存。
+
+当前使用“内部应急配置”时，编辑已经直接保存在内部，无需再点一次“保存应急副本”。
+
+#### 从应急副本恢复
+
+恢复会用内部副本替换当前 SD 卡配置，副本可能较旧。需要保留当前内容时，先导出所需配置和文件。不要先保存应急副本，否则会覆盖准备恢复的旧副本。
+
+1. 在使用 SD 卡配置时，点击“从应急副本恢复”。
+2. 核对新增、修改和移除的项目，以及完成后是否保持暂停。
+3. 确认恢复，等待完成。列表会更新，不需要为恢复配置而重启。
+4. 检查规则、主机、变量和启用状态，确认任务结果。仍暂停时，先检查配置，再点击“启用自动化”。
+
+恢复不会改变网络、风扇或密钥。已启动的远端服务不会被恢复操作结束；需要时从“后台运行”处理。
+
+#### 没有可用 SD 卡时
+
+有可用内部配置时，设备会改用它。已启用的自动规则仍按条件运行；手动规则仍需点击。内部副本可能较旧，切换前应核对其中哪些任务允许运行。
+
+应急模式可以新增、修改和删除，保存直接写入设备内部。没有可用内部配置时，先阅读页面原因；可以从有效的新配置开始，但不要把损坏文件当作空配置覆盖。
+
+网络、风扇等系统设置仍从设备内部读取。SD 卡中的图片、字体和日志不会随应急配置恢复；缺资源时插入原卡，或为动作选择可用文件。没有卡不代表所有功能都会停止，也不代表所有任务都能继续。
+
+#### 重新插卡后选择配置
+
+插入可用 SD 卡后，点击“检查 SD 卡”，再查看下面两个选择。插卡不会自动切换或合并；关闭面板可以继续使用内部配置，重启也不会替你完成这次选择。
+
+| 按钮 | 会发生什么 |
+| --- | --- |
+| “使用 SD 卡配置” | 读取并改用卡内配置。内部配置保留，不会自动复制到卡上。 |
+| “将当前配置保存到 SD 卡并使用” | 用当前内部配置替换卡内配置，然后改用 SD 卡。卡内原配置会被覆盖。 |
+
+1. 核对当前使用位置，并决定要保留哪份配置。
+2. 点击对应按钮，阅读替换内容及启停提示。需要写卡时，先检查新增、修改和移除清单。
+3. 确认后等待完成。检查“当前使用”已变为“SD 卡配置”，再核对列表和任务结果。
+
+卡内没有配置或配置为空，不会自动从内部补回。选择卡内空配置前，确认这正是你想使用的内容。预览后换卡或修改配置时，按提示重新检查，不要沿用旧的确认窗口。
+
+#### 分清保存、切换和运行结果
+
+| 页面提示或情况 | 下一步 |
+| --- | --- |
+| 已保存到 SD 卡，但尚未切换 | 当前仍使用内部配置。选择“使用 SD 卡配置”完成切换，不要重复覆盖写卡。 |
+| 配置已保存，但自动化仍暂停 | 检查配置后，点击“启用自动化”；不要重复保存或靠重启解除暂停。 |
+| 删除没有保存成功，自动化已暂停 | 先核对目标是否仍在、存储是否可用；修正并检查配置后，再决定是否启用。 |
+| 保存结果未确认 | 重新读取保存位置和内容，无法确认时查系统日志。不要直接重复提交。 |
+| 当前输入与最新配置不一致 | 先复制需要的草稿，再关闭、重新打开编辑器，核对后填写。页面不会替你合并草稿。 |
+
+来源切换、恢复或保存成功后，还要确认任务是否允许运行、是否完成。整套配置的暂停会保留；需要恢复时，检查后明确点击“启用自动化”。普通“停用自动化”或强删导致的暂停，不会因重启或切换配置而自动解除。
 
 # TianshanOS Root Operations Guide
 
-This guide is based on TianshanOS 0.6.2. It can still be used with later versions where features and steps remain unchanged. If controls, messages, or results differ, check the guidance for your installed version.
+This guide is based on TianshanOS 0.6.3. For other versions, check the corresponding version-specific instructions.
 
-This guide covers routine functions in Part I and terminal access, remote commands, and Automation in Part II. Root operations can affect the device and remote hosts; check the target and active tasks before proceeding. See the separate Security Guide for security management.
+This guide covers routine functions in Part I and terminal access, remote commands, Automation, and configuration backup in Part II. Root operations can affect the device and remote hosts; check the target and active tasks before proceeding. See the separate Security Guide for security management.
 
-Use the controls shown on your device. Some need specific hardware or configuration. On a computer, hover over an icon button to see its name.
+Use the controls shown on your device. Some need specific hardware or configuration. On a computer, hover over an icon button to see its name. On a phone, swipe within a wide table to view its other columns.
 
 ## Part I: Routine Functions
 
-## 1. Getting Started
+### 1. Getting Started
 
-### Open the WebUI
+#### Open the WebUI
 
 1. Open the device’s web interface (WebUI) using the address provided by your administrator.
 2. Select “Login” in the upper-right corner.
@@ -780,11 +867,11 @@ Logging in with the default password opens a “Security Reminder.” Enter the 
 
 When you have finished, select “Logout” in the upper-right corner. You will need to sign in again to use the device.
 
-### Switch Languages
+#### Switch Languages
 
 Select the language button at the top of the page, then choose Chinese or English. Page content and control labels switch immediately.
 
-### Page Navigation
+#### Page Navigation
 
 Root users can access these pages:
 
@@ -793,14 +880,14 @@ Root users can access these pages:
 - “Files”: Manage files on the SD Card and SPIFFS.
 - “Terminal”: Run device commands and view system logs.
 - “Commands”: Manage and run remote SSH commands.
-- “Automation”: Configure sources, rules, and templates.
+- “Automation”: Configure tasks and save an emergency backup.
 - “Security”: Open the separate security management page. See the Security Guide for instructions.
 
-## 2. System Status and Routine Operations
+### 2. System Status and Routine Operations
 
 Select “System” in the top navigation.
 
-### View Resource and Service Status
+#### View Resource and Service Status
 
 “Management Chip Resources” shows CPU, DRAM, and PSRAM usage on the management chip. These readings do not show resource usage on AGX or LPMU.
 
@@ -808,15 +895,17 @@ Select “System” in the top navigation.
 - “Services” shows the number of running services and the total. Select it to view each service’s state and startup stage.
 - If a service reports a problem, refresh its status. To restart it, follow “Restart One Service” below.
 
-### View System and Power Information
+#### View System and Power Information
 
 “System Overview” shows the chip, firmware version, ESP-IDF version, and uptime. For routine use, check the firmware version. ESP-IDF is the version of the system framework used by the device.
 
 The right side of the card shows input voltage, internal voltage, current, power, and protection status.
 
+System settings such as networking, fans, temperature, and lighting are saved inside the device. Inserting an old SD card does not restore them. Automation configuration is managed separately; its emergency backup is not a full-device backup.
+
 The switch beside the protection status enables or disables low-voltage protection. When enabled, the device uses the saved voltages and delays to shut down at low voltage and restart after power recovers.
 
-### View Network and Time
+#### View Network and Time
 
 “Network & Time” shows Ethernet, WiFi, IP address, current time, sync status, time source, and timezone.
 
@@ -824,17 +913,17 @@ The switch beside the protection status enables or disables low-voltage protecti
 - Select “Timezone,” choose a preset or enter a supported timezone setting, then save.
 - Select “OTA Update” to open the firmware update page.
 
-### Advanced Operations
+#### Advanced Operations
 
-#### Reboot TianshanOS
+##### Reboot TianshanOS
 
 A reboot temporarily interrupts the WebUI and device management. Finish active operations, then select “Reboot” and confirm. Wait for the device to recover, then reopen the WebUI.
 
-#### Restart One Service
+##### Restart One Service
 
 Restarting a service temporarily interrupts the function it provides. Open “Service Status,” find the affected service, and select “Reboot” on that row. Check its status again when the operation finishes.
 
-#### Change Shutdown Settings
+##### Change Shutdown Settings
 
 These settings control when the device shuts down after a voltage drop and when it starts again after power recovers. Use values that match your device’s power requirements.
 
@@ -848,17 +937,17 @@ Select “Shutdown Settings” to change:
 
 Save the form to apply the updated protection settings.
 
-#### Switch the Top USB Target
+##### Switch the Top USB Target
 
 Switching the USB target may temporarily disconnect an attached device. Confirm the target and finish active work before continuing.
 
 Devices that support USB switching show a “USB” button. Each click switches the top USB port to the next target: ESP, AGX, then LPMU. Check the target shown on the button and the page message to confirm the result.
 
-## 3. Device Panel
+### 3. Device Panel
 
 The “Device Panel” is on the “System” page. It contains module power controls, Quick Actions, and data widgets.
 
-### Control AGX and LPMU
+#### Control AGX and LPMU
 
 Save work on the module and complete its normal shutdown process before removing power. Forced power-off can cause loss of unsaved data.
 
@@ -866,39 +955,32 @@ Save work on the module and complete its normal shutdown process before removing
 - “LPMU Power” shows “Online,” “Offline,” or “Unknown.” These states come from a network check. Online means the module is reachable; offline means it is not. Neither state alone confirms whether the module is powered on or off.
 - Selecting the LPMU button triggers the same action as pressing its physical power button. Wait for the check and the displayed result. If the result is unknown, check the module and network before pressing the button again.
 
-### Use Quick Actions
+#### Use Quick Actions
 
 A root user configures Quick Action cards. Card visibility and manual execution are separate settings. Seeing a card does not mean you can start its task.
 
-1. Check the card’s name, state, and available controls to identify the task.
-2. Select an available card and wait for its state to update. Do not start it again while it is processing.
-3. Background tasks may provide log, status-verification, or stop controls. Read the log to see task output. After selecting stop, check that the task has stopped.
-4. If the state is unknown or starting is blocked, use the available verification control, or check the rule, remote command, and host connection as described in Chapters 11 and 12.
+1. Read the card name and description to identify the task.
+2. Select the card and read the result. Do not start it again while processing.
+3. An executed or queued message still needs an actual result check on the target device or task. Use “Background runs” to verify, view logs, or stop a background service (Chapter 11).
 
 If starting is blocked, follow the reason shown. Do not keep selecting start:
 
 - Rule disabled or manual triggering not allowed: Check the rule settings on “Automation” (Chapter 12). A visible card is not permission to run it.
-- Task executing, starting, verifying, or stopping: Wait for the state to update.
-- Linked service already running: Do not start it again. To restart it, stop it first and confirm the result.
-- Service not confirmed stopped: Verify its state. If it remains unclear, check the host connection on “Security” (Chapter 11).
-- Rule not loaded or awaiting removal after restart: Check the rule version and pending-restart message on “Automation” (Chapter 12).
-- Automation not accepting start requests: Check the engine and configuration state on “Automation.” Follow the message; check active tasks before restarting the device.
+- A task or background operation is in progress: Wait for its result. Do not start it again.
+- A background run record already exists for the task: Verify the original task in “Background runs” and confirm that it has ended before starting again.
+- Configuration not loaded, a required item missing, or Automation paused: Check the configuration and enable state on “Automation” (Chapters 12 and 13).
 
-Confirm that a service has stopped before restarting it. An accepted start or stop request may still be in progress; wait for the final state. After triggering one action, wait a few seconds before starting another.
+After triggering one action, wait a few seconds before starting another. Closing the page, deleting a card, or restarting TianshanOS does not stop background services on remote hosts.
 
 Press and hold a card until the reorder indicator appears, then drag it to change the display order.
 
-If no cards are available, check which message the page shows:
+If no cards appear, read the explanation. Wait if configuration is loading. If loading failed, keep the reason and check “System Logs” on Terminal. If no Quick Actions are configured, select “Open Automation” and check the rules’ “Show on panel” setting.
 
-- “Loading quick actions”: Wait for configuration to finish loading. If the message persists, select “Go to Automation” and check System Logs in Terminal.
-- “Quick actions unavailable”: Select “Go to Automation” to check status. Open “System Logs” on Terminal to find the cause. Restore configuration before using the cards; do not keep selecting start.
-- No configured Quick Actions: Select “Go to Automation” to create a rule or check an existing rule’s “Show on panel” setting.
-
-After importing a rule package, a card may still run the old task until the device restarts. Newly imported rules or rules awaiting removal may not start. If a task was recently changed, check the running version in the rule list before using it.
+Editing or importing a rule updates the current configuration; a restart is not needed to switch rules. If a card's task was changed, review its conditions, actions, and targets before running it.
 
 Do not restart a device providing active services just to restore a card.
 
-### Manage Data Widgets
+#### Manage Data Widgets
 
 Data widgets continuously display device data in the “Device Panel.”
 
@@ -909,11 +991,11 @@ Data widgets continuously display device data in the “Device Panel.”
 
 Existing widgets can be edited, deleted, and reordered. You can also select a widget card to edit it. Press and hold a widget, then drag it to a new position.
 
-## 4. Fan Management
+### 4. Fan Management
 
 “Fan Control” is on the “System” page. Fan cards show the fans provided by your device. Check the fan number before changing a curve.
 
-### View Fan Status
+#### View Fan Status
 
 The status bar shows “Effective Temp” and “Current output.” The large percentage is the control setting confirmed by the device, not the measured speed. RPM is the measured speed in revolutions per minute and is hidden without a valid reading. A large `--` means the current output is unconfirmed.
 
@@ -925,7 +1007,7 @@ If the temperature becomes invalid, check that its source is still updating. The
 
 Use the refresh button in the section header to fetch the current state. If adjustment fails or the output is unconfirmed, check the device before deciding whether to retry.
 
-### Select an Operating Mode
+#### Select an Operating Mode
 
 | Mode | Purpose |
 | --- | --- |
@@ -936,7 +1018,7 @@ Use the refresh button in the section header to fetch the current state. If adju
 
 Stopping a fan or setting a low manual value reduces cooling. Check the load and temperature first, and keep monitoring them. The slider is available only in Manual mode when the current output is confirmed.
 
-### Configure a Fan Curve
+#### Configure a Fan Curve
 
 Select “Curve” in the Fan Control section header to open “Fan Curve Management.” The “Curve” button inside a card only changes the operating mode.
 
@@ -950,12 +1032,12 @@ Select “Curve” in the Fan Control section header to open “Fan Curve Manage
 
 If saving fails, read the message and check the current state before retrying. After unbinding temperature variables, check the effective temperature and fan state as well.
 
-### Import and Export a Curve
+#### Import and Export a Curve
 
 - Select “Import Config” and choose a curve JSON file. JSON is the file format used to store curve data. Review the nodes, limits, and fan number, then select “Save curve” to apply them.
 - Select “Export Config” to download the current curve. The page also attempts to save a copy under `/sdcard/config` on the SD card. Check the browser download and the reported SD-card result separately.
 
-### Use a Test Temperature
+#### Use a Test Temperature
 
 A test temperature temporarily replaces the normal source and affects Curve or Smart control. Monitor the fan and device throughout the test.
 
@@ -963,11 +1045,11 @@ A test temperature temporarily replaces the normal source and affects Curve or S
 2. Select “Test” and observe the current output, state, and fan response.
 3. Select “Clear Test” when finished. Check that the effective temperature has returned to its normal source.
 
-## 5. LED Management
+### 5. LED Management
 
 “LED Control” is on the “System” page and shows the LEDs provided by the device. Available features vary by LED.
 
-### Routine Controls
+#### Routine Controls
 
 - Use the light-bulb button at the bottom of a card to turn the LED on or off.
 - Move the “Brightness” slider, or choose a color or preset.
@@ -975,7 +1057,7 @@ A test temperature temporarily replaces the normal source and affects Curve or S
 - Select the save icon at the bottom right of the card to save the current LED configuration.
 - Select “All Off” to turn off all LEDs and check the reported result. If some fail, check those devices.
 
-### Advanced LED Matrix Features
+#### Advanced LED Matrix Features
 
 Matrix cards provide icons for the available features. Open one, then switch between these groups in “LED Settings”:
 
@@ -987,17 +1069,17 @@ Matrix cards provide icons for the available features. Open one, then switch bet
 
 Check the actual light or matrix display after applying a change. Use only the features shown. If a setting fails, follow the message to check the file, input, or device state.
 
-## 6. Network Management
+### 6. Network Management
 
 Select “Network” in the top navigation to open “Network Settings.” Changing the network mode, hotspot, or NAT settings may interrupt the current WebUI connection. Before saving, make sure you can reconnect through the new network address.
 
-### View Network Status
+#### View Network Status
 
 The top of the page shows the state of Ethernet, the WiFi client, and the WiFi AP. Open the related panel to view IP address, subnet mask, gateway, DNS, MAC address, SSID, signal, and connected-device counts when available.
 
 The Ethernet panel displays the current link and address information. It does not provide address editing controls.
 
-### Select a WiFi Mode
+#### Select a WiFi Mode
 
 | Mode | Purpose |
 | --- | --- |
@@ -1008,7 +1090,7 @@ The Ethernet panel displays the current link and address information. It does no
 
 After choosing a mode, wait for the page to refresh the state. The current wireless connection may be interrupted during the switch.
 
-### Connect to WiFi
+#### Connect to WiFi
 
 1. Set the WiFi mode to “Station (STA)” or “STA+AP.”
 2. Under “Station,” select “Scan.”
@@ -1018,7 +1100,7 @@ After choosing a mode, wait for the page to refresh the state. The current wirel
 
 Select “Disconnect” to end the current WiFi client connection.
 
-### Configure the WiFi AP
+#### Configure the WiFi AP
 
 1. Set the WiFi mode to “Access Point (AP)” or “STA+AP.”
 2. Under “Hotspot,” select “Config.”
@@ -1028,21 +1110,21 @@ Select “Disconnect” to end the current WiFi client connection.
 
 Select “Devices” to view clients currently connected to the hotspot.
 
-### Set the Hostname
+#### Set the Hostname
 
 Enter a new name in the “Hostname” section under “Network Services,” then select “Set.” The page shows the current hostname after it updates.
 
-### View DHCP Clients
+#### View DHCP Clients
 
 DHCP automatically assigns network addresses to connected devices. Select “Clients,” choose “WiFi AP” or “Ethernet,” and view the current leases. Use the refresh button to reload the list.
 
-### Advanced Network Operations
+#### Advanced Network Operations
 
-#### Configure the NAT Gateway
+##### Configure the NAT Gateway
 
 NAT forwards network traffic between the device's network interfaces. Enable or disable NAT, then select “Save” to retain the setting. Check the WiFi and Ethernet status afterward.
 
-#### Access the Upstream Network via LPMU
+##### Access the Upstream Network via LPMU
 
 This operation uses the configured LPMU host to set up network access. Before starting, confirm that LPMU is reachable and the network cables are connected. Obtain the sudo password for the SSH account on that host. This password authorizes system changes and may differ from the WebUI password.
 
@@ -1054,13 +1136,13 @@ This operation uses the configured LPMU host to set up network access. Before st
 
 A failed status request does not mean the script has stopped. Use the available “Refresh Status” control to check the current run before deciding whether to try again.
 
-## 7. File Management
+### 7. File Management
 
 Select “Files” in the top navigation to open “File Manager.”
 
 The SD Card is removable storage, and SPIFFS is internal device file storage. Select “SD Card” or “SPIFFS” to switch locations. The path at the top shows your current folder. Select a folder name in the path to go back to it.
 
-### Browse and Manage Files
+#### Browse and Manage Files
 
 - Select a folder name to open it.
 - Select the download button beside a file to save it to the browser's download location.
@@ -1068,7 +1150,7 @@ The SD Card is removable storage, and SPIFFS is internal device file storage. Se
 - Select “New Folder,” enter a folder name, and create it.
 - Select the refresh button to reload the current directory and storage state.
 
-### Upload Files
+#### Upload Files
 
 Files can only be uploaded to the SD Card, not SPIFFS. Confirm that the SD Card is mounted first.
 
@@ -1082,7 +1164,7 @@ Uploading a `.tscfg` package opens verification and application steps. However, 
 
 Import rule packages on Automation, as described in Chapter 12. Ordinary file upload is not a substitute for rule import. See the Security Guide for source and signature guidance for other packages.
 
-### Batch Operations
+#### Batch Operations
 
 After selecting files or folders, the batch toolbar appears.
 
@@ -1090,25 +1172,39 @@ After selecting files or folders, the batch toolbar appears.
 - “Batch Delete” deletes selected files and folders.
 - “Clear Selection” clears the current selection.
 
-### Delete a File or Folder
+#### Delete a File or Folder
 
 Deletion cannot be undone in the WebUI. Deleting a folder also deletes all of its contents. Confirm the name and path before selecting “Delete” or “Batch Delete” and approving the prompt.
 
-### Mount and Unmount the SD Card
+Files managed by Automation are protected. Uploading or overwriting files in `/sdcard/config/automation`, or deleting or renaming that folder or a parent containing it, may be refused. If the message says that Automation manages the file, use “Configuration & backup” on Automation or the relevant list. Do not use Terminal to bypass the restriction.
+
+#### Mount and Unmount the SD Card
 
 Unmounting makes SD files temporarily unavailable. Finish uploads, downloads, and other file operations, then select “Unmount SD.”
 
-Removing or replacing a card that stores Automation configuration may prevent it from loading after restart. Confirm that configuration and running tasks allow unmounting. Do not unmount or remove the card when the page tells you to keep it installed.
+Unmounting or replacing the card may switch Automation to its internal emergency configuration. That copy may be older, and enabled automatic rules may still run. Without a usable copy, Automation may be unavailable. Review the emergency configuration and tasks before unmounting (Chapter 13). Card-based images, fonts, and logs become unavailable.
 
 When the SD Card is not mounted, the page shows “Mount SD.” Select it, wait for the state to change to “Mounted,” then open the SD Card directory again.
 
-## 8. OTA Updates
+Mounting the card does not mean Automation has switched to its configuration. After reinserting a card, choose which configuration to use as described in Chapter 13. Nothing is overwritten or merged automatically.
+
+### 8. OTA Updates
 
 On the “System” page, select “OTA Update” in the “Network & Time” section to open “Firmware Upgrade.”
 
 The device reboots during an update, temporarily disconnecting the WebUI. Save active work and keep device power stable before starting. Do not power off the device while update progress is incomplete.
 
-### Check for Updates from an OTA Server
+#### First Upgrade from an Older Version to 0.6.3
+
+The first upgrade from an older storage layout, such as 0.6.2, needs a matched USB / serial package approved by the publisher. Uploading only the firmware or WebUI cannot complete this upgrade. Ask the device administrator or provider to follow the package instructions. Do not erase the whole flash or use an old partition table.
+
+Save important files and keep the original SD card installed. The first startup migrates existing configuration; keep power connected. Afterward, check login, networking, fans, lighting, SSH hosts, and Automation rules. Review rules before testing any task that controls power, restarts a device, or runs remote commands.
+
+The matched package updates both application slots. Do not assume that the other slot still contains the old version. If the root password is lost, use only a recovery method confirmed by the provider to match the 0.6.3 layout. Do not flash an old password-reset image.
+
+The web update methods below apply only to versions the publisher has approved for OTA. They do not replace the first layout upgrade.
+
+#### Check for Updates from an OTA Server
 
 1. Review the “Current Version.”
 2. Enter the OTA server address supplied by an administrator or publisher.
@@ -1116,11 +1212,13 @@ The device reboots during an update, temporarily disconnecting the WebUI. Save a
 4. The page reports “Update Available,” “Already up to date,” an older server version, or an error.
 5. Confirm the target version, then select “Upgrade Now” or the upgrade control shown by the page.
 6. Wait for download, installation, and reboot to finish. To cancel, use the “Abort” button when it is available. Not every stage supports cancellation.
-7. Reconnect to the WebUI after the device comes back online and verify “Current Version.”
+7. Wait for the page to confirm the firmware after the upgrade. Reconnect to the WebUI and check “Current Version” and device status.
 
-When “Also upgrade www” is enabled, the firmware and WebUI are updated in sequence. For 0.6.2, use the matched main firmware and WebUI resources supplied by the publisher, both from the same release. If the old interface remains after upgrading, force-refresh the browser and check the version and page again.
+“Upgrade Progress” shows the current stage in its own section. A 100% reading or a message that files were written does not confirm a completed restart and version check. If the result is unconfirmed or the running firmware differs from the target, keep the message and check the current version. Do not repeat the upgrade without checking. Check System Logs and contact the provider if needed.
 
-### Manual Upgrade
+When “Also upgrade www” is enabled, the firmware and WebUI are updated in sequence. Use matched firmware and WebUI resources from the same release. If the old interface remains after upgrading, force-refresh the browser and check the version and page again.
+
+#### Manual Upgrade
 
 Expand “Manual Upgrade” and choose one of these methods:
 
@@ -1129,7 +1227,7 @@ Expand “Manual Upgrade” and choose one of these methods:
 
 For an upgrade from a URL, “Skip certificate check” skips verification of the HTTPS server certificate. This removes the certificate check used to confirm the download server’s identity. Leave it unchecked for routine updates. If you see a certificate error, ask your administrator to check the server address and certificate.
 
-### Partition Management and Rollback
+#### Partition Management and Rollback
 
 “Partition Management” shows the running partition and other available partitions.
 
@@ -1138,33 +1236,33 @@ For an upgrade from a URL, “Skip certificate check” skips verification of th
 
 After the operation and reboot complete, reopen the WebUI and verify the current version and device state.
 
-Version 0.6.2 changes how Automation configurations are saved. Before returning to older firmware, check whether it can read these configurations, consulting the device provider if needed, and prepare a backup and recovery method.
+Version 0.6.3 changes configuration storage and the device partition layout. Do not return directly to incompatible old firmware. If a downgrade is needed, ask the device provider to confirm a complete firmware, layout, and configuration recovery procedure.
 
-Rollback changes the firmware, not the configuration format. Existing rules may no longer work after a downgrade.
+Rollback does not restore the old configuration format or guarantee that old rules will work.
 
-## 9. Security Management Entry
+### 9. Security Management Entry
 
 Select “Security” in the top navigation to open security management. Use the TianshanOS Security Guide for SSH keys, remote hosts, known-host fingerprints, HTTPS certificates, configuration packages, and account management. These procedures are not repeated here.
 
-### Failed or Unconfirmed Operations
+#### Failed or Unconfirmed Operations
 
-Forms may mark a field in red and show an error beside it. Correct that field as instructed, then save. A cleared error mark does not confirm a successful save; check the save message and list too.
+A red field error tells you what to correct. Fix it, then save. A cleared error mark does not confirm a successful save; check the message and list.
 
 Check which operation failed, then read the reason and next step. If the message gives no reason, do not guess.
 
-If “Details” is available, select it to see more information. Select “Hide” to hide the details. If a × button is shown, select it to dismiss the message. For further checks, keep a record of the message and details, then open “System Logs” on Terminal to investigate.
+Select “Details” when available. Select “Hide” to hide the details. If a × button is shown, select it to dismiss the message. For further checks, keep a record of the message and details, then open “System Logs” on Terminal to investigate.
 
 If the result is unconfirmed, refresh and check the device, file, or task state. A timeout or lost connection does not mean the operation failed to run. Do not immediately repeat power, delete, task-start, or upgrade operations. If the result remains unclear, open “System Logs” on Terminal to investigate.
 
-For batch actions, check successful, failed, and unconfirmed items separately. Confirm downloaded files in the browser’s download list.
+Check successful, failed, and unconfirmed batch results separately. Confirm saved files in the browser’s download list.
 
 ## Part II: Root-only Functions
 
-## 10. Terminal and System Logs
+### 10. Terminal and System Logs
 
 “Terminal” is shown only to root. It can run device console commands directly and display device logs. A command may change device state immediately. Confirm its source, parameters, and impact before entering it.
 
-### Connect to and Use Terminal
+#### Connect to and Use Terminal
 
 1. Select “Terminal” in the top navigation.
 2. Wait for “Connected to device” and the `tianshan>` prompt.
@@ -1184,7 +1282,7 @@ Terminal supports these keyboard controls:
 
 “Clear” at the top of the page only clears the display. It does not undo commands that have already run. “Disconnect” ends the current Terminal connection.
 
-### Open a Remote SSH Shell
+#### Open a Remote SSH Shell
 
 An SSH Shell sends subsequent keyboard input to a remote host. Confirm the target address, user, and authentication method, and complete the SSH preparation described in the Security Guide before connecting.
 
@@ -1195,7 +1293,7 @@ An SSH Shell sends subsequent keyboard input to a remote host. Confirm the targe
 
 Do not enter plaintext credentials while the terminal is being shared, recorded, or viewed by another person.
 
-### View System Logs
+#### View System Logs
 
 Select “System Logs” at the top of Terminal to open the log window.
 
@@ -1208,11 +1306,15 @@ Select “System Logs” at the top of Terminal to open the log window.
 
 If filtering produces no output, clear TAG and Search first, then change Level. Closing the log window does not stop device services.
 
-## 11. Manage and Run Remote Commands
+#### Check Where Automation Is Saved
+
+For a command-line check, enter `auto --config status` to view the current configuration location and backup status. Use `auto --help` for the available options. The old `config --sync` option has been removed. Use the web steps in Chapter 13 for routine backup and recovery.
+
+### 11. Manage and Run Remote Commands
 
 “Commands” stores reusable SSH commands and runs them on a selected remote host. Remote hosts and their authentication information are managed on the “Security” page. See the Security Guide for those procedures.
 
-### Check the Host Fingerprint Before Connecting
+#### Check the Host Fingerprint Before Connecting
 
 A fingerprint helps identify the host you are connecting to. These steps apply to SSH host tests on the web “Security” page, not to the Terminal SSH Shell confirmation flow. If the message says that the fingerprint is unregistered or has changed, do not keep executing the command. Open “Security,” find the target SSH host, and select “Test.”
 
@@ -1222,15 +1324,15 @@ If the fingerprint has changed, the dialog shows both the stored and current fin
 
 Check the address and confirm the reason through a trusted channel. Select “Cancel” if you cannot confirm it. Do not delete the old fingerprint to skip this check. Select “Update Host Key” only after confirming that the new fingerprint is trusted.
 
-### Select a Host and View Commands
+#### Select a Host and View Commands
 
 1. Select “Commands” in the top navigation.
 2. Choose a host currently shown under “Select Host.”
 3. Review its saved items under “Command List.”
 
-“Orphan Commands” reference hosts that no longer exist and cannot be executed. Delete an orphan command, or use the host binding option during import to associate it with a valid host.
+“Orphan Commands” reference hosts that no longer exist and cannot run. Check the host configuration. To keep the task, recreate the command under a valid host, update the templates and rules that use it, and check the result before removing the orphan.
 
-### Create or Edit a Command
+#### Create or Edit a Command
 
 A saved command runs on a remote host. Verify the command and required permissions on that host before saving it. Take extra care with commands that delete data, shut down or restart a host, or overwrite files.
 
@@ -1242,7 +1344,7 @@ A saved command runs on a remote host. Verify the command and required permissio
 
 The name helps you recognize a command; Automation uses its ID to find it. You cannot change an existing command's ID. To use a new ID, create a command and update the templates and sources that use it.
 
-### Execute a Command and Review the Result
+#### Execute a Command and Review the Result
 
 1. Select the execute control on a command card.
 2. Watch the output and status under “Execution Result.”
@@ -1251,7 +1353,7 @@ The name helps you recognize a command; Automation uses its ID to find it. You c
 
 “Clear” does not undo work already completed on the remote host. Success, failure, extracted content, and final status depend on the command's matching settings.
 
-### Configure Result Matching
+#### Configure Result Matching
 
 Result matching converts remote output into a status that is easier to use.
 
@@ -1264,19 +1366,24 @@ Result matching converts remote output into a status that is easier to use.
 
 Choose stable, specific success and failure text. Broad text can produce incorrect matches. Execute the command once and review “Match Results” before using its variables in a rule.
 
-### Use Background Execution and Service Mode
+#### Use Background Execution and Service Mode
 
 nohup means a command continues to run in the remote host's background after the SSH connection closes. Closing the WebUI does not stop a background task.
 
-After enabling “Run in background (nohup),” you can use:
+Background runs require SSH key authentication. Deploy the public key on “Security,” then select the associated host. Do not save plaintext passwords in background commands. The same key must remain available to stop or verify the original task.
 
-- “View Log”: Read the current background-task log.
-- “Tail Log”: Continuously refresh the log.
-- “Stop Tail”: Stop refreshing the page without stopping the remote task.
-- “Check Process”: Check whether the background task is still running.
-- “Stop Process”: Request termination of the background task, then check its state.
+After enabling “Run in background (nohup)” and executing the command, select “Background runs” on Commands. The root-only control on System and the control on Automation open the same list.
 
-If “View Log” or “Check Process” fails, read the reason and check the host connection. A failed read does not mean the log is empty or the process has exited. Check again after restoring the connection; do not restart a task because its status check failed.
+1. Find the original task by its name, user, host address, and port.
+2. Select “Verify remote state” to check this run on the original host. “Refresh” only reads known records; it does not replace verification.
+3. Select “View Log” to read the last 100 lines from the original host. Select “Follow log” for updates. “Stop following” stops only the page updates.
+4. To end the task, select “Stop” on its record and confirm. Wait for the result, then verify that it has stopped. Do not start it again without checking.
+
+After a device restart, old records show “Not checked.” “Remote state unconfirmed” means it is not known whether the task is stopped or running. “Last result” describes the last confirmed result, not a guarantee of the current state.
+
+A failed read does not mean the log is empty or the process has exited. Check the original host connection, log path, and SSH key. Verify again after resolving the issue; do not restart a task just because its status check failed.
+
+Deleting a command, changing its host configuration, or switching Automation configurations does not end a remote process. Manage the original task from “Background runs.” Recreating a command with the same name or ID does not take over the original task. Keep any key still needed to control it.
 
 “Service Mode” watches a background task until it becomes available. Provide “Ready match” and “Variable Name.” Adjust the optional failure pattern and timing settings as needed:
 - “Ready match”: Marks the service ready when the configured text appears. Use `|` to separate multiple patterns.
@@ -1285,24 +1392,24 @@ If “View Log” or “Check Process” fails, read the reason and check the ho
 - “Check interval (ms)”: Sets how often the log is checked, in milliseconds; 1000 ms is 1 second.
 - “Variable Name”: Stores states such as checking, ready, and timeout.
 
-“Stop Tail” only stops log updates in the page. “Stop Process” requests termination of the background task; check the process state afterward. Service-mode tasks may be starting, being verified, stopping, or unconfirmed. An accepted request is not a final result. If the state is unknown, verify it; confirm the task has stopped before starting it again.
+Service-mode tasks may be starting, verifying, stopping, or unconfirmed. Wait for the final result after a request is accepted. If a background run record already exists, verify that original run and confirm it has ended before starting again. An enabled automatic rule may start the service again. Disable that rule first if the service must stay stopped.
 
-### Import and Export Commands
+#### Import and Export Commands
 
 - Use the export button on a command to export it and, when selected, include its dependent host configuration.
-- Select “Import Command,” choose a `.tscfg` configuration package, preview its contents, and choose whether to overwrite an existing configuration or bind it to a host currently shown on the page.
+- Select “Import Command,” choose a `.tscfg` configuration package, preview its contents, and decide whether to overwrite existing configuration.
 
-Import can replace configuration with the same ID and may include remote-host information. Follow the Security Guide to check the source and signature. If a restart is required, finish Terminal and Automation tasks before restarting.
+Import may include a remote host and replace configuration with the same ID. Review the command, host, and replacements in the preview before confirming. Saving updates the current configuration without a restart. Existing remote processes do not stop or move to the new host.
 
-### Check Which Rules Use a Command Before Deleting It
+New imports check the source, signature, signing permission, and target device. A successful export does not guarantee a later import. A device certificate intended only for HTTPS may lack permission to sign configuration packages. Ask the configuration provider to resolve this; do not disable verification.
 
-Deleting a command does not undo completed operations on the remote host and cannot be undone from the Commands page. First check whether sources, templates, or rules still need it.
+#### Check the Impact Before Deleting a Command
 
-- Service running or state unknown: Select the command's refresh icon to verify its state. Stop it if needed and confirm the result. Wait for any start, stop, or verification to finish. The delete button does not stop the remote task.
-- Service stopped but deletion blocked: Check which imported rules still use the command. Update those rules first. Stopping a service or the Automation engine leaves the command in those rules. Changing the command's host or replacing host configuration may also be blocked.
-- Rule read-only or awaiting restart: Follow Chapter 12. Do not delete SD files to bypass protection. Check the revised rules and connections before removing unneeded configuration.
+After selecting delete, review the linked templates and rules. Choose an available replacement command, or unlink the affected configuration and disable its rules. See Chapter 12 for the steps. Deletion changes only the configuration in use; it does not update the other emergency copy.
 
-## 12. Automation Management
+Deleting configuration and stopping a remote service are separate operations. Deleting does not stop the service or undo completed operations. To end a remote task, stop it from “Background runs” and confirm the result.
+
+### 12. Automation Management
 
 “Automation” connects data and operations into repeatable workflows. Create data sources and action templates, then use rules to decide when to run them.
 
@@ -1313,20 +1420,22 @@ Manual: System-page Quick Action → Actions
 
 Sources read data, variables hold values, rules evaluate conditions, and templates define tasks. Showing a rule on the panel and allowing manual execution are separate settings. Automatic rules can also appear on the panel.
 
-### View and Control the Automation Engine
+#### View and Control the Automation Engine
 
 The top of the page shows the engine state, rule, variable, and source counts, trigger count, and runtime.
 
 | Control | Effect |
 | --- | --- |
-| “Start” | Starts a stopped engine and begins processing enabled rules. |
+| “Start” | Starts a stopped engine. Enabled rules run only if the current configuration permits execution. |
 | “Pause” | Pauses further automatic evaluation. Existing actions may continue. To resume through the page, stop the engine, then start it. |
 | “Stop” | Attempts to stop rule checks, data reading, and scheduling later actions, while keeping configuration. Wait for confirmation; a timeout does not mean the engine has stopped. |
-| “Reload” | Reads saved configuration again; an engine that was running resumes after loading. Save edits first. Blocked while rules await restart; it cannot replace a device restart. |
+| “Reload” | Reads configuration again from the location in use. Save edits and check the result. An existing configuration pause remains in place. |
 
-Check whether cooling, alerts, or other ongoing tasks depend on Automation. Stopping the engine does not stop a remote background process. Stop remote tasks from Commands or the relevant service card and confirm the result.
+Check whether cooling, alerts, or other ongoing tasks depend on Automation. Stopping the engine does not stop a remote background process. Stop remote tasks from “Background runs” and confirm the result.
 
-### Build a Minimal Automation Workflow
+“Disable automation” under “Configuration & backup” is separate from the engine's “Pause” control. If the configuration is paused, review it before selecting “Enable automation.” Restarting the device, reloading, or stopping and starting the engine does not clear this configuration pause. See Chapter 13.
+
+#### Build a Minimal Automation Workflow
 
 1. Create a source and use its test to check the connection and selected fields.
 2. Enable it, then use the row’s “View Variables” icon to check values and update times.
@@ -1335,7 +1444,7 @@ Check whether cooling, alerts, or other ongoing tasks depend on Automation. Stop
 5. Set “Show on panel” and “Allow manual trigger” as needed.
 6. Save, then enable the rule. Check variables, trigger counts, and actual results.
 
-### Manage Data Sources
+#### Manage Data Sources
 
 Select “Add” under “Data Sources” and choose a type:
 
@@ -1350,13 +1459,13 @@ Select “Add” under “Data Sources” and choose a type:
 2. Use the test to check the connection. Obtain addresses, authentication details, and field information from the data provider.
 3. For the first three types, select fields from the test response. Leaving a Socket.IO event name blank lets the test attempt event discovery.
 4. For a Command Variable, select the host and a command with a configured variable name, then set the polling interval.
-5. Save and enable the source. Use its “View Variables” control to check the result.
+5. Check the enable switch in the form, save, and use “View Variables” on its row to check the result.
 
 Source rows provide an enable switch, variable viewer, export, and delete controls. Check which rules use a source before disabling or deleting it, so you do not disrupt their tasks.
 
 Import and export use configuration packages. Preview IDs, types, and replacements before import, and follow the Security Guide for source and trust requirements.
 
-### View Variables
+#### View Variables
 
 Select the eye-shaped “View Variables” icon on a source row. The window shows names, types, values, and update times. Remote-command variables can also be viewed from the command’s variable control.
 
@@ -1364,7 +1473,7 @@ Select the eye-shaped “View Variables” icon on a source row. The window show
 - Check whether update times match the expected data frequency.
 - If no data is available, check that the source is enabled, then test the connection and fields. For command variables, check the command’s execution result too.
 
-### Create and Test Action Templates
+#### Create and Test Action Templates
 
 Select “Add” under “Action Templates” and choose a task type:
 
@@ -1386,23 +1495,31 @@ Enter a unique ID, a name, and the type-specific parameters. Set a delay or “A
 - Set Variable: Enter the variable name and value.
 - Webhook: Currently unavailable. Choose a supported action instead. Rule packages containing Webhook actions cannot be imported either.
 
-“Test” runs the action. Check the effect of power, reboot, remote-command, or external-request operations before testing.
+“Test” runs the action. Check the effect of power, reboot, remote-command, or external-request operations before testing. A queued message means the task was accepted, not that it succeeded. Check System Logs and the target device too.
 
-After editing, save and check the parameters. If saving fails, keep the draft and correct the reported issue. Imports may replace templates; check which rules use a template before deleting it. If a linked service is not confirmed stopped, verify it. Stop it if needed and confirm the result.
+After editing, save and check the parameters. If saving fails, keep the draft and correct the reported issue. Imports may replace templates; review the deletion impact before removing one. If an image or font is missing, insert the original SD card or select an available resource. The emergency backup does not save these files.
 
-### Follow Action-Template Deletion Messages
+#### Delete Configuration and Handle Its Links
 
-If “Can't delete action template” appears, read the reason first. The template has not been deleted:
+Deleting a rule, template, SSH command, or host can affect other configuration. Save an emergency backup first if you will need it. Deletion cannot be undone from the page.
 
-1. Rules still use the template: Select “View rules.” Remove the template from those rules, or delete unneeded rules that permit deletion, then delete the template. Disabling a rule or stopping the engine does not remove the template from the rule.
-2. Service not stopped: Select “View commands.” Verify its state, stop it, and confirm the result before returning to delete the template.
-3. Configuration updating or loading: Wait for it to finish. Recovery needed or usage check unavailable: Open “System Logs” on Terminal, find the cause, and restore configuration. Do not keep selecting delete.
+1. Select delete in the relevant list. Review the target name and affected items.
+2. Confirm deletion if there are no links. Otherwise, choose an available replacement or “Unlink and disable affected rules.”
+3. Refresh the list afterward. Confirm removal and check the linked templates, rules, and enable states.
 
-You cannot edit an imported read-only rule directly. Ask the configuration provider to revise its package and remove the unneeded template.
+Unlinking a deleted template removes its action from affected rules and disables those rules. Deleting an SSH command leaves linked templates as disabled drafts with the command reference cleared; affected rules are unlinked and disabled. Before choosing a replacement, check its target and action, not just a similar name.
 
-If saving a rule reports that a template no longer exists, the save did not succeed. Select an existing template, review it, and save again.
+When deleting a host, also review affected commands and sources. A command without a host cannot run. Recreate needed commands under a valid host and update their links, then check them before use. Deleting local host configuration is separate from revoking a remote public key; see the Security Guide.
 
-### Create a Rule
+#### Use Force Delete When Needed
+
+If ordinary deletion cannot complete, select “Force delete.” Read the explanation before confirming. It deletes the target, clears links it can identify, and disables affected rules. It does not stop remote background services.
+
+If the full impact cannot be confirmed, the page asks you to check “I agree to pause automation and continue deleting.” Automation stays paused afterward. Review and repair the remaining configuration, then select “Enable automation” in “Configuration & backup.” Do not rely on a restart to resume it.
+
+If configuration changes during confirmation, select “Review deletion impact,” review the new list, and confirm again. Force delete cannot guarantee completion when storage writes fail. Read the list again to check; a disappearing card does not prove the deletion was saved.
+
+#### Create a Rule
 
 1. Select “Add” under “Rules” and enter a unique ID, name, and icon.
 2. Choose “Logic”: AND requires all conditions; OR requires any condition.
@@ -1412,11 +1529,13 @@ If saving a rule reports that a template no longer exists, the save did not succ
 6. Set “Show on panel” and “Allow manual trigger.” The first controls card visibility on System; the second controls manual execution.
 7. Review, save, and then enable the rule. Leave “Enable immediately” off while configuring it for the first time.
 
-If saving, enabling, or disabling reports that the “backup copy is not synced,” the operation succeeded, but the backup copy did not sync. This is not a failed save or a requirement to restart. Do not remove or replace the SD card. Refresh the rule list and check its content and enable state; do not create the rule again. If the warning persists, open “System Logs” on Terminal to check for storage problems.
+Saving, enabling, or disabling a rule updates the current configuration without a restart. If Automation is paused, saving does not resume it. Refresh the list and check the result. Update the emergency backup after important changes, as described in Chapter 13.
+
+You can save up to 64 rules. This is not a guarantee that 64 tasks can run at once. Command length and the number of conditions and actions also affect storage and memory. If capacity is insufficient, remove unneeded configuration or reduce its content before saving.
 
 Match the value to the selected type. For a number, enter a specific value, not infinity or NaN (an invalid number). Enter text, a boolean (true or false), or null for the other types. Do not enter a whole JSON object or array. If the page reports an error, check the variable, comparison, and value before saving again.
 
-### Configure Repetition and Action Conditions
+#### Configure Repetition and Action Conditions
 
 | Mode | Meaning |
 | --- | --- |
@@ -1428,7 +1547,7 @@ Action conditions are separate from rule-trigger conditions. Without an action c
 
 Disabling a rule prevents new triggers; a run already started may continue. To stop scheduling later actions, select the engine's “Stop” control and wait for confirmation. Check actions already sent and remote processes separately. Completed operations are not undone.
 
-### Create a Quick Action
+#### Create a Quick Action
 
 “Manual Trigger Only,” “Show on panel,” and “Allow manual trigger” control whether a rule runs only manually, whether its card is visible, and whether users may execute it.
 
@@ -1437,51 +1556,36 @@ Disabling a rule prevents new triggers; a run already started may continue. To s
 3. Enable “Show on panel” and “Allow manual trigger,” then save and enable the rule.
 4. Return to the System Device Panel. Check the card’s name and state, run it once, and review the result.
 
-Automatic rules can also appear on the panel. Showing a card does not make its rule manual-only. A disabled rule may remain visible but cannot start. Give admin-facing actions clear names and appropriate log or stop controls.
+Automatic rules can also appear on the panel. Showing a card does not make its rule manual-only. A disabled rule may remain visible but cannot start. Give admin-facing actions names that explain their effect, and tell users whom to contact to verify or stop background tasks. Root users view logs, verify, and stop services from “Background runs.”
 
-### Import a Rule Configuration Package
+#### Import a Rule Configuration Package
 
-Import rule packages on Automation, not through Security's “Verify Only” or file upload. This control checks whether the signer is trusted, whether the package belongs to this device, and whether required configuration is present. Its verification result does not apply to other package types.
+Import rule packages on Automation, not through Security's “Verify Only” or file upload. This control checks the signer, target device, and required configuration. Verify each package through its own import control; another package's result does not apply.
 
 Before importing, prepare:
 
-- The SD card is mounted and writable. Packages are saved on the card. Keep it installed after import; do not remove or replace it while a restart is pending.
+- Confirm whether the SD card or internal emergency configuration is in use, and that it can be saved. See Chapter 13.
 - The device has a valid certificate, its matching private key, and a CA chain; its time is verified. A CA chain checks certificate origins. See the Security Guide for installation steps.
 - The deployment administrator has selected a trusted signer. Root login or installing HTTPS certificates does not complete this setting. Ask the deployment administrator to configure it if it is missing.
 - The rule's templates, commands, and hosts are ready. Import does not install these for you. Add any missing configuration first. If the rule is enabled, also check the enable state of the configuration it uses.
 
-A restart interrupts WebUI and device-management services. Check whether the rule is enabled and will run automatically. Confirm that it may run after restart before importing it. If it must remain inactive, ask the provider for a disabled version. Restarting TianshanOS does not stop background processes on remote hosts.
+Saving an import updates the current configuration without a restart. Before confirming, check the enable state, conditions, actions, and targets, and confirm that execution is safe. An existing configuration pause remains in place. To prevent execution, disable Automation first or ask the provider for a disabled version.
 
-1. Select the import icon under “Rules” to open “Import Rule Config,” then choose the `.tscfg` file. Verification starts and the page displays a preview.
+1. Select the import icon under “Rules” to open “Import Rule Configuration,” then choose the `.tscfg` file. Verification starts and the page displays a preview.
 2. Wait for “Signing trust, target device and rule content verified.” Check the name, rule ID, and “Rule summary.” Expand “View rule content” to review conditions, actions, targets, and enable state; do not rely on the filename.
-3. If the same ID exists, read “Overwrite impact.” Select “Overwrite existing config” only if you want to replace the saved version. If the file, credentials, or configuration change after preview, select the file again and reverify it.
-4. Select “Confirm Import” and wait. “Saved; takes effect after restart. The running version has not changed.” confirms storage, not that the new rule is running. If the page says the configuration is already saved and active, that repeated import does not require another restart.
-5. If a restart is required, save other work and review Automation and remote tasks, then restart TianshanOS from System. Keep the same SD card installed and wait for WebUI to return.
-6. Return to Automation and confirm that the rule's pending-restart label has disappeared. Check its enable state, required variables, and logs. If the rule permits a safe manual check, run it once and check the device or remote-host result. For rules that cannot run manually, watch the logs and results after a normal trigger. Do not rely on the save message alone.
+3. If the same ID exists, review what will be replaced. Select “Overwrite existing configuration” only if you intend to replace it. If the file, credentials, or configuration change after preview, select “Check package again.” Close and reopen the editor if the page asks you to, then verify again.
+4. Select “Confirm Import” and wait for the save result. Check the rule list, enable state, and required variables. A successful save does not prove successful task execution.
+5. If the rule permits a safe manual check, run it once and check the device or host. For other rules, watch the logs and results after a normal trigger. To clear a configuration pause, review the configuration before selecting “Enable automation.”
 
-Imported rule packages are read-only. You cannot edit, enable, disable, or delete them directly. Ask the provider to issue a revised package for this device, then import it as described here. To disable a rule, obtain a disabled version and restart as instructed; the old version may still run until restart.
+Imported rules can be edited, enabled, disabled, and deleted. Check the current configuration after edits and update the emergency backup if needed. A later import still requires signature verification; permission to edit locally does not bypass it.
 
-The engine's “Stop” control stops scheduling later actions. It does not change rules or undo completed operations. Stop remote background tasks separately and confirm the result.
+A certificate intended only for HTTPS may not authorize configuration signing. A successful local export may still be rejected on import. Ask the provider to resolve the certificate-purpose issue; do not disable verification or repeat the import.
 
-After editing or importing, check the engine, rules, and task results. Reload or restart as instructed, then confirm that tasks work. The table below explains read-only and pending-restart restrictions.
+Imports and edits do not undo completed actions or stop remote background processes. End those tasks separately from “Background runs” and confirm the result.
 
-### Distinguish Saved and Running Versions
+#### If Import Does Not Complete
 
-| Page message or state | What to do |
-| --- | --- |
-| “Saved; restart required” | The new configuration is saved but not yet in use. Ordinary edits, enable switches, and deletion are unavailable. Arrange a device restart. |
-| An older version is already running | Until restart, the old rule may still run. The manual button says “Run the current, older version”; check its effect before running it. Export returns the current running version, not the pending new package. |
-| New rule not yet loaded | Manual execution is unavailable. Restart, then check its enable state and manual permissions. |
-| “Deletion saved; removal requires restart” | The rule leaves the running list after restart. No new manual or automatic run can start. Check actions already sent and remote tasks separately. Confirm removal after restart. |
-| Read-only rule | Ordinary edit, enable, disable, and delete controls remain unavailable after the pending-restart label disappears. Obtain and import a revised package as described above. |
-
-Not every save needs a restart. Creating, editing, or enabling an editable rule updates the current rule when the operation succeeds. Disabling it does too. Check the operation result and rule state.
-
-“Reload” is unavailable while rules await restart. Stopping and starting the engine does not switch those versions; restart the device.
-
-### If Import Does Not Complete
-
-#### Verification Failed
+##### Verification Failed
 
 | Message or issue | Next step |
 | --- | --- |
@@ -1492,25 +1596,95 @@ Not every save needs a restart. Creating, editing, or enabling an editable rule 
 | Configuration failed to load | Check System Logs, resolve the cause, and restore configuration before verifying again. |
 | Required configuration missing | Add the template, command, or host named by the page, then verify again. |
 | Required configuration disabled | Check whether it should be enabled. Once it is safe to run, enable it and verify again. |
-| A bound service is running or its state is unconfirmed | Verify the service on Commands. Stop it if needed and confirm the result. Wait for any start, stop, or verification in progress to finish, then select the file again and reverify it. |
 | Unsupported action | Ask the provider to revise the package. Rule-package import currently rejects Webhook actions; their presence in the template selector does not mean the package can be imported. |
-| File, credentials, or configuration changed after preview | Select the file again, reverify it, and review overwrite impact before confirming. |
+| File, credentials, or configuration changed after preview | Select “Check package again.” Reopen the editor or select the file as instructed, then review and confirm. |
 
-#### Save Incomplete
+##### Save Incomplete
 
 | Message or issue | Next step |
 | --- | --- |
-| SD card unavailable | Check that the card is inserted, mounted, and writable, then verify again. |
-| Configuration source read-only | Restore a writable source. Do not delete files to bypass protection. |
-| Save unreliable | Check storage, resolve the issue, and verify again. |
-| Save outcome is unconfirmed | Refresh the rule list and check the rule and pending-restart state. If it remains uncertain, inspect System Logs. Keep the original file and do not repeat the import. |
+| Current storage unavailable or full | Check the location in “Configuration & backup.” Resolve the storage issue or reduce unneeded content, then verify again. |
+| Current configuration or save location changed | Keep and copy the draft. Reopen the editor, review the latest configuration, and submit again. Do not keep selecting save. |
+| Save outcome unconfirmed | Refresh and check the rule content and enable state. If still unclear, inspect System Logs. Keep the original package and do not repeat the import. |
 
-A condition variable without a sample is not necessarily missing configuration; check when it will update. If old storage objects need cleanup, keep the SD card installed and check after restart.
+A condition variable without a sample is not necessarily missing configuration; check when it will update. If configuration cannot be read, keep the original files and check System Logs. Do not overwrite damaged content as though it were empty.
 
-### Maintain Rules and Configuration
+#### Maintain Rules and Configuration
 
 - Manual execution requires an enabled rule that permits manual triggers, with no run of the same rule already in progress. It bypasses automatic trigger conditions and cooldown, but still applies action conditions, delays, and repetition.
 - Disabling does not undo completed actions. Deletion cannot be undone from the page.
-- Before editing sources, templates, or commands, check which rules use them. Verify or stop any linked service that is running, unknown, or still processing an operation. If a rule still uses the configuration, revise the rule too; stopping the service does not remove that use.
-- Use this chapter's dedicated flow for rule packages. Follow the Security Guide for other packages; the rule-package verification result does not apply to them.
+- Before editing sources, templates, or commands, check which rules use them. Configuration edits do not stop existing remote tasks. Verify and stop those tasks separately if needed.
+- Import each package through its relevant list and review the preview. See the Security Guide for full signature and account procedures.
 - If saving fails, read the message and retain the draft. If saving succeeded but refreshing failed, refresh and check the list before creating another item.
+
+### 13. Configuration and Backup
+
+Select “Configuration & backup” on Automation. Check “Currently using” before saving, restoring, or choosing a configuration. First review any effect on cooling, alerts, or remote tasks.
+
+#### Distinguish the Three Types of Content
+
+| Content | How it is saved |
+| --- | --- |
+| System settings such as networking, fans, temperature, and lighting | Saved inside the device. An Automation backup restore does not change them. |
+| Current Automation configuration | Additions, edits, and deletions go to the SD card during normal SD use, or to internal storage in emergency mode. |
+| Internal emergency backup | While using the SD card, it updates only when you select “Save emergency backup.” Emergency-mode edits update this internal configuration directly. |
+
+The emergency backup saves rules, action templates, SSH commands, associated hosts, sources, and initial definitions of user variables together. It does not save private keys, images, fonts, logs, or remote run states. Host settings only remember which key to use; the key itself is not copied.
+
+This is not a full-device backup. Keep important files and keys through their own backup methods. A restore does not mean remote services have stopped or that every file needed by a rule is available.
+
+#### Save an Emergency Backup
+
+1. Confirm that “Currently using” shows “SD card configuration,” then review the current rules and tasks.
+2. Select “Save emergency backup” and wait for completion.
+3. Check “Last internal save” and “Backup status.” “Includes the current changes” means the internal copy matches the current configuration.
+
+Saving replaces the previous emergency backup. Later SD-card edits do not update it. If it does not include the latest changes, review the current content before deciding whether to save again.
+
+While using “Internal emergency configuration,” edits are saved internally. You do not need to select “Save emergency backup” again.
+
+#### Restore an Emergency Backup
+
+A restore replaces the current SD-card configuration with the internal copy, which may be older. Export any current configuration and files you need first. Do not save an emergency backup first; that would overwrite the old copy you intend to restore.
+
+1. While using the SD-card configuration, select “Restore emergency backup.”
+2. Review added, changed, and removed items, and whether Automation will stay paused.
+3. Confirm and wait for completion. The lists update without a device restart.
+4. Check rules, hosts, variables, enable states, and task results. If still paused, review the configuration before selecting “Enable automation.”
+
+A restore does not change networking, fans, or keys. It does not end running remote services. Manage them from “Background runs” if needed.
+
+#### When No Usable SD Card Is Available
+
+If a usable internal configuration exists, the device switches to it. Enabled automatic rules still follow their conditions; manual rules still need a click. The internal copy may be older, so check which tasks may run before a planned switch.
+
+Emergency mode permits additions, edits, and deletions. Saves go directly to internal storage. If no usable internal configuration exists, read the reason first. You can start with a valid new configuration, but do not overwrite damaged files as though they were empty.
+
+Networking, fans, and other system settings still load from internal storage. Emergency configuration does not restore SD-card images, fonts, or logs. Insert the original card or select available files if resources are missing. A missing card does not mean all functions stop, or that every task can continue.
+
+#### Choose a Configuration After Reinserting the Card
+
+Insert a usable SD card and select “Check SD card,” then review the two choices below. Insertion does not switch or merge configurations. Close the panel to keep using internal configuration. Restarting does not make the choice for you.
+
+| Button | What happens |
+| --- | --- |
+| “Use SD card configuration” | Reads and switches to the card's configuration. Internal configuration is kept, not copied to the card. |
+| “Save current configuration to SD card and use it” | Replaces the card's configuration with the current internal configuration, then switches to the card. The old card configuration is overwritten. |
+
+1. Check the current location and decide which configuration to keep.
+2. Select the relevant button and review the replacement and enable-state notice. Before writing to the card, check the added, changed, and removed items.
+3. Confirm and wait. Check that “Currently using” shows “SD card configuration,” then review the lists and task results.
+
+Missing or empty card configuration is not filled from internal storage automatically. Confirm that an empty configuration is what you want before choosing it. If the card or configuration changes after preview, check again as instructed; do not reuse the old confirmation.
+
+#### Distinguish Save, Switch, and Run Results
+
+| Message or situation | Next step |
+| --- | --- |
+| Saved to SD card, but not switched | Internal configuration is still in use. Select “Use SD card configuration” to finish switching. Do not overwrite the card again. |
+| Configuration saved, Automation still paused | Review the configuration, then select “Enable automation.” Do not save again or rely on a restart to clear the pause. |
+| Deletion not saved, Automation paused | Check whether the target is still present and storage is available. Repair and review the configuration before deciding whether to enable it. |
+| Save outcome unconfirmed | Read the location and content again. Check System Logs if needed. Do not submit the same change again without checking. |
+| Current input differs from the latest configuration | Copy any draft you need before closing and reopening the editor. Review the latest content and enter your edits. The page does not merge drafts for you. |
+
+After a successful switch, restore, or save, check whether tasks are allowed to run and whether they finish. A configuration pause remains in place; review and select “Enable automation” to resume. A pause caused by “Disable automation” or force deletion is not cleared by restarting or switching configurations.

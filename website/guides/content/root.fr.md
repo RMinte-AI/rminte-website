@@ -1,16 +1,16 @@
 # TianshanOS
 
-Ce guide est basé sur TianshanOS 0.6.2. Il peut toujours être utilisé avec des versions ultérieures où les fonctionnalités et les étapes restent inchangées. Si les contrôles, les messages ou les résultats diffèrent, consultez les instructions correspondant à votre version installée.
+Ce guide est basé sur TianshanOS 0.6.3. Pour les autres versions, consultez les instructions spécifiques à la version correspondante.
 
-Ce guide couvre les fonctions de routine dans la partie I et l'accès au terminal, les commandes à distance et l'automatisation dans la partie II. Les opérations racine peuvent affecter le périphérique et les hôtes distants ; vérifiez les tâches cibles et actives avant de continuer. Consultez le Guide de sécurité séparé pour la gestion de la sécurité.
+Ce guide couvre les fonctions de routine dans la partie I et l'accès au terminal, les commandes à distance, l'automatisation et la sauvegarde de la configuration dans la partie II. Les opérations Root peuvent affecter le périphérique et les hôtes distants ; vérifiez les tâches cibles et actives avant de continuer. Consultez le Guide de sécurité séparé pour la gestion de la sécurité.
 
-Utilisez les commandes affichées sur votre appareil. Certains nécessitent un matériel ou une configuration spécifique. Sur un ordinateur, passez la souris sur un bouton icône pour voir son nom.
+Utilisez les commandes affichées sur votre appareil. Certains nécessitent un matériel ou une configuration spécifique. Sur un ordinateur, passez la souris sur un bouton icône pour voir son nom. Sur un téléphone, faites glisser votre doigt dans un large tableau pour afficher ses autres colonnes.
 
 ## Partie I : Fonctions de routine
 
-## 1. Commencer
+### 1. Pour commencer
 
-### Ouvrez l'interface Web
+#### Ouvrez le WebUI
 
 1. Ouvrez l'interface Web de l'appareil (WebUI) à l'aide de l'adresse fournie par votre administrateur.
 2. Sélectionnez « Connexion » dans le coin supérieur droit.
@@ -21,27 +21,27 @@ La connexion avec le mot de passe par défaut ouvre un « rappel de sécurité�
 
 Lorsque vous avez terminé, sélectionnez « Déconnexion » dans le coin supérieur droit. Vous devrez vous reconnecter pour utiliser l'appareil.
 
-### Changer de langue
+#### Changer de langue
 
 Sélectionnez le bouton de langue en haut de la page, puis choisissez chinois ou anglais. Le contenu de la page et les étiquettes de contrôle changent immédiatement.
 
-### Navigation dans les pages
+#### Navigation dans les pages
 
 Les utilisateurs root peuvent accéder à ces pages :
 
-- « Système » : affichez l'état de l'appareil, les modules de contrôle, les ventilateurs et les LED, et ouvrez la mise à jour OTA.
-- « Réseau » : vérifiez l'état Ethernet et les clients DHCP, configurez WiFi et gérez le transfert NAT.
-- « Fichiers » : gérez les fichiers sur la carte SD et SPIFFS.
-- « Terminal » : exécutez les commandes de l'appareil et affichez les journaux système.
-- « Commandes » : gérez et exécutez les commandes SSH à distance.
-- « Automation » : configurez les sources, les règles et les modèles.
-- « Sécurité » : ouvrez la page de gestion de la sécurité séparée. Consultez le Guide de sécurité pour obtenir des instructions.
+- “System” : affichez l'état de l'appareil, les modules de contrôle, les ventilateurs et les voyants, et ouvrez la mise à jour OTA.
+- “Network” : vérifiez l'état Ethernet et les clients DHCP, configurez le WiFi et gérez le transfert NAT.
+- “Files” : gérez les fichiers sur la carte SD et SPIFFS.
+- “Terminal” : exécutez les commandes du périphérique et affichez les journaux système.
+- “Commands” : gérez et exécutez les commandes SSH à distance.
+- “Automation” : configurez les tâches et enregistrez une sauvegarde d'urgence.
+- “Security” : ouvrez la page de gestion de la sécurité distincte. Consultez le Guide de sécurité pour obtenir des instructions.
 
-## 2. État du système et opérations de routine
+### 2. État du système et opérations de routine
 
 Sélectionnez « Système » dans la navigation supérieure.
 
-### Afficher l'état des ressources et des services
+#### Afficher l'état des ressources et des services
 
 « Ressources de la puce de gestion » affiche l’utilisation du CPU, de la DRAM et de la PSRAM de cette puce. Ces valeurs ne concernent ni AGX ni LPMU.
 
@@ -49,15 +49,17 @@ Sélectionnez « Système » dans la navigation supérieure.
 - « Services » affiche le nombre de services en cours d'exécution et le total. Sélectionnez-le pour afficher l’état et l’étape de démarrage de chaque service.
 - Si un service signale un problème, actualisez son état. Pour le redémarrer, suivez « Redémarrer un service » ci-dessous.
 
-### Afficher les informations sur le système et l'alimentation
+#### Afficher les informations sur le système et l'alimentation
 
 « Vue d’ensemble du système » affiche la puce, la version du micrologiciel, celle d’ESP-IDF et la durée de fonctionnement. Pour l’usage courant, vérifiez la version du micrologiciel. ESP-IDF est le cadre logiciel utilisé par l’appareil.
 
 Le côté droit de la carte affiche la tension d'entrée, la tension interne, le courant, la puissance et l'état de protection.
 
+Les paramètres système tels que la mise en réseau, les ventilateurs, la température et l'éclairage sont enregistrés dans l'appareil. L'insertion d'une ancienne carte SD ne les restaure pas. La configuration de l'automatisation est gérée séparément ; sa sauvegarde d'urgence n'est pas une sauvegarde complète de l'appareil.
+
 L'interrupteur à côté de l'état de protection active ou désactive la protection basse tension. Lorsqu'il est activé, l'appareil utilise les tensions et les délais enregistrés pour s'arrêter à basse tension et redémarrer une fois l'alimentation rétablie.
 
-### Afficher le réseau et l'heure
+#### Afficher le réseau et l'heure
 
 « Réseau et heure » affiche Ethernet, WiFi, l'adresse IP, l'heure actuelle, l'état de synchronisation, la source horaire et le fuseau horaire.
 
@@ -65,17 +67,17 @@ L'interrupteur à côté de l'état de protection active ou désactive la protec
 - Sélectionnez « Fuseau horaire », choisissez un préréglage ou entrez un paramètre de fuseau horaire pris en charge, puis enregistrez.
 - Sélectionnez « OTA Update » pour ouvrir la page de mise à jour du micrologiciel.
 
-### Opérations avancées
+#### Opérations avancées
 
-#### Redémarrer TianshanOS
+##### Redémarrer TianshanOS
 
 Un redémarrage interrompt temporairement la WebUI et la gestion des appareils. Terminez les opérations actives, puis sélectionnez « Redémarrer » et confirmez. Attendez que l'appareil soit récupéré, puis rouvrez WebUI.
 
-#### Redémarrer un service
+##### Redémarrer un service
 
 Le redémarrage d'un service interrompt temporairement la fonction qu'il fournit. Ouvrez « État du service », recherchez le service concerné et sélectionnez « Redémarrer » sur cette ligne. Vérifiez à nouveau son état une fois l'opération terminée.
 
-#### Modifier les paramètres d'arrêt
+##### Modifier les paramètres d'arrêt
 
 Ces paramètres contrôlent le moment où l'appareil s'éteint après une chute de tension et le moment où il redémarre après le rétablissement de l'alimentation. Utilisez des valeurs qui correspondent aux besoins en énergie de votre appareil.
 
@@ -89,17 +91,17 @@ Sélectionnez « Paramètres d'arrêt » pour modifier :
 
 Enregistrez le formulaire pour appliquer les paramètres de protection mis à jour.
 
-#### Changer la cible supérieure USB
+##### Changer la cible supérieure USB
 
 Le changement de cible USB peut déconnecter temporairement un périphérique connecté. Confirmez l'objectif et terminez le travail actif avant de continuer.
 
 Les appareils prenant en charge la commutation USB affichent un bouton « USB ». Chaque clic fait basculer le port USB supérieur vers la cible suivante : ESP, AGX, puis LPMU. Vérifiez la cible affichée sur le bouton et le message de la page pour confirmer le résultat.
 
-## 3. Panneau de périphérique
+### 3. Panneau de périphérique
 
 Le « Panneau des périphériques » se trouve sur la page « Système ». Il contient des commandes d'alimentation de module, des actions rapides et des widgets de données.
 
-### AGX et LPMU
+#### Contrôle AGX et LPMU
 
 Enregistrez le travail sur le module et terminez son processus d'arrêt normal avant de couper l'alimentation. Une mise hors tension forcée peut entraîner la perte de données non enregistrées.
 
@@ -107,40 +109,34 @@ Enregistrez le travail sur le module et terminez son processus d'arrêt normal a
 - « LPMU Power » affiche « En ligne », « Hors ligne » ou « Inconnu ». Ces états proviennent d'une vérification du réseau. En ligne signifie que le module est accessible ; hors ligne signifie que ce n'est pas le cas. Aucun des deux états ne confirme à lui seul si le module est allumé ou éteint.
 - La sélection du bouton LPMU déclenche la même action que l'appui sur son bouton d'alimentation physique. Attendez le contrôle et le résultat affiché. Si le résultat est inconnu, vérifiez le module et le réseau avant d'appuyer à nouveau sur le bouton.
 
-### Utiliser des actions rapides
+#### Utiliser des actions rapides
 
 Un utilisateur root configure les cartes d’actions rapides. Leur affichage et l’autorisation de lancer une tâche sont deux réglages distincts. Une carte visible ne permet pas toujours de lancer sa tâche.
 
-1. Vérifiez le nom de la carte, son état et les commandes disponibles pour identifier la tâche.
-2. Sélectionnez une carte disponible, puis attendez la mise à jour de son état. Ne relancez pas la tâche pendant son traitement.
-3. Les tâches en arrière-plan peuvent fournir des contrôles de journal, de vérification de l'état ou d'arrêt. Lisez le journal pour voir le résultat de la tâche. Après avoir sélectionné stop, vérifiez que la tâche s'est arrêtée.
-4. Si l'état est inconnu ou si le démarrage est bloqué, utilisez le contrôle de vérification disponible ou vérifiez la règle, la commande à distance et la connexion hôte comme décrit dans les chapitres 11 et 12.
+1. Lisez le nom et la description de la carte pour identifier la tâche.
+2. Sélectionnez la carte et lisez le résultat. Ne le redémarrez pas pendant le traitement.
+3. Un message exécuté ou mis en file d'attente nécessite toujours une vérification réelle des résultats sur le périphérique ou la tâche cible. Utilisez “Background runs” pour vérifier, afficher les journaux ou arrêter un service en arrière-plan (Chapitre 11).
 
 Si la tâche ne peut pas démarrer, suivez le motif affiché. N’appuyez pas plusieurs fois sur Démarrer :
 
-- Règle désactivée ou lancement manuel non autorisé : vérifiez les réglages dans « Automatisation » (chapitre 12). Une carte visible ne vaut pas autorisation de lancer la tâche.
-- Tâche en cours d’exécution, de démarrage, de vérification ou d’arrêt : attendez la mise à jour de son état.
-- Service associé en fonctionnement : ne le relancez pas. Pour le redémarrer, arrêtez-le d’abord et confirmez le résultat.
-- Arrêt du service non confirmé : vérifiez son état. S’il reste inconnu, vérifiez la connexion à l’hôte dans « Sécurité » (chapitre 11).
-- Règle non chargée ou en attente de suppression après redémarrage : vérifiez sa version et le message de redémarrage en attente dans « Automatisation » (chapitre 12).
-- L’automatisation n’accepte pas les demandes de démarrage : vérifiez le moteur et la configuration dans « Automatisation ». Suivez le message et vérifiez les tâches en cours avant de redémarrer l’appareil.
+- Règle désactivée ou déclenchement manuel non autorisé : vérifiez les paramètres de la règle sur “Automation” (Chapitre 12). Une carte visible ne constitue pas une autorisation de l'exécuter.
+- Une tâche ou une opération en arrière-plan est en cours : Attendez son résultat. Ne le redémarrez pas.
+- Un enregistrement d'exécution en arrière-plan existe déjà pour la tâche : vérifiez la tâche d'origine dans “Background runs” et confirmez qu'elle est terminée avant de recommencer.
+- Configuration non chargée, élément requis manquant ou automatisation en pause : vérifiez la configuration et son état d’activation sur “Automation” (chapitres 12 et 13).
 
 <!-- operational-note -->
-Confirmez qu'un service s'est arrêté avant de le redémarrer. Une demande de démarrage ou d'arrêt acceptée peut être encore en cours ; attendre l'état final. Après avoir déclenché une action, attendez quelques secondes avant d’en lancer une autre.
+Après avoir déclenché une action, attendez quelques secondes avant d’en lancer une autre. La fermeture de la page, la suppression d'une carte ou le redémarrage de TianshanOS n'arrête pas les services en arrière-plan sur les hôtes distants.
 
 Appuyez et maintenez une carte jusqu'à ce que l'indicateur de réorganisation apparaisse, puis faites-la glisser pour modifier l'ordre d'affichage.
 
-Si aucune carte n'est disponible, vérifiez quel message la page affiche :
+Si aucune carte n’apparaît, lisez l’explication. Attendez si la configuration est en cours de chargement. Si le chargement échoue, conservez la raison et vérifiez “System Logs” sur le terminal. Si aucune action rapide n'est configurée, sélectionnez “Open Automation” et vérifiez le paramètre “Show on panel” des règles.
 
-- « Chargement des actions rapides » : attendez que la configuration termine le chargement. Si le message persiste, sélectionnez « Aller à l'automatisation » et vérifiez les journaux système dans le terminal.
-- « Actions rapides indisponibles » : sélectionnez « Aller à l'automatisation » pour vérifier l'état. Ouvrez « Journaux système » sur le terminal pour trouver la cause. Restaurer la configuration avant d'utiliser les cartes ; ne continuez pas à sélectionner Démarrer.
-- Aucune action rapide configurée : sélectionnez « Aller à l'automatisation » pour créer une règle ou vérifiez le paramètre « Afficher sur le panneau » d'une règle existante.
-
-Après l’importation d’un paquet de règles, une carte peut encore exécuter l’ancienne tâche jusqu’au redémarrage de l’appareil. Les nouvelles règles ou celles en attente de suppression peuvent ne pas démarrer. Si la tâche vient de changer, vérifiez la version en cours dans la liste des règles avant de la lancer.
+<!-- operational-note -->
+La modification ou l'importation d'une règle met à jour la configuration actuelle ; un redémarrage n'est pas nécessaire pour changer de règle. Si la tâche d'une carte a été modifiée, examinez ses conditions, ses actions et ses cibles avant de l'exécuter.
 
 Ne redémarrez pas un appareil fournissant des services actifs uniquement pour restaurer une carte.
 
-### Gérer les widgets de données
+#### Gérer les widgets de données
 
 Les widgets de données affichent et actualisent les données de l’appareil dans le « Panneau des appareils ».
 
@@ -151,12 +147,12 @@ Les widgets de données affichent et actualisent les données de l’appareil da
 
 Les widgets existants peuvent être modifiés, supprimés et réorganisés. Vous pouvez également sélectionner une carte de widget pour la modifier. Appuyez longuement sur un widget, puis faites-le glisser vers une nouvelle position.
 
-## 4. Gestion des fans
+### 4. Gestion des ventilateurs
 
 <!-- operational-note -->
 « Contrôle du ventilateur » se trouve sur la page « Système ». Les cartes de ventilateur montrent les ventilateurs fournis par votre appareil. Vérifiez le numéro du ventilateur avant de modifier une courbe.
 
-### Afficher l'état du ventilateur
+#### Afficher l'état du ventilateur
 
 La barre d’état affiche « Température effective » et « Sortie actuelle ». Le grand pourcentage indique le réglage de régulation confirmé par l’appareil, pas la vitesse mesurée. RPM indique le nombre de tours par minute mesuré et reste masqué sans mesure valide. Si le grand affichage indique `--`, la sortie actuelle n’est pas confirmée.
 
@@ -168,7 +164,7 @@ Si la température devient invalide, vérifier que sa source est toujours à jou
 
 Utilisez le bouton d'actualisation dans l'en-tête de section pour récupérer l'état actuel. Si le réglage échoue ou si la sortie n'est pas confirmée, vérifiez l'appareil avant de décider de réessayer.
 
-### Sélectionnez un mode de fonctionnement
+#### Sélectionnez un mode de fonctionnement
 
 | Mode | Objectif |
 | --- | --- |
@@ -179,7 +175,7 @@ Utilisez le bouton d'actualisation dans l'en-tête de section pour récupérer l
 
 L'arrêt d'un ventilateur ou le réglage d'une valeur manuelle basse réduit le refroidissement. Vérifiez d’abord la charge et la température et continuez à les surveiller. Le curseur est disponible uniquement en mode manuel lorsque la sortie actuelle est confirmée.
 
-### Configurer une courbe de ventilateur
+#### Configurer une courbe de ventilateur
 
 Sélectionnez « Courbe » dans l'en-tête de la section Contrôle du ventilateur pour ouvrir « Gestion des courbes de ventilateur ». Le bouton « Courbe » à l’intérieur d’une carte change uniquement le mode de fonctionnement.
 
@@ -193,12 +189,12 @@ Sélectionnez « Courbe » dans l'en-tête de la section Contrôle du ventilateu
 
 Si l'enregistrement échoue, lisez le message et vérifiez l'état actuel avant de réessayer. Après avoir dissocié les variables de température, vérifiez également la température effective et l’état du ventilateur.
 
-### Importer et exporter une courbe
+#### Importer et exporter une courbe
 
 - Sélectionnez « Importer Config » et choisissez un fichier de courbe JSON. JSON est le format de fichier utilisé pour stocker les données de courbe. Passez en revue les nœuds, les limites et le numéro de ventilateur, puis sélectionnez « Enregistrer la courbe » pour les appliquer.
 - Sélectionnez « Exporter la configuration » pour télécharger la courbe actuelle. La page tente également d'enregistrer une copie sous `/sdcard/config` sur la carte SD. Vérifiez séparément le téléchargement du navigateur et le résultat de la carte SD rapporté.
 
-### Utiliser une température de test
+#### Utiliser une température de test
 
 Une température de test remplace temporairement la source normale et affecte le contrôle Curve ou Smart. Surveillez le ventilateur et l’appareil tout au long du test.
 
@@ -206,11 +202,11 @@ Une température de test remplace temporairement la source normale et affecte le
 2. Sélectionnez « Test » et observez la sortie actuelle, l'état et la réponse du ventilateur.
 3. À la fin du test, sélectionnez « Effacer le test ». Vérifiez que la température effective provient à nouveau de sa source habituelle.
 
-## 5. Gestion des LED
+### 5. Gestion des LED
 
 « LED Control » se trouve sur la page « Système » et affiche les LED fournies par l'appareil. Les fonctionnalités disponibles varient selon les LED.
 
-### Commandes courantes
+#### Contrôles de routine
 
 - Utilisez le bouton ampoule situé en bas d'une carte pour allumer ou éteindre la LED.
 - Déplacez le curseur « Luminosité » ou choisissez une couleur ou un préréglage.
@@ -218,7 +214,7 @@ Une température de test remplace temporairement la source normale et affecte le
 - Sélectionnez l'icône de sauvegarde en bas à droite de la carte pour enregistrer la configuration actuelle des LED.
 - Sélectionnez « All Off » pour éteindre toutes les LED et vérifier le résultat rapporté. Si certains échouent, vérifiez ces appareils.
 
-### Les cartes matricielles
+#### Fonctionnalités avancées de la matrice LED
 
 Les cartes de la matrice proposent des icônes pour les fonctions disponibles. Ouvrez une fonction, puis changez de groupe dans « Paramètres LED » :
 
@@ -230,18 +226,18 @@ Les cartes de la matrice proposent des icônes pour les fonctions disponibles. O
 
 Vérifiez la lumière réelle ou l'affichage matriciel après avoir appliqué une modification. Utilisez uniquement les fonctionnalités affichées. Si un paramètre échoue, suivez le message pour vérifier l’état du fichier, de l’entrée ou du périphérique.
 
-## 6. Gestion du réseau
+### 6. Gestion du réseau
 
 <!-- operational-note -->
 Sélectionnez « Réseau » dans la navigation supérieure pour ouvrir « Paramètres réseau ». La modification des paramètres du mode réseau, du point d'accès ou de NAT peut interrompre la connexion WebUI actuelle. Avant d'enregistrer, assurez-vous que vous pouvez vous reconnecter via la nouvelle adresse réseau.
 
-### Afficher l'état du réseau
+#### Afficher l'état du réseau
 
 Le haut de la page affiche l'état d'Ethernet, du client WiFi et du point d'accès WiFi. Ouvrez le panneau associé pour afficher l'adresse IP, le masque de sous-réseau, la passerelle, DNS, l'adresse MAC, SSID, le signal et le nombre d'appareils connectés lorsqu'ils sont disponibles.
 
 Le panneau Ethernet affiche les informations actuelles sur la liaison et l'adresse. Il ne fournit pas de contrôles d'édition d'adresse.
 
-### Sélectionnez un mode WiFi
+#### Sélectionnez un mode Wi-Fi
 
 | Mode | Objectif |
 | --- | --- |
@@ -252,7 +248,7 @@ Le panneau Ethernet affiche les informations actuelles sur la liaison et l'adres
 
 Après avoir choisi un mode, attendez que la page actualise l'état. La connexion sans fil actuelle peut être interrompue pendant le changement.
 
-### Se connecter à WiFi
+#### Connectez-vous au Wi-Fi
 
 1. Réglez le mode WiFi sur « Station (STA) » ou « STA+AP ».
 2. Sous « Station », sélectionnez « Scan ».
@@ -262,7 +258,7 @@ Après avoir choisi un mode, attendez que la page actualise l'état. La connexio
 
 Sélectionnez « Déconnecter » pour mettre fin à la connexion client WiFi actuelle.
 
-### Configurer le point d'accès WiFi
+#### Configurer le point d'accès WiFi
 
 1. Réglez le mode WiFi sur « Access Point (AP) » ou « STA+AP ».
 2. Sous « Hotspot », sélectionnez « Config ».
@@ -272,21 +268,21 @@ Sélectionnez « Déconnecter » pour mettre fin à la connexion client WiFi a
 
 Sélectionnez « Appareils » pour afficher les clients actuellement connectés au point d'accès.
 
-### Définir le nom d'hôte
+#### Définir le nom d'hôte
 
 Entrez un nouveau nom dans la section « Nom d'hôte » sous « Services réseau », puis sélectionnez « Définir ». La page affiche le nom d'hôte actuel après sa mise à jour.
 
-### Afficher les clients DHCP
+#### Afficher les clients DHCP
 
 DHCP attribue automatiquement des adresses réseau aux appareils connectés. Sélectionnez « Clients », choisissez « WiFi AP » ou « Ethernet » et affichez les baux en cours. Utilisez le bouton Actualiser pour recharger la liste.
 
-### Opérations réseau avancées
+#### Opérations réseau avancées
 
-#### Configurer la passerelle NAT
+##### Configurer la passerelle NAT
 
 NAT transmet le trafic réseau entre les interfaces réseau de l'appareil. Activez ou désactivez NAT, puis sélectionnez « Enregistrer » pour conserver le paramètre. Vérifiez ensuite l'état du WiFi et d'Ethernet.
 
-#### Accédez au réseau en amont via LPMU
+##### Accédez au réseau en amont via LPMU
 
 <!-- operational-note -->
 Cette opération utilise l'hôte LPMU configuré pour configurer l'accès au réseau. Avant de commencer, vérifiez que LPMU est accessible et que les câbles réseau sont connectés. Obtenez le mot de passe sudo pour le compte SSH sur cet hôte. Ce mot de passe autorise les modifications du système et peut différer du mot de passe WebUI.
@@ -299,13 +295,13 @@ Cette opération utilise l'hôte LPMU configuré pour configurer l'accès au ré
 
 Un échec de demande d'état ne signifie pas que le script s'est arrêté. Utilisez le contrôle « Actualiser l'état » disponible pour vérifier l'exécution en cours avant de décider de réessayer.
 
-## 7. Gestion des fichiers
+### 7. Gestion des fichiers
 
 Sélectionnez « Fichiers » dans la navigation supérieure pour ouvrir le « Gestionnaire de fichiers ».
 
 La carte SD est un stockage amovible et SPIFFS est un stockage de fichiers interne à l'appareil. Sélectionnez « Carte SD » ou « SPIFFS » pour changer d'emplacement. Le chemin en haut montre votre dossier actuel. Sélectionnez un nom de dossier dans le chemin pour y revenir.
 
-### Parcourir et gérer les fichiers
+#### Parcourir et gérer les fichiers
 
 - Sélectionnez un nom de dossier pour l'ouvrir.
 - Sélectionnez le bouton de téléchargement à côté d'un fichier pour l'enregistrer à l'emplacement de téléchargement du navigateur.
@@ -313,7 +309,7 @@ La carte SD est un stockage amovible et SPIFFS est un stockage de fichiers inter
 - Sélectionnez « Nouveau dossier », saisissez un nom de dossier et créez-le.
 - Sélectionnez le bouton d'actualisation pour recharger le répertoire actuel et l'état de stockage.
 
-### Envoyer des fichiers
+#### Envoyer des fichiers
 
 Les fichiers peuvent être envoyés uniquement sur la carte SD, pas dans SPIFFS. Vérifiez d’abord que la carte SD est montée.
 
@@ -327,7 +323,7 @@ L’envoi d’un paquet `.tscfg` ouvre les étapes de vérification et d’appli
 
 Importez les paquets de règles depuis « Automatisation », selon le chapitre 12. Un simple envoi de fichiers ne remplace pas l’importation de règles. Pour l’origine et la signature des autres paquets, consultez le Guide de sécurité.
 
-### Opérations par lots
+#### Opérations par lots
 
 Après avoir sélectionné des fichiers ou des dossiers, la barre d'outils batch apparaît.
 
@@ -335,38 +331,54 @@ Après avoir sélectionné des fichiers ou des dossiers, la barre d'outils batch
 - « Suppression par lots » supprime les fichiers et dossiers sélectionnés.
 - « Effacer la sélection » efface la sélection actuelle.
 
-### Supprimer un fichier ou un dossier La suppression de
+#### Supprimer un fichier ou un dossier
 
 La suppression ne peut pas être annulée dans l’interface Web. Supprimer un dossier supprime aussi son contenu. Vérifiez le nom et le chemin avant de choisir « Supprimer » ou « Suppression par lots » et de confirmer.
 
-### Monter et démonter la carte SD Le démontage de
+Les fichiers gérés par Automation sont protégés. Le téléchargement ou l'écrasement de fichiers dans `/sdcard/config/automation`, ou la suppression ou le renommage de ce dossier ou d'un parent le contenant, peuvent être refusés. Si le message indique que Automation gère le fichier, utilisez “Configuration & backup” sur Automation ou la liste appropriée. N'utilisez pas Terminal pour contourner la restriction.
+
+#### Monter et démonter la carte SD
 
 Le démontage de la carte SD rend ses fichiers indisponibles jusqu’au prochain montage. Terminez les envois, les téléchargements et les autres opérations sur les fichiers avant de sélectionner « Démonter SD ».
 
-Si vous retirez ou remplacez la carte contenant la configuration d’automatisation, celle-ci risque de ne pas se charger après le redémarrage. Vérifiez que le démontage ne compromet pas la configuration ni les tâches en cours. Ne démontez pas la carte et ne la retirez pas si la page demande de la laisser insérée.
+Le démontage ou le remplacement de la carte peut faire basculer Automation vers sa configuration d'urgence interne. Cette copie est peut-être plus ancienne et les règles automatiques activées peuvent toujours s'exécuter. Sans copie utilisable, Automation peut être indisponible. Passez en revue la configuration et les tâches d'urgence avant le démontage (Chapitre 13). Les images, polices et journaux basés sur des cartes deviennent indisponibles.
 
 Lorsque la carte SD n'est pas montée, la page affiche « Mount SD ». Sélectionnez-le, attendez que l'état passe à « Monté », puis ouvrez à nouveau le répertoire de la carte SD.
 
-## 8. Mises à jour OTA
+Le montage de la carte ne signifie pas que l'Automatisme a basculé dans sa configuration. Après avoir réinséré une carte, choisissez la configuration à utiliser comme décrit au chapitre 13. Rien n'est écrasé ou fusionné automatiquement.
+
+### 8. Mises à jour OTA
 
 Sur la page « Système », sélectionnez « Mise à jour OTA » dans la section « Réseau et heure » pour ouvrir « Mise à niveau du micrologiciel ».
 
 <!-- operational-note -->
 L'appareil redémarre lors d'une mise à jour, déconnectant temporairement l'interface Web. Enregistrez le travail actif et maintenez la alimentation de l’appareil stable avant de commencer. N'éteignez pas l'appareil tant que la progression de la mise à jour est incomplète.
 
-### Rechercher des mises à jour à partir d'un serveur OTA
+#### Première mise à niveau d'une ancienne version vers 0.6.3
 
-1. Consultez la « version actuelle ».
+La première mise à niveau à partir d'une ancienne configuration de stockage, telle que la version 0.6.2, nécessite un package USB/série correspondant approuvé par le fournisseur. L’envoi du micrologiciel ou de WebUI seul ne suffit pas pour effectuer cette mise à niveau. Demandez à l'administrateur de l'appareil ou au fournisseur de suivre les instructions du package. N'effacez pas l'intégralité du flash et n'utilisez pas une ancienne table de partition.
+
+Enregistrez les fichiers importants et conservez la carte SD d'origine installée. Le premier démarrage migre la configuration existante ; garder l'alimentation connectée. Ensuite, vérifiez la connexion, la mise en réseau, les ventilateurs, l'éclairage, les hôtes SSH et les règles d'automatisation. Passez en revue les règles avant de tester une tâche qui contrôle l’alimentation, redémarre un appareil ou exécute des commandes à distance.
+
+Le package correspondant met à jour les deux emplacements d’application. Ne présumez pas que l’autre emplacement contient toujours l’ancienne version. Si le mot de passe root est perdu, utilisez uniquement une méthode de récupération confirmée par le fournisseur pour correspondre à la mise en page 0.6.3. Ne flashez pas une ancienne image de réinitialisation de mot de passe.
+
+Les méthodes de mise à jour Web ci-dessous s'appliquent uniquement aux versions que l'éditeur a approuvées pour OTA. Ils ne remplacent pas la première mise à niveau de la mise en page.
+
+#### Rechercher des mises à jour à partir d'un serveur OTA
+
+1. Revoir le “Current Version”.
 2. Saisissez l'adresse du serveur OTA fournie par un administrateur ou un éditeur.
-3. Sélectionnez « Enregistrer », puis sélectionnez « Vérifier la mise à jour ».
-4. La page indique « Mise à jour disponible », « Déjà à jour », une ancienne version du serveur ou une erreur.
-5. Confirmez la version cible, puis sélectionnez « Mettre à niveau maintenant » ou le contrôle de mise à niveau affiché sur la page.
-6. Attendez la fin du téléchargement, de l'installation et du redémarrage. Pour annuler, utilisez le bouton « Abandonner » lorsqu'il est disponible. Toutes les étapes ne prennent pas en charge l'annulation.
-7. Reconnectez-vous à WebUI une fois l'appareil remis en ligne et vérifiez la « version actuelle ».
+3. Sélectionnez “Save” puis sélectionnez “Check Update”.
+4. La page signale “Update Available” “Already up to date” une ancienne version du serveur ou une erreur.
+5. Confirmez la version cible, puis sélectionnez “Upgrade Now” ou le contrôle de mise à niveau affiché sur la page.
+6. Attendez la fin du téléchargement, de l'installation et du redémarrage. Pour annuler, utilisez le bouton “Abort” lorsqu'il est disponible. Toutes les étapes ne prennent pas en charge l'annulation.
+7. Attendez la page pour confirmer le firmware après la mise à niveau. Reconnectez-vous au WebUI et vérifiez le “Current Version” et l'état de l'appareil.
 
-Lorsque « Mise à niveau également www » est activé, le micrologiciel et l'interface Web sont mis à jour en séquence. Pour 0.6.2, utilisez le micrologiciel principal et les ressources WebUI correspondants fournis par l'éditeur, tous deux issus de la même version. Si l'ancienne interface persiste après la mise à niveau, actualisez de force le navigateur et vérifiez à nouveau la version et la page.
+“Upgrade Progress” affiche l'étape actuelle dans sa propre section. Une lecture à 100 % ou un message indiquant que les fichiers ont été écrits ne confirme pas un redémarrage et une vérification de version terminés. Si le résultat n'est pas confirmé ou si le micrologiciel en cours d'exécution diffère de la cible, conservez le message et vérifiez la version actuelle. Ne répétez pas la mise à niveau sans vérifier. Vérifiez les journaux système et contactez le fournisseur si nécessaire.
 
-### Mise à jour manuelle
+Lorsque “Also upgrade www” est activé, le micrologiciel et WebUI sont mis à jour en séquence. Utilisez le micrologiciel correspondant et les ressources WebUI de la même version. Si l'ancienne interface reste après la mise à niveau, actualisez de force le navigateur et vérifiez à nouveau la version et la page.
+
+#### Mise à niveau manuelle
 
 Développez « Mise à niveau manuelle » et choisissez l'une de ces méthodes :
 
@@ -375,7 +387,7 @@ Développez « Mise à niveau manuelle » et choisissez l'une de ces méthodes
 
 Pour une mise à niveau à partir d'une URL, « Ignorer la vérification du certificat » ignore la vérification du certificat du serveur HTTPS. Cela supprime la vérification du certificat utilisée pour confirmer l’identité du serveur de téléchargement. Laissez-le décoché pour les mises à jour de routine. Si vous voyez une erreur de certificat, demandez à votre administrateur de vérifier l'adresse du serveur et le certificat.
 
-### Gestion des partitions et retour à une version précédente
+#### Gestion des partitions et restauration
 
 « Gestion des partitions » affiche la partition en cours d'exécution et les autres partitions disponibles.
 
@@ -384,33 +396,33 @@ Pour une mise à niveau à partir d'une URL, « Ignorer la vérification du cer
 
 Une fois l'opération et le redémarrage terminés, rouvrez l'interface utilisateur Web et vérifiez la version actuelle et l'état de l'appareil.
 
-La version 0.6.2 change la manière d’enregistrer la configuration d’automatisation. Avant de revenir à un ancien micrologiciel, vérifiez s’il peut la lire et consultez le fournisseur si nécessaire. Préparez une sauvegarde et une méthode de récupération.
+La version 0.6.3 modifie le stockage de la configuration et la disposition des partitions de périphérique. Ne revenez pas directement à un ancien firmware incompatible. Si une rétrogradation est nécessaire, demandez au fournisseur de l'appareil de confirmer une procédure complète de récupération du micrologiciel, de la configuration et de la configuration.
 
-Rollback modifie le micrologiciel, pas le format de configuration. Les règles existantes peuvent ne plus fonctionner après une rétrogradation.
+La restauration ne restaure pas l'ancien format de configuration et ne garantit pas que les anciennes règles fonctionneront.
 
-## 9. Entrée de gestion de la sécurité
+### 9. Entrée de gestion de la sécurité
 
 Sélectionnez « Sécurité » dans la navigation supérieure pour ouvrir la gestion de la sécurité. Utilisez le Guide de sécurité TianshanOS pour les clés SSH, les hôtes distants, les empreintes d'hôte connu, les certificats HTTPS, les packages de configuration et la gestion des comptes. Ces procédures ne sont pas répétées ici.
 
-### Échec ou opérations non confirmées
+#### Opérations ayant échoué ou non confirmées
 
-Un formulaire peut signaler un champ en rouge et afficher une erreur à côté. Corrigez ce champ selon les indications, puis enregistrez. La disparition du signalement ne confirme pas l’enregistrement ; vérifiez aussi le message et la liste.
+Un champ d'erreur rouge vous indique ce qu'il faut corriger. Corrigez-le, puis enregistrez. Une marque d'erreur effacée ne confirme pas une sauvegarde réussie ; vérifiez le message et la liste.
 
 Identifiez l’opération qui a échoué, puis lisez le motif et l’étape suivante. Si le message ne donne aucun motif, ne le devinez pas.
 
-Si « Détails » est proposé, sélectionnez-le pour consulter les informations supplémentaires. « Masquer » referme les détails. Si un bouton × est affiché, utilisez-le pour fermer le message. Pour poursuivre les vérifications, conservez le message et ses détails, puis ouvrez « Journaux système » dans Terminal.
+Sélectionnez “Details” lorsque disponible. Sélectionnez “Hide” pour masquer les détails. Si un bouton × s'affiche, sélectionnez-le pour ignorer le message. Pour des vérifications plus approfondies, conservez une trace du message et des détails, puis ouvrez “System Logs” sur le terminal pour enquêter.
 
 Si le résultat n’est pas confirmé, actualisez et vérifiez l’état de l’appareil, du fichier ou de la tâche. Un délai expiré ou une déconnexion ne signifie pas que l’opération n’a pas été exécutée. Ne répétez pas aussitôt une opération d’alimentation, de suppression, de lancement de tâche ou de mise à jour. Si le résultat reste inconnu, ouvrez « Journaux système » dans Terminal pour vérifier la cause.
 
-Pour les actions par lots, vérifiez séparément les éléments réussis, échoués et non confirmés. Confirmez les fichiers téléchargés dans la liste de téléchargement du navigateur.
+Vérifiez séparément les résultats de lots réussis, échoués et non confirmés. Confirmez les fichiers enregistrés dans la liste de téléchargement du navigateur.
 
-## Partie II : Fonctions racine uniquement
+## Partie II : Fonctions réservées à root
 
-## 10. Journaux du terminal et du système
+### 10. Journaux du terminal et du système
 
 « Terminal » s'affiche uniquement pour root. Il peut exécuter directement les commandes de la console de l'appareil et afficher les journaux de l'appareil. Une commande peut changer l'état de l'appareil immédiatement. Confirmez sa source, ses paramètres et son impact avant de le saisir.
 
-### Se connecter et utiliser le terminal
+#### Se connecter et utiliser le terminal
 
 1. Sélectionnez « Terminal » dans la navigation supérieure.
 2. Attendez « Connecté à l'appareil » et l'invite `tianshan>`.
@@ -430,7 +442,7 @@ Le terminal propose ces commandes au clavier :
 
 « Effacer » en haut de la page efface uniquement l'affichage. Il n'annule pas les commandes déjà exécutées. « Déconnecter » met fin à la connexion actuelle du terminal.
 
-### Ouvrir un shell SSH distant
+#### Ouvrir un shell SSH distant
 
 Un shell SSH envoie les entrées clavier ultérieures à un hôte distant. Confirmez l'adresse cible, l'utilisateur et la méthode d'authentification, et effectuez la préparation SSH décrite dans le Guide de sécurité avant de vous connecter.
 
@@ -441,7 +453,7 @@ Un shell SSH envoie les entrées clavier ultérieures à un hôte distant. Confi
 
 Ne saisissez pas d'informations d'identification en texte clair lorsque le terminal est partagé, enregistré ou consulté par une autre personne.
 
-### Afficher les journaux système
+#### Afficher les journaux système
 
 Sélectionnez « Journaux système » en haut du terminal pour ouvrir la fenêtre du journal.
 
@@ -454,11 +466,15 @@ Sélectionnez « Journaux système » en haut du terminal pour ouvrir la fenêtr
 
 Si le filtrage ne produit aucune sortie, effacez d'abord TAG et Search, puis modifiez le niveau. La fermeture de la fenêtre du journal n'arrête pas les services de l'appareil.
 
-## 11. Gérer et exécuter des commandes à distance
+#### Vérifiez où l'automatisation est enregistrée
+
+Pour une vérification de ligne de commande, entrez `auto --config status` pour afficher l'emplacement de configuration actuel et l'état de la sauvegarde. Utilisez `auto --help` pour les options disponibles. L'ancienne option `config --sync` a été supprimée. Utilisez les étapes Web du chapitre 13 pour la sauvegarde et la récupération de routine.
+
+### 11. Gérer et exécuter des commandes à distance
 
 « Commandes » enregistre des commandes SSH réutilisables et les exécute sur l’hôte distant choisi. Les hôtes et leurs données d’authentification se gèrent dans « Sécurité ». Consultez le guide de sécurité pour ces étapes.
 
-### Vérifier l’empreinte de l’hôte avant la connexion
+#### Vérifiez l'empreinte digitale de l'hôte avant de vous connecter
 
 L’empreinte aide à identifier l’hôte auquel vous vous connectez. Ces étapes concernent les tests d’hôtes SSH dans la page Web « Sécurité », pas la confirmation de SSH Shell dans Terminal. Si le message indique une empreinte non enregistrée ou modifiée, ne répétez pas la commande. Ouvrez « Sécurité », trouvez l’hôte SSH et sélectionnez « Tester ».
 
@@ -468,15 +484,15 @@ Si l’empreinte a changé, la boîte de dialogue affiche l’ancienne et l’ac
 
 Vérifiez l’adresse et confirmez la cause du changement par un canal fiable. Si vous ne pouvez pas la confirmer, sélectionnez « Annuler ». Ne supprimez pas l’ancienne empreinte pour contourner la vérification. Sélectionnez « Mettre à jour la clé de l’hôte » seulement après avoir confirmé la fiabilité de la nouvelle empreinte.
 
-### Sélectionnez un hôte et affichez les commandes
+#### Sélectionnez un hôte et affichez les commandes
 
 1. Sélectionnez « Commandes » dans la navigation supérieure.
 2. Choisissez un hôte actuellement affiché sous « Sélectionner un hôte ».
 3. Consultez ses éléments enregistrés sous « Liste de commandes ».
 
-Des hôtes de référence « Orphan Commands » qui n'existent plus et ne peuvent pas être exécutés. Supprimez une commande orpheline ou utilisez l'option de liaison d'hôte lors de l'importation pour l'associer à un hôte valide.
+“Orphan Commands” référence des hôtes qui n’existent plus et ne peuvent pas s’exécuter. Vérifiez la configuration de l'hôte. Pour conserver la tâche, recréez la commande sous un hôte valide, mettez à jour les modèles et les règles qui l'utilisent et vérifiez le résultat avant de supprimer l'orphelin.
 
-### Créer ou modifier une commande
+#### Créer ou modifier une commande
 
 <!-- operational-note -->
 Une commande enregistrée s'exécute sur un hôte distant. Vérifiez la commande et les autorisations requises sur cet hôte avant de l'enregistrer. Faites particulièrement attention aux commandes qui suppriment des données, arrêtent ou redémarrent un hôte ou écrasent des fichiers.
@@ -489,7 +505,7 @@ Une commande enregistrée s'exécute sur un hôte distant. Vérifiez la commande
 
 Le nom vous aide à reconnaître une commande ; L'automatisation utilise son identifiant pour le trouver. Vous ne pouvez pas modifier l'ID d'une commande existante. Pour utiliser un nouvel ID, créez une commande et mettez à jour les modèles et les sources qui l'utilisent.
 
-### Exécuter une commande et consulter le résultat
+#### Exécuter une commande et examiner le résultat
 
 1. Sélectionnez le contrôle d'exécution sur une carte de commande.
 2. Regardez la sortie et l'état sous « Résultat de l'exécution ».
@@ -498,7 +514,7 @@ Le nom vous aide à reconnaître une commande ; L'automatisation utilise son ide
 
 « Effacer » n’annule pas ce qui a déjà été exécuté sur l’hôte distant. Le classement en réussite ou en échec, le contenu extrait et l’état final dépendent des critères configurés pour la commande.
 
-### Configurer la correspondance des résultats
+#### Configurer la correspondance des résultats
 
 La correspondance des résultats convertit la sortie distante en un état plus facile à utiliser.
 
@@ -511,70 +527,77 @@ La correspondance des résultats convertit la sortie distante en un état plus f
 
 Choisissez un texte de réussite et d'échec stable et spécifique. Un texte large peut produire des correspondances incorrectes. Exécutez la commande une fois et examinez les « Résultats de correspondance » avant d'utiliser ses variables dans une règle.
 
-### Utiliser l'exécution en arrière-plan et le mode service
+#### Utiliser l'exécution en arrière-plan et le mode service
 
 nohup signifie qu'une commande continue de s'exécuter en arrière-plan de l'hôte distant après la fermeture de la connexion SSH. La fermeture de WebUI n'arrête pas une tâche en arrière-plan.
 
-Après avoir activé « Exécuter en arrière-plan (nohup) », vous pouvez utiliser :
+Les exécutions en arrière-plan nécessitent une authentification par clé SSH. Déployez la clé publique sur “Security” puis sélectionnez l'hôte associé. N'enregistrez pas les mots de passe en texte brut dans les commandes en arrière-plan. La même clé doit rester disponible pour arrêter ou vérifier la tâche d'origine.
 
-- « Afficher le journal » : lit le journal actuel des tâches en arrière-plan.
-- « Tail Log » : actualisez continuellement le journal.
-- « Stop Tail » : Arrête de rafraîchir la page sans arrêter la tâche distante.
-- « Vérifier le processus » : vérifiez si la tâche en arrière-plan est toujours en cours d'exécution.
-- « Arrêter le processus » : demander l'arrêt de la tâche en arrière-plan, puis vérifier son état.
+Après avoir activé “Run in background (nohup)” et exécuté la commande, sélectionnez “Background runs” dans Commandes. Le contrôle root uniquement sur Système et le contrôle sur Automatisation ouvrent la même liste.
 
-Si « Voir le journal » ou « Vérifier le processus » échoue, lisez le motif et vérifiez la connexion à l’hôte. Un échec de lecture ne signifie ni que le journal est vide ni que le processus est terminé. Vérifiez à nouveau après avoir rétabli la connexion. Ne relancez pas une tâche parce que la vérification de son état a échoué.
+1. Recherchez la tâche d'origine par son nom, son utilisateur, son adresse hôte et son port.
+2. Sélectionnez “Verify remote state” pour vérifier cette exécution sur l'hôte d'origine.“Refresh” lit uniquement les enregistrements connus ; cela ne remplace pas la vérification.
+3. Sélectionnez “View Log” pour lire les 100 dernières lignes de l'hôte d'origine. Sélectionnez “Follow log” pour les mises à jour.“Stop following” arrête uniquement les mises à jour des pages.
+4. Pour terminer la tâche, sélectionnez “Stop” sur sa fiche et validez. Attendez le résultat, puis vérifiez qu'il s'est arrêté. Ne le redémarrez pas sans vérifier.
+
+Après le redémarrage de l’appareil, les anciens enregistrements affichent “Not checked”. “Remote state unconfirmed” signifie que l’état de la tâche, arrêtée ou en cours d’exécution, n’a pas été confirmé. “Last result” indique le dernier résultat confirmé et ne garantit pas l’état actuel.
+
+Un échec de lecture ne signifie pas que le journal est vide ou que le processus est terminé. Vérifiez la connexion hôte d'origine, le chemin du journal et la clé SSH. Vérifiez à nouveau après avoir résolu le problème ; ne redémarrez pas une tâche simplement parce que sa vérification d'état a échoué.
+
+La suppression d'une commande, la modification de sa configuration d'hôte ou le changement de configuration d'automatisation ne met pas fin à un processus distant. Gérer la tâche d'origine à partir de “Background runs”. La recréation d'une commande avec le même nom ou ID ne reprend pas la tâche d'origine. Conservez toute clé encore nécessaire pour le contrôler.
 
 « Mode service » surveille une tâche en arrière-plan jusqu’à sa disponibilité. Renseignez « Critère de disponibilité » et « Nom de variable ». Ajustez si nécessaire le critère d’échec et les délais :
 - « Ready match » : marque le service prêt lorsque le texte configuré apparaît. Utilisez `|` pour séparer plusieurs modèles.
 - « Fail Match » : marque l'échec du service lorsque le texte configuré apparaît.
 - « Délai d'expiration (s) prêt » : définit l'attente la plus longue pour l'état prêt, en secondes.
-- « Intervalle de vérification (ms) » : définit la fréquence à laquelle le journal est vérifié, en millisecondes ; 1000 ms est 1 deuxième.
+- « Intervalle de vérification (ms) » : définit la fréquence à laquelle le journal est vérifié, en millisecondes ; 1000 ms correspond à une seconde.
 - « Nom de la variable » : stocke les états tels que la vérification, la préparation et le délai d'attente.
 
 <!-- operational-note -->
-« Arrêter le suivi » arrête seulement l’actualisation du journal sur la page. « Arrêter le processus » demande l’arrêt de la tâche en arrière-plan ; vérifiez son état ensuite. Une tâche en mode service peut être en cours de démarrage, de vérification ou d’arrêt, ou avoir un état non confirmé. Une demande acceptée n’est pas un résultat final. Vérifiez tout état inconnu et confirmez l’arrêt avant de relancer la tâche.
+Les tâches en mode service peuvent être en cours de démarrage, de vérification, d'arrêt ou non confirmées. Attendez le résultat final une fois la demande acceptée. Si un enregistrement d'exécution en arrière-plan existe déjà, vérifiez cette exécution d'origine et confirmez qu'elle est terminée avant de recommencer. Une règle automatique activée peut redémarrer le service. Désactivez d’abord cette règle si le service doit rester arrêté.
 
-### Importer et exporter des commandes
+#### Commandes d'importation et d'exportation
 
 - Utilisez le bouton d'exportation d'une commande pour l'exporter et, une fois sélectionné, inclure sa configuration d'hôte dépendante.
-- Sélectionnez « Importer une commande », choisissez un package de configuration `.tscfg`, prévisualisez son contenu et choisissez si vous souhaitez écraser une configuration existante ou la lier à un hôte actuellement affiché sur la page.
+- Sélectionnez “Import Command”, choisissez un package de configuration `.tscfg`, prévisualisez son contenu et décidez s'il faut écraser la configuration existante.
 
-L’importation peut remplacer une configuration ayant le même ID et inclure des données d’hôte distant. Suivez le guide de sécurité pour vérifier l’origine et la signature. Si un redémarrage est requis, terminez les tâches du terminal et de l’automatisation avant de redémarrer.
+L'importation peut inclure un hôte distant et remplacer la configuration par le même ID. Vérifiez la commande, l'hôte et les remplacements dans l'aperçu avant de confirmer. L'enregistrement met à jour la configuration actuelle sans redémarrage. Les processus distants existants ne s'arrêtent pas et ne sont pas déplacés vers le nouvel hôte.
 
-### Vérifiez quelles règles utilisent une commande avant de la supprimer
+Les nouvelles importations vérifient la source, la signature, l'autorisation de signature et le périphérique cible. Une exportation réussie ne garantit pas une importation ultérieure. Un certificat d'appareil destiné uniquement à HTTPS peut ne pas avoir l'autorisation de signer des packages de configuration. Demandez au fournisseur de configuration de résoudre ce problème ; ne désactivez pas la vérification.
 
-La suppression d'une commande n'annule pas les opérations terminées sur l'hôte distant et ne peut pas être annulée à partir de la page Commandes. Vérifiez d’abord si les sources, les modèles ou les règles en ont encore besoin.
+#### Vérifiez l'impact avant de supprimer une commande
 
-- Service en cours d'exécution ou état inconnu : sélectionnez l'icône d'actualisation de la commande pour vérifier son état. Arrêtez-le si nécessaire et confirmez le résultat. Attendez la fin de tout démarrage, arrêt ou vérification. Le bouton Supprimer n'arrête pas la tâche distante.
-- Service arrêté mais suppression bloquée : Vérifiez quelles règles importées utilisent toujours la commande. Mettez d'abord à jour ces règles. L'arrêt d'un service ou du moteur d'automatisation laisse la commande dans ces règles. La modification de l'hôte de la commande ou le remplacement de la configuration de l'hôte peuvent également être bloqués.
-- Règle en lecture seule ou en attente de redémarrage : Suivre le chapitre 12. Ne supprimez pas les fichiers SD pour contourner la protection. Vérifiez les règles et les connexions révisées avant de supprimer la configuration inutile.
+Après avoir sélectionné Supprimer, examinez les modèles et règles liés. Choisissez une commande de remplacement disponible ou dissociez la configuration concernée et désactivez ses règles. Voir le chapitre 12 pour les étapes. La suppression modifie uniquement la configuration utilisée ; il ne met pas à jour l'autre copie d'urgence.
 
-## 12. Gestion de l'automatisation
+La suppression de la configuration et l'arrêt d'un service distant sont des opérations distinctes. La suppression n’arrête pas le service et n’annule pas les opérations terminées. Pour terminer une tâche distante, arrêtez-la depuis “Background runs” et confirmez le résultat.
+
+### 12. Gestion de l'automatisation
 
 « Automation » connecte les données et les opérations dans des flux de travail reproductibles. Créez des sources de données et des modèles d'action, puis utilisez des règles pour décider quand les exécuter.
 
 ```text
-Automatic: Data source → Variable → Rule evaluation → Actions
-Manual: System-page Quick Action → Actions
+Automatique : source de données → variable → évaluation des règles → actions
+Manuel : action rapide de la page Système → actions
 ```
 
 Les sources lisent les données, les variables contiennent des valeurs, les règles évaluent les conditions et les modèles définissent les tâches. Afficher une règle sur le panneau et autoriser l'exécution manuelle sont des paramètres distincts. Des règles automatiques peuvent également apparaître sur le panneau.
 
-### Afficher et contrôler le moteur d'automatisation
+#### Afficher et contrôler le moteur d'automatisation
 
 Le haut de la page affiche l'état du moteur, le nombre de règles, de variables et de sources, le nombre de déclencheurs et le temps d'exécution.
 
-| Commande | Effet |
+| Contrôle | Effet |
 | --- | --- |
-| « Démarrer » | Démarre un moteur arrêté et commence le traitement des règles activées. |
-| « Pause » | Suspend toute évaluation automatique ultérieure. Les actions existantes peuvent se poursuivre. Pour reprendre la page, arrêtez le moteur, puis démarrez-le. |
-| « Arrêter » | Tente d'arrêter les vérifications de règles, la lecture des données et la planification d'actions ultérieures, tout en conservant la configuration. Attendez la confirmation ; un timeout ne signifie pas que le moteur s'est arrêté. |
-| « Recharger » | Lit à nouveau la configuration enregistrée ; un moteur qui tournait reprend après le chargement. Enregistrez d'abord les modifications. Bloqué pendant que les règles attendent le redémarrage ; il ne peut pas remplacer un redémarrage de l'appareil. |
+| “Start” | Démarre un moteur arrêté. Les règles activées s'exécutent uniquement si la configuration actuelle permet l'exécution. |
+| “Pause” | Suspend toute évaluation automatique ultérieure. Les actions existantes peuvent se poursuivre. Pour reprendre la page, arrêtez le moteur, puis démarrez-le. |
+| “Stop” | Tente d'arrêter les vérifications des règles, la lecture des données et la planification d'actions ultérieures, tout en conservant la configuration. Attendez la confirmation ; un timeout ne signifie pas que le moteur s'est arrêté. |
+| “Reload” | Lit à nouveau la configuration à partir de l'emplacement utilisé. Enregistrez les modifications et vérifiez le résultat. Une pause de configuration existante reste en place. |
 
-Vérifiez si le refroidissement, les alertes ou d'autres tâches en cours dépendent de l'automatisation. L'arrêt du moteur n'arrête pas un processus en arrière-plan distant. Arrêtez les tâches à distance à partir des commandes ou de la carte de service appropriée et confirmez le résultat.
+Vérifiez si le refroidissement, les alertes ou d'autres tâches en cours dépendent de l'automatisation. L'arrêt du moteur n'arrête pas un processus en arrière-plan distant. Arrêtez les tâches distantes de “Background runs” et confirmez le résultat.
 
-### Créez un flux de travail d'automatisation minimal
+“Disable automation” sous “Configuration & backup” est distinct de la commande “Pause” du moteur. Si la configuration est en pause, vérifiez-la avant de sélectionner “Enable automation”. Le redémarrage de l'appareil, le rechargement ou l'arrêt et le démarrage du moteur n'effacent pas cette pause de configuration. Voir le chapitre 13.
+
+#### Créez un flux de travail d'automatisation minimal
 
 1. Créez une source et utilisez son test pour vérifier la connexion et les champs sélectionnés.
 2. Activez-le, puis utilisez l'icône « Afficher les variables » de la ligne pour vérifier les valeurs et mettre à jour les heures.
@@ -583,7 +606,7 @@ Vérifiez si le refroidissement, les alertes ou d'autres tâches en cours dépen
 5. Réglez « Afficher sur le panneau » et « Autoriser le déclenchement manuel » selon vos besoins.
 6. Enregistrez, puis activez la règle. Vérifiez les variables, le nombre de déclencheurs et les résultats réels.
 
-### Gérer les sources de données
+#### Gérer les sources de données
 
 Sélectionnez « Ajouter » sous « Sources de données » et choisissez un type : Type
 
@@ -591,20 +614,20 @@ Sélectionnez « Ajouter » sous « Sources de données » et choisissez un type
 | --- | --- |
 | «API REST» | Lit périodiquement les données d'une adresse HTTP. |
 | « WebSocket » | Reçoit les données transmises via une connexion persistante. |
-| « Socket.IO » | Reçoit les événements d'un service Socket.IO. |
+| « Socket. IO » | Reçoit les événements d'un service Socket. IO. |
 | « Variable de commande » | Lit les résultats d'une commande à distance configurée. |
 
-1. Entrez un ID unique, une étiquette d'affichage et les informations de connexion requises.
+1. Saisissez un identifiant unique, une étiquette d'affichage et les informations de connexion requises.
 2. Utilisez le test pour vérifier la connexion. Obtenez les adresses, les détails d'authentification et les informations de champ auprès du fournisseur de données.
-3. Pour les trois premiers types, sélectionnez les champs de la réponse du test. Laisser un nom d’événement Socket.IO vide permet au test de tenter la découverte d’événements.
+3. Pour les trois premiers types, sélectionnez les champs de la réponse au test. Laisser un nom d’événement Socket. IO vide permet au test de tenter la découverte d’événements.
 4. Pour une variable de commande, sélectionnez l'hôte et une commande avec un nom de variable configuré, puis définissez l'intervalle d'interrogation.
-5. Enregistrez et activez la source. Utilisez son contrôle « Afficher les variables » pour vérifier le résultat.
+5. Vérifiez le commutateur d'activation dans le formulaire, enregistrez et utilisez “View Variables” sur sa ligne pour vérifier le résultat.
 
 Chaque ligne de source propose un interrupteur d’activation et des commandes pour voir les variables, exporter ou supprimer. Avant de désactiver ou de supprimer une source, vérifiez les règles qui l’utilisent pour ne pas interrompre leurs tâches.
 
 Importer et exporter des packages de configuration. Prévisualisez les ID, les types et les remplacements avant l’importation, et suivez le Guide de sécurité pour connaître les exigences en matière de source et de confiance.
 
-### Afficher les variables
+#### Afficher les variables
 
 Sélectionnez l'icône « Afficher les variables » en forme d'œil sur une ligne source. La fenêtre affiche les noms, les types, les valeurs et les heures de mise à jour. Les variables de la commande à distance peuvent également être visualisées à partir du contrôle des variables de la commande.
 
@@ -612,7 +635,7 @@ Sélectionnez l'icône « Afficher les variables » en forme d'œil sur une li
 - Vérifiez si les heures de mise à jour correspondent à la fréquence de données attendue.
 - Si aucune donnée n'est disponible, vérifiez que la source est activée, puis testez la connexion et les champs. Pour les variables de commande, vérifiez également le résultat de l’exécution de la commande.
 
-### Créer et tester des modèles d'action
+#### Créer et tester des modèles d'action
 
 Sélectionnez « Ajouter » sous « Modèles d'action » et choisissez un type de tâche :
 
@@ -634,38 +657,49 @@ Entrez un ID unique, un nom et les paramètres spécifiques au type. Définissez
 - Définir la variable : saisissez le nom et la valeur de la variable.
 - Webhook : actuellement indisponible. Choisissez plutôt une action prise en charge. Les packages de règles contenant des actions Webhook ne peuvent pas non plus être importés.
 
-« Test » exécute l'action. Vérifiez l'effet des opérations d'alimentation, de redémarrage, de commande à distance ou de demande externe avant de procéder au test.
+“Test” exécute l'action. Vérifiez l'effet des opérations d'alimentation, de redémarrage, de commande à distance ou de demande externe avant de procéder au test. Un message en file d'attente signifie que la tâche a été acceptée et non qu'elle a réussi. Vérifiez également les journaux système et le périphérique cible.
 
-Après l'édition, enregistrez et vérifiez les paramètres. Si l’enregistrement échoue, conservez le brouillon et corrigez le problème signalé. Les importations peuvent remplacer les modèles ; vérifiez quelles règles utilisent un modèle avant de le supprimer. Si un service lié n’est pas confirmé arrêté, vérifiez-le. Arrêtez-le si nécessaire et confirmez le résultat.
+Après l'édition, enregistrez et vérifiez les paramètres. Si l’enregistrement échoue, conservez le brouillon et corrigez le problème signalé. Les importations peuvent remplacer les modèles ; examinez l’impact de la suppression avant d’en supprimer un. Si une image ou une police est manquante, insérez la carte SD originale ou sélectionnez une ressource disponible. La sauvegarde d'urgence ne sauvegarde pas ces fichiers.
 
-### Suivre les messages de suppression du modèle d'action
+#### Supprimer la configuration et gérer ses liens
 
-Si « Impossible de supprimer le modèle d'action » apparaît, lisez d'abord la raison. Le modèle n'a pas été supprimé : Les règles
+La suppression d'une règle, d'un modèle, d'une commande SSH ou d'un hôte peut affecter d'autres configurations. Enregistrez d'abord une sauvegarde d'urgence si vous en avez besoin. La suppression ne peut pas être annulée à partir de la page.
 
-1. Des règles utilisent encore le modèle : sélectionnez « Voir les règles ». Retirez le modèle de ces règles ou supprimez les règles inutiles dont la suppression est autorisée. Supprimez ensuite le modèle. Désactiver une règle ou arrêter le moteur ne retire pas le modèle de la règle.
-2. Le service n’est pas arrêté : sélectionnez « Voir les commandes ». Vérifiez son état, arrêtez-le et confirmez le résultat avant de revenir supprimer le modèle.
-3. Mise à jour ou chargement de la configuration : attendez la fin. Récupération nécessaire ou vérification de l'utilisation indisponible : ouvrez les « Journaux système » sur le terminal, recherchez la cause et restaurez la configuration. Ne continuez pas à sélectionner Supprimer.
+1. Sélectionnez Supprimer dans la liste correspondante. Vérifiez le nom de la cible et les éléments concernés.
+2. Confirmez la suppression s'il n'y a aucun lien. Sinon, choisissez un remplacement disponible ou “Unlink and disable affected rules”.
+3. Actualisez ensuite la liste. Confirmez la suppression et vérifiez les modèles liés, les règles et les états d'activation.
 
-Vous ne pouvez pas modifier directement une règle en lecture seule importée. Demandez au fournisseur de configuration de réviser son package et de supprimer le modèle inutile.
+La dissociation d'un modèle supprimé supprime son action des règles concernées et désactive ces règles. La suppression d'une commande SSH laisse les modèles liés comme brouillons désactivés avec la référence de commande effacée ; les règles concernées sont dissociées et désactivées. Avant de choisir un remplaçant, vérifiez sa cible et son action, pas seulement un nom similaire.
 
-Si l'enregistrement d'une règle signale qu'un modèle n'existe plus, l'enregistrement n'a pas réussi. Sélectionnez un modèle existant, examinez-le et enregistrez-le à nouveau.
+Lors de la suppression d'un hôte, examinez également les commandes et les sources concernées. Une commande sans hôte ne peut pas s'exécuter. Recréez les commandes nécessaires sous un hôte valide et mettez à jour leurs liens, puis vérifiez-les avant utilisation. La suppression de la configuration de l'hôte local est différente de la révocation d'une clé publique distante ; consultez le Guide de sécurité.
 
-### Créer une règle
+#### Utiliser Forcer la suppression si nécessaire
+
+Si la suppression normale ne peut pas aboutir, sélectionnez “Force delete”, lisez les explications, puis confirmez. L’élément est supprimé, les liens identifiables sont retirés et les règles concernées sont désactivées. Les services distants en arrière-plan ne sont pas arrêtés.
+
+Si toute l’étendue des conséquences ne peut pas être déterminée, la page vous demande de cocher “I agree to pause automation and continue deleting”. L’automatisation reste en pause après la suppression. Vérifiez et corrigez la configuration restante, puis sélectionnez “Enable automation” dans “Configuration & backup”. Un redémarrage ne réactive pas l’automatisation.
+
+Si la configuration change pendant la confirmation, sélectionnez “Review deletion impact”, examinez la nouvelle liste et confirmez à nouveau. La suppression forcée ne peut pas garantir son exécution si l’écriture dans le stockage échoue. Vérifiez à nouveau la liste : la disparition d’une carte ne prouve pas que la suppression a été enregistrée.
+
+#### Créer une règle
 
 1. Sélectionnez « Ajouter » sous « Règles » et entrez un identifiant, un nom et une icône uniques.
-2. Choisissez « Logique » : ET requiert toutes les conditions ; OU nécessite n’importe quelle condition.
-3. Définit le temps de recharge pour les déclencheurs automatiques. Les valeurs sont en ms ; 1000 ms est 1 deuxième.
+2. Sélectionnez “Logic” : AND exige que toutes les conditions soient remplies ; OR exige qu’au moins une condition soit remplie.
+3. Définit le temps de recharge pour les déclencheurs automatiques. Les valeurs sont en ms ; 1000 ms correspond à une seconde.
 4. Ajoutez des conditions et choisissez une variable, une comparaison et une valeur. Les comparaisons incluent égal, différent, supérieur à, supérieur ou égal, inférieur à, inférieur ou égal, valeur modifiée et contient. Faites correspondre le type de valeur à la variable.
 5. Ajoutez des modèles et définissez les délais d'action, la répétition et les conditions au niveau de l'action.
 6. Définissez « Afficher sur le panneau » et « Autoriser le déclenchement manuel ». Le premier contrôle la visibilité de la carte sur le système ; le second contrôle l’exécution manuelle.
 7. Vérifiez, enregistrez, puis activez la règle. Laissez « Activer immédiatement » désactivé lors de la configuration pour la première fois.
 
-Si l’enregistrement, l’activation ou la désactivation signale « La copie de sauvegarde n’est pas synchronisée », l’opération a réussi, mais la sauvegarde ne s’est pas synchronisée. Ce n’est ni un échec d’enregistrement ni une demande de redémarrage. Ne retirez pas et ne remplacez pas la carte SD. Actualisez la liste, puis vérifiez le contenu et l’état de la règle ; ne la créez pas à nouveau. Si l’avertissement persiste, ouvrez « Journaux système » dans Terminal pour vérifier le stockage.
+L'enregistrement, l'activation ou la désactivation d'une règle met à jour la configuration actuelle sans redémarrage. Si l'automatisation est suspendue, l'enregistrement ne la reprend pas. Actualisez la liste et vérifiez le résultat. Mettez à jour la sauvegarde d'urgence après des modifications importantes, comme décrit au chapitre 13.
+
+<!-- operational-note -->
+Vous pouvez enregistrer jusqu'à 64 règles. Cela ne garantit pas que 64 tâches puissent être exécutées simultanément. La longueur des commandes et le nombre de conditions et d'actions affectent également le stockage et la mémoire. Si la capacité est insuffisante, supprimez la configuration inutile ou réduisez son contenu avant de l'enregistrer.
 
 <!-- operational-note -->
 Faites correspondre la valeur au type sélectionné. Pour un nombre, saisissez une valeur spécifique, pas l'infini ou NaN (un nombre non valide). Saisissez du texte, un booléen (vrai ou faux) ou null pour les autres types. N'entrez pas un objet ou un tableau JSON entier. Si la page signale une erreur, vérifiez la variable, la comparaison et la valeur avant de réenregistrer.
 
-### Configurer les conditions de répétition et d'action
+#### Configurer les conditions de répétition et d'action
 
 | Mode | Signification |
 | --- | --- |
@@ -677,7 +711,7 @@ Les conditions d'action sont distinctes des conditions de déclenchement de règ
 
 La désactivation d'une règle empêche de nouveaux déclencheurs ; une course déjà commencée peut continuer. Pour arrêter de programmer des actions ultérieures, sélectionnez la commande « Stop » du moteur et attendez la confirmation. Vérifiez séparément les actions déjà envoyées et les processus distants. Les opérations terminées ne sont pas annulées.
 
-### Créer une action rapide
+#### Créer une action rapide
 
 « Déclenchement manuel uniquement », « Afficher sur le panneau » et « Autoriser le déclenchement manuel » contrôlent si une règle s'exécute uniquement manuellement, si sa carte est visible et si les utilisateurs peuvent l'exécuter.
 
@@ -686,80 +720,136 @@ La désactivation d'une règle empêche de nouveaux déclencheurs ; une course d
 3. Activez « Afficher sur le panneau » et « Autoriser le déclenchement manuel », puis enregistrez et activez la règle.
 4. Revenez au panneau des périphériques système. Vérifiez le nom et l'état de la carte, exécutez-la une fois et examinez le résultat.
 
-Les règles automatiques peuvent aussi apparaître sur le panneau. Afficher une carte ne rend pas sa règle exclusivement manuelle. Une règle désactivée peut rester visible, mais sa tâche ne peut pas démarrer. Donnez des noms clairs aux actions destinées à admin et prévoyez des commandes de journal ou d’arrêt adaptées.
+Des règles automatiques peuvent également apparaître sur le panneau. Montrer une carte ne rend pas sa règle uniquement manuelle. Une règle désactivée peut rester visible mais ne peut pas démarrer. Donnez des noms aux actions liées à admin qui expliquent leur effet et indiquez aux utilisateurs qui contacter pour vérifier ou arrêter les tâches en arrière-plan. Les utilisateurs de Root affichent les journaux, vérifient et arrêtent les services de “Background runs”.
 
-### Importer un package de configuration de règles
+#### Importer un package de configuration de règles
 
-Importez des packages de règles sur Automation, et non via la fonction « Vérification uniquement » de sécurité ou le téléchargement de fichiers. Ce contrôle vérifie si le signataire est fiable, si le package appartient à cet appareil et si la configuration requise est présente. Son résultat de vérification ne s’applique pas aux autres types de packages.
+Importez des packages de règles sur Automation, et non via le “Verify Only” de Security ou le téléchargement de fichiers. Ce contrôle vérifie le signataire, le périphérique cible et la configuration requise. Vérifiez chaque package via son propre contrôle d'importation ; le résultat d'un autre package ne s'applique pas.
 
 Avant d'importer, préparez :
 
-- Vérifiez que la carte SD est montée et accessible en écriture. Les paquets y sont enregistrés. Laissez-la insérée après l’importation et ne la retirez pas ou ne la remplacez pas tant qu’un redémarrage est en attente.
+- Confirmez si la carte SD ou la configuration d'urgence interne est utilisée et qu'elle peut être enregistrée. Voir le chapitre 13.
 - L'appareil dispose d'un certificat valide, de sa clé privée correspondante et d'une chaîne d'autorité de certification ; son heure est vérifiée. Une chaîne d'autorité de certification vérifie l'origine des certificats. Consultez le Guide de sécurité pour connaître les étapes d'installation.
-- Vérifiez que l’administrateur du déploiement a choisi un signataire de confiance. La connexion root ou l’installation de certificats HTTPS ne remplace pas ce réglage. S’il manque, demandez à cet administrateur de le configurer.
+- L'administrateur de déploiement a sélectionné un signataire de confiance. La connexion Root ou l'installation de certificats HTTPS ne complète pas ce paramètre. Demandez à l'administrateur de déploiement de le configurer s'il est manquant.
 - Les modèles, commandes et hôtes de la règle sont prêts. Import ne les installe pas pour vous. Ajoutez d'abord toute configuration manquante. Si la règle est activée, vérifiez également l'état d'activation de la configuration qu'elle utilise.
 
-Un redémarrage interrompt les services WebUI et de gestion des appareils. Vérifiez si la règle est activée et s'exécutera automatiquement. Confirmez qu'il peut s'exécuter après le redémarrage avant de l'importer. S'il doit rester inactif, demandez au fournisseur une version désactivée. Le redémarrage de TianshanOS n'arrête pas les processus en arrière-plan sur les hôtes distants.
+L'enregistrement d'une importation met à jour la configuration actuelle sans redémarrage. Avant de confirmer, vérifiez l'état d'activation, les conditions, les actions et les cibles, et confirmez que l'exécution est sûre. Une pause de configuration existante reste en place. Pour empêcher l'exécution, désactivez d'abord Automation ou demandez au fournisseur une version désactivée.
 
-1. Sélectionnez l'icône d'importation sous « Règles » pour ouvrir « Importer la configuration des règles », puis choisissez le fichier `.tscfg`. La vérification démarre et la page affiche un aperçu.
-2. Attendez « Confiance de signature, périphérique cible et contenu des règles vérifiés ». Vérifiez le nom, l'ID de la règle et le « Résumé de la règle ». Développez « Afficher le contenu des règles » pour examiner les conditions, les actions, les cibles et l'état d'activation ; ne vous fiez pas au nom du fichier.
-3. Si le même ID existe, lisez « Impact de l'écrasement ». Sélectionnez « Écraser la configuration existante » uniquement si vous souhaitez remplacer la version enregistrée. Si le fichier, les informations d'identification ou la configuration changent après l'aperçu, sélectionnez à nouveau le fichier et revérifiez-le.
-4. Sélectionnez « Confirmer l'importation » et attendez. "Enregistré ; prend effet après le redémarrage. La version en cours d'exécution n'a pas changé. " confirme le stockage, pas que la nouvelle règle est en cours d'exécution. Si la page indique que la configuration est déjà enregistrée et active, cette importation répétée ne nécessite pas un autre redémarrage.
-5. Si un redémarrage est nécessaire, enregistrez les autres travaux et examinez les tâches d'automatisation et à distance, puis redémarrez TianshanOS à partir du système. Gardez la même carte SD installée et attendez le retour de WebUI.
-6. Revenez à Automation et confirmez que l'étiquette de redémarrage en attente de la règle a disparu. Vérifiez son état d'activation, les variables requises et les journaux. Si la règle permet une vérification manuelle sécurisée, exécutez-la une fois et vérifiez le résultat du périphérique ou de l'hôte distant. Pour les règles qui ne peuvent pas être exécutées manuellement, surveillez les journaux et les résultats après un déclenchement normal. Ne vous fiez pas uniquement au message de sauvegarde.
+1. Sélectionnez l'icône d'importation sous “Rules” pour ouvrir “Import Rule Configuration” puis choisissez le fichier `.tscfg`. La vérification démarre et la page affiche un aperçu.
+2. Attendez “Signing trust, target device and rule content verified”. Vérifiez le nom, l'ID de la règle et “Rule summary”. Développez “View rule content” pour examiner les conditions, les actions, les cibles et l'état d'activation ; ne vous fiez pas au nom du fichier.
+3. Si le même identifiant existe, vérifiez ce qui sera remplacé. Sélectionnez “Overwrite existing configuration” uniquement si vous avez l'intention de le remplacer. Si le fichier, les informations d'identification ou la configuration changent après l'aperçu, sélectionnez “Check package again”. Fermer et rouvrez l'éditeur si la page vous le demande, puis vérifiez à nouveau.
+4. Sélectionnez “Confirm Import” et attendez le résultat de l'enregistrement. Vérifiez la liste des règles, l'état d'activation et les variables requises. Une sauvegarde réussie ne prouve pas une exécution réussie de la tâche.
+5. Si la règle permet une vérification manuelle sécurisée, exécutez-la une fois et vérifiez le périphérique ou l'hôte. Pour les autres règles, surveillez les journaux et les résultats après un déclenchement normal. Pour effacer une pause de configuration, examinez la configuration avant de sélectionner “Enable automation”.
 
-Les paquets de règles importés sont en lecture seule. Vous ne pouvez pas les modifier, les activer, les désactiver ou les supprimer depuis la page. Demandez au fournisseur un paquet révisé pour cet appareil, puis importez-le en suivant ces étapes. Pour désactiver une règle, obtenez une version désactivée et redémarrez selon les indications. L’ancienne version peut continuer à fonctionner jusqu’au redémarrage.
+Les règles importées peuvent être modifiées, activées, désactivées et supprimées. Vérifiez la configuration actuelle après les modifications et mettez à jour la sauvegarde d'urgence si nécessaire. Une importation ultérieure nécessite toujours une vérification de signature ; l'autorisation de modifier localement ne la contourne pas.
 
-La commande « Stop » du moteur arrête la programmation d'actions ultérieures. Il ne modifie pas les règles et n'annule pas les opérations terminées. Arrêtez les tâches en arrière-plan distantes séparément et confirmez le résultat.
+Un certificat destiné uniquement au HTTPS peut ne pas autoriser la signature de configuration. Une exportation locale réussie peut toujours être rejetée à l'importation. Demandez au fournisseur de résoudre le problème lié à l'objectif du certificat ; ne désactivez pas la vérification et ne répétez pas l’importation.
 
-Après la modification ou l'importation, vérifiez le moteur, les règles et les résultats des tâches. Rechargez ou redémarrez comme indiqué, puis confirmez que les tâches fonctionnent. Le tableau ci-dessous explique les restrictions en lecture seule et en attente de redémarrage.
+Les importations et les modifications n'annulent pas les actions terminées et n'arrêtent pas les processus en arrière-plan distants. Terminez ces tâches séparément de “Background runs” et confirmez le résultat.
 
-### Distinguer la version enregistrée de la version en cours d’exécution
+#### Si l'importation ne se termine pas
 
-| Message ou état de la page | Que faire |
-| --- | --- |
-| « Enregistré ; redémarrage requis » | La nouvelle configuration est enregistrée mais pas encore utilisée. Les modifications ordinaires, les commutateurs d'activation et la suppression ne sont pas disponibles. Organisez un redémarrage de l'appareil. |
-| Une ancienne version est déjà en cours d'exécution | Jusqu'au redémarrage, l'ancienne règle peut toujours s'exécuter. Le bouton manuel indique « Exécuter l'ancienne version actuelle » ; vérifiez son effet avant de l'exécuter. L'exportation renvoie la version en cours d'exécution, pas le nouveau package en attente. |
-| Nouvelle règle pas encore chargée | L'exécution manuelle n'est pas disponible. Redémarrez, puis vérifiez son état d'activation et ses autorisations manuelles. |
-| « Suppression enregistrée ; la suppression nécessite un redémarrage » | La règle quitte la liste en cours d'exécution après le redémarrage. Aucune nouvelle exécution manuelle ou automatique ne peut démarrer. Vérifiez séparément les actions déjà envoyées et les tâches distantes. Confirmez la suppression après le redémarrage. |
-| Règle en lecture seule | Les contrôles d'édition, d'activation, de désactivation et de suppression ordinaires restent indisponibles après la disparition de l'étiquette de redémarrage en attente. Obtenez et importez un package révisé comme décrit ci-dessus. |
-
-Toutes les sauvegardes ne nécessitent pas un redémarrage. La création, la modification ou l'activation d'une règle modifiable met à jour la règle actuelle lorsque l'opération réussit. Le désactiver aussi. Vérifiez le résultat de l'opération et l'état de la règle.
-
-« Recharger » n'est pas disponible pendant que les règles attendent le redémarrage. L'arrêt et le démarrage du moteur ne changent pas ces versions ; redémarrez l'appareil.
-
-### Si l’importation ne se termine pas
-
-#### Échec de la vérification
+##### Échec de la vérification
 
 | Message ou problème | Étape suivante |
 | --- | --- |
-| Racine de confiance de signature non définie, signataire non fiable ou non autorisé | Demandez à l'administrateur de déploiement ou au fournisseur de configuration de vérifier la source de signature et les autorisations du certificat. Ne remplacez pas l'option « Vérifier uniquement » de Sécurité et ne désactivez pas la vérification. |
-| Le paquet est destiné à un autre appareil | Demandez au fournisseur de l'exporter à l'aide du certificat de cet appareil ; ne changez pas le nom à l’intérieur du package. Organisez des packages de remplacement correspondants avant de modifier également le certificat de cet appareil. |
-| L’heure de l’appareil n’est pas vérifiée | Vérifiez et synchronisez l'heure sous « Réseau et heure » sur le système, puis vérifiez à nouveau le fichier. |
+| Signature root non sélectionnée, signataire non fiable ou signataire non autorisé | Demandez à l'administrateur de déploiement ou au fournisseur de configuration de vérifier la source de signature et les autorisations du certificat. Ne remplacez pas le “Verify Only” de Security et ne désactivez pas la vérification. |
+| Le package cible un autre appareil | Demandez au fournisseur de l'exporter à l'aide du certificat de cet appareil ; ne changez pas le nom à l’intérieur du package. Organisez des packages de remplacement correspondants avant de modifier également le certificat de cet appareil. |
+| L'heure de l'appareil n'est pas vérifiée | Vérifiez et synchronisez l'heure sous “Network & Time” sur le système, puis vérifiez à nouveau le fichier. |
 | Chargement de la configuration | Attendez la fin, puis vérifiez à nouveau le package. |
-| La configuration n’a pas pu être chargée | Vérifiez les journaux système, résolvez la cause et restaurez la configuration avant de vérifier à nouveau. |
+| La configuration n'a pas pu être chargée | Vérifiez les journaux système, résolvez la cause et restaurez la configuration avant de vérifier à nouveau. |
 | Configuration requise manquante | Ajoutez le modèle, la commande ou l'hôte nommé par la page, puis vérifiez à nouveau. |
 | Configuration requise désactivée | Vérifiez s'il doit être activé. Une fois que l'exécution est sûre, activez-la et vérifiez à nouveau. |
-| Un service lié est en cours d'exécution ou son état n'est pas confirmé | Vérifiez le service sur les commandes. Arrêtez-le si nécessaire et confirmez le résultat. Attendez la fin de tout démarrage, arrêt ou vérification en cours, puis sélectionnez à nouveau le fichier et revérifiez-le. |
-| Action non prise en charge | Demandez au fournisseur de réviser le package. L'importation de packages de règles rejette actuellement les actions Webhook ; leur présence dans le sélecteur de modèle ne signifie pas que le package peut être importé. |
-| Le fichier, les identifiants ou la configuration ont changé depuis la prévisualisation | Sélectionnez à nouveau le fichier, revérifiez-le et examinez l'impact de l'écrasement avant de confirmer. |
+| Action non prise en charge | Demandez au fournisseur de modifier le paquet. L’importation de packages de règles rejette actuellement les actions Webhook ; leur présence dans le sélecteur de modèle ne signifie pas que le package peut être importé. |
+| Fichier, informations d'identification ou configuration modifiés après l'aperçu | Sélectionnez “Check package again”. Rouvrez l'éditeur ou sélectionnez le fichier comme indiqué, puis vérifiez et confirmez. |
 
-#### Enregistrer incomplet Carte
+##### Enregistrement incomplet
 
 | Message ou problème | Étape suivante |
 | --- | --- |
-| SD indisponible | Vérifiez que la carte est insérée, montée et inscriptible, puis vérifiez à nouveau. |
-| Source de configuration en lecture seule | Restaurer une source inscriptible. Ne supprimez pas de fichiers pour contourner la protection. |
-| Enregistrer peu fiable | Vérifiez le stockage, résolvez le problème et vérifiez à nouveau. |
-| Le résultat de l’enregistrement n’est pas confirmé | Actualisez la liste des règles et vérifiez la règle et l'état en attente de redémarrage. Si cela reste incertain, inspectez les journaux système. Conservez le fichier original et ne répétez pas l'importation. |
+| Stockage actuel indisponible ou plein | Vérifiez l'emplacement dans “Configuration & backup”. Résolvez le problème de stockage ou réduisez le contenu inutile, puis vérifiez à nouveau. |
+| La configuration actuelle ou l'emplacement de sauvegarde ont été modifiés | Conservez et copiez le brouillon. Rouvrez l'éditeur, vérifiez la dernière configuration et soumettez-la à nouveau. Ne continuez pas à sélectionner Enregistrer. |
+| Résultat de sauvegarde non confirmé | Actualisez et vérifiez le contenu de la règle et activez l'état. Si ce n’est toujours pas clair, inspectez les journaux système. Conservez l’emballage d’origine et ne répétez pas l’importation. |
 
-Une variable de condition sans échantillon ne signifie pas nécessairement qu'il manque une configuration ; vérifiez quand il sera mis à jour. Si les anciens objets de stockage doivent être nettoyés, laissez la carte SD installée et vérifiez après le redémarrage.
+Une variable de condition sans échantillon ne signifie pas nécessairement une configuration manquante ; vérifiez quand il sera mis à jour. Si la configuration ne peut pas être lue, conservez les fichiers d'origine et vérifiez les journaux système. N'écrasez pas le contenu endommagé comme s'il était vide.
 
-### Gérer les règles et la configuration
+#### Maintenir les règles et la configuration
 
 - L'exécution manuelle nécessite une règle activée qui autorise les déclencheurs manuels, sans qu'aucune exécution de la même règle ne soit déjà en cours. Il contourne les conditions de déclenchement automatique et le temps de recharge, mais applique toujours les conditions d'action, les délais et la répétition.
-- La désactivation n’annule pas les actions terminées. La suppression ne peut pas être annulée à partir de la page.
-- Avant de modifier des sources, des modèles ou des commandes, vérifiez quelles règles les utilisent. Vérifiez ou arrêtez tout service lié en cours d'exécution, inconnu ou en cours de traitement d'une opération. Si une règle utilise toujours la configuration, révisez-la également ; l'arrêt du service ne supprime pas cette utilisation.
-- Utilisez le flux dédié de ce chapitre pour les packages de règles. Suivez le Guide de sécurité pour les autres packages ; le résultat de la vérification de l’ensemble de règles ne s’applique pas à eux.
-- Si l'enregistrement échoue, lisez le message et conservez le brouillon. Si l'enregistrement a réussi mais que l'actualisation a échoué, actualisez et vérifiez la liste avant de créer un autre élément.
+- La désactivation n'annule pas les actions terminées. La suppression ne peut pas être annulée à partir de la page.
+- Avant de modifier des sources, des modèles ou des commandes, vérifiez quelles règles les utilisent. Les modifications de configuration n'arrêtent pas les tâches distantes existantes. Vérifiez et arrêtez ces tâches séparément si nécessaire.
+- Importez chaque package via sa liste appropriée et examinez l'aperçu. Consultez le Guide de sécurité pour connaître les procédures complètes de signature et de compte.
+- Si l’enregistrement échoue, lisez le message et conservez le brouillon. Si l'enregistrement a réussi mais que l'actualisation a échoué, actualisez et vérifiez la liste avant de créer un autre élément.
+
+### 13. Configuration et sauvegarde
+
+<!-- operational-note -->
+Sélectionnez “Configuration & backup” sur Automatisation. Vérifiez “Currently using” avant d'enregistrer, de restaurer ou de choisir une configuration. Examinez d’abord tout effet sur le refroidissement, les alertes ou les tâches à distance.
+
+#### Distinguer les trois types de contenu
+
+| Contenu | Comment il est enregistré |
+| --- | --- |
+| Paramètres du système tels que la mise en réseau, les ventilateurs, la température et l'éclairage | Enregistré à l'intérieur de l'appareil. Une restauration de sauvegarde Automation ne les modifie pas. |
+| Configuration actuelle de l'automatisation | Les ajouts, modifications et suppressions sont transférés sur la carte SD lors d'une utilisation normale du SD, ou vers le stockage interne en mode d'urgence. |
+| Sauvegarde d'urgence interne | Lors de l'utilisation de la carte SD, elle se met à jour uniquement lorsque vous sélectionnez “Save emergency backup”. Les modifications en mode d'urgence mettent directement à jour cette configuration interne. |
+
+La sauvegarde d'urgence enregistre ensemble les règles, les modèles d'action, les commandes SSH, les hôtes associés, les sources et les définitions initiales des variables utilisateur. Il n'enregistre pas les clés privées, les images, les polices, les journaux ou les états d'exécution à distance. Les paramètres de l'hôte mémorisent uniquement la clé à utiliser ; la clé elle-même n'est pas copiée.
+
+Il ne s'agit pas d'une sauvegarde complète de l'appareil. Conservez les fichiers et les clés importants grâce à leurs propres méthodes de sauvegarde. Une restauration ne signifie pas que les services distants se sont arrêtés ou que tous les fichiers nécessaires à une règle sont disponibles.
+
+#### Enregistrer une sauvegarde d'urgence
+
+1. Confirmez que “Currently using” affiche “SD card configuration”, puis examinez les règles et tâches actuelles.
+2. Sélectionnez “Save emergency backup” et attendez la fin.
+3. Vérifiez “Last internal save” et “Backup status”. “Includes the current changes” signifie que la copie interne correspond à la configuration actuelle.
+
+La sauvegarde remplace la sauvegarde d'urgence précédente. Les modifications ultérieures de la carte SD ne la mettent pas à jour. S'il n'inclut pas les dernières modifications, examinez le contenu actuel avant de décider de l'enregistrer à nouveau.
+
+Lors de l'utilisation de “Internal emergency configuration”, les modifications sont enregistrées en interne. Vous n'avez pas besoin de sélectionner à nouveau “Save emergency backup”.
+
+#### Restaurer une sauvegarde d'urgence
+
+Une restauration remplace la configuration actuelle de la carte SD par la copie interne, qui peut être plus ancienne. Exportez d’abord toute configuration actuelle et tous les fichiers dont vous avez besoin. N'enregistrez pas d'abord une sauvegarde d'urgence ; cela écraserait l'ancienne copie que vous avez l'intention de restaurer.
+
+1. Lors de l'utilisation de la configuration de la carte SD, sélectionnez “Restore emergency backup”.
+2. Vérifiez les éléments ajoutés, modifiés et supprimés et vérifiez si l'automatisation restera en pause.
+3. Confirmez et attendez la fin. Les listes sont mises à jour sans redémarrage de l'appareil.
+4. Vérifiez les règles, les hôtes, les variables, les états d'activation et les résultats des tâches. S'il est toujours en pause, examinez la configuration avant de sélectionner “Enable automation”.
+
+Une restauration ne modifie pas le réseau, les ventilateurs ou les clés. Cela ne met pas fin à l’exécution de services à distance. Gérez-les depuis “Background runs” si nécessaire.
+
+#### Lorsqu'aucune carte SD utilisable n'est disponible
+
+S'il existe une configuration interne utilisable, l'appareil y bascule. Les règles automatiques activées suivent toujours leurs conditions ; les règles manuelles nécessitent toujours un clic. La copie interne est peut-être plus ancienne, alors vérifiez quelles tâches peuvent être exécutées avant un changement planifié.
+
+Le mode d'urgence permet les ajouts, les modifications et les suppressions. Les sauvegardes vont directement dans le stockage interne. S’il n’existe aucune configuration interne utilisable, lisez d’abord la raison. Vous pouvez commencer avec une nouvelle configuration valide, mais n'écrasez pas les fichiers endommagés comme s'ils étaient vides.
+
+La mise en réseau, les ventilateurs et autres paramètres système se chargent toujours à partir du stockage interne. La configuration d'urgence ne restaure pas les images, les polices ou les journaux de la carte SD. Insérez la carte originale ou sélectionnez les fichiers disponibles s'il manque des ressources. Une carte manquante ne signifie pas que toutes les fonctions s'arrêtent ou que chaque tâche peut continuer.
+
+#### Choisissez une configuration après avoir réinséré la carte
+
+Insérez une carte SD utilisable et sélectionnez “Check SD card”, puis examinez les deux choix ci-dessous. L'insertion ne change ni ne fusionne les configurations. Fermez le panneau pour continuer à utiliser la configuration interne. Le redémarrage ne fait pas le choix à votre place.
+
+| Bouton | Que se passe-t-il |
+| --- | --- |
+| “Use SD card configuration” | Lit et passe à la configuration de la carte. La configuration interne est conservée et non copiée sur la carte. |
+| “Save current configuration to SD card and use it” | Remplace la configuration de la carte par la configuration interne actuelle, puis passe à la carte. L'ancienne configuration de la carte est écrasée. |
+
+1. Vérifiez l'emplacement actuel et décidez quelle configuration conserver.
+2. Sélectionnez le bouton approprié et consultez l'avis de remplacement et d'état d'activation. Avant d'écrire sur la carte, vérifiez les éléments ajoutés, modifiés et supprimés.
+3. Confirmez et attendez. Vérifiez que “Currently using” affiche “SD card configuration”, puis examinez les listes et les résultats des tâches.
+
+La configuration de la carte manquante ou vide n'est pas automatiquement remplie à partir de la mémoire interne. Confirmez qu'une configuration vide correspond à ce que vous souhaitez avant de la choisir. Si la carte ou la configuration change après l'aperçu, vérifiez à nouveau comme indiqué ; ne réutilisez pas l’ancienne confirmation.
+
+#### Distinguer les résultats d'enregistrement, de commutation et d'exécution
+
+| Message ou situation | Étape suivante |
+| --- | --- |
+| Enregistré sur la carte SD, mais non commuté | La configuration interne est toujours utilisée. Sélectionnez “Use SD card configuration” pour terminer la commutation. N'écrasez plus la carte. |
+| Configuration enregistrée, automatisation toujours en pause | Vérifiez la configuration, puis sélectionnez “Enable automation”. Ne l’enregistrez pas à nouveau et ne comptez pas sur un redémarrage pour lever la pause. |
+| Suppression non enregistrée, Automatisation en pause | Vérifiez si la cible est toujours présente et si le stockage est disponible. Réparez et examinez la configuration avant de décider de l'activer ou non. |
+| Résultat de sauvegarde non confirmé | Relisez l'emplacement et le contenu. Vérifiez les journaux système si nécessaire. Ne soumettez pas à nouveau la même modification sans vérifier. |
+| L'entrée actuelle diffère de la dernière configuration | Copiez tout brouillon dont vous avez besoin avant de fermer et de rouvrir l'éditeur. Consultez le dernier contenu et saisissez vos modifications. La page ne fusionne pas les brouillons pour vous. |
+
+Après un changement, une restauration ou un enregistrement réussi, vérifiez si les tâches sont autorisées à s'exécuter et si elles se terminent. Une pause de configuration reste en place ; vérifiez et sélectionnez “Enable automation” pour reprendre. Une pause provoquée par “Disable automation” ou une suppression forcée n'est pas effacée par le redémarrage ou le changement de configuration.

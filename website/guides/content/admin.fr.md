@@ -1,10 +1,10 @@
 # TianshanOS Guide de l'utilisateur de l'administrateur
 
-Ce guide est basé sur TianshanOS 0.6.2. Il peut toujours être utilisé avec des versions ultérieures où les fonctionnalités et les étapes restent inchangées. Si les contrôles, les messages ou les résultats diffèrent, consultez les instructions correspondant à votre version installée.
+Ce guide est basé sur TianshanOS 0.6.3. Pour les autres versions, consultez les instructions spécifiques à la version correspondante.
 
 Ce guide couvre les vérifications du système, les contrôles des appareils, la mise en réseau, les fichiers et les mises à jour du micrologiciel pour le compte admin. Le Guide des opérations racine couvre l'accès au terminal, les commandes à distance et la configuration de l'automatisation. Consultez le Guide de sécurité séparé pour la gestion de la sécurité.
 
-Utilisez les commandes affichées sur votre appareil. Certains nécessitent un matériel ou une configuration spécifique. Sur un ordinateur, passez la souris sur un bouton icône pour voir son nom.
+Utilisez les commandes affichées sur votre appareil. Certains nécessitent un matériel ou une configuration spécifique. Sur un ordinateur, passez la souris sur un bouton icône pour voir son nom. Sur un téléphone, faites glisser votre doigt dans un large tableau pour afficher ses autres colonnes.
 
 ## 1. Commencer
 
@@ -49,6 +49,8 @@ Sélectionnez « Système » dans la navigation supérieure.
 « Vue d’ensemble du système » affiche la puce, la version du micrologiciel, celle d’ESP-IDF et la durée de fonctionnement. Pour l’usage courant, vérifiez la version du micrologiciel. ESP-IDF est le cadre logiciel utilisé par l’appareil.
 
 Le côté droit de la carte affiche la tension d'entrée, la tension interne, le courant, la puissance et l'état de protection.
+
+Les paramètres système tels que la mise en réseau, les ventilateurs, la température et l'éclairage sont enregistrés dans l'appareil. L'insertion d'une ancienne carte SD ne les restaure pas. La configuration de l'automatisation est gérée séparément ; sa sauvegarde d'urgence n'est pas une sauvegarde complète de l'appareil.
 
 L'interrupteur à côté de l'état de protection active ou désactive la protection basse tension. Lorsqu'il est activé, l'appareil utilise les tensions et les délais enregistrés pour s'arrêter à basse tension et redémarrer une fois l'alimentation rétablie.
 
@@ -106,33 +108,26 @@ Enregistrez le travail sur le module et terminez son processus d'arrêt normal a
 
 Un utilisateur root configure les cartes d’actions rapides. Leur affichage et l’autorisation de lancer une tâche sont deux réglages distincts. Une carte visible ne permet pas toujours de lancer sa tâche.
 
-1. Vérifiez le nom de la carte, son état et les commandes disponibles pour identifier la tâche.
-2. Sélectionnez une carte disponible, puis attendez la mise à jour de son état. Ne relancez pas la tâche pendant son traitement.
-3. Les tâches en arrière-plan peuvent fournir des contrôles de journal, de vérification de l'état ou d'arrêt. Lisez le journal pour voir le résultat de la tâche. Après avoir sélectionné stop, vérifiez que la tâche s'est arrêtée.
-4. Si l'état est inconnu ou si le démarrage est bloqué, utilisez le contrôle de vérification disponible ou demandez à un utilisateur root de vérifier la règle, la commande à distance et la connexion hôte.
+1. Lisez le nom et la description de la carte pour identifier la tâche.
+2. Sélectionnez la carte et lisez le résultat. Ne le redémarrez pas pendant le traitement.
+3. Un message exécuté ou mis en file d'attente nécessite toujours une vérification réelle des résultats sur le périphérique ou la tâche cible. Demandez à un utilisateur root de vérifier, d'afficher les journaux ou d'arrêter un service en arrière-plan.
 
 Si la tâche ne peut pas démarrer, suivez le motif affiché. N’appuyez pas plusieurs fois sur Démarrer :
 
-- Règle désactivée ou lancement manuel non autorisé : demandez à un utilisateur root de vérifier les réglages. Une carte visible ne vaut pas autorisation de lancer la tâche.
-- Tâche en cours d’exécution, de démarrage, de vérification ou d’arrêt : attendez la mise à jour de son état.
-- Service associé en fonctionnement : ne le relancez pas. Pour le redémarrer, arrêtez-le d’abord et confirmez le résultat.
-- Arrêt du service non confirmé : vérifiez son état. S’il reste inconnu, demandez à un utilisateur root de vérifier la connexion à l’hôte.
-- Règle non chargée ou en attente de suppression après redémarrage : demandez à un utilisateur root de vérifier sa version et le message de redémarrage en attente.
-- L’automatisation n’accepte pas les demandes de démarrage : demandez à un utilisateur root de vérifier le moteur et la configuration. Ne redémarrez pas l’appareil de votre propre initiative.
+- Règle désactivée ou déclenchement manuel non autorisé : demandez à un utilisateur root de vérifier les paramètres de la règle. Une carte visible ne constitue pas une autorisation de l'exécuter.
+- Une tâche ou une opération en arrière-plan est en cours : Attendez son résultat. Ne le redémarrez pas.
+- Un enregistrement d'exécution en arrière-plan existe déjà pour la tâche : demandez à un utilisateur root de vérifier la tâche d'origine et de confirmer qu'elle est terminée avant de la recommencer.
+- Configuration non chargée, élément requis manquant ou automatisation en pause : demandez à un utilisateur root de vérifier la configuration et son état d’activation.
 
 <!-- operational-note -->
-Confirmez qu'un service s'est arrêté avant de le redémarrer. Une demande de démarrage ou d'arrêt acceptée peut être encore en cours ; attendre l'état final. Après avoir déclenché une action, attendez quelques secondes avant d’en lancer une autre.
+Après avoir déclenché une action, attendez quelques secondes avant d’en lancer une autre. La fermeture de la page, la suppression d'une carte ou le redémarrage de TianshanOS n'arrêtent pas les services en arrière-plan sur les hôtes distants.
 
 Appuyez et maintenez une carte jusqu'à ce que l'indicateur de réorganisation apparaisse, puis faites-la glisser pour modifier l'ordre d'affichage.
 
-Si aucune carte n'est disponible, vérifiez quel message la page affiche :
-
-- « Chargement des actions rapides » : attendez que la configuration termine le chargement. Si le message persiste, actualisez la page ou demandez à un utilisateur root d'enquêter.
-- « Actions rapides indisponibles » : demandez de l’aide à un utilisateur root. N’appuyez pas plusieurs fois sur Démarrer.
-- Aucune action rapide configurée : si vous en avez besoin, demandez à un utilisateur de root de vérifier le paramètre « Afficher sur le panneau » des règles.
+Si aucune carte n’apparaît, lisez l’explication. Attendez si la configuration est en cours de chargement. Si le chargement échoue, conservez la raison et contactez un utilisateur root. Si aucune action rapide n'est configurée, demandez à un utilisateur root de vérifier le paramètre “Show on panel” des règles.
 
 <!-- operational-note -->
-Après l’importation d’un paquet de règles, une carte peut encore exécuter l’ancienne tâche jusqu’au redémarrage de l’appareil. Les nouvelles règles ou celles en attente de suppression peuvent ne pas démarrer. Si la tâche vient de changer, demandez à un utilisateur root de confirmer la version en cours avant de la lancer.
+La modification ou l'importation d'une règle met à jour la configuration actuelle ; un redémarrage n'est pas nécessaire pour changer de règle. Si la tâche d'une carte a été modifiée, demandez à un utilisateur root de confirmer son contenu avant de l'exécuter.
 
 Ne redémarrez pas un appareil fournissant des services actifs uniquement pour restaurer une carte.
 
@@ -147,7 +142,7 @@ Les widgets de données affichent et actualisent les données de l’appareil da
 
 Les widgets existants peuvent être modifiés, supprimés et réorganisés. Vous pouvez également sélectionner une carte de widget pour la modifier. Appuyez longuement sur un widget, puis faites-le glisser vers une nouvelle position.
 
-## 4. Gestion des fans
+## 4. Gestion des ventilateurs
 
 <!-- operational-note -->
 « Contrôle du ventilateur » se trouve sur la page « Système ». Les cartes de ventilateur montrent les ventilateurs fournis par votre appareil. Vérifiez le numéro du ventilateur avant de modifier une courbe.
@@ -214,7 +209,7 @@ Une température de test remplace temporairement la source normale et affecte le
 - Sélectionnez l'icône de sauvegarde en bas à droite de la carte pour enregistrer la configuration actuelle des LED.
 - Sélectionnez « All Off » pour éteindre toutes les LED et vérifier le résultat rapporté. Si certains échouent, vérifiez ces appareils.
 
-### Les cartes matricielles
+### Fonctions avancées de la matrice LED
 
 Les cartes de la matrice proposent des icônes pour les fonctions disponibles. Ouvrez une fonction, puis changez de groupe dans « Paramètres LED » :
 
@@ -331,17 +326,21 @@ Après avoir sélectionné des fichiers ou des dossiers, la barre d'outils batch
 - « Suppression par lots » supprime les fichiers et dossiers sélectionnés.
 - « Effacer la sélection » efface la sélection actuelle.
 
-### Supprimer un fichier ou un dossier La suppression de
+### Supprimer un fichier ou un dossier
 
 La suppression ne peut pas être annulée dans l’interface Web. Supprimer un dossier supprime aussi son contenu. Vérifiez le nom et le chemin avant de choisir « Supprimer » ou « Suppression par lots » et de confirmer.
 
-### Monter et démonter la carte SD Le démontage de
+Les fichiers gérés par Automation sont protégés. Le téléchargement ou l'écrasement de fichiers dans `/sdcard/config/automation`, ou la suppression ou le renommage de ce dossier ou d'un parent le contenant, peut être refusé. Si le message indique que Automation gère le fichier, demandez à un utilisateur root d'utiliser les pages de configuration. N'utilisez pas Terminal pour contourner la restriction.
+
+### Monter et démonter la carte SD
 
 Le démontage de la carte SD rend ses fichiers indisponibles jusqu’au prochain montage. Terminez les envois, les téléchargements et les autres opérations sur les fichiers avant de sélectionner « Démonter SD ».
 
-Si vous retirez ou remplacez la carte contenant la configuration d’automatisation, celle-ci risque de ne pas se charger après le redémarrage. Demandez à un utilisateur root si vous pouvez la démonter. Ne la démontez pas et ne la retirez pas si la page demande de la laisser insérée.
+Le démontage ou le remplacement de la carte peut faire basculer Automation vers sa configuration d'urgence interne. Cette copie est peut-être plus ancienne et les règles automatiques activées peuvent toujours s'exécuter. Sans copie utilisable, Automation peut être indisponible. Demandez à un utilisateur de root de confirmer que le démontage est sécurisé. Les images, polices et journaux basés sur des cartes deviennent indisponibles.
 
 Lorsque la carte SD n'est pas montée, la page affiche « Mount SD ». Sélectionnez-le, attendez que l'état passe à « Monté », puis ouvrez à nouveau le répertoire de la carte SD.
+
+Le montage de la carte ne signifie pas que l'Automatisme a basculé dans sa configuration. Après avoir réinséré une carte, un utilisateur root doit choisir la configuration à utiliser. Rien n’est écrasé ou fusionné automatiquement.
 
 ## 8. Mises à jour OTA
 
@@ -350,17 +349,29 @@ Sur la page « Système », sélectionnez « Mise à jour OTA » dans la section
 <!-- operational-note -->
 L'appareil redémarre lors d'une mise à jour, déconnectant temporairement l'interface Web. Enregistrez le travail actif et maintenez la alimentation de l’appareil stable avant de commencer. N'éteignez pas l'appareil tant que la progression de la mise à jour est incomplète.
 
+### Première mise à niveau d'une ancienne version vers 0.6.3
+
+La première mise à niveau à partir d'une ancienne configuration de stockage, telle que la version 0.6.2, nécessite un package USB/série correspondant approuvé par le fournisseur. L’envoi du micrologiciel ou de WebUI seul ne suffit pas pour effectuer cette mise à niveau. Demandez à l'administrateur de l'appareil ou au fournisseur de suivre les instructions du package. N'effacez pas l'intégralité du flash et n'utilisez pas une ancienne table de partition.
+
+Enregistrez les fichiers importants et conservez la carte SD d'origine installée. Le premier démarrage migre la configuration existante ; garder l'alimentation connectée. Ensuite, vérifiez la connexion, la mise en réseau, les ventilateurs, l'éclairage, les hôtes SSH et les règles d'automatisation. Passez en revue les règles avant de tester une tâche qui contrôle l’alimentation, redémarre un appareil ou exécute des commandes à distance.
+
+Le package correspondant met à jour les deux emplacements d’application. Ne présumez pas que l’autre emplacement contient toujours l’ancienne version. Si le mot de passe root est perdu, utilisez uniquement une méthode de récupération confirmée par le fournisseur pour correspondre à la mise en page 0.6.3. Ne flashez pas une ancienne image de réinitialisation de mot de passe.
+
+Les méthodes de mise à jour Web ci-dessous s'appliquent uniquement aux versions que l'éditeur a approuvées pour OTA. Ils ne remplacent pas la première mise à niveau de la mise en page.
+
 ### Rechercher des mises à jour à partir d'un serveur OTA
 
-1. Consultez la « version actuelle ».
+1. Revoir le “Current Version”.
 2. Saisissez l'adresse du serveur OTA fournie par un administrateur ou un éditeur.
-3. Sélectionnez « Enregistrer », puis sélectionnez « Vérifier la mise à jour ».
-4. La page indique « Mise à jour disponible », « Déjà à jour », une ancienne version du serveur ou une erreur.
-5. Confirmez la version cible, puis sélectionnez « Mettre à niveau maintenant » ou le contrôle de mise à niveau affiché sur la page.
-6. Attendez la fin du téléchargement, de l'installation et du redémarrage. Pour annuler, utilisez le bouton « Abandonner » lorsqu'il est disponible. Toutes les étapes ne prennent pas en charge l'annulation.
-7. Reconnectez-vous à WebUI une fois l'appareil remis en ligne et vérifiez la « version actuelle ».
+3. Sélectionnez “Save” puis sélectionnez “Check Update”.
+4. La page signale “Update Available” “Already up to date” une ancienne version du serveur ou une erreur.
+5. Confirmez la version cible, puis sélectionnez “Upgrade Now” ou le contrôle de mise à niveau affiché sur la page.
+6. Attendez la fin du téléchargement, de l'installation et du redémarrage. Pour annuler, utilisez le bouton “Abort” lorsqu'il est disponible. Toutes les étapes ne prennent pas en charge l'annulation.
+7. Attendez la page pour confirmer le firmware après la mise à niveau. Reconnectez-vous au WebUI et vérifiez le “Current Version” et l'état de l'appareil.
 
-Lorsque « Mise à niveau également www » est activé, le micrologiciel et l'interface Web sont mis à jour en séquence. Pour 0.6.2, utilisez le micrologiciel principal et les ressources WebUI correspondants fournis par l'éditeur, tous deux issus de la même version. Si l'ancienne interface persiste après la mise à niveau, actualisez de force le navigateur et vérifiez à nouveau la version et la page.
+“Upgrade Progress” affiche l'étape actuelle dans sa propre section. Une lecture à 100 % ou un message indiquant que les fichiers ont été écrits ne confirme pas un redémarrage et une vérification de version terminés. Si le résultat n'est pas confirmé ou si le micrologiciel en cours d'exécution diffère de la cible, conservez le message et vérifiez la version actuelle. Ne répétez pas la mise à niveau sans vérifier. Demandez à un utilisateur root ou au fournisseur d'enquêter si nécessaire.
+
+Lorsque “Also upgrade www” est activé, le micrologiciel et WebUI sont mis à jour en séquence. Utilisez le micrologiciel correspondant et les ressources WebUI de la même version. Si l'ancienne interface reste après la mise à niveau, actualisez de force le navigateur et vérifiez à nouveau la version et la page.
 
 ### Mise à jour manuelle
 
@@ -380,9 +391,9 @@ Pour une mise à niveau à partir d'une URL, « Ignorer la vérification du cer
 
 Une fois l'opération et le redémarrage terminés, rouvrez l'interface utilisateur Web et vérifiez la version actuelle et l'état de l'appareil.
 
-La version 0.6.2 change la manière d’enregistrer la configuration d’automatisation. Avant de revenir à un ancien micrologiciel, demandez à un utilisateur root ou au fournisseur si cette version peut la lire. Préparez aussi une sauvegarde et une méthode de récupération.
+La version 0.6.3 modifie le stockage de la configuration et la disposition des partitions de périphérique. Ne revenez pas directement à un ancien firmware incompatible. Si une rétrogradation est nécessaire, demandez au fournisseur de l'appareil de confirmer une procédure complète de récupération du micrologiciel, de la configuration et de la configuration.
 
-Rollback modifie le micrologiciel, pas le format de configuration. Les règles existantes peuvent ne plus fonctionner après une rétrogradation.
+La restauration ne restaure pas l'ancien format de configuration et ne garantit pas que les anciennes règles fonctionneront.
 
 ## 9. Entrée de gestion de la sécurité
 
@@ -390,12 +401,12 @@ Sélectionnez « Sécurité » dans la navigation supérieure pour ouvrir la g
 
 ### Échec ou opérations non confirmées
 
-Un formulaire peut signaler un champ en rouge et afficher une erreur à côté. Corrigez ce champ selon les indications, puis enregistrez. La disparition du signalement ne confirme pas l’enregistrement ; vérifiez aussi le message et la liste.
+Un champ d'erreur rouge vous indique ce qu'il faut corriger. Corrigez-le, puis enregistrez. Une marque d'erreur effacée ne confirme pas une sauvegarde réussie ; vérifiez le message et la liste.
 
 Identifiez l’opération qui a échoué, puis lisez le motif et l’étape suivante. Si le message ne donne aucun motif, ne le devinez pas.
 
-Si « Détails » est proposé, sélectionnez-le pour consulter les informations supplémentaires. « Masquer » referme les détails. Si un bouton × est affiché, utilisez-le pour fermer le message. Pour demander de l’aide, conservez le message et ses détails afin qu’un utilisateur root puisse les vérifier.
+Sélectionnez “Details” lorsque disponible. Sélectionnez “Hide” pour masquer les détails. Si un bouton × s'affiche, sélectionnez-le pour ignorer le message. Lorsque vous demandez de l'aide, conservez une trace du message et des détails pour qu'un utilisateur root puisse les vérifier.
 
 Si le résultat n’est pas confirmé, actualisez et vérifiez l’état de l’appareil, du fichier ou de la tâche. Un délai expiré ou une déconnexion ne signifie pas que l’opération n’a pas été exécutée. Ne répétez pas aussitôt une opération d’alimentation, de suppression, de lancement de tâche ou de mise à jour. Demandez à un utilisateur root de vérifier si le résultat reste inconnu.
 
-Pour les actions par lots, vérifiez séparément les éléments réussis, échoués et non confirmés. Confirmez les fichiers téléchargés dans la liste de téléchargement du navigateur.
+Vérifiez séparément les résultats de lots réussis, échoués et non confirmés. Confirmez les fichiers enregistrés dans la liste de téléchargement du navigateur.
