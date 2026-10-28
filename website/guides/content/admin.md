@@ -1,10 +1,10 @@
 # TianshanOS admin 日常使用指南
 
-本指南依据 TianshanOS 0.6.2 编写。后续版本中未变化的功能和操作，仍可参考本指南。若界面、提示或操作结果不同，请查阅所用版本的说明。
+本指南依据 TianshanOS 0.6.3 编写。使用其他版本时，请结合对应版本的说明核对操作。
 
 本指南面向使用 admin 账户的用户，介绍系统查看、设备控制、网络、文件和固件升级。终端、远程指令与自动化配置由 root 运维指南说明；安全管理请参阅单独的安全指南。
 
-按设备页面显示的功能操作。部分选项需要指定硬件或配置才会出现。电脑上将指针停在图标按钮上，可查看按钮名称。
+按设备页面显示的功能操作。部分选项需要指定硬件或配置才会出现。电脑上将指针停在图标按钮上，可查看按钮名称。手机表格较宽时，在表格内左右滑动查看其他列。
 
 ## 1. 开始使用
 
@@ -49,6 +49,8 @@ admin 日常使用的主要入口如下：
 “系统总览”显示芯片、固件版本、ESP-IDF 版本和运行时间。日常使用主要核对固件版本；ESP-IDF 是设备所用系统框架的版本。
 
 卡片右侧显示输入电压、内部电压、电流、功率和保护状态。
+
+网络、风扇、温度和灯光等系统设置保存在设备内部。插入旧 SD 卡不会自动恢复这些设置。自动化配置另行管理，不要把应急副本当作整机备份。
 
 保护状态旁的开关用于启用或停用低电压保护。启用后，设备会按保存的电压和等待时间，在低电压时关机、供电恢复后重新启动。
 
@@ -106,31 +108,24 @@ admin 日常使用的主要入口如下：
 
 快捷操作卡片由 root 用户配置。显示卡片和允许手动运行是两项设置；看得到卡片，不代表可以启动任务。
 
-1. 查看卡片名称、状态和可用按钮，确认目标任务。
-2. 点击可执行的卡片，等待本次操作的状态更新。处理中不要再次启动。
-3. 后台任务可能提供日志、核验状态或停止按钮。查看日志可了解任务输出。点击停止后，检查任务是否已停止。
-4. 状态未知或启动被阻止时，先使用页面提供的核验功能，或请 root 用户检查规则、远程指令和主机连接。
+1. 查看卡片名称和说明，确认将要执行的任务。
+2. 点击卡片，阅读结果提示。处理中不要再次启动。
+3. 提示已执行或已排队后，还要确认目标设备或任务的实际结果。需要核验、查看日志或停止后台服务时，请 root 用户处理。
 
 无法启动时，按提示处理，不要连续点击：
 
-- 规则已停用，或不允许手动触发：请 root 用户检查规则设置，不要把看到卡片当作运行许可。
-- 任务正在执行、启动、核验或停止：等待状态更新。
-- 关联服务已在运行：无需再启动。需要重启服务时，先停止并确认结果。
-- 服务是否停止尚未确认：先核验状态。无法确认时，请 root 用户检查主机连接。
-- 规则尚未加载，或等待重启移除：请 root 用户核对规则版本和待重启提示。
-- 自动化暂不接受启动请求：请 root 用户检查引擎和配置状态，不要自行重启设备。
+- 规则已停用，或不允许手动触发：请 root 用户检查规则设置。看得到卡片，不代表可以运行。
+- 任务或后台操作正在处理：等待结果，不要重复启动。
+- 同一任务已有后台运行记录：请 root 用户核验原任务，确认结束后再启动。
+- 配置尚未加载、缺少关联项或自动化已暂停：请 root 用户检查配置和启停状态。
 
-重新启动服务前，先确认它已停止。页面接受启动或停止请求后，任务可能仍在处理中；等待最终状态。完成一次点击后，等待几秒再启动其他操作。
+完成一次点击后，等待几秒再启动其他操作。关闭页面、删除卡片或重启 TianshanOS，都不会替你停止远程主机上的后台服务。
 
 长按卡片，出现排序提示后拖动，可以调整显示顺序。
 
-没有可用卡片时，先分清页面提示：
+没有卡片时，先阅读说明。配置加载中就等待；页面报告无法加载时，保留原因并联系 root 用户。只是没有配置快捷操作时，请 root 用户检查规则的“显示在面板”设置。
 
-- “快捷操作正在加载”：等待配置加载完成；长时间没有变化时，刷新页面或联系 root 用户检查。
-- “快捷操作暂不可用”：联系 root 用户处理。不要反复点击启动。
-- 没有已配置的快捷操作：如需添加，请联系 root 用户检查规则的“显示在面板”设置。
-
-导入规则包后，卡片可能仍运行旧任务，直到设备重启。新导入或待移除的规则也可能无法启动。任务刚被调整时，先请 root 用户确认当前使用的版本，再执行。
+规则修改或导入后，当前配置会更新，不需要为了切换规则而重启。卡片任务刚被调整时，先请 root 用户确认任务内容，再执行。
 
 不要为了恢复卡片，自行重启正在提供服务的设备。
 
@@ -330,19 +325,33 @@ SD 卡是可插拔存储，SPIFFS 是设备内部文件存储。点击“SD 卡�
 
 删除操作无法从 WebUI 撤销。删除文件夹时，其中的全部内容也会被删除。确认名称和路径后，再点击“删除”或“批量删除”并确认。
 
+自动化管理的文件受到保护。向 `/sdcard/config/automation` 上传或覆盖文件，以及删除、重命名这个目录或包含它的父目录，可能被拒绝。看到“这是自动化使用的配置文件”时，请 root 用户从配置页面处理，不要改用终端绕过限制。
+
 ### 挂载和卸载 SD 卡
 
 卸载后，SD 卡中的文件会暂时无法访问。先确认上传、下载等文件操作已结束，再点击“卸载 SD”。
 
-设备用 SD 卡保存自动化配置时，拔卡或换卡可能导致重启后无法加载配置。先请 root 用户确认可以卸载。页面要求保留 SD 卡时，不要卸载或拔出。
+卸载或换卡可能让自动化改用内部应急配置。这份配置可能较旧，已启用的自动规则仍可能运行；没有可用副本时，自动化可能无法运行。先请 root 用户确认可以卸载。卡上的图片、字体和日志会暂时无法访问。
 
 SD 卡未挂载时，页面会显示“挂载 SD”。点击该按钮，等待存储状态变为“已挂载”，随后重新进入 SD 卡目录。
+
+挂载成功不等于已改用卡内自动化配置。重新插卡后，需要 root 用户选择使用哪份配置，不会自动覆盖或合并。
 
 ## 8. OTA 更新
 
 在“系统”页面的“网络与时间”区域点击“OTA 升级”，进入“固件升级”。
 
 更新过程中设备会重启，WebUI 会暂时断开。开始前应保存正在进行的工作，并保持设备供电稳定。升级进度尚未完成时不要关闭设备。
+
+### 首次从旧版本升级到 0.6.3
+
+首次从 0.6.2 等旧存储布局升级时，需要发行方确认的配套 USB／串口升级包。只上传主固件或 WebUI，不能完成这次升级。请设备管理员或提供方按包内说明操作，不要自行全片擦除或使用旧分区表。
+
+升级前保存重要文件，保留原 SD 卡。首次启动会迁移原配置，期间不要断电。完成后，检查登录、网络、风扇、灯光、SSH 主机和自动化规则。不要在尚未确认规则内容时测试带有断电、重启或远程命令的任务。
+
+该配套包会更新两个应用槽，不能假定另一个槽仍保留旧版本。忘记 root 密码时，只使用提供方确认与 0.6.3 布局匹配的恢复方案，不要刷入旧版密码重置固件。
+
+下面的网页更新方法用于发行方确认可通过 OTA 安装的版本，不能代替首次布局升级。
 
 ### 从 OTA 服务器检查更新
 
@@ -352,9 +361,11 @@ SD 卡未挂载时，页面会显示“挂载 SD”。点击该按钮，等待�
 4. 页面会显示“发现新版本”“已是最新版本”“服务器版本较旧”或错误信息。
 5. 确认目标版本后，点击“立即升级”或页面显示的升级按钮。
 6. 等待下载、安装和重启完成。需要中止时，使用页面显示的中止按钮；只在按钮可用的阶段操作。
-7. 设备重新上线后，重新连接 WebUI，并核对“当前版本”。
+7. 等待页面确认升级后的固件，再重新连接 WebUI，核对“当前版本”和设备状态。
 
-升级同时包含 WebUI 时，固件和 WebUI 会依次更新。升级到 0.6.2 时，请使用发行方提供的配套主固件和 WebUI 资源，两者应来自同一发布版本。升级后仍显示旧界面时，尝试强制刷新浏览器，再核对版本和页面。
+“升级进度”单独显示当前阶段。进度达到 100% 或显示文件已写入，不代表重启和版本核对已完成。出现“升级结果未确认”或“启动的固件与升级目标不符”时，保留提示，检查设备当前版本；不要直接重复升级。无法确认时，请 root 用户或设备提供方检查。
+
+升级同时包含 WebUI 时，固件和 WebUI 会依次更新。请使用同一发布版本的配套主固件和 WebUI 资源。升级后仍显示旧界面时，尝试强制刷新浏览器，再核对版本和页面。
 
 ### 手动升级
 
@@ -374,9 +385,9 @@ SD 卡未挂载时，页面会显示“挂载 SD”。点击该按钮，等待�
 
 操作完成并重启后，重新打开 WebUI，核对当前版本和设备状态。
 
-0.6.2 改变了自动化配置的保存方式。回退旧固件前，请 root 用户或设备提供方确认旧固件能否读取这些配置，并准备备份和恢复方法。
+0.6.3 改变了配置保存方式和设备分区布局。不要直接回退到不兼容的旧固件。确需降级时，请设备提供方确认完整的固件、布局和配置恢复方案。
 
-回滚只切换固件，不会把配置恢复成旧格式。回退后，原有规则不一定能继续使用。
+回滚不会恢复旧配置格式，也不保证旧规则可用。
 
 ## 9. 安全管理入口
 
@@ -384,23 +395,23 @@ SD 卡未挂载时，页面会显示“挂载 SD”。点击该按钮，等待�
 
 ### 遇到失败或结果未确认
 
-填写表单时，字段旁可能出现红色标记和错误说明。先按说明修正该字段，再保存。标记消失不代表已经保存成功；还要检查保存提示和列表。
+字段旁出现红色错误说明时，按提示修正后再保存。标记消失不代表已经保存成功；还要检查保存提示和列表。
 
 先看哪项操作失败，再阅读原因和下一步。提示没有说明原因时，不要猜测。
 
-如果提示提供“详情”，点击后可查看更多信息。点击“收起”可隐藏详情。页面提供 × 时，可点击它关闭提示。需要求助时，保留提示和详情，交给 root 用户检查。
+有“详情”时，点击查看。点击“收起”可隐藏详情。页面提供 × 时，可点击它关闭提示。需要求助时，保留提示和详情，交给 root 用户检查。
 
 出现“结果未确认”时，先刷新并检查设备、文件或任务状态。超时或断开连接不代表操作没有执行；不要立即重复断电、删除、启动任务或升级。仍无法确认时，请 root 用户检查。
 
-批量操作后，分别检查成功、失败和未确认的项目。下载文件后，在浏览器下载列表中确认文件已保存。
+批量操作后，分别核对成功、失败和未确认的项目。下载文件后，检查浏览器下载列表。
 
 # TianshanOS Admin User Guide
 
-This guide is based on TianshanOS 0.6.2. It can still be used with later versions where features and steps remain unchanged. If controls, messages, or results differ, check the guidance for your installed version.
+This guide is based on TianshanOS 0.6.3. For other versions, check the corresponding version-specific instructions.
 
 This guide covers system checks, device controls, networking, files, and firmware updates for the admin account. The Root Operations Guide covers terminal access, remote commands, and Automation configuration. See the separate Security Guide for security management.
 
-Use the controls shown on your device. Some need specific hardware or configuration. On a computer, hover over an icon button to see its name.
+Use the controls shown on your device. Some need specific hardware or configuration. On a computer, hover over an icon button to see its name. On a phone, swipe within a wide table to view its other columns.
 
 ## 1. Getting Started
 
@@ -445,6 +456,8 @@ Select “System” in the top navigation.
 “System Overview” shows the chip, firmware version, ESP-IDF version, and uptime. For routine use, check the firmware version. ESP-IDF is the version of the system framework used by the device.
 
 The right side of the card shows input voltage, internal voltage, current, power, and protection status.
+
+System settings such as networking, fans, temperature, and lighting are saved inside the device. Inserting an old SD card does not restore them. Automation configuration is managed separately; its emergency backup is not a full-device backup.
 
 The switch beside the protection status enables or disables low-voltage protection. When enabled, the device uses the saved voltages and delays to shut down at low voltage and restart after power recovers.
 
@@ -502,31 +515,24 @@ Save work on the module and complete its normal shutdown process before removing
 
 A root user configures Quick Action cards. Card visibility and manual execution are separate settings. Seeing a card does not mean you can start its task.
 
-1. Check the card’s name, state, and available controls to identify the task.
-2. Select an available card and wait for its state to update. Do not start it again while it is processing.
-3. Background tasks may provide log, status-verification, or stop controls. Read the log to see task output. After selecting stop, check that the task has stopped.
-4. If the state is unknown or starting is blocked, use the available verification control, or ask a root user to check the rule, remote command, and host connection.
+1. Read the card name and description to identify the task.
+2. Select the card and read the result. Do not start it again while processing.
+3. An executed or queued message still needs an actual result check on the target device or task. Ask a root user to verify, view logs, or stop a background service.
 
 If starting is blocked, follow the reason shown. Do not keep selecting start:
 
 - Rule disabled or manual triggering not allowed: Ask a root user to check the rule settings. A visible card is not permission to run it.
-- Task executing, starting, verifying, or stopping: Wait for the state to update.
-- Linked service already running: Do not start it again. To restart it, stop it first and confirm the result.
-- Service not confirmed stopped: Verify its state. If it remains unclear, ask a root user to check the host connection.
-- Rule not loaded or awaiting removal after restart: Ask a root user to check the rule version and pending-restart message.
-- Automation not accepting start requests: Ask a root user to check the engine and configuration state. Do not restart the device yourself.
+- A task or background operation is in progress: Wait for its result. Do not start it again.
+- A background run record already exists for the task: Ask a root user to verify the original task and confirm that it has ended before starting again.
+- Configuration not loaded, a required item missing, or Automation paused: Ask a root user to check the configuration and enable state.
 
-Confirm that a service has stopped before restarting it. An accepted start or stop request may still be in progress; wait for the final state. After triggering one action, wait a few seconds before starting another.
+After triggering one action, wait a few seconds before starting another. Closing the page, deleting a card, or restarting TianshanOS does not stop background services on remote hosts.
 
 Press and hold a card until the reorder indicator appears, then drag it to change the display order.
 
-If no cards are available, check which message the page shows:
+If no cards appear, read the explanation. Wait if configuration is loading. If loading failed, keep the reason and contact a root user. If no Quick Actions are configured, ask a root user to check the rules’ “Show on panel” setting.
 
-- “Loading quick actions”: Wait for configuration to finish loading. If the message persists, refresh the page or ask a root user to investigate.
-- “Quick actions unavailable”: Ask a root user for help. Do not keep selecting start.
-- No configured Quick Actions: If you need one, ask a root user to check the rules’ “Show on panel” setting.
-
-After importing a rule package, a card may still run the old task until the device restarts. Newly imported rules or rules awaiting removal may not start. If a task was recently changed, ask a root user to confirm which version is in use before running it.
+Editing or importing a rule updates the current configuration; a restart is not needed to switch rules. If a card's task was changed, ask a root user to confirm its contents before running it.
 
 Do not restart a device providing active services just to restore a card.
 
@@ -726,19 +732,33 @@ After selecting files or folders, the batch toolbar appears.
 
 Deletion cannot be undone in the WebUI. Deleting a folder also deletes all of its contents. Confirm the name and path before selecting “Delete” or “Batch Delete” and approving the prompt.
 
+Files managed by Automation are protected. Uploading or overwriting files in `/sdcard/config/automation`, or deleting or renaming that folder or a parent containing it, may be refused. If the message says that Automation manages the file, ask a root user to use the configuration pages. Do not use Terminal to bypass the restriction.
+
 ### Mount and Unmount the SD Card
 
 Unmounting makes SD files temporarily unavailable. Finish uploads, downloads, and other file operations, then select “Unmount SD.”
 
-Removing or replacing a card that stores Automation configuration may prevent it from loading after restart. Ask a root user to confirm that unmounting is safe. Do not unmount or remove the card when the page tells you to keep it installed.
+Unmounting or replacing the card may switch Automation to its internal emergency configuration. That copy may be older, and enabled automatic rules may still run. Without a usable copy, Automation may be unavailable. Ask a root user to confirm that unmounting is safe. Card-based images, fonts, and logs become unavailable.
 
 When the SD Card is not mounted, the page shows “Mount SD.” Select it, wait for the state to change to “Mounted,” then open the SD Card directory again.
+
+Mounting the card does not mean Automation has switched to its configuration. After reinserting a card, a root user must choose which configuration to use. Nothing is overwritten or merged automatically.
 
 ## 8. OTA Updates
 
 On the “System” page, select “OTA Update” in the “Network & Time” section to open “Firmware Upgrade.”
 
 The device reboots during an update, temporarily disconnecting the WebUI. Save active work and keep device power stable before starting. Do not power off the device while update progress is incomplete.
+
+### First Upgrade from an Older Version to 0.6.3
+
+The first upgrade from an older storage layout, such as 0.6.2, needs a matched USB / serial package approved by the publisher. Uploading only the firmware or WebUI cannot complete this upgrade. Ask the device administrator or provider to follow the package instructions. Do not erase the whole flash or use an old partition table.
+
+Save important files and keep the original SD card installed. The first startup migrates existing configuration; keep power connected. Afterward, check login, networking, fans, lighting, SSH hosts, and Automation rules. Review rules before testing any task that controls power, restarts a device, or runs remote commands.
+
+The matched package updates both application slots. Do not assume that the other slot still contains the old version. If the root password is lost, use only a recovery method confirmed by the provider to match the 0.6.3 layout. Do not flash an old password-reset image.
+
+The web update methods below apply only to versions the publisher has approved for OTA. They do not replace the first layout upgrade.
 
 ### Check for Updates from an OTA Server
 
@@ -748,9 +768,11 @@ The device reboots during an update, temporarily disconnecting the WebUI. Save a
 4. The page reports “Update Available,” “Already up to date,” an older server version, or an error.
 5. Confirm the target version, then select “Upgrade Now” or the upgrade control shown by the page.
 6. Wait for download, installation, and reboot to finish. To cancel, use the “Abort” button when it is available. Not every stage supports cancellation.
-7. Reconnect to the WebUI after the device comes back online and verify “Current Version.”
+7. Wait for the page to confirm the firmware after the upgrade. Reconnect to the WebUI and check “Current Version” and device status.
 
-When “Also upgrade www” is enabled, the firmware and WebUI are updated in sequence. For 0.6.2, use the matched main firmware and WebUI resources supplied by the publisher, both from the same release. If the old interface remains after upgrading, force-refresh the browser and check the version and page again.
+“Upgrade Progress” shows the current stage in its own section. A 100% reading or a message that files were written does not confirm a completed restart and version check. If the result is unconfirmed or the running firmware differs from the target, keep the message and check the current version. Do not repeat the upgrade without checking. Ask a root user or the provider to investigate if needed.
+
+When “Also upgrade www” is enabled, the firmware and WebUI are updated in sequence. Use matched firmware and WebUI resources from the same release. If the old interface remains after upgrading, force-refresh the browser and check the version and page again.
 
 ### Manual Upgrade
 
@@ -770,9 +792,9 @@ For an upgrade from a URL, “Skip certificate check” skips verification of th
 
 After the operation and reboot complete, reopen the WebUI and verify the current version and device state.
 
-Version 0.6.2 changes how Automation configurations are saved. Before returning to older firmware, ask a root user or the device provider whether it can read these configurations, and prepare a backup and recovery method.
+Version 0.6.3 changes configuration storage and the device partition layout. Do not return directly to incompatible old firmware. If a downgrade is needed, ask the device provider to confirm a complete firmware, layout, and configuration recovery procedure.
 
-Rollback changes the firmware, not the configuration format. Existing rules may no longer work after a downgrade.
+Rollback does not restore the old configuration format or guarantee that old rules will work.
 
 ## 9. Security Management Entry
 
@@ -780,12 +802,12 @@ Select “Security” in the top navigation to open security management. Use the
 
 ### Failed or Unconfirmed Operations
 
-Forms may mark a field in red and show an error beside it. Correct that field as instructed, then save. A cleared error mark does not confirm a successful save; check the save message and list too.
+A red field error tells you what to correct. Fix it, then save. A cleared error mark does not confirm a successful save; check the message and list.
 
 Check which operation failed, then read the reason and next step. If the message gives no reason, do not guess.
 
-If “Details” is available, select it to see more information. Select “Hide” to hide the details. If a × button is shown, select it to dismiss the message. When asking for help, keep a record of the message and details for a root user to check.
+Select “Details” when available. Select “Hide” to hide the details. If a × button is shown, select it to dismiss the message. When asking for help, keep a record of the message and details for a root user to check.
 
 If the result is unconfirmed, refresh and check the device, file, or task state. A timeout or lost connection does not mean the operation failed to run. Do not immediately repeat power, delete, task-start, or upgrade operations. Ask a root user to investigate if the result remains unclear.
 
-For batch actions, check successful, failed, and unconfirmed items separately. Confirm downloaded files in the browser’s download list.
+Check successful, failed, and unconfirmed batch results separately. Confirm saved files in the browser’s download list.

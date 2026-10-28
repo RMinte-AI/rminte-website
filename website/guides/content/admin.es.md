@@ -1,10 +1,10 @@
 # TianshanOS
 
-Esta guía está basada en TianshanOS 0.6.2. Todavía se puede utilizar con versiones posteriores donde las funciones y los pasos permanecen sin cambios. Si los controles, mensajes o resultados difieren, consulte la guía para su versión instalada.
+Esta guía está basada en TianshanOS 0.6.3. Para otras versiones, consulte las instrucciones específicas de la versión correspondiente.
 
 Esta guía cubre comprobaciones del sistema, controles de dispositivos, redes, archivos y actualizaciones de firmware para la cuenta admin. La Guía de operaciones raíz cubre el acceso al terminal, los comandos remotos y la configuración de automatización. Consulte la Guía de seguridad separada para conocer la gestión de la seguridad.
 
-Utilice los controles que se muestran en su dispositivo. Algunos necesitan hardware o configuración específicos. En una computadora, coloque el cursor sobre un botón con un ícono para ver su nombre.
+Utilice los controles que se muestran en su dispositivo. Algunos necesitan hardware o configuración específicos. En una computadora, coloque el cursor sobre un botón con un ícono para ver su nombre. En un teléfono, deslícese dentro de una tabla amplia para ver sus otras columnas.
 
 ## 1. Empezando
 
@@ -44,11 +44,13 @@ Seleccione "Sistema" en la navegación superior.
 - “Servicios” muestra el número de servicios en ejecución y el total. Selecciónelo para ver el estado y la etapa de inicio de cada servicio.
 - Si un servicio informa un problema, actualice su estado. Para reiniciarlo, siga "Reiniciar un servicio" a continuación.
 
-### Ver información del sistema y de energía La “Descripción general del sistema” de
+### Ver información del sistema y de energía
 
 «Vista general del sistema» muestra el chip, la versión del firmware, la versión de ESP-IDF y el tiempo de funcionamiento. Para el uso diario, compruebe la versión del firmware. ESP-IDF es el marco de software que utiliza el dispositivo.
 
 El lado derecho de la tarjeta muestra el voltaje de entrada, el voltaje interno, la corriente, la potencia y el estado de protección.
+
+Las configuraciones del sistema, como redes, ventiladores, temperatura e iluminación, se guardan dentro del dispositivo. Insertar una tarjeta SD antigua no los restaura. La configuración de la automatización se gestiona por separado; su copia de seguridad de emergencia no es una copia de seguridad completa del dispositivo.
 
 El interruptor al lado del estado de protección habilita o deshabilita la protección de bajo voltaje. Cuando está habilitado, el dispositivo utiliza los voltajes y retrasos guardados para apagarse a bajo voltaje y reiniciarse después de que se recupera la energía.
 
@@ -106,33 +108,26 @@ Guarde el trabajo en el módulo y complete su proceso de apagado normal antes de
 
 Un usuario root configura las tarjetas de acciones rápidas. Mostrar una tarjeta y permitir su ejecución manual son ajustes distintos. Una tarjeta visible puede no permitir iniciar la tarea.
 
-1. Verifique el nombre de la tarjeta, el estado y los controles disponibles para identificar la tarea.
-2. Seleccione una tarjeta disponible y espere a que cambie su estado. No vuelva a iniciar la tarea mientras se esté procesando.
-3. Las tareas en segundo plano pueden proporcionar controles de registro, verificación de estado o detención. Lea el registro para ver el resultado de la tarea. Después de seleccionar detener, verifique que la tarea se haya detenido.
-4. Si el estado es desconocido o el inicio está bloqueado, utilice el control de verificación disponible o solicite a un usuario de root que verifique la regla, el comando remoto y la conexión del host.
+1. Lea el nombre de la tarjeta y la descripción para identificar la tarea.
+2. Selecciona la tarjeta y lee el resultado. No lo inicie nuevamente mientras procesa.
+3. Un mensaje ejecutado o en cola aún necesita una verificación de resultados real en el dispositivo o tarea de destino. Pídale a un usuario de root que verifique, vea registros o detenga un servicio en segundo plano.
 
 Si no puede iniciar la tarea, siga las indicaciones del mensaje. No pulse Inicio repetidamente:
 
-- Regla deshabilitada o ejecución manual no permitida: pida a un usuario root que revise los ajustes. Que la tarjeta sea visible no autoriza a ejecutar la tarea.
-- Tarea en ejecución, iniciándose, verificándose o deteniéndose: espere a que se actualice el estado.
-- Servicio vinculado en ejecución: no lo inicie otra vez. Para reiniciarlo, deténgalo primero y confirme el resultado.
-- Parada del servicio sin confirmar: verifique su estado. Si sigue sin poder confirmarlo, pida a un usuario root que revise la conexión al host.
-- Regla sin cargar o pendiente de eliminar tras el reinicio: pida a un usuario root que revise la versión de la regla y el mensaje de reinicio pendiente.
-- La automatización no acepta solicitudes de inicio: pida a un usuario root que revise el motor y la configuración. No reinicie el dispositivo por su cuenta.
+- Regla deshabilitada o activación manual no permitida: solicite a un usuario de root que verifique la configuración de la regla. Una tarjeta visible no es permiso para ejecutarla.
+- Una tarea u operación en segundo plano está en progreso: espere su resultado. No lo empieces de nuevo.
+- Ya existe un registro de ejecución en segundo plano para la tarea: solicite a un usuario root que verifique la tarea original y confirme que finalizó antes de comenzar de nuevo.
+- Configuración no cargada, falta un elemento requerido o automatización en pausa: solicite a un usuario de root que verifique la configuración y habilite el estado.
 
 <!-- operational-note -->
-Confirme que un servicio se haya detenido antes de reiniciarlo. Es posible que aún esté en curso una solicitud de inicio o detención aceptada; esperar el estado final. Después de activar una acción, espere unos segundos antes de iniciar otra.
+Después de activar una acción, espere unos segundos antes de iniciar otra. Cerrar la página, eliminar una tarjeta o reiniciar TianshanOS no detiene los servicios en segundo plano en los hosts remotos.
 
 Mantenga presionada una tarjeta hasta que aparezca el indicador de reorden, luego arrástrela para cambiar el orden de visualización.
 
-Si no hay tarjetas disponibles, verifique qué mensaje muestra la página:
-
-- “Cargando acciones rápidas”: Espere a que la configuración termine de cargarse. Si el mensaje persiste, actualice la página o solicite a un usuario de root que investigue.
-- «Acciones rápidas no disponibles»: pida ayuda a un usuario root. No pulse Inicio repetidamente.
-- No hay acciones rápidas configuradas: si necesita una, solicite a un usuario de root que verifique la configuración "Mostrar en panel" de las reglas.
+Si no aparecen tarjetas, lea la explicación. Espere si se está cargando la configuración. Si la carga falla, conserve el motivo y comuníquese con un usuario de root. Si no se configuran acciones rápidas, solicite a un usuario de root que verifique la configuración de las reglas “Show on panel”.
 
 <!-- operational-note -->
-Tras importar un paquete de reglas, una tarjeta puede seguir ejecutando la tarea anterior hasta que se reinicie el dispositivo. Las reglas nuevas o pendientes de eliminar pueden no permitir el inicio. Si la tarea acaba de cambiar, pida a un usuario root que confirme la versión en uso antes de ejecutarla.
+Editar o importar una regla actualiza la configuración actual; No es necesario reiniciar para cambiar las reglas. Si se cambió la tarea de una tarjeta, solicite a un usuario root que confirme su contenido antes de ejecutarla.
 
 No reinicie un dispositivo que proporciona servicios activos solo para restaurar una tarjeta.
 
@@ -147,7 +142,7 @@ Los widgets de datos muestran los datos del dispositivo en el «Panel de disposi
 
 Los widgets existentes se pueden editar, eliminar y reordenar. También puede seleccionar una tarjeta de widget para editarla. Mantenga presionado un widget y luego arrástrelo a una nueva posición.
 
-## 4. Gestión de fans
+## 4. Gestión de ventiladores
 
 <!-- operational-note -->
 "Control del ventilador" está en la página "Sistema". Las tarjetas de fans muestran los fans proporcionados por su dispositivo. Verifique el número del ventilador antes de cambiar una curva.
@@ -214,7 +209,7 @@ Una temperatura de prueba reemplaza temporalmente la fuente normal y afecta el c
 - Seleccione el icono de guardar en la parte inferior derecha de la tarjeta para guardar la configuración de LED actual.
 - Seleccione "Todo apagado" para apagar todos los LED y verificar el resultado informado. Si algunos fallan, verifique esos dispositivos.
 
-### Las tarjetas Matrix
+### Funciones avanzadas de la matriz LED
 
 Las tarjetas de la matriz tienen iconos para las funciones disponibles. Abra una función y cambie de grupo en «Ajustes LED»:
 
@@ -335,13 +330,17 @@ Después de seleccionar archivos o carpetas, aparece la barra de herramientas po
 
 La eliminación no se puede deshacer en la WebUI. Al eliminar una carpeta también elimina su contenido. Compruebe el nombre y la ruta antes de seleccionar «Eliminar» o «Eliminar por lotes» y confirmar.
 
+Los archivos administrados por Automatización están protegidos. Es posible que se rechace la carga o sobrescritura de archivos en `/sdcard/config/automation`, o la eliminación o cambio de nombre de esa carpeta o de una carpeta principal que la contenga. Si el mensaje dice que Automation administra el archivo, solicite a un usuario root que use las páginas de configuración. No utilice la Terminal para evitar la restricción.
+
 ### Montar y desmontar la tarjeta SD
 
 Al desmontar la tarjeta SD, sus archivos dejan de estar disponibles hasta volver a montarla. Termine las cargas, descargas y otras operaciones de archivos antes de seleccionar «Desmontar SD».
 
-Si retira o cambia la tarjeta que guarda la configuración de automatización, esta puede no cargarse tras el reinicio. Pida a un usuario root que confirme si puede desmontarla. No la desmonte ni la retire cuando la página indique que debe permanecer insertada.
+Desmontar o reemplazar la tarjeta puede cambiar la automatización a su configuración de emergencia interna. Es posible que esa copia sea más antigua y es posible que aún se ejecuten las reglas automáticas habilitadas. Sin una copia utilizable, es posible que la automatización no esté disponible. Pídale a un usuario de root que confirme que el desmontaje es seguro. Las imágenes, fuentes y registros de la tarjeta dejan de estar disponibles.
 
 Cuando la tarjeta SD no está montada, la página muestra "Montar SD". Selecciónelo, espere a que el estado cambie a "Montado" y luego abra nuevamente el directorio de la tarjeta SD.
+
+Montar la tarjeta no significa que Automatización haya cambiado a su configuración. Después de reinsertar una tarjeta, un usuario de root debe elegir qué configuración usar. Nada se sobrescribe ni se fusiona automáticamente.
 
 ## 8. Actualizaciones de OTA
 
@@ -350,17 +349,29 @@ En la página "Sistema", seleccione "Actualización OTA" en la sección "Red y h
 <!-- operational-note -->
 El dispositivo se reinicia durante una actualización, desconectando temporalmente la WebUI. Guarde el trabajo activo y mantenga estable la energía del dispositivo antes de comenzar. No apague el dispositivo mientras el progreso de la actualización esté incompleto.
 
+### Primera actualización de una versión anterior a 0.6.3
+
+La primera actualización desde una estructura de almacenamiento anterior, como 0.6.2, necesita un paquete USB/serial compatible aprobado por el proveedor. Cargar solo el firmware o WebUI no puede completar esta actualización. Pídale al administrador o proveedor del dispositivo que siga las instrucciones del paquete. No borre toda la memoria flash ni utilice una tabla de particiones antigua.
+
+Guarde los archivos importantes y mantenga instalada la tarjeta SD original. El primer inicio migra la configuración existente; mantenga la energía conectada. Luego, verifique el inicio de sesión, las redes, los ventiladores, la iluminación, los hosts SSH y las reglas de automatización. Revise las reglas antes de probar cualquier tarea que controle la energía, reinicie un dispositivo o ejecute comandos remotos.
+
+El paquete compatible actualiza ambas ranuras de aplicaciones. No asuma que la otra ranura todavía contiene la versión anterior. Si se pierde la contraseña root, utilice únicamente un método de recuperación confirmado por el proveedor para que coincida con la estructura de 0.6.3. No instale una imagen antigua para restablecer la contraseña.
+
+Los métodos de actualización web que aparecen a continuación se aplican únicamente a las versiones que el proveedor ha aprobado para OTA. No sustituyen la primera actualización de la estructura de almacenamiento.
+
 ### Buscar actualizaciones desde un servidor OTA
 
-1. Revise la “Versión actual”.
-2. Introduzca la dirección del servidor OTA proporcionada por un administrador o editor.
-3. Seleccione "Guardar" y luego seleccione "Verificar actualización".
-4. La página informa "Actualización disponible", "Ya actualizado", una versión anterior del servidor o un error.
-5. Confirme la versión de destino, luego seleccione "Actualizar ahora" o el control de actualización que se muestra en la página.
-6. Espere a que finalice la descarga, la instalación y el reinicio. Para cancelar, utilice el botón “Abortar” cuando esté disponible. No todas las etapas admiten la cancelación.
-7. Vuelva a conectarse a la WebUI después de que el dispositivo vuelva a estar en línea y verifique la "Versión actual".
+1. Revisar el “Current Version”.
+2. Introduzca la dirección del servidor OTA proporcionada por un administrador o proveedor.
+3. Seleccione “Save” y luego seleccione “Check Update”.
+4. La página informa “Update Available” “Already up to date” de una versión anterior del servidor o de un error.
+5. Confirme la versión de destino, luego seleccione “Upgrade Now” o el control de actualización que se muestra en la página.
+6. Espere a que finalice la descarga, la instalación y el reinicio. Para cancelar utilice el botón “Abort” cuando esté disponible. No todas las etapas admiten la cancelación.
+7. Espere a que la página confirme el firmware después de la actualización. Vuelva a conectarse al WebUI y verifique el “Current Version” y el estado del dispositivo.
 
-Cuando está habilitado “Actualizar también www”, el firmware y la WebUI se actualizan en secuencia. Para 0.6.2, utilice el firmware principal coincidente y los recursos WebUI proporcionados por el editor, ambos de la misma versión. Si la interfaz anterior permanece después de la actualización, fuerce la actualización del navegador y verifique la versión y la página nuevamente.
+“Upgrade Progress” muestra la etapa actual en su propia sección. Una lectura del 100% o un mensaje de que se escribieron archivos no confirma que se haya completado el reinicio y la verificación de la versión. Si el resultado no está confirmado o el firmware en ejecución difiere del objetivo, conserve el mensaje y verifique la versión actual. No repita la actualización sin verificar. Pídale a un usuario de root o al proveedor que investigue si es necesario.
+
+Cuando “Also upgrade www” está habilitado, el firmware y WebUI se actualizan en secuencia. Utilice firmware coincidente y recursos WebUI de la misma versión. Si la interfaz anterior permanece después de la actualización, fuerce la actualización del navegador y verifique la versión y la página nuevamente.
 
 ### Actualización manual
 
@@ -380,9 +391,9 @@ Para una actualización desde una URL, "Omitir verificación de certificado" omi
 
 Una vez completada la operación y el reinicio, vuelva a abrir la WebUI y verifique la versión actual y el estado del dispositivo.
 
-La versión 0.6.2 cambia la forma de guardar la configuración de automatización. Antes de volver a un firmware anterior, pregunte a un usuario root o al proveedor si esa versión puede leerla. Prepare también una copia de seguridad y un método de recuperación.
+La versión 0.6.3 cambia el almacenamiento de configuración y el diseño de la partición del dispositivo. No vuelva directamente a una versión anterior de firmware incompatible. Si necesita volver a una versión anterior, solicite al proveedor del dispositivo que confirme un procedimiento completo de recuperación de firmware, diseño y configuración.
 
-Rollback cambia el firmware, no el formato de configuración. Es posible que las reglas existentes ya no funcionen después de una degradación.
+La reversión no restaura el formato de configuración anterior ni garantiza que las reglas antiguas funcionen.
 
 ## 9. Entrada de gestión de seguridad
 
@@ -390,12 +401,12 @@ Seleccione "Seguridad" en la navegación superior para abrir la administración 
 
 ### Operaciones fallidas o no confirmadas
 
-Un formulario puede marcar un campo en rojo y mostrar el error a su lado. Corrija ese campo según las indicaciones y guarde. Que desaparezca la marca no confirma el guardado; compruebe también el mensaje y la lista.
+Un error en el campo rojo le indica qué corregir. Arréglelo y luego guárdelo. Una marca de error borrada no confirma que se haya guardado correctamente; revisa el mensaje y la lista.
 
 Compruebe qué operación falló y lea el motivo y el siguiente paso. Si el mensaje no da un motivo, no lo suponga.
 
-Si aparece «Detalles», selecciónelo para ver más información. «Ocultar» cierra los detalles. Si hay un botón ×, puede cerrar el mensaje con él. Cuando pida ayuda, conserve el mensaje y los detalles para que un usuario root los revise.
+Seleccione “Details” cuando esté disponible. Seleccione “Hide” para ocultar los detalles. Si se muestra un botón ×, selecciónelo para descartar el mensaje. Cuando solicite ayuda, mantenga un registro del mensaje y los detalles para que un usuario de root los revise.
 
 Si el resultado no está confirmado, actualice y compruebe el estado del dispositivo, archivo o tarea. Un tiempo de espera agotado o una desconexión no significa que la operación no se haya ejecutado. No repita de inmediato las operaciones de alimentación, eliminación, inicio de tareas o actualización. Pida ayuda a un usuario root si sigue sin poder confirmar el resultado.
 
-Para acciones por lotes, verifique los elementos exitosos, fallidos y no confirmados por separado. Confirme los archivos descargados en la lista de descargas del navegador.
+Verifique los resultados de los lotes exitosos, fallidos y no confirmados por separado. Confirme los archivos guardados en la lista de descargas del navegador.
