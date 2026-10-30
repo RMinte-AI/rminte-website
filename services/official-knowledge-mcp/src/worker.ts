@@ -3,7 +3,7 @@ import data from '../.generated/corpus.json';
 import type { Corpus } from './types.ts';
 import { createServer } from './server.ts';
 const corpus=data as unknown as Corpus;
-const handler=createMcpHandler(()=>createServer(corpus),{route:'/mcp',legacy:'stateless',allowedHostnames:['127.0.0.1','localhost'],allowedOriginHostnames:['localhost','127.0.0.1'],corsOptions:false});
+const handler=createMcpHandler(()=>createServer(corpus),{route:'/mcp',legacy:'stateless',allowedHostnames:['mcp.rminte.com','127.0.0.1','localhost'],allowedOriginHostnames:['mcp.rminte.com','rminte.com','www.rminte.com','localhost','127.0.0.1'],corsOptions:false});
 export default {
  async fetch(request:Request):Promise<Response>{
   const path=new URL(request.url).pathname;
