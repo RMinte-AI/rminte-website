@@ -1,0 +1,34 @@
+
+> rminte-official-knowledge-mcp@0.1.0 test
+> npm run build && node --experimental-strip-types --test tests/*.test.ts
+
+
+> rminte-official-knowledge-mcp@0.1.0 build
+> node --experimental-strip-types scripts/build.ts
+
+{"revision":"bac55fbe1bc24dd0b09f328315e06d10e66a96da9ed3ad375fc49728759a116c","sections":1278,"bytes":3287958}
+✔ All 88 reviewed entries accounted for; unverified OCR absent from runtime, history separate (0.460167ms)
+✔ Deterministic build, IDs unique, content/context hashes accurate, bounded replies (1102.500667ms)
+✔ Every nonblank original source line is preserved in body or original heading path (25.033375ms)
+✔ Security-page inherited HTTP limitation follows certificate operation (0.295042ms)
+✔ Source versions and history policy are enforced at search and read (1.861125ms)
+✔ No arbitrary URL/path input and no silently truncated queries/results (0.631084ms)
+✔ Chinese and English source coverage; authoritative Chinese agreement reachable from English note (0.176166ms)
+✔ All nine specialist workflow stages retain their corresponding scenario identity (0.49625ms)
+✔ Protocol names are not treated as plural nouns; English aliases require complete words (1.9355ms)
+✔ Chinese function-word removal does not destroy ownership or wired-network terms (1.027042ms)
+✔ Unknown terms matching Object.prototype do not crash or enter the index (0.419625ms)
+✔ Parent scope follows heading nesting, including skipped levels and repeated sibling titles (0.771917ms)
+✔ Tilde and longer backtick fences keep embedded headings/code blocks intact (0.249375ms)
+✔ Identical body with different prerequisite context is not deduplicated away (0.454125ms)
+✔ Width normalization precedes vocabulary matching (0.137167ms)
+✔ A document with no headings has one overview and valid source bounds (0.0715ms)
+✔ Non-searchable preambles remain readable context for the real source sections (7.962792ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2286.725208

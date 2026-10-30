@@ -1,0 +1,25 @@
+
+> rminte-official-knowledge-mcp@0.1.0 test
+> npm run build && node --experimental-strip-types --test tests/*.test.ts
+
+
+> rminte-official-knowledge-mcp@0.1.0 build
+> node --experimental-strip-types scripts/build.ts
+
+{"revision":"35805af01950d5458ac02c864bc8310665586abd1f932ac19cd5e63412a1634d","sections":1278,"bytes":2874170}
+✔ All 88 reviewed entries accounted for; unverified OCR absent from runtime, history separate (0.471083ms)
+✔ Deterministic build, IDs unique, content/context hashes accurate, bounded replies (1067.533083ms)
+✔ Every nonblank original source line is preserved in body or original heading path (25.32225ms)
+✔ Security-page inherited HTTP limitation follows certificate operation (0.311334ms)
+✔ Source versions and history policy are enforced at search and read (1.57ms)
+✔ No arbitrary URL/path input and no silently truncated queries/results (0.527458ms)
+✔ Chinese and English source coverage; authoritative Chinese agreement reachable from English note (0.169375ms)
+✔ All nine specialist workflow stages retain their corresponding scenario identity (0.479041ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2193.465459

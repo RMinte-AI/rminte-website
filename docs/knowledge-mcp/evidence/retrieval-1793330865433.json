@@ -1,0 +1,3119 @@
+{
+  "at": "2026-10-30T03:27:45.432Z",
+  "scope": "offline retrieval; no models, SDK clients or network used",
+  "corpus_revision": "feae8803f69942c6882e6e192538282b5bec58910c897b57f65b2cf4a21ebb56",
+  "fixtures_sha256": "77de1d9250d3f04797efdeeeb140b1149516f33c91abcd7c61de2aefd88117a9",
+  "passed": 88,
+  "total": 88,
+  "results": [
+    {
+      "id": "product-zh",
+      "query": "RM-01 是什么，适合本地 Agent 吗？",
+      "language": "zh",
+      "expected_docs": [
+        "product-overview",
+        "hardware-modules"
+      ],
+      "evidence_regex": "Agent|应用",
+      "passed": true,
+      "results": [
+        {
+          "doc": "product-overview",
+          "heading": "RM-01 让 AI 在本地， 为你工作",
+          "score": 10.9979
+        },
+        {
+          "doc": "product-overview",
+          "heading": "RM-01 让 AI 在本地， 为你工作",
+          "score": 9.3401
+        },
+        {
+          "doc": "guide-security",
+          "heading": "TianShanOS 安全页面完整操作指南 / 3. 用 SSH 密钥连接服务器 / 3.5 撤销远端授权，再删除本地密钥",
+          "score": 7.8954
+        },
+        {
+          "doc": "guide-root",
+          "heading": "TianshanOS root 运维指南 / 第二部分：root 专属功能 / 12. 自动化管理 / 查看变量",
+          "score": 6.9811
+        },
+        {
+          "doc": "guide-security",
+          "heading": "TianShanOS 安全页面完整操作指南 / 4. 管理密钥、主机与指纹 / 4.2 分清撤销、移除和删除",
+          "score": 6.8672
+        }
+      ]
+    },
+    {
+      "id": "product-en",
+      "query": "What is RM-01 and how does it run local agents?",
+      "language": "en",
+      "expected_docs": [
+        "product-overview",
+        "hardware-modules"
+      ],
+      "evidence_regex": "agent|application",
+      "passed": true,
+      "results": [
+        {
+          "doc": "product-overview",
+          "heading": "RM-01 让 AI 在本地， 为你工作",
+          "score": 11.1474
+        },
+        {
+          "doc": "guide-network",
+          "heading": "RM-01 Network Configuration Guide / 5. Configure C1 Internet Sharing with AI / Where to run the AI agent",
+          "score": 10.9763
+        },
+        {
+          "doc": "product-overview",
+          "heading": "RM-01 让 AI 在本地， 为你工作",
+          "score": 10.9317
+        },
+        {
+          "doc": "guide-security",
+          "heading": "TianShanOS 安全页面完整操作指南 / 7. 故障与安全事件处理 / 7.1 常见问题",
+          "score": 8.3908
+        },
+        {
+          "doc": "hardware-modules",
+          "heading": "各司其职，整机交付 / Agent 与应用模组",
+          "score": 8.3397
+        }
+      ]
+    },
+    {
+      "id": "modules-zh",
+      "query": "硬件有哪些模组，各负责什么？",
+      "language": "zh",
+      "expected_docs": [
+        "hardware-modules"
+      ],
+      "evidence_regex": "模组",
+      "passed": true,
+      "results": [
+        {
+          "doc": "hardware-modules",
+          "heading": "各司其职，整机交付",
+          "score": 17.8414
+        },
+        {
+          "doc": "hardware-modules",
+          "heading": "各司其职，整机交付 / 加密模组",
+          "score": 17.7058
+        },
+        {
+          "doc": "structure",
+          "heading": "机身展开，协作可见",
+          "score": 11.6129
+        },
+        {
+          "doc": "homepage-source-copy",
+          "heading": "modules / text",
+          "score": 11.4791
+        },
+        {
+          "doc": "hardware-security",
+          "heading": "Original PDF page 9",
+          "score": 10.5291
+        }
+      ]
+    },
+    {
+      "id": "modules-en",
+      "query": "What hardware modules does the machine contain?",
+      "language": "en",
+      "expected_docs": [
+        "hardware-modules"
+      ],
+      "evidence_regex": "module",
+      "passed": true,
+      "results": [
+        {
+          "doc": "hardware-modules",
+          "heading": "Dedicated roles. One complete system. / Encryption module",
+          "score": 16.8196
+        },
+        {
+          "doc": "hardware-modules",
+          "heading": "Dedicated roles. One complete system. / Network module",
+          "score": 16.734
+        },
+        {
+          "doc": "hardware-security",
+          "heading": "Original PDF page 9",
+          "score": 13.6878
+        },
+        {
+          "doc": "hardware-security",
+          "heading": "Original PDF page 4",
+          "score": 12.4289
+        },
+        {
+          "doc": "structure",
+          "heading": "See the system unfold",
+          "score": 11.2211
+        }
+      ]
+    },
+    {
+      "id": "power-zh",
+      "query": "RM-01 的供电标准和功耗是什么？",
+      "language": "zh",
+      "expected_docs": [
+        "hardware-modules",
+        "product-overview"
+      ],
+      "evidence_regex": "140|PD",
+      "passed": true,
+      "results": [
+        {
+          "doc": "hardware-security",
+          "heading": "原 PDF 第 9",
+          "score": 15.4608
+        },
+        {
+          "doc": "guide-admin",
+          "heading": "TianshanOS admin 日常使用指南 / 2. 系统状态与常用操作 / 查看系统与电源信息",
+          "score": 15.0077
+        },
+        {
+          "doc": "connections",
+          "heading": "连接电源\n接入世界",
+          "score": 15.003
+        },
+        {
+          "doc": "connections",
+          "heading": "连接电源 接入世界",
+          "score": 14.7661
+        },
+        {
+          "doc": "hardware-modules",
+          "heading": "各司其职，整机交付 / 电源与热管理",
+          "score": 13.2361
+        }
+      ]
+    },
+    {
+      "id": "power-en",
+      "query": "What power supply standard and wattage does RM-01 use?",
+      "language": "en",
+      "expected_docs": [
+        "hardware-modules",
+        "product-overview"
+      ],
+      "evidence_regex": "140|PD",
+      "passed": true,
+      "results": [
+        {
+          "doc": "hardware-security",
+          "heading": "原 PDF 第 9",
+          "score": 11.8929
+        },
+        {
+          "doc": "guide-admin",
+          "heading": "TianshanOS admin 日常使用指南 / 2. 系统状态与常用操作 / 查看系统与电源信息",
+          "score": 11.5444
+        },
+        {
+          "doc": "connections",
+          "heading": "连接电源\n接入世界",
+          "score": 11.5407
+        },
+        {
+          "doc": "connections",
+          "heading": "连接电源 接入世界",
+          "score": 11.3586
+        },
+        {
+          "doc": "hardware-modules",
+          "heading": "各司其职，整机交付 / 电源与热管理",
+          "score": 10.1816
+        }
+      ]
+    },
+    {
+      "id": "cooling-zh",
+      "query": "EricLake 散热风道怎么设计？",
+      "language": "zh",
+      "expected_docs": [
+        "thermal-design",
+        "hardware-modules"
+      ],
+      "evidence_regex": "风道",
+      "passed": true,
+      "results": [
+        {
+          "doc": "thermal-design",
+          "heading": "EricLake 封闭式热管理系统",
+          "score": 16.7216
+        },
+        {
+          "doc": "thermal-tti",
+          "heading": "示意图原始说明与标签",
+          "score": 15.4289
+        },
+        {
+          "doc": "gallery",
+          "heading": "产品图册 / alt",
+          "score": 13.6202
+        },
+        {
+          "doc": "thermal-design",
+          "heading": "EricLake 封闭式热管理系统",
+          "score": 11.9305
+        },
+        {
+          "doc": "gallery",
+          "heading": "产品图册 / label",
+          "score": 7.2673
+        }
+      ]
+    },
+    {
+      "id": "cooling-en",
+      "query": "How does the EricLake cooling air duct work?",
+      "language": "en",
+      "expected_docs": [
+        "thermal-design",
+        "hardware-modules"
+      ],
+      "evidence_regex": "duct",
+      "passed": true,
+      "results": [
+        {
+          "doc": "thermal-design",
+          "heading": "EricLake closed thermal system",
+          "score": 32.0196
+        },
+        {
+          "doc": "hardware-modules",
+          "heading": "Dedicated roles. One complete system. / Power and thermal management",
+          "score": 22.0056
+        },
+        {
+          "doc": "homepage-source-copy",
+          "heading": "ui / thermalLead",
+          "score": 18.4614
+        },
+        {
+          "doc": "homepage-source-copy",
+          "heading": "modules / text",
+          "score": 15.141
+        },
+        {
+          "doc": "thermal-tti",
+          "heading": "Original diagram descriptions and labels",
+          "score": 13.2307
+        }
+      ]
+    },
+    {
+      "id": "tti-zh",
+      "query": "TTI 和 TTO 是怎样预测并调节散热的？",
+      "language": "zh",
+      "expected_docs": [
+        "thermal-tti"
+      ],
+      "evidence_regex": "预测|调节",
+      "passed": true,
+      "results": [
+        {
+          "doc": "thermal-tti",
+          "heading": "示意图原始说明与标签",
+          "score": 43.375
+        },
+        {
+          "doc": "thermal-tti",
+          "heading": "热将起， 风先知",
+          "score": 25.2174
+        },
+        {
+          "doc": "homepage-source-copy",
+          "heading": "ui / ttiText1",
+          "score": 20.8403
+        },
+        {
+          "doc": "guide-admin",
+          "heading": "TianshanOS admin 日常使用指南 / 4. 风扇管理 / 查看风扇状态",
+          "score": 13.2562
+        },
+        {
+          "doc": "guide-admin",
+          "heading": "TianshanOS admin 日常使用指南 / 4. 风扇管理 / 选择运行模式",
+          "score": 11.9925
+        }
+      ]
+    },
+    {
+      "id": "tti-en",
+      "query": "How do TTI and TTO predict and regulate cooling?",
+      "language": "en",
+      "expected_docs": [
+        "thermal-tti"
+      ],
+      "evidence_regex": "predict|regulat",
+      "passed": true,
+      "results": [
+        {
+          "doc": "thermal-tti",
+          "heading": "Original diagram descriptions and labels",
+          "score": 39.9111
+        },
+        {
+          "doc": "thermal-tti",
+          "heading": "Ahead of the heat",
+          "score": 22.9962
+        },
+        {
+          "doc": "homepage-source-copy",
+          "heading": "ui / ttiText1",
+          "score": 19.1038
+        },
+        {
+          "doc": "homepage-source-copy",
+          "heading": "ui / ttiText1",
+          "score": 8.4002
+        }
+      ]
+    },
+    {
+      "id": "craft-zh",
+      "query": "机身铝合金与表面工艺是什么？",
+      "language": "zh",
+      "expected_docs": [
+        "manufacturing"
+      ],
+      "evidence_regex": "6063|喷砂",
+      "passed": true,
+      "results": [
+        {
+          "doc": "manufacturing",
+          "heading": "材料、表面与装配 每一处都有标准 / 铝合金机身",
+          "score": 25.4568
+        },
+        {
+          "doc": "manufacturing",
+          "heading": "材料、表面与装配 每一处都有标准",
+          "score": 23.6812
+        },
+        {
+          "doc": "gallery",
+          "heading": "产品图册 / label",
+          "score": 13.9093
+        },
+        {
+          "doc": "gallery",
+          "heading": "产品图册 / alt",
+          "score": 13.9093
+        },
+        {
+          "doc": "homepage-source-copy",
+          "heading": "ui / craftFinish",
+          "score": 10.5578
+        }
+      ]
+    },
+    {
+      "id": "craft-en",
+      "query": "What aluminium and surface finish does the chassis use?",
+      "language": "en",
+      "expected_docs": [
+        "manufacturing"
+      ],
+      "evidence_regex": "6063|sandblast",
+      "passed": true,
+      "results": [
+        {
+          "doc": "manufacturing",
+          "heading": "Materials, finish, and fit. A standard for every detail. / Aluminium chassis",
+          "score": 29.6912
+        },
+        {
+          "doc": "manufacturing",
+          "heading": "Materials, finish, and fit. A standard for every detail.",
+          "score": 24.8655
+        },
+        {
+          "doc": "homepage-source-copy",
+          "heading": "ui / craftLead",
+          "score": 15.9302
+        },
+        {
+          "doc": "homepage-source-copy",
+          "heading": "ui / craftStoryMaterial",
+          "score": 13.305
+        },
+        {
+          "doc": "sapphire",
+          "heading": "When sapphire lights up, intelligence gets to work",
+          "score": 12.6779
+        }
+      ]
+    },
+    {
+      "id": "glass-zh",
+      "query": "玻璃边缘的圆角和装配公差是多少？",
+      "language": "zh",
+      "expected_docs": [
+        "manufacturing"
+      ],
+      "evidence_regex": "0.03|0.2",
+      "passed": true,
+      "results": [
+        {
+          "doc": "manufacturing",
+          "heading": "材料、表面与装配 每一处都有标准 / 玻璃圆角",
+          "score": 37.2624
+        },
+        {
+          "doc": "manufacturing",
+          "heading": "材料、表面与装配 每一处都有标准 / 工艺公差",
+          "score": 20.3621
+        },
+        {
+          "doc": "homepage-source-copy",
+          "heading": "ui / craftStoryRadiusText",
+          "score": 18.7586
+        },
+        {
+          "doc": "gallery",
+          "heading": "产品图册 / label",
+          "score": 15.5401
+        },
+        {
+          "doc": "gallery",
+          "heading": "产品图册 / alt",
+          "score": 15.4162
+        }
+      ]
+    },
+    {
+      "id": "glass-en",
+      "query": "What are the glass edge radius and manufacturing tolerances?",
+      "language": "en",
+      "expected_docs": [
+        "manufacturing"
+      ],
+      "evidence_regex": "0.03|0.2",
+      "passed": true,
+      "results": [
+        {
+          "doc": "manufacturing",
+          "heading": "Materials, finish, and fit. A standard for every detail. / Rounded glass edges",
+          "score": 44.9155
+        },
+        {
+          "doc": "manufacturing",
+          "heading": "Materials, finish, and fit. A standard for every detail. / Manufacturing tolerance",
+          "score": 39.5366
+        },
+        {
+          "doc": "homepage-source-copy",
+          "heading": "ui / craftStoryRadiusText",
+          "score": 19.0202
+        },
+        {
+          "doc": "homepage-source-copy",
+          "heading": "ui / craftStoryToleranceText",
+          "score": 18.5788
+        }
+      ]
+    },
+    {
+      "id": "models-zh",
+      "query": "RMQ3x 和 RMQ4 有什么不同？",
+      "language": "zh",
+      "expected_docs": [
+        "models"
+      ],
+      "evidence_regex": "Dense|MoE",
+      "passed": true,
+      "results": [
+        {
+          "doc": "models",
+          "heading": "专业分析，更深入。 模型推理，更高效。 / RMQ4",
+          "score": 15.2032
+        },
+        {
+          "doc": "models",
+          "heading": "专业分析，更深入。 模型推理，更高效。 / stages",
+          "score": 12.6639
+        },
+        {
+          "doc": "guide-admin",
+          "heading": "TianshanOS admin 日常使用指南 / 5. LED 管理",
+          "score": 5.9727
+        },
+        {
+          "doc": "thermal-tti",
+          "heading": "热将起， 风先知",
+          "score": 4.0452
+        },
+        {
+          "doc": "guide-security",
+          "heading": "TianShanOS 安全页面完整操作指南 / 8. 版本说明与常用术语 / 8.1 本版指南的适用范围",
+          "score": 3.6988
+        }
+      ]
+    },
+    {
+      "id": "models-en",
+      "query": "How do RMQ3x and RMQ4 differ?",
+      "language": "en",
+      "expected_docs": [
+        "models"
+      ],
+      "evidence_regex": "Dense|MoE",
+      "passed": true,
+      "results": [
+        {
+          "doc": "models",
+          "heading": "Deeper analysis. More efficient inference. / RMQ3x",
+          "score": 12.0242
+        },
+        {
+          "doc": "models",
+          "heading": "Deeper analysis. More efficient inference. / RMQ4",
+          "score": 11.5462
+        },
+        {
+          "doc": "guide-security",
+          "heading": "TianShanOS Security Page Guide / 8. Version notes and glossary / 8.1 Scope of this edition",
+          "score": 3.9823
+        },
+        {
+          "doc": "guide-security",
+          "heading": "TianShanOS Security Page Guide",
+          "score": 3.5387
+        },
+        {
+          "doc": "guide-admin",
+          "heading": "TianshanOS Admin User Guide / 4. Fan Management / View Fan Status",
+          "score": 2.8754
+        }
+      ]
+    },
+    {
+      "id": "runner-zh",
+      "query": "C++ Runner 约 2 MB 包括模型权重吗？",
+      "language": "zh",
+      "expected_docs": [
+        "models"
+      ],
+      "evidence_regex": "不含|不包括",
+      "passed": true,
+      "results": [
+        {
+          "doc": "models",
+          "heading": "专业分析，更深入。 模型推理，更高效。 / 专用引擎，释放模型性能。 / 自研 C++ 推理引擎 / 更低的运行开销，更高的执行效率。",
+          "score": 23.3268
+        },
+        {
+          "doc": "models",
+          "heading": "专业分析，更深入。 模型推理，更高效。 / 专用引擎，释放模型性能。",
+          "score": 23.1441
+        },
+        {
+          "doc": "inference-engine",
+          "heading": "让算力，承载更多任务 / 沿用生态，减少适配",
+          "score": 10.4671
+        },
+        {
+          "doc": "inference-engine",
+          "heading": "让算力，承载更多任务",
+          "score": 9.3097
+        },
+        {
+          "doc": "guide-admin",
+          "heading": "TianshanOS admin 日常使用指南 / 4. 风扇管理 / 使用测试温度",
+          "score": 6.4366
+        }
+      ]
+    },
+    {
+      "id": "runner-en",
+      "query": "Does the 2 MB C++ runner footprint include model weights?",
+      "language": "en",
+      "expected_docs": [
+        "models"
+      ],
+      "evidence_regex": "excluding|Excludes",
+      "passed": true,
+      "results": [
+        {
+          "doc": "models",
+          "heading": "Deeper analysis. More efficient inference. / Dedicated engines. Unlock model performance. / Our C++ inference engine / Lower runtime overhead. More efficient execution.",
+          "score": 27.2543
+        },
+        {
+          "doc": "models",
+          "heading": "Deeper analysis. More efficient inference. / Dedicated engines. Unlock model performance.",
+          "score": 27.0829
+        },
+        {
+          "doc": "inference-engine",
+          "heading": "Compute that takes on more tasks / Familiar ecosystem, less integration work",
+          "score": 14.2279
+        },
+        {
+          "doc": "guide-admin",
+          "heading": "TianshanOS Admin User Guide / 4. Fan Management / Configure a Fan Curve",
+          "score": 7.987
+        }
+      ]
+    },
+    {
+      "id": "bench-zh",
+      "query": "模型评测结果是否已经公布？",
+      "language": "zh",
+      "expected_docs": [
+        "models"
+      ],
+      "evidence_regex": "待|即将",
+      "passed": true,
+      "results": [
+        {
+          "doc": "models",
+          "heading": "专业分析，更深入。 模型推理，更高效。 / 模型评测",
+          "score": 15.3592
+        },
+        {
+          "doc": "guide-root",
+          "heading": "TianshanOS root 运维指南 / 第二部分：root 专属功能 / 11. 管理和运行远程指令 / 执行并查看结果",
+          "score": 9.6187
+        },
+        {
+          "doc": "models",
+          "heading": "专业分析，更深入。 模型推理，更高效。 / 从架构到训练， 构建专业能力。 从硬件到推理， 释放模型性能。 / 领域适配与 Agent 训练",
+          "score": 9.4768
+        },
+        {
+          "doc": "demonstrations-and-releases",
+          "heading": "官网演示与真实设备的区别",
+          "score": 8.1893
+        },
+        {
+          "doc": "product-overview",
+          "heading": "RM-01 让 AI 在本地， 为你工作",
+          "score": 7.9314
+        }
+      ]
+    },
+    {
+      "id": "bench-en",
+      "query": "Are model benchmark results already published?",
+      "language": "en",
+      "expected_docs": [
+        "models"
+      ],
+      "evidence_regex": "coming soon",
+      "passed": true,
+      "results": [
+        {
+          "doc": "models",
+          "heading": "Deeper analysis. More efficient inference. / Model benchmarks",
+          "score": 14.5425
+        },
+        {
+          "doc": "guide-root",
+          "heading": "TianshanOS Root Operations Guide / Part II: Root-only Functions / 11. Manage and Run Remote Commands / Execute a Command and Review the Result",
+          "score": 9.7688
+        },
+        {
+          "doc": "models",
+          "heading": "Deeper analysis. More efficient inference. / stages",
+          "score": 9.5518
+        },
+        {
+          "doc": "thermal-tti",
+          "heading": "Ahead of the heat",
+          "score": 8.2055
+        },
+        {
+          "doc": "product-overview",
+          "heading": "RM-01 AI working for you, locally",
+          "score": 7.1188
+        }
+      ]
+    },
+    {
+      "id": "wifi-zh",
+      "query": "admin 怎样连接 WiFi？",
+      "language": "zh",
+      "expected_docs": [
+        "guide-admin",
+        "guide-root"
+      ],
+      "evidence_regex": "WiFi",
+      "passed": true,
+      "results": [
+        {
+          "doc": "guide-admin",
+          "heading": "TianshanOS admin 日常使用指南 / 6. 网络管理 / 连接 WiFi",
+          "score": 25.9317
+        },
+        {
+          "doc": "guide-admin",
+          "heading": "TianshanOS admin 日常使用指南 / 6. 网络管理 / 选择 WiFi 模式",
+          "score": 17.6776
+        },
+        {
+          "doc": "guide-root",
+          "heading": "TianshanOS root 运维指南 / 第一部分：日常功能 / 6. 网络管理 / 配置 WiFi 热点",
+          "score": 9.3579
+        },
+        {
+          "doc": "guide-root",
+          "heading": "TianshanOS root 运维指南 / 第一部分：日常功能 / 6. 网络管理 / 查看网络状态",
+          "score": 8.9372
+        },
+        {
+          "doc": "guide-security",
+          "heading": "TianShanOS 安全页面完整操作指南 / 2. 修改设备登录密码 / 2.3 重置 admin 密码",
+          "score": 5.9249
+        }
+      ]
+    },
+    {
+      "id": "wifi-en",
+      "query": "How does an admin connect to WiFi?",
+      "language": "en",
+      "expected_docs": [
+        "guide-admin",
+        "guide-root"
+      ],
+      "evidence_regex": "WiFi",
+      "passed": true,
+      "results": [
+        {
+          "doc": "guide-admin",
+          "heading": "TianshanOS Admin User Guide / 6. Network Management / Connect to WiFi",
+          "score": 27.2171
+        },
+        {
+          "doc": "guide-admin",
+          "heading": "TianshanOS Admin User Guide / 6. Network Management / Select a WiFi Mode",
+          "score": 19.0104
+        },
+        {
+          "doc": "connections",
+          "heading": "Connect to power.\nConnect to the world.",
+          "score": 8.1877
+        },
+        {
+          "doc": "connections",
+          "heading": "Connect to power. Connect to the world.",
+          "score": 8.0661
+        },
+        {
+          "doc": "guide-root",
+          "heading": "TianshanOS Root Operations Guide / Part I: Routine Functions / 6. Network Management / Configure the WiFi AP",
+          "score": 6.9185
+        }
+      ]
+    },
+    {
+      "id": "fan-zh",
+      "query": "怎样设置风扇曲线？",
+      "language": "zh",
+      "expected_docs": [
+        "guide-admin",
+        "guide-root"
+      ],
+      "evidence_regex": "曲线",
+      "passed": true,
+      "results": [
+        {
+          "doc": "guide-admin",
+          "heading": "TianshanOS admin 日常使用指南 / 4. 风扇管理 / 设置风扇曲线",
+          "score": 22.5862
+        },
+        {
+          "doc": "guide-admin",
+          "heading": "TianshanOS admin 日常使用指南 / 4. 风扇管理 / 选择运行模式",
+          "score": 12.2732
+        },
+        {
+          "doc": "guide-root",
+          "heading": "TianshanOS root 运维指南 / 第一部分：日常功能 / 4. 风扇管理 / 导入和导出曲线",
+          "score": 10.7046
+        },
+        {
+          "doc": "guide-root",
+          "heading": "TianshanOS root 运维指南 / 第一部分：日常功能 / 4. 风扇管理",
+          "score": 10.6977
+        },
+        {
+          "doc": "hardware-security",
+          "heading": "原 PDF 第 10",
+          "score": 7.5035
+        }
+      ]
+    },
+    {
+      "id": "fan-en",
+      "query": "How do I configure a fan curve?",
+      "language": "en",
+      "expected_docs": [
+        "guide-admin",
+        "guide-root"
+      ],
+      "evidence_regex": "curve",
+      "passed": true,
+      "results": [
+        {
+          "doc": "guide-admin",
+          "heading": "TianshanOS Admin User Guide / 4. Fan Management / Configure a Fan Curve",
+          "score": 35.8182
+        },
+        {
+          "doc": "guide-admin",
+          "heading": "TianshanOS Admin User Guide / 4. Fan Management / Import and Export a Curve",
+          "score": 18.8958
+        },
+        {
+          "doc": "guide-root",
+          "heading": "TianshanOS Root Operations Guide / Part I: Routine Functions / 4. Fan Management / Select an Operating Mode",
+          "score": 17.3155
+        },
+        {
+          "doc": "guide-root",
+          "heading": "TianshanOS Root Operations Guide / Part I: Routine Functions / 4. Fan Management",
+          "score": 16.6176
+        },
+        {
+          "doc": "thermal-tti",
+          "heading": "Ahead of the heat",
+          "score": 10.1654
+        }
+      ]
+    },
+    {
+      "id": "files-zh",
+      "query": "文件上传能放在设备内部存储吗？",
+      "language": "zh",
+      "expected_docs": [
+        "guide-admin",
+        "guide-root"
+      ],
+      "evidence_regex": "上传|SD",
+      "passed": true,
+      "results": [
+        {
+          "doc": "guide-admin",
+          "heading": "TianshanOS admin 日常使用指南 / 7. 文件管理",
+          "score": 19.1886
+        },
+        {
+          "doc": "guide-root",
+          "heading": "TianshanOS root 运维指南 / 第二部分：root 专属功能 / 13. 配置与备份 / 没有可用 SD 卡时",
+          "score": 13.285
+        },
+        {
+          "doc": "guide-admin",
+          "heading": "TianshanOS admin 日常使用指南 / 7. 文件管理 / 挂载和卸载 SD 卡",
+          "score": 13.2442
+        },
+        {
+          "doc": "guide-root",
+          "heading": "TianshanOS root 运维指南 / 第一部分：日常功能 / 7. 文件管理 / 挂载和卸载 SD 卡",
+          "score": 12.9737
+        },
+        {
+          "doc": "hardware-security",
+          "heading": "原 PDF 第 7",
+          "score": 12.8967
+        }
+      ]
+    },
+    {
+      "id": "files-en",
+      "query": "Can I upload files to internal storage or only the SD card?",
+      "language": "en",
+      "expected_docs": [
+        "guide-admin",
+        "guide-root"
+      ],
+      "evidence_regex": "Upload|SD",
+      "passed": true,
+      "results": [
+        {
+          "doc": "guide-admin",
+          "heading": "TianshanOS Admin User Guide / 7. File Management / Upload Files",
+          "score": 49.7125
+        },
+        {
+          "doc": "guide-root",
+          "heading": "TianshanOS Root Operations Guide / Part I: Routine Functions / 7. File Management / Upload Files",
+          "score": 49.0438
+        },
+        {
+          "doc": "guide-admin",
+          "heading": "TianshanOS Admin User Guide / 7. File Management",
+          "score": 26.8776
+        },
+        {
+          "doc": "guide-root",
+          "heading": "TianshanOS Root Operations Guide / Part I: Routine Functions / 7. File Management / Mount and Unmount the SD Card",
+          "score": 26.0173
+        },
+        {
+          "doc": "hardware-security",
+          "heading": "Original PDF page 8",
+          "score": 16.2591
+        }
+      ]
+    },
+    {
+      "id": "emergency-zh",
+      "query": "0.6.3 如何保存和恢复自动化应急副本？",
+      "language": "zh",
+      "expected_docs": [
+        "guide-root"
+      ],
+      "evidence_regex": "应急",
+      "passed": true,
+      "results": [
+        {
+          "doc": "guide-root",
+          "heading": "TianshanOS root 运维指南 / 第二部分：root 专属功能 / 13. 配置与备份 / 分清三类内容",
+          "score": 29.9042
+        },
+        {
+          "doc": "guide-root",
+          "heading": "TianshanOS root 运维指南 / 第二部分：root 专属功能 / 13. 配置与备份 / 从应急副本恢复",
+          "score": 29.2497
+        },
+        {
+          "doc": "guide-admin",
+          "heading": "TianshanOS admin 日常使用指南 / 2. 系统状态与常用操作 / 查看系统与电源信息",
+          "score": 19.5573
+        },
+        {
+          "doc": "guide-admin",
+          "heading": "TianshanOS admin 日常使用指南 / 7. 文件管理 / 挂载和卸载 SD 卡",
+          "score": 13.1266
+        },
+        {
+          "doc": "guide-security",
+          "heading": "TianShanOS 安全页面完整操作指南 / 4. 管理密钥、主机与指纹 / 4.1 复制公钥与导出私钥",
+          "score": 7.6092
+        }
+      ]
+    },
+    {
+      "id": "emergency-en",
+      "query": "How do I save and restore the automation emergency copy in 0.6.3?",
+      "language": "en",
+      "expected_docs": [
+        "guide-root"
+      ],
+      "evidence_regex": "emergency",
+      "passed": true,
+      "results": [
+        {
+          "doc": "guide-root",
+          "heading": "TianshanOS Root Operations Guide / Part II: Root-only Functions / 13. Configuration and Backup / Restore an Emergency Backup",
+          "score": 25.9397
+        },
+        {
+          "doc": "guide-root",
+          "heading": "TianshanOS Root Operations Guide / Part II: Root-only Functions / 13. Configuration and Backup / Distinguish the Three Types of Content",
+          "score": 21.3945
+        },
+        {
+          "doc": "guide-admin",
+          "heading": "TianshanOS Admin User Guide / 2. System Status and Routine Operations / View System and Power Information",
+          "score": 11.1922
+        },
+        {
+          "doc": "guide-admin",
+          "heading": "TianshanOS Admin User Guide / 7. File Management / Mount and Unmount the SD Card",
+          "score": 10.8429
+        },
+        {
+          "doc": "ota-service",
+          "heading": "OTA update service / Connect to the service",
+          "score": 4.8431
+        }
+      ]
+    },
+    {
+      "id": "nocard-zh",
+      "query": "没有 SD 卡时自动化配置如何处理？",
+      "language": "zh",
+      "expected_docs": [
+        "guide-root"
+      ],
+      "evidence_regex": "无卡|SD",
+      "passed": true,
+      "results": [
+        {
+          "doc": "guide-root",
+          "heading": "TianshanOS root 运维指南 / 第一部分：日常功能 / 7. 文件管理 / 挂载和卸载 SD 卡",
+          "score": 15.0712
+        },
+        {
+          "doc": "guide-admin",
+          "heading": "TianshanOS admin 日常使用指南 / 7. 文件管理 / 挂载和卸载 SD 卡",
+          "score": 14.9294
+        },
+        {
+          "doc": "guide-root",
+          "heading": "TianshanOS root 运维指南 / 第二部分：root 专属功能 / 13. 配置与备份 / 重新插卡后选择配置",
+          "score": 14.3353
+        },
+        {
+          "doc": "system-overview",
+          "heading": "TianshanOS 让整机协同有序",
+          "score": 11.8901
+        },
+        {
+          "doc": "guide-admin",
+          "heading": "TianshanOS admin 日常使用指南 / 7. 文件管理 / 上传文件",
+          "score": 11.6197
+        }
+      ]
+    },
+    {
+      "id": "nocard-en",
+      "query": "What happens to automation configuration without an SD card?",
+      "language": "en",
+      "expected_docs": [
+        "guide-root"
+      ],
+      "evidence_regex": "SD",
+      "passed": true,
+      "results": [
+        {
+          "doc": "guide-admin",
+          "heading": "TianshanOS Admin User Guide / 7. File Management / Mount and Unmount the SD Card",
+          "score": 23.4859
+        },
+        {
+          "doc": "guide-root",
+          "heading": "TianshanOS Root Operations Guide / Part I: Routine Functions / 7. File Management / Mount and Unmount the SD Card",
+          "score": 23.4091
+        },
+        {
+          "doc": "guide-root",
+          "heading": "TianshanOS Root Operations Guide / Part II: Root-only Functions / 13. Configuration and Backup / Choose a Configuration After Reinserting the Card",
+          "score": 22.5305
+        },
+        {
+          "doc": "guide-network",
+          "heading": "RM-01 Network Configuration Guide / 4. Keep Internet Access and Share It with RM-01 / What may happen to the user device's internet connection",
+          "score": 13.1948
+        },
+        {
+          "doc": "guide-admin",
+          "heading": "TianshanOS Admin User Guide / 7. File Management / Upload Files",
+          "score": 12.6818
+        }
+      ]
+    },
+    {
+      "id": "upgrade-zh",
+      "query": "首次从 0.6.2 升级到 0.6.3 能只上传 WebUI 吗？",
+      "language": "zh",
+      "expected_docs": [
+        "guide-admin",
+        "guide-root"
+      ],
+      "evidence_regex": "USB|串口",
+      "passed": true,
+      "results": [
+        {
+          "doc": "guide-admin",
+          "heading": "TianshanOS admin 日常使用指南 / 8. OTA 更新 / 首次从旧版本升级到 0.6.3",
+          "score": 22.4601
+        },
+        {
+          "doc": "demonstrations-and-releases",
+          "heading": "官网演示与真实设备的区别",
+          "score": 12.3024
+        },
+        {
+          "doc": "guide-admin",
+          "heading": "TianshanOS admin 日常使用指南 / 8. OTA 更新 / 从 OTA 服务器检查更新",
+          "score": 10.6178
+        },
+        {
+          "doc": "guide-root",
+          "heading": "TianshanOS root 运维指南 / 第一部分：日常功能 / 8. OTA 更新 / 从 OTA 服务器检查更新",
+          "score": 10.5539
+        },
+        {
+          "doc": "demonstrations-and-releases",
+          "heading": "Website demonstrations and real devices",
+          "score": 9.4634
+        }
+      ]
+    },
+    {
+      "id": "upgrade-en",
+      "query": "Can the first upgrade from 0.6.2 to 0.6.3 use only a WebUI upload?",
+      "language": "en",
+      "expected_docs": [
+        "guide-admin",
+        "guide-root"
+      ],
+      "evidence_regex": "USB|serial",
+      "passed": true,
+      "results": [
+        {
+          "doc": "guide-admin",
+          "heading": "TianshanOS Admin User Guide / 8. OTA Updates / First Upgrade from an Older Version to 0.6.3",
+          "score": 29.2432
+        },
+        {
+          "doc": "guide-admin",
+          "heading": "TianshanOS Admin User Guide / 7. File Management / Upload Files",
+          "score": 18.9756
+        },
+        {
+          "doc": "guide-root",
+          "heading": "TianshanOS Root Operations Guide / Part I: Routine Functions / 7. File Management / Upload Files",
+          "score": 18.6916
+        },
+        {
+          "doc": "guide-root",
+          "heading": "TianshanOS Root Operations Guide / Part I: Routine Functions / 8. OTA Updates / Check for Updates from an OTA Server",
+          "score": 13.3339
+        },
+        {
+          "doc": "demonstrations-and-releases",
+          "heading": "Website demonstrations and real devices",
+          "score": 12.3024
+        }
+      ]
+    },
+    {
+      "id": "securityversion-zh",
+      "query": "安全页面操作指南依据哪个版本？",
+      "language": "zh",
+      "expected_docs": [
+        "guide-security"
+      ],
+      "evidence_regex": "0.6.1",
+      "passed": true,
+      "results": [
+        {
+          "doc": "guide-security",
+          "heading": "TianShanOS 安全页面完整操作指南 / 8. 版本说明与常用术语 / 8.1 本版指南的适用范围",
+          "score": 18.3051
+        },
+        {
+          "doc": "guide-security",
+          "heading": "TianShanOS 安全页面完整操作指南",
+          "score": 17.2822
+        },
+        {
+          "doc": "guide-root",
+          "heading": "TianshanOS root 运维指南",
+          "score": 15.7909
+        },
+        {
+          "doc": "guide-admin",
+          "heading": "TianshanOS admin 日常使用指南",
+          "score": 15.5409
+        },
+        {
+          "doc": "guide-root",
+          "heading": "TianshanOS root 运维指南 / 第一部分：日常功能 / 9. 安全管理入口",
+          "score": 12.4297
+        }
+      ]
+    },
+    {
+      "id": "securityversion-en",
+      "query": "Which version is the Security Page Guide based on?",
+      "language": "en",
+      "expected_docs": [
+        "guide-security"
+      ],
+      "evidence_regex": "0.6.1",
+      "passed": true,
+      "results": [
+        {
+          "doc": "guide-security",
+          "heading": "TianShanOS Security Page Guide / 8. Version notes and glossary / 8.1 Scope of this edition",
+          "score": 17.5527
+        },
+        {
+          "doc": "guide-security",
+          "heading": "TianShanOS Security Page Guide",
+          "score": 14.4164
+        },
+        {
+          "doc": "guide-admin",
+          "heading": "TianshanOS Admin User Guide / 1. Getting Started / Page Navigation",
+          "score": 12.226
+        },
+        {
+          "doc": "guide-admin",
+          "heading": "TianshanOS Admin User Guide",
+          "score": 11.9487
+        },
+        {
+          "doc": "guide-root",
+          "heading": "TianshanOS Root Operations Guide",
+          "score": 11.6859
+        }
+      ]
+    },
+    {
+      "id": "https-zh",
+      "query": "装 HTTPS 证书会让完整管理页面自动变成 HTTPS 吗？",
+      "language": "zh",
+      "expected_docs": [
+        "guide-security"
+      ],
+      "evidence_regex": "HTTP",
+      "passed": true,
+      "results": [
+        {
+          "doc": "guide-security",
+          "heading": "TianShanOS 安全页面完整操作指南 / 5. 配置 HTTPS 证书与 mTLS / 5.6 更新证书或删除全部凭证",
+          "score": 14.3047
+        },
+        {
+          "doc": "guide-security",
+          "heading": "TianShanOS 安全页面完整操作指南",
+          "score": 14.0002
+        },
+        {
+          "doc": "guides-index",
+          "heading": "选择你的使用角色",
+          "score": 11.4899
+        },
+        {
+          "doc": "guide-root",
+          "heading": "TianshanOS root 运维指南 / 第二部分：root 专属功能 / 12. 自动化管理 / 导入规则配置包",
+          "score": 10.8708
+        },
+        {
+          "doc": "guide-admin",
+          "heading": "TianshanOS admin 日常使用指南 / 9. 安全管理入口",
+          "score": 10.5864
+        }
+      ]
+    },
+    {
+      "id": "https-en",
+      "query": "Does installing an HTTPS certificate switch the full management page to HTTPS?",
+      "language": "en",
+      "expected_docs": [
+        "guide-security"
+      ],
+      "evidence_regex": "HTTP",
+      "passed": true,
+      "results": [
+        {
+          "doc": "guide-security",
+          "heading": "TianShanOS Security Page Guide",
+          "score": 26.2025
+        },
+        {
+          "doc": "guide-security",
+          "heading": "TianShanOS Security Page Guide / 5. Configure HTTPS certificates and mTLS",
+          "score": 20.7736
+        },
+        {
+          "doc": "hardware-security",
+          "heading": "Original PDF page 4",
+          "score": 12.5654
+        },
+        {
+          "doc": "hardware-security",
+          "heading": "Original PDF page 12",
+          "score": 12.2611
+        },
+        {
+          "doc": "guide-admin",
+          "heading": "TianshanOS Admin User Guide / 1. Getting Started / Switch Languages",
+          "score": 10.4644
+        }
+      ]
+    },
+    {
+      "id": "c1-zh",
+      "query": "C1 会将 RM-01 接入办公网吗？",
+      "language": "zh",
+      "expected_docs": [
+        "guide-network",
+        "hardware-security"
+      ],
+      "evidence_regex": "C1",
+      "passed": true,
+      "results": [
+        {
+          "doc": "hardware-security",
+          "heading": "原 PDF 第 5",
+          "score": 19.1392
+        },
+        {
+          "doc": "guide-network",
+          "heading": "RM-01 网络配置指南 / 2. 识别 C1 与 C3 / C1 接口",
+          "score": 8.8533
+        },
+        {
+          "doc": "hardware-security",
+          "heading": "原 PDF 第 3",
+          "score": 8.3475
+        },
+        {
+          "doc": "guide-network",
+          "heading": "RM-01 网络配置指南 / 3. 通过 C1 将用户设备接入 RM-01",
+          "score": 7.8748
+        },
+        {
+          "doc": "guides-index",
+          "heading": "选择你的使用角色",
+          "score": 2.9254
+        }
+      ]
+    },
+    {
+      "id": "c1-en",
+      "query": "Does C1 connect RM-01 to the office network?",
+      "language": "en",
+      "expected_docs": [
+        "guide-network",
+        "hardware-security"
+      ],
+      "evidence_regex": "C1",
+      "passed": true,
+      "results": [
+        {
+          "doc": "hardware-security",
+          "heading": "Original PDF page 5",
+          "score": 29.3008
+        },
+        {
+          "doc": "guide-network",
+          "heading": "RM-01 Network Configuration Guide / 3. Connect a User Device through C1",
+          "score": 20.0216
+        },
+        {
+          "doc": "guide-network",
+          "heading": "RM-01 Network Configuration Guide / 1. Understand the Two Network Paths",
+          "score": 17.5348
+        },
+        {
+          "doc": "hardware-security",
+          "heading": "Original PDF page 6",
+          "score": 12.3706
+        },
+        {
+          "doc": "connections",
+          "heading": "Connect to power. Connect to the world.",
+          "score": 11.7125
+        }
+      ]
+    },
+    {
+      "id": "c3-zh",
+      "query": "如何通过 C3 将整机接入上层网络？",
+      "language": "zh",
+      "expected_docs": [
+        "guide-network"
+      ],
+      "evidence_regex": "C3",
+      "passed": true,
+      "results": [
+        {
+          "doc": "guide-network",
+          "heading": "RM-01 网络配置指南 / 6. 通过 C3 将 RM-01 接入上层网络",
+          "score": 29.5616
+        },
+        {
+          "doc": "guide-network",
+          "heading": "RM-01 网络配置指南 / 6. 通过 C3 将 RM-01 接入上层网络 / 准备连接器",
+          "score": 26.9129
+        },
+        {
+          "doc": "guide-admin",
+          "heading": "TianshanOS admin 日常使用指南 / 6. 网络管理 / 高级网络操作 / 通过 LPMU 接入上层网络",
+          "score": 18.2329
+        },
+        {
+          "doc": "hardware-security",
+          "heading": "原 PDF 第 6",
+          "score": 17.1774
+        },
+        {
+          "doc": "guides-index",
+          "heading": "选择你的使用角色",
+          "score": 11.3271
+        }
+      ]
+    },
+    {
+      "id": "c3-en",
+      "query": "How do I connect the full system to an upstream network through C3?",
+      "language": "en",
+      "expected_docs": [
+        "guide-network"
+      ],
+      "evidence_regex": "C3",
+      "passed": true,
+      "results": [
+        {
+          "doc": "guide-network",
+          "heading": "RM-01 Network Configuration Guide / 6. Connect RM-01 to an Upstream Network through C3",
+          "score": 35.3244
+        },
+        {
+          "doc": "guide-network",
+          "heading": "RM-01 Network Configuration Guide / 6. Connect RM-01 to an Upstream Network through C3 / Prepare the adapter",
+          "score": 33.0445
+        },
+        {
+          "doc": "hardware-security",
+          "heading": "Original PDF page 6",
+          "score": 20.1197
+        },
+        {
+          "doc": "hardware-modules",
+          "heading": "Dedicated roles. One complete system. / Network module",
+          "score": 17.3111
+        },
+        {
+          "doc": "system-overview",
+          "heading": "Original diagram descriptions and labels",
+          "score": 15.5804
+        }
+      ]
+    },
+    {
+      "id": "tamper-zh",
+      "query": "拆壳或 RTC 电池断电有什么影响？",
+      "language": "zh",
+      "expected_docs": [
+        "hardware-security"
+      ],
+      "evidence_regex": "RTC",
+      "passed": true,
+      "results": [
+        {
+          "doc": "hardware-security",
+          "heading": "原 PDF 第 9",
+          "score": 23.4005
+        },
+        {
+          "doc": "hardware-security",
+          "heading": "Original PDF page 10",
+          "score": 7.8472
+        },
+        {
+          "doc": "guide-root",
+          "heading": "TianshanOS root 运维指南 / 第一部分：日常功能 / 3. 设备面板 / 控制 AGX 和 LPMU",
+          "score": 7.3424
+        },
+        {
+          "doc": "guide-root",
+          "heading": "TianshanOS root 运维指南 / 第一部分：日常功能 / 8. OTA 更新 / 首次从旧版本升级到 0.6.3",
+          "score": 6.6664
+        }
+      ]
+    },
+    {
+      "id": "tamper-en",
+      "query": "What happens if the enclosure is opened or the RTC battery loses power?",
+      "language": "en",
+      "expected_docs": [
+        "hardware-security"
+      ],
+      "evidence_regex": "RTC",
+      "passed": true,
+      "results": [
+        {
+          "doc": "hardware-security",
+          "heading": "Original PDF page 10",
+          "score": 41.5894
+        },
+        {
+          "doc": "hardware-security",
+          "heading": "Original PDF page 13",
+          "score": 14.5387
+        }
+      ]
+    },
+    {
+      "id": "hotswap-zh",
+      "query": "磁吸盖板下的接口能带电插拔吗？",
+      "language": "zh",
+      "expected_docs": [
+        "sample-loan",
+        "sample-loan-agreement",
+        "storage-card",
+        "connections"
+      ],
+      "evidence_regex": "断电|带电",
+      "passed": true,
+      "results": [
+        {
+          "doc": "sample-loan-agreement",
+          "heading": "RMinte RM-01 产品借用协议 / 六、使用、维护及数据",
+          "score": 8.74
+        },
+        {
+          "doc": "guide-network",
+          "heading": "RM-01 网络配置指南 / 2. 识别 C1 与 C3 / C1 接口",
+          "score": 6.7318
+        },
+        {
+          "doc": "guide-network",
+          "heading": "RM-01 网络配置指南 / 2. 识别 C1 与 C3 / C3 接口",
+          "score": 6.4983
+        },
+        {
+          "doc": "sample-loan",
+          "heading": "申请已提交。 / 当前公开重点提示",
+          "score": 5.8371
+        },
+        {
+          "doc": "connections",
+          "heading": "连接电源 接入世界",
+          "score": 5.6668
+        }
+      ]
+    },
+    {
+      "id": "hotswap-en",
+      "query": "Can I hot-plug the ports under the magnetic cover?",
+      "language": "en",
+      "expected_docs": [
+        "sample-loan",
+        "sample-loan-agreement",
+        "storage-card",
+        "connections"
+      ],
+      "evidence_regex": "power|plug",
+      "passed": true,
+      "results": [
+        {
+          "doc": "guide-network",
+          "heading": "RM-01 Network Configuration Guide / 2. Identify C1 and C3 / C3 port",
+          "score": 19.6488
+        },
+        {
+          "doc": "sample-loan",
+          "heading": "Application submitted. / Current public key notices",
+          "score": 9.6541
+        },
+        {
+          "doc": "sample-loan",
+          "heading": "Demo unit application / Confirm before submitting",
+          "score": 8.6936
+        },
+        {
+          "doc": "guide-root",
+          "heading": "TianshanOS Root Operations Guide / Part II: Root-only Functions / 11. Manage and Run Remote Commands / Select a Host and View Commands",
+          "score": 6.927
+        },
+        {
+          "doc": "guide-security",
+          "heading": "TianShanOS Security Page Guide / 3. Connect to a server with an SSH key / 3.2 Deploy the public key",
+          "score": 6.544
+        }
+      ]
+    },
+    {
+      "id": "apply-zh",
+      "query": "如何申请 RM-01 样机？",
+      "language": "zh",
+      "expected_docs": [
+        "sample-loan"
+      ],
+      "evidence_regex": "申请",
+      "passed": true,
+      "results": [
+        {
+          "doc": "sample-loan",
+          "heading": "样机申请流程",
+          "score": 19.1738
+        },
+        {
+          "doc": "sample-loan",
+          "heading": "申请已提交。 / 申请型号",
+          "score": 18.2098
+        },
+        {
+          "doc": "company-contact",
+          "heading": "联系我们",
+          "score": 11.6541
+        },
+        {
+          "doc": "sample-loan-agreement",
+          "heading": "RMinte RM-01 产品借用协议 / 附件：本次样机交付记录",
+          "score": 11.2144
+        },
+        {
+          "doc": "sample-loan-agreement",
+          "heading": "RMinte RM-01 产品借用协议 / 三、借用产品与交付记录",
+          "score": 10.625
+        }
+      ]
+    },
+    {
+      "id": "apply-en",
+      "query": "How can I apply for an RM-01 sample loan?",
+      "language": "en",
+      "expected_docs": [
+        "sample-loan"
+      ],
+      "evidence_regex": "application|apply",
+      "passed": true,
+      "results": [
+        {
+          "doc": "sample-loan",
+          "heading": "Applying for a sample loan",
+          "score": 42.9535
+        },
+        {
+          "doc": "sample-loan",
+          "heading": "Application submitted. / Confirm loan application",
+          "score": 33.8127
+        },
+        {
+          "doc": "sample-loan-agreement",
+          "heading": "Sample-loan agreement",
+          "score": 33.7968
+        },
+        {
+          "doc": "company-contact",
+          "heading": "Contact us",
+          "score": 30.2851
+        },
+        {
+          "doc": "sample-loan-agreement",
+          "heading": "RMinte RM-01 产品借用协议",
+          "score": 26.83
+        }
+      ]
+    },
+    {
+      "id": "fees-zh",
+      "query": "样机押金是多少，往返运费由谁承担？",
+      "language": "zh",
+      "expected_docs": [
+        "sample-loan",
+        "sample-loan-agreement"
+      ],
+      "evidence_regex": "30,000|30，000|30000",
+      "passed": true,
+      "results": [
+        {
+          "doc": "sample-loan",
+          "heading": "申请已提交。 / 当前公开重点提示",
+          "score": 32.8791
+        },
+        {
+          "doc": "sample-loan",
+          "heading": "样机申请 / 提交前请确认",
+          "score": 31.2521
+        },
+        {
+          "doc": "sample-loan-agreement",
+          "heading": "RMinte RM-01 产品借用协议 / 七、产品归还与验收",
+          "score": 19.3872
+        },
+        {
+          "doc": "sample-loan-agreement",
+          "heading": "RMinte RM-01 产品借用协议 / 附件：本次样机交付记录",
+          "score": 17.9249
+        }
+      ]
+    },
+    {
+      "id": "fees-en",
+      "query": "What is the sample loan deposit and who pays shipping both ways?",
+      "language": "en",
+      "expected_docs": [
+        "sample-loan",
+        "sample-loan-agreement"
+      ],
+      "evidence_regex": "30,000|30，000|30000",
+      "passed": true,
+      "results": [
+        {
+          "doc": "sample-loan",
+          "heading": "Applying for a sample loan",
+          "score": 50.8108
+        },
+        {
+          "doc": "sample-loan",
+          "heading": "Demo unit application / Confirm before submitting",
+          "score": 41.4347
+        },
+        {
+          "doc": "sample-loan-agreement",
+          "heading": "Sample-loan agreement",
+          "score": 33.7968
+        },
+        {
+          "doc": "sample-loan-agreement",
+          "heading": "RMinte RM-01 产品借用协议",
+          "score": 26.83
+        },
+        {
+          "doc": "models",
+          "heading": "Deeper analysis. More efficient inference. / stages",
+          "score": 24.3581
+        }
+      ]
+    },
+    {
+      "id": "approval-zh",
+      "query": "提交样机申请是不是代表借用获批？",
+      "language": "zh",
+      "expected_docs": [
+        "sample-loan",
+        "sample-loan-agreement"
+      ],
+      "evidence_regex": "不代表",
+      "passed": true,
+      "results": [
+        {
+          "doc": "sample-loan",
+          "heading": "样机申请",
+          "score": 72.6555
+        },
+        {
+          "doc": "sample-loan",
+          "heading": "样机申请流程",
+          "score": 60.6146
+        },
+        {
+          "doc": "sample-loan-agreement",
+          "heading": "RMinte RM-01 产品借用协议 / 二、申请、批复与协议交付",
+          "score": 49.1264
+        },
+        {
+          "doc": "sample-loan-agreement",
+          "heading": "RMinte RM-01 产品借用协议",
+          "score": 47.7175
+        },
+        {
+          "doc": "company-contact",
+          "heading": "联系我们",
+          "score": 35.7233
+        }
+      ]
+    },
+    {
+      "id": "approval-en",
+      "query": "Does submitting a sample loan application mean approval?",
+      "language": "en",
+      "expected_docs": [
+        "sample-loan",
+        "sample-loan-agreement"
+      ],
+      "evidence_regex": "does not mean|does not constitute|subject to approval",
+      "passed": true,
+      "results": [
+        {
+          "doc": "sample-loan",
+          "heading": "Applying for a sample loan",
+          "score": 53.5174
+        },
+        {
+          "doc": "sample-loan",
+          "heading": "Demo unit application / Confirm before submitting",
+          "score": 41.6276
+        },
+        {
+          "doc": "sample-loan-agreement",
+          "heading": "Sample-loan agreement",
+          "score": 33.7968
+        },
+        {
+          "doc": "sample-loan-agreement",
+          "heading": "RMinte RM-01 产品借用协议",
+          "score": 26.83
+        },
+        {
+          "doc": "models",
+          "heading": "Deeper analysis. More efficient inference. / stages",
+          "score": 24.3581
+        }
+      ]
+    },
+    {
+      "id": "agreement-zh",
+      "query": "有官方英文完整借用合同吗？",
+      "language": "zh",
+      "expected_docs": [
+        "sample-loan-agreement",
+        "sample-loan"
+      ],
+      "evidence_regex": "中文|协议",
+      "passed": true,
+      "results": [
+        {
+          "doc": "sample-loan-agreement",
+          "heading": "RMinte RM-01 产品借用协议",
+          "score": 34.8789
+        },
+        {
+          "doc": "sample-loan-agreement",
+          "heading": "RMinte RM-01 产品借用协议 / 十一、争议解决及其他",
+          "score": 33.6257
+        },
+        {
+          "doc": "sample-loan",
+          "heading": "申请已提交。 / 确认借用申请",
+          "score": 32.6529
+        },
+        {
+          "doc": "sample-loan",
+          "heading": "样机申请",
+          "score": 31.6019
+        },
+        {
+          "doc": "company-contact",
+          "heading": "联系我们",
+          "score": 24.0692
+        }
+      ]
+    },
+    {
+      "id": "agreement-en",
+      "query": "Is there an official English full loan agreement?",
+      "language": "en",
+      "expected_docs": [
+        "sample-loan-agreement",
+        "sample-loan"
+      ],
+      "evidence_regex": "Chinese|No official English",
+      "passed": true,
+      "results": [
+        {
+          "doc": "sample-loan-agreement",
+          "heading": "Sample-loan agreement",
+          "score": 51.1985
+        },
+        {
+          "doc": "sample-loan",
+          "heading": "Application submitted. / Confirm loan application",
+          "score": 37.6426
+        },
+        {
+          "doc": "sample-loan",
+          "heading": "Demo unit application / Confirm before submitting",
+          "score": 33.0826
+        },
+        {
+          "doc": "company-identification",
+          "heading": "Published company identification",
+          "score": 28.1728
+        },
+        {
+          "doc": "sample-loan-agreement",
+          "heading": "RMinte RM-01 产品借用协议",
+          "score": 26.83
+        }
+      ]
+    },
+    {
+      "id": "contact-zh",
+      "query": "售前售后和渠道合作分别联系哪个邮箱？",
+      "language": "zh",
+      "expected_docs": [
+        "company-contact"
+      ],
+      "evidence_regex": "support@rminte.com|jiezhu@rminte.com",
+      "passed": true,
+      "results": [
+        {
+          "doc": "company-contact",
+          "heading": "联系我们",
+          "score": 24.8168
+        },
+        {
+          "doc": "sample-loan",
+          "heading": "样机申请",
+          "score": 15.3841
+        },
+        {
+          "doc": "homepage-source-copy",
+          "heading": "ui / salesContact",
+          "score": 14.3152
+        },
+        {
+          "doc": "sample-loan",
+          "heading": "申请已提交。",
+          "score": 14.0337
+        },
+        {
+          "doc": "cases-overview",
+          "heading": "让 AI 走进 具体的工作。 / 交通服务 / AI 数字收费员",
+          "score": 12.3851
+        }
+      ]
+    },
+    {
+      "id": "contact-en",
+      "query": "Which emails handle support and sales channel partnerships?",
+      "language": "en",
+      "expected_docs": [
+        "company-contact"
+      ],
+      "evidence_regex": "support@rminte.com|jiezhu@rminte.com",
+      "passed": true,
+      "results": [
+        {
+          "doc": "company-contact",
+          "heading": "Contact us",
+          "score": 31.7248
+        },
+        {
+          "doc": "homepage-source-copy",
+          "heading": "ui / salesContact",
+          "score": 22.5637
+        },
+        {
+          "doc": "system-overview",
+          "heading": "TianshanOS Bringing the system together",
+          "score": 6.8175
+        },
+        {
+          "doc": "guide-security",
+          "heading": "TianShanOS Security Page Guide / 7. Troubleshooting and incident response / 7.1 Common problems",
+          "score": 6.7431
+        }
+      ]
+    },
+    {
+      "id": "capital-zh",
+      "query": "公司注册资本是多少？",
+      "language": "zh",
+      "expected_docs": [],
+      "evidence_regex": null,
+      "passed": true,
+      "results": []
+    },
+    {
+      "id": "capital-en",
+      "query": "What is the company registered capital?",
+      "language": "en",
+      "expected_docs": [],
+      "evidence_regex": null,
+      "passed": true,
+      "results": []
+    },
+    {
+      "id": "latest-zh",
+      "query": "现在最新固件是什么版本？",
+      "language": "zh",
+      "expected_docs": [
+        "ota-service",
+        "demonstrations-and-releases"
+      ],
+      "evidence_regex": "快照|2026-10-30",
+      "passed": true,
+      "results": [
+        {
+          "doc": "ota-service",
+          "heading": "OTA 更新服务 / 当前发布",
+          "score": 11.3205
+        },
+        {
+          "doc": "guide-admin",
+          "heading": "TianshanOS admin 日常使用指南 / 8. OTA 更新 / 从 OTA 服务器检查更新",
+          "score": 8.448
+        },
+        {
+          "doc": "guide-root",
+          "heading": "TianshanOS root 运维指南 / 第一部分：日常功能 / 8. OTA 更新 / 从 OTA 服务器检查更新",
+          "score": 8.3869
+        },
+        {
+          "doc": "guide-root",
+          "heading": "TianshanOS root 运维指南 / 第二部分：root 专属功能 / 10. 终端与系统日志 / 查看系统日志",
+          "score": 6.0565
+        },
+        {
+          "doc": "guide-admin",
+          "heading": "TianshanOS admin 日常使用指南 / 8. OTA 更新 / 分区管理与回滚",
+          "score": 4.3061
+        }
+      ]
+    },
+    {
+      "id": "latest-en",
+      "query": "What is the latest firmware release right now?",
+      "language": "en",
+      "expected_docs": [
+        "ota-service",
+        "demonstrations-and-releases"
+      ],
+      "evidence_regex": "snapshot|2026-10-30",
+      "passed": true,
+      "results": [
+        {
+          "doc": "ota-service",
+          "heading": "OTA update service / Current release",
+          "score": 18.3539
+        },
+        {
+          "doc": "downloads",
+          "heading": "Download center / Firmware & software / TianshanOS firmware",
+          "score": 12.2594
+        },
+        {
+          "doc": "downloads",
+          "heading": "Download center / Firmware & software / RM-01 Internet Connector · Windows",
+          "score": 11.8095
+        },
+        {
+          "doc": "demonstrations-and-releases",
+          "heading": "Website demonstrations and real devices",
+          "score": 10.2112
+        },
+        {
+          "doc": "guide-admin",
+          "heading": "TianshanOS Admin User Guide / 8. OTA Updates / Manual Upgrade",
+          "score": 8.1273
+        }
+      ]
+    },
+    {
+      "id": "demo-zh",
+      "query": "官网演示里的数据是真实设备数据吗？",
+      "language": "zh",
+      "expected_docs": [
+        "demonstrations-and-releases"
+      ],
+      "evidence_regex": "模拟",
+      "passed": true,
+      "results": [
+        {
+          "doc": "demonstrations-and-releases",
+          "heading": "官网演示与真实设备的区别",
+          "score": 19.727
+        },
+        {
+          "doc": "cases-overview",
+          "heading": "让 AI 走进 具体的工作。",
+          "score": 11.9021
+        },
+        {
+          "doc": "case-energy-dispatch",
+          "heading": "AI 节能调度专家",
+          "score": 11.1274
+        },
+        {
+          "doc": "case-document-knowledge",
+          "heading": "AI 文档识别与翻译知识库",
+          "score": 11.0064
+        },
+        {
+          "doc": "case-official-writing",
+          "heading": "AI 公文写作助手",
+          "score": 11.0064
+        }
+      ]
+    },
+    {
+      "id": "demo-en",
+      "query": "Are the website demo readings real device measurements?",
+      "language": "en",
+      "expected_docs": [
+        "demonstrations-and-releases"
+      ],
+      "evidence_regex": "simulat",
+      "passed": true,
+      "results": [
+        {
+          "doc": "demonstrations-and-releases",
+          "heading": "Website demonstrations and real devices",
+          "score": 22.886
+        },
+        {
+          "doc": "cases-overview",
+          "heading": "Bringing AI into real work. / Transport",
+          "score": 15.6251
+        },
+        {
+          "doc": "cases-overview",
+          "heading": "Bringing AI into real work. / Documents and knowledge",
+          "score": 15.4396
+        },
+        {
+          "doc": "guide-network",
+          "heading": "RM-01 Network Configuration Guide / 4. Keep Internet Access and Share It with RM-01 / Use the RM-01 Network Connection Tool",
+          "score": 9.1359
+        }
+      ]
+    },
+    {
+      "id": "history-zh",
+      "query": "当前所有配置是不是都有 256GB？",
+      "language": "zh",
+      "expected_docs": [
+        "hardware-modules",
+        "sample-loan"
+      ],
+      "evidence_regex": "64|128|32",
+      "passed": true,
+      "results": [
+        {
+          "doc": "hardware-modules",
+          "heading": "各司其职，整机交付 / Agent 与应用模组",
+          "score": 9.2835
+        },
+        {
+          "doc": "hardware-modules",
+          "heading": "各司其职，整机交付 / 推理模组",
+          "score": 8.5332
+        },
+        {
+          "doc": "homepage-source-copy",
+          "heading": "modules / spec",
+          "score": 7.9365
+        },
+        {
+          "doc": "homepage-source-copy",
+          "heading": "modules / spec",
+          "score": 7.2135
+        }
+      ]
+    },
+    {
+      "id": "history-en",
+      "query": "Do all current configurations have 256GB memory?",
+      "language": "en",
+      "expected_docs": [
+        "hardware-modules",
+        "sample-loan"
+      ],
+      "evidence_regex": "64|128|32",
+      "passed": true,
+      "results": [
+        {
+          "doc": "hardware-modules",
+          "heading": "Dedicated roles. One complete system. / Inference module",
+          "score": 20.0475
+        },
+        {
+          "doc": "homepage-source-copy",
+          "heading": "modules / spec",
+          "score": 17.9478
+        },
+        {
+          "doc": "hardware-modules",
+          "heading": "各司其职，整机交付 / 推理模组",
+          "score": 16.4915
+        },
+        {
+          "doc": "models",
+          "heading": "Deeper analysis. More efficient inference. / From architecture to training. Built for professional work. From hardware to inference. Unlock model performance. / Hardware-specific computation paths",
+          "score": 13.3555
+        },
+        {
+          "doc": "inference-engine",
+          "heading": "Compute that takes on more tasks",
+          "score": 13.0167
+        }
+      ]
+    },
+    {
+      "id": "led-zh",
+      "query": "灯板图形转换工具可以做什么？",
+      "language": "zh",
+      "expected_docs": [
+        "led-tool",
+        "downloads"
+      ],
+      "evidence_regex": "灯板|像素|LED",
+      "passed": true,
+      "results": [
+        {
+          "doc": "led-tool",
+          "heading": "灯板图形转换工具",
+          "score": 43.3155
+        },
+        {
+          "doc": "led-tool",
+          "heading": "灯板图形转换工具 / 调整",
+          "score": 28.8088
+        },
+        {
+          "doc": "downloads",
+          "heading": "下载中心 / 在线工具 / RM-01 灯板图形转换工具",
+          "score": 25.9869
+        },
+        {
+          "doc": "case-document-knowledge",
+          "heading": "AI 文档识别与翻译知识库",
+          "score": 6.759
+        },
+        {
+          "doc": "cases-overview",
+          "heading": "让 AI 走进 具体的工作。 / 文档与知识 / AI 文档识别与翻译知识库",
+          "score": 6.3137
+        }
+      ]
+    },
+    {
+      "id": "led-en",
+      "query": "What can the LED matrix graphics converter do?",
+      "language": "en",
+      "expected_docs": [
+        "led-tool",
+        "downloads"
+      ],
+      "evidence_regex": "LED|pixel",
+      "passed": true,
+      "results": [
+        {
+          "doc": "downloads",
+          "heading": "Download center / Online tools / RM-01 LED matrix graphics converter",
+          "score": 41.02
+        },
+        {
+          "doc": "led-tool",
+          "heading": "LED graphics studio / Send to matrix",
+          "score": 30.9386
+        },
+        {
+          "doc": "led-tool",
+          "heading": "LED graphics studio / Display settings",
+          "score": 27.5735
+        },
+        {
+          "doc": "guide-admin",
+          "heading": "TianshanOS Admin User Guide / 5. LED Management / Advanced LED Matrix Features",
+          "score": 17.1444
+        },
+        {
+          "doc": "guide-root",
+          "heading": "TianshanOS Root Operations Guide / Part II: Root-only Functions / 12. Automation Management / Create and Test Action Templates",
+          "score": 7.8268
+        }
+      ]
+    },
+    {
+      "id": "case-digital-toll-zh",
+      "query": "介绍一下AI 数字收费员案例及其公开内容。",
+      "language": "zh",
+      "expected_docs": [
+        "case-digital-toll"
+      ],
+      "evidence_regex": "AI 数字收费员",
+      "passed": true,
+      "results": [
+        {
+          "doc": "case-digital-toll",
+          "heading": "AI 数字收费员",
+          "score": 51.7024
+        },
+        {
+          "doc": "cases-overview",
+          "heading": "让 AI 走进 具体的工作。 / 交通服务 / AI 数字收费员",
+          "score": 49.1798
+        },
+        {
+          "doc": "cases-overview",
+          "heading": "让 AI 走进 具体的工作。 / 交通服务 / 高速公路现场智能协同",
+          "score": 16.3493
+        },
+        {
+          "doc": "case-highway-coordination",
+          "heading": "高速公路现场智能协同",
+          "score": 12.1203
+        },
+        {
+          "doc": "models",
+          "heading": "专业分析，更深入。 模型推理，更高效。 / name",
+          "score": 10.3784
+        }
+      ]
+    },
+    {
+      "id": "case-digital-toll-en",
+      "query": "Describe the published AI Digital Toll Operator application case.",
+      "language": "en",
+      "expected_docs": [
+        "case-digital-toll"
+      ],
+      "evidence_regex": "AI Digital Toll Operator",
+      "passed": true,
+      "results": [
+        {
+          "doc": "case-digital-toll",
+          "heading": "AI Digital Toll Operator",
+          "score": 64.721
+        },
+        {
+          "doc": "cases-overview",
+          "heading": "Bringing AI into real work. / Transport / AI Digital Toll Operator",
+          "score": 57.8566
+        },
+        {
+          "doc": "cases-overview",
+          "heading": "Bringing AI into real work. / Transport / Intelligent Highway Field Coordination",
+          "score": 10.4924
+        },
+        {
+          "doc": "models",
+          "heading": "Deeper analysis. More efficient inference. / name",
+          "score": 8.6407
+        },
+        {
+          "doc": "case-highway-coordination",
+          "heading": "Intelligent Highway Field Coordination",
+          "score": 7.7324
+        }
+      ]
+    },
+    {
+      "id": "case-asset-audit-zh",
+      "query": "介绍一下AI 信息资产审计案例及其公开内容。",
+      "language": "zh",
+      "expected_docs": [
+        "case-asset-audit"
+      ],
+      "evidence_regex": "AI 信息资产审计",
+      "passed": true,
+      "results": [
+        {
+          "doc": "case-asset-audit",
+          "heading": "AI 信息资产审计",
+          "score": 63.9515
+        },
+        {
+          "doc": "cases-overview",
+          "heading": "让 AI 走进 具体的工作。 / 企业运营 / AI 信息资产审计",
+          "score": 60.1094
+        },
+        {
+          "doc": "cases-overview",
+          "heading": "让 AI 走进 具体的工作。 / 公共事务 / 基层事务 AI 助理",
+          "score": 15.7656
+        },
+        {
+          "doc": "case-community-assistant",
+          "heading": "基层事务 AI 助理",
+          "score": 13.4319
+        },
+        {
+          "doc": "case-legal-materials",
+          "heading": "刑事律师材料与线索 AI 整理师",
+          "score": 12.7813
+        }
+      ]
+    },
+    {
+      "id": "case-asset-audit-en",
+      "query": "Describe the published AI Information Asset Audit application case.",
+      "language": "en",
+      "expected_docs": [
+        "case-asset-audit"
+      ],
+      "evidence_regex": "AI Information Asset Audit",
+      "passed": true,
+      "results": [
+        {
+          "doc": "case-asset-audit",
+          "heading": "AI Information Asset Audit",
+          "score": 48.0071
+        },
+        {
+          "doc": "cases-overview",
+          "heading": "Bringing AI into real work. / Enterprise operations / AI Information Asset Audit",
+          "score": 43.1962
+        },
+        {
+          "doc": "case-community-assistant",
+          "heading": "Community Affairs AI Assistant",
+          "score": 8.9824
+        },
+        {
+          "doc": "cases-overview",
+          "heading": "Bringing AI into real work. / Public affairs / Community Affairs AI Assistant",
+          "score": 8.7464
+        },
+        {
+          "doc": "case-legal-materials",
+          "heading": "AI Organiser for Criminal Defence Materials and Leads",
+          "score": 8.4964
+        }
+      ]
+    },
+    {
+      "id": "case-community-assistant-zh",
+      "query": "介绍一下基层事务 AI 助理案例及其公开内容。",
+      "language": "zh",
+      "expected_docs": [
+        "case-community-assistant"
+      ],
+      "evidence_regex": "基层事务 AI 助理",
+      "passed": true,
+      "results": [
+        {
+          "doc": "case-community-assistant",
+          "heading": "基层事务 AI 助理",
+          "score": 72.744
+        },
+        {
+          "doc": "cases-overview",
+          "heading": "让 AI 走进 具体的工作。 / 公共事务 / 基层事务 AI 助理",
+          "score": 66.8984
+        },
+        {
+          "doc": "cases-overview",
+          "heading": "让 AI 走进 具体的工作。 / 公共事务",
+          "score": 19.6778
+        },
+        {
+          "doc": "case-drone-analysis",
+          "heading": "无人机机场 AI 分析师",
+          "score": 14.8013
+        }
+      ]
+    },
+    {
+      "id": "case-community-assistant-en",
+      "query": "Describe the published Community Affairs AI Assistant application case.",
+      "language": "en",
+      "expected_docs": [
+        "case-community-assistant"
+      ],
+      "evidence_regex": "Community Affairs AI Assistant",
+      "passed": true,
+      "results": [
+        {
+          "doc": "case-community-assistant",
+          "heading": "Community Affairs AI Assistant",
+          "score": 66.917
+        },
+        {
+          "doc": "cases-overview",
+          "heading": "Bringing AI into real work. / Public affairs / Community Affairs AI Assistant",
+          "score": 60.246
+        },
+        {
+          "doc": "case-official-writing",
+          "heading": "AI Official Writing Assistant",
+          "score": 16.2262
+        },
+        {
+          "doc": "cases-overview",
+          "heading": "Bringing AI into real work. / Public affairs",
+          "score": 15.1154
+        },
+        {
+          "doc": "case-drone-analysis",
+          "heading": "Drone Airport AI Analyst",
+          "score": 11.4597
+        }
+      ]
+    },
+    {
+      "id": "case-energy-dispatch-zh",
+      "query": "介绍一下AI 节能调度专家案例及其公开内容。",
+      "language": "zh",
+      "expected_docs": [
+        "case-energy-dispatch"
+      ],
+      "evidence_regex": "AI 节能调度专家",
+      "passed": true,
+      "results": [
+        {
+          "doc": "case-energy-dispatch",
+          "heading": "AI 节能调度专家",
+          "score": 47.5567
+        },
+        {
+          "doc": "cases-overview",
+          "heading": "让 AI 走进 具体的工作。 / 企业运营 / AI 节能调度专家",
+          "score": 44.4313
+        },
+        {
+          "doc": "models",
+          "heading": "专业分析，更深入。 模型推理，更高效。 / 从架构到训练， 构建专业能力。 从硬件到推理， 释放模型性能。 / 稀疏专家与 Fused MoE",
+          "score": 14.5025
+        },
+        {
+          "doc": "cases-overview",
+          "heading": "让 AI 走进 具体的工作。 / 文档与知识",
+          "score": 10.9369
+        },
+        {
+          "doc": "models",
+          "heading": "专业分析，更深入。 模型推理，更高效。 / 从架构到训练， 构建专业能力。 从硬件到推理， 释放模型性能。 / N-gram 条件记忆",
+          "score": 10.5551
+        }
+      ]
+    },
+    {
+      "id": "case-energy-dispatch-en",
+      "query": "Describe the published AI Energy Dispatch Expert application case.",
+      "language": "en",
+      "expected_docs": [
+        "case-energy-dispatch"
+      ],
+      "evidence_regex": "AI Energy Dispatch Expert",
+      "passed": true,
+      "results": [
+        {
+          "doc": "case-energy-dispatch",
+          "heading": "AI Energy Dispatch Expert",
+          "score": 65.7561
+        },
+        {
+          "doc": "cases-overview",
+          "heading": "Bringing AI into real work. / Enterprise operations / AI Energy Dispatch Expert",
+          "score": 58.914
+        },
+        {
+          "doc": "models",
+          "heading": "Deeper analysis. More efficient inference. / From architecture to training. Built for professional work. From hardware to inference. Unlock model performance. / Sparse experts & Fused MoE",
+          "score": 11.2586
+        },
+        {
+          "doc": "inference-engine",
+          "heading": "Compute that takes on more tasks / A system shaped by inference",
+          "score": 6.4567
+        },
+        {
+          "doc": "models",
+          "heading": "Deeper analysis. More efficient inference. / From architecture to training. Built for professional work. From hardware to inference. Unlock model performance. / Adjusting value & safety alignment",
+          "score": 5.2627
+        }
+      ]
+    },
+    {
+      "id": "case-document-knowledge-zh",
+      "query": "介绍一下AI 文档识别与翻译知识库案例及其公开内容。",
+      "language": "zh",
+      "expected_docs": [
+        "case-document-knowledge"
+      ],
+      "evidence_regex": "AI 文档识别与翻译知识库",
+      "passed": true,
+      "results": [
+        {
+          "doc": "case-document-knowledge",
+          "heading": "AI 文档识别与翻译知识库",
+          "score": 62.3946
+        },
+        {
+          "doc": "cases-overview",
+          "heading": "让 AI 走进 具体的工作。 / 文档与知识 / AI 文档识别与翻译知识库",
+          "score": 59.2732
+        },
+        {
+          "doc": "cases-overview",
+          "heading": "让 AI 走进 具体的工作。 / 文档与知识 / AI 企业档案管理",
+          "score": 22.306
+        },
+        {
+          "doc": "case-archive-management",
+          "heading": "AI 企业档案管理",
+          "score": 21.0141
+        },
+        {
+          "doc": "models",
+          "heading": "专业分析，更深入。 模型推理，更高效。 / stages",
+          "score": 13.6629
+        }
+      ]
+    },
+    {
+      "id": "case-document-knowledge-en",
+      "query": "Describe the published AI Document Recognition, Translation and Knowledge Base application case.",
+      "language": "en",
+      "expected_docs": [
+        "case-document-knowledge"
+      ],
+      "evidence_regex": "AI Document Recognition, Translation and Knowledge Base",
+      "passed": true,
+      "results": [
+        {
+          "doc": "case-document-knowledge",
+          "heading": "AI Document Recognition, Translation and Knowledge Base",
+          "score": 83.9879
+        },
+        {
+          "doc": "cases-overview",
+          "heading": "Bringing AI into real work. / Documents and knowledge / AI Document Recognition, Translation and Knowledge Base",
+          "score": 76.9584
+        },
+        {
+          "doc": "cases-overview",
+          "heading": "Bringing AI into real work. / Documents and knowledge / AI Enterprise Archive Management",
+          "score": 21.2687
+        },
+        {
+          "doc": "case-archive-management",
+          "heading": "AI Enterprise Archive Management",
+          "score": 19.7875
+        },
+        {
+          "doc": "case-official-writing",
+          "heading": "AI Official Writing Assistant",
+          "score": 13.1949
+        }
+      ]
+    },
+    {
+      "id": "case-official-writing-zh",
+      "query": "介绍一下AI 公文写作助手案例及其公开内容。",
+      "language": "zh",
+      "expected_docs": [
+        "case-official-writing"
+      ],
+      "evidence_regex": "AI 公文写作助手",
+      "passed": true,
+      "results": [
+        {
+          "doc": "case-official-writing",
+          "heading": "AI 公文写作助手",
+          "score": 79.8189
+        },
+        {
+          "doc": "cases-overview",
+          "heading": "让 AI 走进 具体的工作。 / 文档与知识 / AI 公文写作助手",
+          "score": 73.1085
+        },
+        {
+          "doc": "models",
+          "heading": "专业分析，更深入。 模型推理，更高效。 / 从架构到训练， 构建专业能力。 从硬件到推理， 释放模型性能。 / 领域适配与 Agent 训练",
+          "score": 6.736
+        }
+      ]
+    },
+    {
+      "id": "case-official-writing-en",
+      "query": "Describe the published AI Official Writing Assistant application case.",
+      "language": "en",
+      "expected_docs": [
+        "case-official-writing"
+      ],
+      "evidence_regex": "AI Official Writing Assistant",
+      "passed": true,
+      "results": [
+        {
+          "doc": "case-official-writing",
+          "heading": "AI Official Writing Assistant",
+          "score": 61.7967
+        },
+        {
+          "doc": "cases-overview",
+          "heading": "Bringing AI into real work. / Documents and knowledge / AI Official Writing Assistant",
+          "score": 54.3341
+        },
+        {
+          "doc": "case-community-assistant",
+          "heading": "Community Affairs AI Assistant",
+          "score": 16.2327
+        },
+        {
+          "doc": "cases-overview",
+          "heading": "Bringing AI into real work. / Public affairs / Community Affairs AI Assistant",
+          "score": 13.9496
+        },
+        {
+          "doc": "ota-service",
+          "heading": "OTA update service",
+          "score": 7.7272
+        }
+      ]
+    },
+    {
+      "id": "case-archive-management-zh",
+      "query": "介绍一下AI 企业档案管理案例及其公开内容。",
+      "language": "zh",
+      "expected_docs": [
+        "case-archive-management"
+      ],
+      "evidence_regex": "AI 企业档案管理",
+      "passed": true,
+      "results": [
+        {
+          "doc": "case-archive-management",
+          "heading": "AI 企业档案管理",
+          "score": 55.2382
+        },
+        {
+          "doc": "cases-overview",
+          "heading": "让 AI 走进 具体的工作。 / 文档与知识 / AI 企业档案管理",
+          "score": 51.6363
+        },
+        {
+          "doc": "cases-overview",
+          "heading": "让 AI 走进 具体的工作。 / 企业运营",
+          "score": 19.3828
+        },
+        {
+          "doc": "case-energy-dispatch",
+          "heading": "AI 节能调度专家",
+          "score": 15.1508
+        },
+        {
+          "doc": "case-asset-audit",
+          "heading": "AI 信息资产审计",
+          "score": 14.8025
+        }
+      ]
+    },
+    {
+      "id": "case-archive-management-en",
+      "query": "Describe the published AI Enterprise Archive Management application case.",
+      "language": "en",
+      "expected_docs": [
+        "case-archive-management"
+      ],
+      "evidence_regex": "AI Enterprise Archive Management",
+      "passed": true,
+      "results": [
+        {
+          "doc": "case-archive-management",
+          "heading": "AI Enterprise Archive Management",
+          "score": 48.7483
+        },
+        {
+          "doc": "cases-overview",
+          "heading": "Bringing AI into real work. / Documents and knowledge / AI Enterprise Archive Management",
+          "score": 43.4104
+        },
+        {
+          "doc": "cases-overview",
+          "heading": "Bringing AI into real work. / Enterprise operations",
+          "score": 13.33
+        },
+        {
+          "doc": "case-energy-dispatch",
+          "heading": "AI Energy Dispatch Expert",
+          "score": 10.4979
+        },
+        {
+          "doc": "case-asset-audit",
+          "heading": "AI Information Asset Audit",
+          "score": 10.3617
+        }
+      ]
+    },
+    {
+      "id": "case-drone-analysis-zh",
+      "query": "介绍一下无人机机场 AI 分析师案例及其公开内容。",
+      "language": "zh",
+      "expected_docs": [
+        "case-drone-analysis"
+      ],
+      "evidence_regex": "无人机机场 AI 分析师",
+      "passed": true,
+      "results": [
+        {
+          "doc": "case-drone-analysis",
+          "heading": "无人机机场 AI 分析师",
+          "score": 67.7435
+        },
+        {
+          "doc": "cases-overview",
+          "heading": "让 AI 走进 具体的工作。 / 公共事务 / 无人机机场 AI 分析师",
+          "score": 61.4345
+        },
+        {
+          "doc": "cases-overview",
+          "heading": "让 AI 走进 具体的工作。 / 企业运营 / AI 节能调度专家",
+          "score": 14.3054
+        },
+        {
+          "doc": "case-energy-dispatch",
+          "heading": "AI 节能调度专家",
+          "score": 13.4973
+        },
+        {
+          "doc": "models",
+          "heading": "专业分析，更深入。 模型推理，更高效。 / stages",
+          "score": 12.6956
+        }
+      ]
+    },
+    {
+      "id": "case-drone-analysis-en",
+      "query": "Describe the published Drone Airport AI Analyst application case.",
+      "language": "en",
+      "expected_docs": [
+        "case-drone-analysis"
+      ],
+      "evidence_regex": "Drone Airport AI Analyst",
+      "passed": true,
+      "results": [
+        {
+          "doc": "case-drone-analysis",
+          "heading": "Drone Airport AI Analyst",
+          "score": 70.6118
+        },
+        {
+          "doc": "cases-overview",
+          "heading": "Bringing AI into real work. / Public affairs / Drone Airport AI Analyst",
+          "score": 60.6398
+        }
+      ]
+    },
+    {
+      "id": "case-industrial-modeling-zh",
+      "query": "介绍一下AI 汽车研发与工业建模案例及其公开内容。",
+      "language": "zh",
+      "expected_docs": [
+        "case-industrial-modeling"
+      ],
+      "evidence_regex": "AI 汽车研发与工业建模",
+      "passed": true,
+      "results": [
+        {
+          "doc": "case-industrial-modeling",
+          "heading": "AI 汽车研发与工业建模",
+          "score": 57.8286
+        },
+        {
+          "doc": "cases-overview",
+          "heading": "让 AI 走进 具体的工作。 / 工业研发 / AI 汽车研发与工业建模",
+          "score": 55.858
+        },
+        {
+          "doc": "cases-overview",
+          "heading": "让 AI 走进 具体的工作。 / 工业研发 / AI 汽车功能安全检测",
+          "score": 35.1152
+        },
+        {
+          "doc": "case-functional-safety",
+          "heading": "AI 汽车功能安全检测",
+          "score": 32.0358
+        },
+        {
+          "doc": "case-energy-dispatch",
+          "heading": "AI 节能调度专家",
+          "score": 9.0424
+        }
+      ]
+    },
+    {
+      "id": "case-industrial-modeling-en",
+      "query": "Describe the published AI Automotive R&D and Industrial Modelling application case.",
+      "language": "en",
+      "expected_docs": [
+        "case-industrial-modeling"
+      ],
+      "evidence_regex": "AI Automotive R&D and Industrial Modelling",
+      "passed": true,
+      "results": [
+        {
+          "doc": "case-industrial-modeling",
+          "heading": "AI Automotive R&D and Industrial Modelling",
+          "score": 83.2675
+        },
+        {
+          "doc": "cases-overview",
+          "heading": "Bringing AI into real work. / Industrial R&D / AI Automotive R&D and Industrial Modelling",
+          "score": 76.843
+        },
+        {
+          "doc": "cases-overview",
+          "heading": "Bringing AI into real work. / Industrial R&D / AI Automotive Functional Safety Inspection",
+          "score": 35.0882
+        },
+        {
+          "doc": "case-functional-safety",
+          "heading": "AI Automotive Functional Safety Inspection",
+          "score": 31.6082
+        },
+        {
+          "doc": "models",
+          "heading": "Deeper analysis. More efficient inference. / task",
+          "score": 12.455
+        }
+      ]
+    },
+    {
+      "id": "case-legal-materials-zh",
+      "query": "介绍一下刑事律师材料与线索 AI 整理师案例及其公开内容。",
+      "language": "zh",
+      "expected_docs": [
+        "case-legal-materials"
+      ],
+      "evidence_regex": "刑事律师材料与线索 AI 整理师",
+      "passed": true,
+      "results": [
+        {
+          "doc": "case-legal-materials",
+          "heading": "刑事律师材料与线索 AI 整理师",
+          "score": 105.6908
+        },
+        {
+          "doc": "cases-overview",
+          "heading": "让 AI 走进 具体的工作。 / 文档与知识 / 刑事律师材料与线索 AI 整理师",
+          "score": 97.3912
+        },
+        {
+          "doc": "cases-overview",
+          "heading": "让 AI 走进 具体的工作。 / 企业运营 / AI 信息资产审计",
+          "score": 22.5118
+        },
+        {
+          "doc": "case-asset-audit",
+          "heading": "AI 信息资产审计",
+          "score": 22.234
+        },
+        {
+          "doc": "case-community-assistant",
+          "heading": "基层事务 AI 助理",
+          "score": 16.833
+        }
+      ]
+    },
+    {
+      "id": "case-legal-materials-en",
+      "query": "Describe the published AI Organiser for Criminal Defence Materials and Leads application case.",
+      "language": "en",
+      "expected_docs": [
+        "case-legal-materials"
+      ],
+      "evidence_regex": "AI Organiser for Criminal Defence Materials and Leads",
+      "passed": true,
+      "results": [
+        {
+          "doc": "case-legal-materials",
+          "heading": "AI Organiser for Criminal Defence Materials and Leads",
+          "score": 94.4773
+        },
+        {
+          "doc": "cases-overview",
+          "heading": "Bringing AI into real work. / Documents and knowledge / AI Organiser for Criminal Defence Materials and Leads",
+          "score": 84.8533
+        },
+        {
+          "doc": "models",
+          "heading": "Deeper analysis. More efficient inference. / Power specialist agents. Complete complex tasks.",
+          "score": 10.5462
+        }
+      ]
+    },
+    {
+      "id": "case-functional-safety-zh",
+      "query": "介绍一下AI 汽车功能安全检测案例及其公开内容。",
+      "language": "zh",
+      "expected_docs": [
+        "case-functional-safety"
+      ],
+      "evidence_regex": "AI 汽车功能安全检测",
+      "passed": true,
+      "results": [
+        {
+          "doc": "case-functional-safety",
+          "heading": "AI 汽车功能安全检测",
+          "score": 60.9546
+        },
+        {
+          "doc": "cases-overview",
+          "heading": "让 AI 走进 具体的工作。 / 工业研发 / AI 汽车功能安全检测",
+          "score": 57.9389
+        },
+        {
+          "doc": "case-industrial-modeling",
+          "heading": "AI 汽车研发与工业建模",
+          "score": 30.2035
+        },
+        {
+          "doc": "cases-overview",
+          "heading": "让 AI 走进 具体的工作。 / 工业研发 / AI 汽车研发与工业建模",
+          "score": 29.1645
+        },
+        {
+          "doc": "models",
+          "heading": "专业分析，更深入。 模型推理，更高效。 / stages",
+          "score": 12.3944
+        }
+      ]
+    },
+    {
+      "id": "case-functional-safety-en",
+      "query": "Describe the published AI Automotive Functional Safety Inspection application case.",
+      "language": "en",
+      "expected_docs": [
+        "case-functional-safety"
+      ],
+      "evidence_regex": "AI Automotive Functional Safety Inspection",
+      "passed": true,
+      "results": [
+        {
+          "doc": "case-functional-safety",
+          "heading": "AI Automotive Functional Safety Inspection",
+          "score": 84.2558
+        },
+        {
+          "doc": "cases-overview",
+          "heading": "Bringing AI into real work. / Industrial R&D / AI Automotive Functional Safety Inspection",
+          "score": 75.2932
+        },
+        {
+          "doc": "case-industrial-modeling",
+          "heading": "AI Automotive R&D and Industrial Modelling",
+          "score": 29.5195
+        },
+        {
+          "doc": "cases-overview",
+          "heading": "Bringing AI into real work. / Industrial R&D / AI Automotive R&D and Industrial Modelling",
+          "score": 27.738
+        },
+        {
+          "doc": "guide-network",
+          "heading": "RM-01 Network Configuration Guide / 5. Configure C1 Internet Sharing with AI / Prompt to send directly to the agent",
+          "score": 6.1771
+        }
+      ]
+    },
+    {
+      "id": "case-highway-coordination-zh",
+      "query": "介绍一下高速公路现场智能协同案例及其公开内容。",
+      "language": "zh",
+      "expected_docs": [
+        "case-highway-coordination"
+      ],
+      "evidence_regex": "高速公路现场智能协同",
+      "passed": true,
+      "results": [
+        {
+          "doc": "case-highway-coordination",
+          "heading": "高速公路现场智能协同",
+          "score": 127.2853
+        },
+        {
+          "doc": "cases-overview",
+          "heading": "让 AI 走进 具体的工作。 / 交通服务 / 高速公路现场智能协同",
+          "score": 109.1222
+        }
+      ]
+    },
+    {
+      "id": "case-highway-coordination-en",
+      "query": "Describe the published Intelligent Highway Field Coordination application case.",
+      "language": "en",
+      "expected_docs": [
+        "case-highway-coordination"
+      ],
+      "evidence_regex": "Intelligent Highway Field Coordination",
+      "passed": true,
+      "results": [
+        {
+          "doc": "case-highway-coordination",
+          "heading": "Intelligent Highway Field Coordination",
+          "score": 79.6831
+        },
+        {
+          "doc": "cases-overview",
+          "heading": "Bringing AI into real work. / Transport / Intelligent Highway Field Coordination",
+          "score": 67.5759
+        }
+      ]
+    }
+  ]
+}

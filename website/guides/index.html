@@ -15,11 +15,11 @@
   <script src="../assets/input-mode.js?v=input-2" defer></script>
   <link rel="stylesheet" href="../assets/brand.css?v=v2-core-2">
   <link rel="stylesheet" href="../assets/styles.css?v=sample-2">
-  <link rel="stylesheet" href="../assets/guides.css?v=motion-20261024">
+  <link rel="stylesheet" href="../assets/guides.css?v=knowledge-20261030">
   <script>
     // ja/ko/es/fr carry their own catalog file; zh and en need none. Resolve the language the way i18n.js does and load only that file.
     (function (up) {
-      var ok = /^(zh|en|ja|ko|es|fr)$/, c = window.RM_CATALOG = { base: up + 'assets/translations/', v: 'guides-063-20261028' };
+      var ok = /^(zh|en|ja|ko|es|fr)$/, c = window.RM_CATALOG = { base: up + 'assets/translations/', v: 'knowledge-20261030' };
       c.load = function () {
         var s; try { s = localStorage.getItem('rm-soft-lang'); } catch (e) {}
         var l = [new URLSearchParams(location.search).get('lang'), (location.hash.match(/^#(zh|en|ja|ko|es|fr)-/) || [])[1], s, window.RM_DEFAULT_LANG].filter(function (x) { return ok.test(x); })[0];
@@ -42,6 +42,7 @@
   </script>
   <script src="../assets/i18n.js?v=catalogs-20261004" defer></script>
   <script src="../assets/guides.js?v=guides-063-20261028" defer></script>
+  <script src="../assets/knowledge-entry.js?v=knowledge-review-20261030" defer></script>
   <script src="../assets/site-data.js?v=sample-2" defer></script>
   <script src="../assets/footer.js?v=sample-3" defer></script>
   <script src="../assets/nav-glide.js?v=glide-1" defer></script>
@@ -126,6 +127,16 @@
       </div>
     </section>
 
+    <a class="guide-card knowledge-entry" data-bevel href="#knowledgeDialog" id="knowledgeEntryLink" aria-haspopup="dialog" aria-controls="knowledgeDialog" aria-labelledby="knowledgeEntryTitle knowledgeEntryAction">
+      <svg class="guide-card-icon" viewBox="0 0 11 11" aria-hidden="true" focusable="false"><path class="dim" d="M0.5 0.5h0M1.5 0.5h0M2.5 0.5h0M3.5 0.5h0M4.5 0.5h0M5.5 0.5h0M6.5 0.5h0M7.5 0.5h0M8.5 0.5h0M9.5 0.5h0M10.5 0.5h0M0.5 1.5h0M1.5 1.5h0M9.5 1.5h0M10.5 1.5h0M0.5 2.5h0M2.5 2.5h0M3.5 2.5h0M4.5 2.5h0M5.5 2.5h0M6.5 2.5h0M7.5 2.5h0M8.5 2.5h0M10.5 2.5h0M0.5 3.5h0M2.5 3.5h0M3.5 3.5h0M4.5 3.5h0M5.5 3.5h0M6.5 3.5h0M7.5 3.5h0M8.5 3.5h0M10.5 3.5h0M0.5 4.5h0M2.5 4.5h0M5.5 4.5h0M8.5 4.5h0M10.5 4.5h0M0.5 5.5h0M2.5 5.5h0M3.5 5.5h0M4.5 5.5h0M5.5 5.5h0M6.5 5.5h0M7.5 5.5h0M8.5 5.5h0M10.5 5.5h0M0.5 6.5h0M2.5 6.5h0M3.5 6.5h0M4.5 6.5h0M5.5 6.5h0M6.5 6.5h0M7.5 6.5h0M8.5 6.5h0M10.5 6.5h0M0.5 7.5h0M1.5 7.5h0M9.5 7.5h0M10.5 7.5h0M0.5 8.5h0M1.5 8.5h0M2.5 8.5h0M3.5 8.5h0M5.5 8.5h0M6.5 8.5h0M7.5 8.5h0M8.5 8.5h0M9.5 8.5h0M10.5 8.5h0M0.5 9.5h0M1.5 9.5h0M2.5 9.5h0M4.5 9.5h0M5.5 9.5h0M6.5 9.5h0M7.5 9.5h0M8.5 9.5h0M9.5 9.5h0M10.5 9.5h0M0.5 10.5h0M1.5 10.5h0M2.5 10.5h0M3.5 10.5h0M4.5 10.5h0M5.5 10.5h0M6.5 10.5h0M7.5 10.5h0M8.5 10.5h0M9.5 10.5h0M10.5 10.5h0"/><path class="lit" d="M2.5 1.5h0M3.5 1.5h0M4.5 1.5h0M5.5 1.5h0M6.5 1.5h0M7.5 1.5h0M8.5 1.5h0M1.5 2.5h0M9.5 2.5h0M1.5 3.5h0M9.5 3.5h0M1.5 4.5h0M3.5 4.5h0M4.5 4.5h0M6.5 4.5h0M7.5 4.5h0M9.5 4.5h0M1.5 5.5h0M9.5 5.5h0M1.5 6.5h0M9.5 6.5h0M2.5 7.5h0M3.5 7.5h0M4.5 7.5h0M5.5 7.5h0M6.5 7.5h0M7.5 7.5h0M8.5 7.5h0M4.5 8.5h0M3.5 9.5h0"/></svg>
+      <h2 id="knowledgeEntryTitle"><span data-guide-text data-zh="让你的 Agent 帮你用好" data-en="Get more from">让你的 Agent 帮你用好</span> <span class="rm-mark">RM-01</span><span data-guide-text data-zh="" data-en=" with your agent"></span></h2>
+      <p class="guide-card-copy" data-guide-text data-zh="从了解产品、申请样机到配置系统、排查问题，让你的 Agent 根据官方资料提供帮助。" data-en="From exploring the product and requesting a demo unit to system setup and troubleshooting, let your agent help with guidance from official sources.">从了解产品、申请样机到配置系统、排查问题，让你的 Agent 根据官方资料提供帮助。</p>
+      <div class="guide-card-bottom">
+        <span class="guide-card-meta" id="knowledgeEntryAction" data-guide-text data-zh="查看接入说明" data-en="View setup instructions">查看接入说明</span>
+        <span class="guide-card-arrow" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></span>
+      </div>
+    </a>
+
     <div class="guide-list-label" aria-hidden="true">
       <span data-guide-text data-zh="角色指南" data-en="Role guides">角色指南</span>
 
@@ -174,6 +185,7 @@
     <section class="guide-topic-grid" aria-label="专题指南列表" data-i18n-aria-label-zh="专题指南列表" data-i18n-aria-label-en="Topic guides">
       <a class="guide-card guide-card-network" data-bevel href="network.html" aria-labelledby="networkGuideTitle">
 
+        <svg class="guide-card-icon" viewBox="0 0 11 11" aria-hidden="true" focusable="false"><path class="dim" d="M0.5 0.5h0M1.5 0.5h0M2.5 0.5h0M3.5 0.5h0M7.5 0.5h0M8.5 0.5h0M9.5 0.5h0M10.5 0.5h0M0.5 1.5h0M1.5 1.5h0M2.5 1.5h0M3.5 1.5h0M5.5 1.5h0M7.5 1.5h0M8.5 1.5h0M9.5 1.5h0M10.5 1.5h0M0.5 2.5h0M1.5 2.5h0M2.5 2.5h0M3.5 2.5h0M7.5 2.5h0M8.5 2.5h0M9.5 2.5h0M10.5 2.5h0M0.5 3.5h0M1.5 3.5h0M2.5 3.5h0M3.5 3.5h0M4.5 3.5h0M6.5 3.5h0M7.5 3.5h0M8.5 3.5h0M9.5 3.5h0M10.5 3.5h0M0.5 4.5h0M1.5 4.5h0M2.5 4.5h0M3.5 4.5h0M4.5 4.5h0M6.5 4.5h0M7.5 4.5h0M8.5 4.5h0M9.5 4.5h0M10.5 4.5h0M0.5 5.5h0M1.5 5.5h0M9.5 5.5h0M10.5 5.5h0M0.5 6.5h0M1.5 6.5h0M3.5 6.5h0M4.5 6.5h0M5.5 6.5h0M6.5 6.5h0M7.5 6.5h0M9.5 6.5h0M10.5 6.5h0M0.5 7.5h0M4.5 7.5h0M5.5 7.5h0M6.5 7.5h0M10.5 7.5h0M0.5 8.5h0M2.5 8.5h0M4.5 8.5h0M5.5 8.5h0M6.5 8.5h0M8.5 8.5h0M10.5 8.5h0M0.5 9.5h0M4.5 9.5h0M5.5 9.5h0M6.5 9.5h0M10.5 9.5h0M0.5 10.5h0M1.5 10.5h0M2.5 10.5h0M3.5 10.5h0M4.5 10.5h0M5.5 10.5h0M6.5 10.5h0M7.5 10.5h0M8.5 10.5h0M9.5 10.5h0M10.5 10.5h0"/><path class="lit" d="M4.5 0.5h0M5.5 0.5h0M6.5 0.5h0M4.5 1.5h0M6.5 1.5h0M4.5 2.5h0M5.5 2.5h0M6.5 2.5h0M5.5 3.5h0M5.5 4.5h0M2.5 5.5h0M3.5 5.5h0M4.5 5.5h0M5.5 5.5h0M6.5 5.5h0M7.5 5.5h0M8.5 5.5h0M2.5 6.5h0M8.5 6.5h0M1.5 7.5h0M2.5 7.5h0M3.5 7.5h0M7.5 7.5h0M8.5 7.5h0M9.5 7.5h0M1.5 8.5h0M3.5 8.5h0M7.5 8.5h0M9.5 8.5h0M1.5 9.5h0M2.5 9.5h0M3.5 9.5h0M7.5 9.5h0M8.5 9.5h0M9.5 9.5h0"/></svg>
         <h2 id="networkGuideTitle" data-guide-text data-zh="网络配置" data-en="Network configuration">网络配置</h2>
         <p class="guide-card-copy" data-guide-text data-zh="说明 C1 与 C3 两条网络路径，以及用户设备联网、AI 辅助网络共享和整机接入上层网络的方法。" data-en="Covers the C1 and C3 network paths, device connectivity, AI-assisted internet sharing, and upstream access for the complete system.">说明 C1 与 C3 两条网络路径，以及用户设备联网、AI 辅助网络共享和整机接入上层网络的方法。</p>
         <div class="guide-card-bottom">
@@ -253,5 +265,47 @@
   </div>
 </div>
 <!-- shared-contact:end -->
+  <dialog class="knowledge-dialog" id="knowledgeDialog" aria-labelledby="knowledgeTitle" aria-describedby="knowledgeDescription">
+    <div class="knowledge-dialog-top"><span>RMinte · Agent</span><button class="contact-close" type="button" data-knowledge-close aria-label="关闭" data-i18n-aria-label-zh="关闭" data-i18n-aria-label-en="Close"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
+    <h2 id="knowledgeTitle" tabindex="-1" autofocus data-guide-text data-zh="复制给你的 Agent" data-en="Copy this to your agent">复制给你的 Agent</h2>
+    <p id="knowledgeDescription" class="knowledge-dialog-intro" data-guide-text data-zh="复制以下指令，发送给你的 Agent，让它帮你完成接入。" data-en="Copy the instructions below and send them to your agent to set up the connection.">复制以下指令，发送给你的 Agent，让它帮你完成接入。</p>
+    <label id="knowledgePromptLabel" class="knowledge-prompt-label" for="knowledgePrompt" data-guide-text data-zh="接入指令" data-en="Setup instructions">接入指令</label>
+    <textarea id="knowledgePrompt" rows="12" readonly spellcheck="false" lang="zh-CN" data-prompt-zh="请在你当前的运行环境中，配置并启用 RMinte 官方知识库 MCP：
+
+服务名称：rminte-official-knowledge
+连接方式：Streamable HTTP
+服务地址：&lt;正式 MCP 地址&gt;
+
+请根据当前环境完成配置，保留已有的其他服务配置。需要我操作或授权的步骤，请明确告诉我。
+
+接入后，使用 search_knowledge 检索 RM-01 产品介绍，再用 read_section 读取对应原文，确认连接可用，并简短告诉我接入结果。
+
+今后回答有关 RM-01、TianshanOS、硬件设计、模型、应用案例、样机申请和企业联系方式的问题时，请优先查询这套官方资料。回答前读取相关原文及上下文，注明来源链接，区分适用版本；资料未说明的内容，请如实说明。" data-prompt-en="Please configure and enable the RMinte official knowledge MCP in your current environment:
+
+Service name: rminte-official-knowledge
+Transport: Streamable HTTP
+Service URL: &lt;Official MCP URL&gt;
+
+Complete the setup for your current environment and preserve other existing service configurations. Clearly tell me if any step requires my action or authorization.
+
+After setup, use search_knowledge to find an RM-01 product introduction, then use read_section to read the original source. Confirm that the connection works and briefly report the result.
+
+When answering questions about RM-01, TianshanOS, hardware design, models, application cases, demo-unit applications, or company contact details, consult these official sources first. Read the relevant original text and context before answering, cite source links, and distinguish applicable versions. If the sources do not cover something, say so.">请在你当前的运行环境中，配置并启用 RMinte 官方知识库 MCP：
+
+服务名称：rminte-official-knowledge
+连接方式：Streamable HTTP
+服务地址：&lt;正式 MCP 地址&gt;
+
+请根据当前环境完成配置，保留已有的其他服务配置。需要我操作或授权的步骤，请明确告诉我。
+
+接入后，使用 search_knowledge 检索 RM-01 产品介绍，再用 read_section 读取对应原文，确认连接可用，并简短告诉我接入结果。
+
+今后回答有关 RM-01、TianshanOS、硬件设计、模型、应用案例、样机申请和企业联系方式的问题时，请优先查询这套官方资料。回答前读取相关原文及上下文，注明来源链接，区分适用版本；资料未说明的内容，请如实说明。</textarea>
+    <div class="knowledge-dialog-footer">
+      <p id="knowledgeCopyStatus" role="status" aria-live="polite"></p>
+      <button class="brand-button primary" type="button" id="knowledgeCopyButton"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg><span  data-guide-text data-zh="复制指令" data-en="Copy instructions">复制指令</span></button>
+    </div>
+    <p class="knowledge-dialog-note" data-guide-text data-zh="接入服务尚未开放，正式地址将在上线后提供。" data-en="The connection service is not yet available. Its official URL will be provided when it goes live.">接入服务尚未开放，正式地址将在上线后提供。</p>
+  </dialog>
 </body>
 </html>

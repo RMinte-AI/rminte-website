@@ -1,0 +1,47 @@
+{
+  "corpus_revision": "35805af01950d5458ac02c864bc8310665586abd1f932ac19cd5e63412a1634d",
+  "fixtures_sha256": "77de1d9250d3f04797efdeeeb140b1149516f33c91abcd7c61de2aefd88117a9",
+  "protocol_evidence": "protocol-1793331440827.json",
+  "retrieval_evidence": "retrieval-1793331470349.json",
+  "protocol_generations": [
+    {
+      "generation": "modern",
+      "versions": [
+        "2026-07-28"
+      ],
+      "queries": 88,
+      "passed": 88
+    },
+    {
+      "generation": "legacy",
+      "versions": [
+        "2025-11-25"
+      ],
+      "queries": 88,
+      "passed": 88
+    }
+  ],
+  "source_documents": 88,
+  "excluded": 2,
+  "history_only": 2,
+  "sections": 1278,
+  "runtime_data_bytes": 2874170,
+  "service_files": {
+    "wrangler.jsonc": "0bd30b908a8d9c6cb186424c52de3bff7e324c5f5bf0cec52427d9e1959a6e8f",
+    "README.md": "fbc285a45342463f566b19ee51d872c595ba60ac70cb867ae0d3dc7605c9efde",
+    ".gitignore": "c67689eff71732ead711538c6bf75e45410c9212d97eb2f63f0c06171bbce88d",
+    "package-lock.json": "fda174d77a0467c11fedce881565de90962541fb7f2549d0e69ec07d07c7ff0e",
+    "package.json": "b7de8c57b7fd49b9836ae990f391dc7514e8695bc5f84012e261f5cc344d3655",
+    "tsconfig.json": "211e7d3c49e2c53bd994272142738fcef7cf5d5032bd52a8129fbba206a6f90f",
+    "tests/questions.json": "77de1d9250d3f04797efdeeeb140b1149516f33c91abcd7c61de2aefd88117a9",
+    "tests/corpus.test.ts": "cecc068c171e5e32abee98dfe5b70fe6517cd25c3fb1e9324129d7922340d2fa",
+    "scripts/verify.ts": "167f485c304349acf67e8227488234e98579766398b13301754b07e3497a9a78",
+    "scripts/evaluate.ts": "19486f5191bf4cec8f2fb21b45e4db32b2f5511d78548e8fdf6fcee7c4135f79",
+    "scripts/build.ts": "e237d371afe2364d40622888b48b8c149ac08eb749b01258309221adbe6d4a74",
+    "src/knowledge.ts": "96befe11e06105d1ef2df09642ffc3f4e15036a7d9c6ffe6df4302428db143e4",
+    "src/text.ts": "aa248ab19e83e99087be8979a38983eaeb25c9e5e573d89bf3e32d6b5d81ed25",
+    "src/types.ts": "12ec709e78ff0a14c7214af8a9700867d94be4987927c6a0df8fb6c316b742e9",
+    "src/server.ts": "d5e44b8243764d5b793296b98e3619850aba38b22617e7fb0d9f9e0dfce15174",
+    "src/worker.ts": "109fe79ab7827a1622d7f62d53d53d3b2ad3f13dc06bf182e9fcc61c4bbd3ea2"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "name": "rminte-official-knowledge-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.18.0"
+  },
+  "scripts": {
+    "build": "node --experimental-strip-types scripts/build.ts",
+    "check": "tsc --noEmit",
+    "test": "npm run build && node --experimental-strip-types --test tests/*.test.ts",
+    "dev": "npm run build && wrangler dev --ip 127.0.0.1 --port 8971 --local",
+    "verify": "npm run build && tsx scripts/verify.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/server": "2.4.0",
+    "agents": "0.32.0",
+    "zod": "4.3.6"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/client": "2.4.0",
+    "@modelcontextprotocol/sdk": "1.32.2",
+    "@types/node": "24.10.0",
+    "tsx": "4.21.0",
+    "typescript": "5.9.3",
+    "wrangler": "4.156.0"
+  }
+}

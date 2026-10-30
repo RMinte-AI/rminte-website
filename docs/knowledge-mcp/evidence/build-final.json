@@ -1,0 +1,624 @@
+{
+  "revision": "35805af01950d5458ac02c864bc8310665586abd1f932ac19cd5e63412a1634d",
+  "sections": 1278,
+  "documents": [
+    {
+      "id": "guide-admin",
+      "language": "zh",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 50
+    },
+    {
+      "id": "guide-admin",
+      "language": "en",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 50
+    },
+    {
+      "id": "guide-root",
+      "language": "zh",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 89
+    },
+    {
+      "id": "guide-root",
+      "language": "en",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 89
+    },
+    {
+      "id": "guide-network",
+      "language": "zh",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 25
+    },
+    {
+      "id": "guide-network",
+      "language": "en",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 25
+    },
+    {
+      "id": "guide-security",
+      "language": "zh",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 39
+    },
+    {
+      "id": "guide-security",
+      "language": "en",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 39
+    },
+    {
+      "id": "hardware-security",
+      "language": "zh",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 11
+    },
+    {
+      "id": "hardware-security",
+      "language": "en",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 13
+    },
+    {
+      "id": "product-overview",
+      "language": "zh",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 2
+    },
+    {
+      "id": "inference-engine",
+      "language": "zh",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 6
+    },
+    {
+      "id": "system-overview",
+      "language": "zh",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 3
+    },
+    {
+      "id": "hardware-modules",
+      "language": "zh",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 7
+    },
+    {
+      "id": "structure",
+      "language": "zh",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 3
+    },
+    {
+      "id": "thermal-tti",
+      "language": "zh",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 3
+    },
+    {
+      "id": "thermal-design",
+      "language": "zh",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 2
+    },
+    {
+      "id": "sapphire",
+      "language": "zh",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 2
+    },
+    {
+      "id": "glass-surface",
+      "language": "zh",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 2
+    },
+    {
+      "id": "connections",
+      "language": "zh",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 2
+    },
+    {
+      "id": "storage-card",
+      "language": "zh",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 2
+    },
+    {
+      "id": "manufacturing",
+      "language": "zh",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 6
+    },
+    {
+      "id": "homepage-source-copy",
+      "language": "zh",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 161
+    },
+    {
+      "id": "company-contact",
+      "language": "zh",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 2
+    },
+    {
+      "id": "models",
+      "language": "zh",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 64
+    },
+    {
+      "id": "cases-overview",
+      "language": "zh",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 20
+    },
+    {
+      "id": "gallery",
+      "language": "zh",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 35
+    },
+    {
+      "id": "downloads",
+      "language": "zh",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 33
+    },
+    {
+      "id": "guides-index",
+      "language": "zh",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 1
+    },
+    {
+      "id": "product-overview",
+      "language": "en",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 2
+    },
+    {
+      "id": "inference-engine",
+      "language": "en",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 6
+    },
+    {
+      "id": "system-overview",
+      "language": "en",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 3
+    },
+    {
+      "id": "hardware-modules",
+      "language": "en",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 7
+    },
+    {
+      "id": "structure",
+      "language": "en",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 3
+    },
+    {
+      "id": "thermal-tti",
+      "language": "en",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 3
+    },
+    {
+      "id": "thermal-design",
+      "language": "en",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 2
+    },
+    {
+      "id": "sapphire",
+      "language": "en",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 2
+    },
+    {
+      "id": "glass-surface",
+      "language": "en",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 2
+    },
+    {
+      "id": "connections",
+      "language": "en",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 2
+    },
+    {
+      "id": "storage-card",
+      "language": "en",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 2
+    },
+    {
+      "id": "manufacturing",
+      "language": "en",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 6
+    },
+    {
+      "id": "homepage-source-copy",
+      "language": "en",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 161
+    },
+    {
+      "id": "company-contact",
+      "language": "en",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 2
+    },
+    {
+      "id": "models",
+      "language": "en",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 64
+    },
+    {
+      "id": "cases-overview",
+      "language": "en",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 20
+    },
+    {
+      "id": "gallery",
+      "language": "en",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 35
+    },
+    {
+      "id": "downloads",
+      "language": "en",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 33
+    },
+    {
+      "id": "guides-index",
+      "language": "en",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 1
+    },
+    {
+      "id": "led-tool",
+      "language": "zh",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 9
+    },
+    {
+      "id": "led-tool",
+      "language": "en",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 9
+    },
+    {
+      "id": "case-digital-toll",
+      "language": "zh",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 1
+    },
+    {
+      "id": "case-asset-audit",
+      "language": "zh",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 1
+    },
+    {
+      "id": "case-community-assistant",
+      "language": "zh",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 1
+    },
+    {
+      "id": "case-energy-dispatch",
+      "language": "zh",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 1
+    },
+    {
+      "id": "case-document-knowledge",
+      "language": "zh",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 1
+    },
+    {
+      "id": "case-official-writing",
+      "language": "zh",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 1
+    },
+    {
+      "id": "case-archive-management",
+      "language": "zh",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 1
+    },
+    {
+      "id": "case-drone-analysis",
+      "language": "zh",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 1
+    },
+    {
+      "id": "case-industrial-modeling",
+      "language": "zh",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 1
+    },
+    {
+      "id": "case-legal-materials",
+      "language": "zh",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 1
+    },
+    {
+      "id": "case-functional-safety",
+      "language": "zh",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 1
+    },
+    {
+      "id": "case-highway-coordination",
+      "language": "zh",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 1
+    },
+    {
+      "id": "case-digital-toll",
+      "language": "en",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 1
+    },
+    {
+      "id": "case-asset-audit",
+      "language": "en",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 1
+    },
+    {
+      "id": "case-community-assistant",
+      "language": "en",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 1
+    },
+    {
+      "id": "case-energy-dispatch",
+      "language": "en",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 1
+    },
+    {
+      "id": "case-document-knowledge",
+      "language": "en",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 1
+    },
+    {
+      "id": "case-official-writing",
+      "language": "en",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 1
+    },
+    {
+      "id": "case-archive-management",
+      "language": "en",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 1
+    },
+    {
+      "id": "case-drone-analysis",
+      "language": "en",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 1
+    },
+    {
+      "id": "case-industrial-modeling",
+      "language": "en",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 1
+    },
+    {
+      "id": "case-legal-materials",
+      "language": "en",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 1
+    },
+    {
+      "id": "case-functional-safety",
+      "language": "en",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 1
+    },
+    {
+      "id": "case-highway-coordination",
+      "language": "en",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 1
+    },
+    {
+      "id": "sample-loan",
+      "language": "zh",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 9
+    },
+    {
+      "id": "sample-loan",
+      "language": "en",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 9
+    },
+    {
+      "id": "sample-loan-agreement",
+      "language": "zh",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 13
+    },
+    {
+      "id": "sample-loan-agreement",
+      "language": "en",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 1
+    },
+    {
+      "id": "company-identification",
+      "language": "zh",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 1
+    },
+    {
+      "id": "company-identification",
+      "language": "en",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 1
+    },
+    {
+      "id": "demonstrations-and-releases",
+      "language": "zh",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 1
+    },
+    {
+      "id": "demonstrations-and-releases",
+      "language": "en",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 1
+    },
+    {
+      "id": "company-brochure",
+      "language": "zh",
+      "status": "history-only",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 25
+    },
+    {
+      "id": "company-brochure-ocr",
+      "language": "zh",
+      "status": "excluded",
+      "reason": "unverified or unapproved source type",
+      "sections": 0
+    },
+    {
+      "id": "ota-service",
+      "language": "zh",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 4
+    },
+    {
+      "id": "company-brochure",
+      "language": "en",
+      "status": "history-only",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 25
+    },
+    {
+      "id": "company-brochure-ocr",
+      "language": "en",
+      "status": "excluded",
+      "reason": "unverified or unapproved source type",
+      "sections": 0
+    },
+    {
+      "id": "ota-service",
+      "language": "en",
+      "status": "indexed",
+      "reason": "approved source; retain original heading/body and inherited preamble",
+      "sections": 4
+    }
+  ],
+  "largest_body": 3640,
+  "largest_context": 1305
+}

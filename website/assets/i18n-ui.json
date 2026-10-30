@@ -234,5 +234,13 @@
   {
     "zh": "RMinte C++ 运行时",
     "en": "RMinte C++ Runtime"
+  },
+  {
+    "zh": "已复制，发送给你的 Agent 即可。",
+    "en": "Copied. Send it to your agent."
+  },
+  {
+    "zh": "复制未成功，请选中文字后手动复制。",
+    "en": "Copy failed. Select the instructions and copy them manually."
   }
 ]

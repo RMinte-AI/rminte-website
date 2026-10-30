@@ -1,0 +1,34 @@
+
+> rminte-official-knowledge-mcp@0.1.0 test
+> npm run build && node --experimental-strip-types --test tests/*.test.ts
+
+
+> rminte-official-knowledge-mcp@0.1.0 build
+> node --experimental-strip-types scripts/build.ts
+
+{"revision":"bac55fbe1bc24dd0b09f328315e06d10e66a96da9ed3ad375fc49728759a116c","sections":1278,"bytes":3287958}
+✔ All 88 reviewed entries accounted for; unverified OCR absent from runtime, history separate (0.464709ms)
+✔ Deterministic build, IDs unique, content/context hashes accurate, bounded replies (1076.125292ms)
+✔ Every nonblank original source line is preserved in body or original heading path (19.054875ms)
+✔ Security-page inherited HTTP limitation follows certificate operation (0.217541ms)
+✔ Source versions and history policy are enforced at search and read (1.577875ms)
+✔ No arbitrary URL/path input and no silently truncated queries/results (0.516667ms)
+✔ Chinese and English source coverage; authoritative Chinese agreement reachable from English note (0.145417ms)
+✔ All nine specialist workflow stages retain their corresponding scenario identity (0.420291ms)
+✔ Protocol names are not treated as plural nouns; English aliases require complete words (1.872625ms)
+✔ Chinese function-word removal does not destroy ownership or wired-network terms (1.006458ms)
+✔ Unknown terms matching Object.prototype do not crash or enter the index (0.49825ms)
+✔ Parent scope follows heading nesting, including skipped levels and repeated sibling titles (0.789334ms)
+✔ Tilde and longer backtick fences keep embedded headings/code blocks intact (0.248ms)
+✔ Identical body with different prerequisite context is not deduplicated away (0.452583ms)
+✔ Width normalization precedes vocabulary matching (0.135709ms)
+✔ A document with no headings has one overview and valid source bounds (0.062416ms)
+✔ Non-searchable preambles remain readable context for the real source sections (7.633083ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2234.738167

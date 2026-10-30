@@ -1,0 +1,20 @@
+{
+  "scope": "Re-review of last repair only; no service code changes, no protocol or Agent compatibility tests",
+  "corpus_revision": "bac55fbe1bc24dd0b09f328315e06d10e66a96da9ed3ad375fc49728759a116c",
+  "service_hashes_unchanged_from": "after.json",
+  "source_files_checked": 17,
+  "unit_checks": 17,
+  "offline_queries": 88,
+  "retrieval_evidence": "../retrieval-1793333057077.json",
+  "boundary_probes": [
+    "offset after metadata without headings",
+    "whitespace before first heading",
+    "preamble with sibling roots",
+    "preamble with skipped-level child",
+    "fenced heading with no real headings"
+  ],
+  "width_normalization_pairs": 5,
+  "preambles_checked": 34,
+  "descendant_sections_checked": 276,
+  "new_reproduced_defects": 0
+}

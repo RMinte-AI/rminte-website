@@ -1,0 +1,33 @@
+{
+  "scope": "Review of previous fixes; local code/unit/offline retrieval only; no Worker start or protocol/Agent compatibility test",
+  "previous_revision": "c93556255dfcf6bb36d339f80562f812de5601f8e9ef3c997362c2292c78d023",
+  "current_revision": "bac55fbe1bc24dd0b09f328315e06d10e66a96da9ed3ad375fc49728759a116c",
+  "changed_service_files": [
+    "tests/review.test.ts",
+    "scripts/build.ts",
+    "src/text.ts"
+  ],
+  "files_sha256": {
+    "wrangler.jsonc": "0bd30b908a8d9c6cb186424c52de3bff7e324c5f5bf0cec52427d9e1959a6e8f",
+    "README.md": "fbc285a45342463f566b19ee51d872c595ba60ac70cb867ae0d3dc7605c9efde",
+    ".gitignore": "c67689eff71732ead711538c6bf75e45410c9212d97eb2f63f0c06171bbce88d",
+    "package-lock.json": "fda174d77a0467c11fedce881565de90962541fb7f2549d0e69ec07d07c7ff0e",
+    "package.json": "b7de8c57b7fd49b9836ae990f391dc7514e8695bc5f84012e261f5cc344d3655",
+    "tsconfig.json": "211e7d3c49e2c53bd994272142738fcef7cf5d5032bd52a8129fbba206a6f90f",
+    "tests/questions.json": "77de1d9250d3f04797efdeeeb140b1149516f33c91abcd7c61de2aefd88117a9",
+    "tests/review.test.ts": "012f4c522c05ac08c5cbda1f3cd418cf9dd934016361d8293227d89b7481803c",
+    "tests/corpus.test.ts": "42506580fe8683d7be68ad70e15544ec173f79db38260ebdf2688e587127f663",
+    "scripts/verify.ts": "167f485c304349acf67e8227488234e98579766398b13301754b07e3497a9a78",
+    "scripts/evaluate.ts": "19486f5191bf4cec8f2fb21b45e4db32b2f5511d78548e8fdf6fcee7c4135f79",
+    "scripts/build.ts": "dd9acc107708f841fdf1dd1ec088fc2cbd1f25628c1f0fe02d757a5ddbe2b848",
+    "src/knowledge.ts": "cd5ed1261a473184048ef7de1b9d8300e835292777434bbe1b9855589c0f1dcf",
+    "src/text.ts": "ad97c05ecb5a99d7df693381dc672e4b71b847f31867ac82b690cfe7fd9b8cbb",
+    "src/types.ts": "12ec709e78ff0a14c7214af8a9700867d94be4987927c6a0df8fb6c316b742e9",
+    "src/server.ts": "d5e44b8243764d5b793296b98e3619850aba38b22617e7fb0d9f9e0dfce15174",
+    "src/worker.ts": "109fe79ab7827a1622d7f62d53d53d3b2ad3f13dc06bf182e9fcc61c4bbd3ea2"
+  },
+  "unit_checks": 17,
+  "offline_queries": 88,
+  "retrieval_evidence": "../retrieval-1793332828833.json",
+  "question_fixture_sha256": "77de1d9250d3f04797efdeeeb140b1149516f33c91abcd7c61de2aefd88117a9"
+}

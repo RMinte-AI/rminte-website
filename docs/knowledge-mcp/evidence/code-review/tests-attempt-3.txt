@@ -1,0 +1,31 @@
+
+> rminte-official-knowledge-mcp@0.1.0 test
+> npm run build && node --experimental-strip-types --test tests/*.test.ts
+
+
+> rminte-official-knowledge-mcp@0.1.0 build
+> node --experimental-strip-types scripts/build.ts
+
+{"revision":"48074b5bfe8b4d91167fcd9b606970389d75d170ecf10d57f7683f0369af97a2","sections":1278,"bytes":3453347}
+✔ All 88 reviewed entries accounted for; unverified OCR absent from runtime, history separate (0.440333ms)
+✔ Deterministic build, IDs unique, content/context hashes accurate, bounded replies (1067.098375ms)
+✔ Every nonblank original source line is preserved in body or original heading path (24.360041ms)
+✔ Security-page inherited HTTP limitation follows certificate operation (0.228166ms)
+✔ Source versions and history policy are enforced at search and read (1.6425ms)
+✔ No arbitrary URL/path input and no silently truncated queries/results (0.285583ms)
+✔ Chinese and English source coverage; authoritative Chinese agreement reachable from English note (0.140459ms)
+✔ All nine specialist workflow stages retain their corresponding scenario identity (0.454541ms)
+✔ Protocol names are not treated as plural nouns; English aliases require complete words (1.918708ms)
+✔ Chinese function-word removal does not destroy ownership or wired-network terms (4.799833ms)
+✔ Unknown terms matching Object.prototype do not crash or enter the index (0.3825ms)
+✔ Parent scope follows heading nesting, including skipped levels and repeated sibling titles (0.71675ms)
+✔ Tilde and longer backtick fences keep embedded headings/code blocks intact (0.235792ms)
+✔ Identical body with different prerequisite context is not deduplicated away (0.401667ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2235.451625
