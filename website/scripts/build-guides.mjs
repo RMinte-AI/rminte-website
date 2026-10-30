@@ -510,7 +510,7 @@ function pageTemplate(config, rendered) {
   <script src="../assets/input-mode.js?v=input-2" defer></script>
   <link rel="stylesheet" href="../assets/brand.css?v=v2-core-2">
   <link rel="stylesheet" href="../assets/styles.css?v=sample-2">
-  <link rel="stylesheet" href="../assets/guides.css?v=knowledge-20261030">
+  <link rel="stylesheet" href="../assets/guides.css?v=focus-20261030">
   <script id="guidePageData" type="application/json">${pageData}</script>
   <script>
     // ja/ko/es/fr carry their own catalog file; zh and en need none. Resolve the language the way i18n.js does and load only that file.

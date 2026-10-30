@@ -51,8 +51,7 @@ async function dimensions(page){return page.evaluate(()=>['#case-demo-modal','.c
 }));}
 function equalGeometry(actual,expected){for(let i=0;i<actual.length;i++)for(const key of ['x','y','width','height'])expect(Math.abs(actual[i][key]-expected[i][key]),`${i}.${key}`).toBeLessThanOrEqual(1);}
 
-test.describe('unified case preview',()=>{
- test.skip(!active('cases'),'No case dependency selected.');
+if(active('cases'))test.describe('unified case preview',()=>{
  for(const language of ['zh','en','ja','ko','es','fr'])for(const [width,height] of [[1440,900],[768,1024],[390,844],[320,568],[844,390]])for(const motion of ['reduce','no-preference']){
   test(`${language} ${width}x${height} ${motion}: shared geometry and reachable controls`,async({page},testInfo)=>{
    await page.setViewportSize({width,height});await page.emulateMedia({reducedMotion:motion});await boot(page,language);
