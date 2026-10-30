@@ -44,3 +44,4 @@
 - [泛灵人工智能-中文介绍-2026](company-brochure.md)
 - [企业介绍图片文字 OCR 补充](company-brochure-ocr.md)（OCR 定位参考，不直接作答）
 - [TianshanOS OTA 更新服务](ota-service.md)
+- [三种分工，一台 RM-01：认识 TianshanOS 与它连接的 AI 世界](tianshanos-ai-workflow.md)

@@ -1753,6 +1753,44 @@
       "sha256": "6e22c0957d5580323a94a62ccd6b363d5f76fa5b6eb20b346354eb43b4d7125a",
       "default_retrieval": true,
       "evidence_status": "source transcription; not independent operational verification"
+    },
+    {
+      "id": "tianshanos-ai-workflow",
+      "language": "zh",
+      "title": "三种分工，一台 RM-01：认识 TianshanOS 与它连接的 AI 世界",
+      "source_commit": "not-applicable-owner-original",
+      "prepared_on": "2026-10-30",
+      "content_kind": "official-product-copy",
+      "applicability": "Owner-provided architecture and workflow introduction (2026-10-30). Examples require application deployment and configuration; use versioned operating guides for procedures and permissions.",
+      "source_files": [
+        "docs/official-knowledge/zh/tianshanos-ai-workflow.md"
+      ],
+      "source_urls": [
+        "https://github.com/RMinte-AI/rminte-website/blob/main/docs/official-knowledge/zh/tianshanos-ai-workflow.md"
+      ],
+      "path": "zh/tianshanos-ai-workflow.md",
+      "default_retrieval": true,
+      "evidence_status": "Owner-provided Chinese/English originals; editorial product description, not independent operational verification. Original supplied outside Git; source_commit is not applicable.",
+      "sha256": "9bb90aeea62f2b5560da7ded58dff39f2eaa72fefef5bd28b8b83171940e275a"
+    },
+    {
+      "id": "tianshanos-ai-workflow",
+      "language": "en",
+      "title": "Three Roles. One RM-01. How TianshanOS Brings an AI Device Together",
+      "source_commit": "not-applicable-owner-original",
+      "prepared_on": "2026-10-30",
+      "content_kind": "official-product-copy",
+      "applicability": "Owner-provided architecture and workflow introduction (2026-10-30). Examples require application deployment and configuration; use versioned operating guides for procedures and permissions.",
+      "source_files": [
+        "docs/official-knowledge/en/tianshanos-ai-workflow.md"
+      ],
+      "source_urls": [
+        "https://github.com/RMinte-AI/rminte-website/blob/main/docs/official-knowledge/en/tianshanos-ai-workflow.md"
+      ],
+      "path": "en/tianshanos-ai-workflow.md",
+      "default_retrieval": true,
+      "evidence_status": "Owner-provided Chinese/English originals; editorial product description, not independent operational verification. Original supplied outside Git; source_commit is not applicable.",
+      "sha256": "3b9759556486a676b0cf56273f450e6590dd37d2101559f275a6766418fb1ded"
     }
   ],
   "source_files": [
@@ -1887,6 +1925,14 @@
     {
       "path": "website/tools/emoji2pixel/locales/zh-CN.json",
       "sha256": "f8e974b06d7a6ddb77eb9767889c4b7b88c6ca0485c1bcda5473f8f2ee755f7e"
+    },
+    {
+      "path": "docs/official-knowledge/zh/tianshanos-ai-workflow.md",
+      "sha256": "9bb90aeea62f2b5560da7ded58dff39f2eaa72fefef5bd28b8b83171940e275a"
+    },
+    {
+      "path": "docs/official-knowledge/en/tianshanos-ai-workflow.md",
+      "sha256": "3b9759556486a676b0cf56273f450e6590dd37d2101559f275a6766418fb1ded"
     }
   ],
   "external_sources": [

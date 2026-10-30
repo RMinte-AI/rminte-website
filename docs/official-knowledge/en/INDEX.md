@@ -44,3 +44,4 @@
 - [RMinte introduction 2026 (English)](company-brochure.md)
 - [Company introduction image-text OCR supplement](company-brochure-ocr.md) (OCR reference, not answer evidence)
 - [TianshanOS OTA update service](ota-service.md)
+- [Three Roles. One RM-01. How TianshanOS Brings an AI Device Together](tianshanos-ai-workflow.md)
