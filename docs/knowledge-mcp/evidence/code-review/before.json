@@ -1,0 +1,33 @@
+{
+  "at": "2026-10-30T03:44:19.785Z",
+  "revision": "35805af01950d5458ac02c864bc8310665586abd1f932ac19cd5e63412a1634d",
+  "tokens": {
+    "https": [
+      "http"
+    ],
+    "http": [
+      "http"
+    ],
+    "contraction": [
+      "loan",
+      "agreement",
+      "借用",
+      "协议",
+      "ion"
+    ],
+    "agreement": [
+      "loan",
+      "agreement",
+      "借用",
+      "协议"
+    ],
+    "modules": [
+      "module",
+      "模组"
+    ],
+    "SHELL": [
+      "shell"
+    ]
+  },
+  "constructor": "TypeError: posting is not iterable"
+}

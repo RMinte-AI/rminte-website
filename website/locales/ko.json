@@ -666,5 +666,16 @@
   "Daily operations guide for Admin users · Chinese and English · 29 pages · PDF · 596 KB · 2026-10-28": "Admin 사용자 일상 운영 가이드 · 중국어·영어 · 29페이지 · PDF · 596 KB · 2026-10-28",
   "Operations guide for root users · Chinese and English · 61 pages · PDF · 782 KB · 2026-10-28": "root 사용자 운영 가이드 · 중국어·영어 · 61페이지 · PDF · 782 KB · 2026-10-28",
   "13 chapters": "13개 장",
-  "13 chapters · Privileged operations": "13개 장 · 특권 작업"
+  "13 chapters · Privileged operations": "13개 장 · 특권 작업",
+  "Get more from": "Agent와 함께",
+  " with your agent": " 더 잘 활용하기",
+  "From exploring the product and requesting a demo unit to system setup and troubleshooting, let your agent help with guidance from official sources.": "제품 알아보기와 평가용 기기 신청부터 시스템 설정, 문제 해결까지. 공식 자료를 바탕으로 Agent의 도움을 받아 보세요.",
+  "View setup instructions": "연결 방법 보기",
+  "Copy this to your agent": "Agent에게 복사해 보내기",
+  "Copy the instructions below and send them to your agent to set up the connection.": "아래 지침을 복사하여 Agent에게 보내면 연결 설정을 진행할 수 있습니다.",
+  "Setup instructions": "연결 지침",
+  "Copy instructions": "지침 복사",
+  "Copied. Send it to your agent.": "복사했습니다. Agent에게 보내세요.",
+  "Copy failed. Select the instructions and copy them manually.": "복사하지 못했습니다. 지침을 선택하여 직접 복사해 주세요.",
+  "Connect to search the official RM-01 sources.": "연결하면 RM-01 공식 자료를 검색할 수 있습니다."
 }

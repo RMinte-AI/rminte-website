@@ -1,0 +1,39 @@
+{
+  "at": "2026-10-30T03:59:49.347Z",
+  "revision": "c93556255dfcf6bb36d339f80562f812de5601f8e9ef3c997362c2292c78d023",
+  "widths": [
+    [
+      "wattage",
+      [
+        "power",
+        "功率"
+      ]
+    ],
+    [
+      "ＷＡＴＴＡＧＥ",
+      [
+        "wattage"
+      ]
+    ]
+  ],
+  "withoutHeadings": [
+    {
+      "id": "en/example/preamble",
+      "body": "Intro",
+      "start": -1,
+      "end": -1
+    },
+    {
+      "id": "en/example/overview",
+      "body": "Intro\nno headings",
+      "start": -1,
+      "end": 2
+    }
+  ],
+  "historicalPage": [
+    {
+      "id": "en/company-brochure/original-pdf-page-14",
+      "context": ""
+    }
+  ]
+}

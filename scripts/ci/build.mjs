@@ -22,7 +22,7 @@ export function checkConfigurations(root,scope) {
         for(const flag of pages.compatibility_flags||[])args.push('--compatibility-flags',flag);
       }
       const result=spawnSync(process.execPath,[wrangler,...args],{
-        cwd:root,encoding:'utf8',timeout:120_000,maxBuffer:10_000_000,
+        cwd:profile.cwd?join(root,profile.cwd):root,encoding:'utf8',timeout:120_000,maxBuffer:10_000_000,
         env:{...process.env,XDG_CONFIG_HOME:join(temporary,'config'),WRANGLER_LOG_PATH:join(temporary,'logs'),WRANGLER_SEND_METRICS:'false'}
       });
       const log=join(root,'output/ci',`build-${config.replace(/[^a-z0-9]+/gi,'-')}.log`);mkdirSync(dirname(log),{recursive:true});

@@ -1,0 +1,24 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "rminte-official-knowledge-mcp",
+  "main": "src/worker.ts",
+  "compatibility_date": "2026-10-30",
+  "workers_dev": false,
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "observability": {
+    "enabled": false
+  },
+  "account_id": "7dd6eecdd116ab12a32e0be9c36006d1",
+  "routes": [
+    {
+      "pattern": "mcp.rminte.com",
+      "custom_domain": true
+    }
+  ],
+  "build": {
+    "command": "npm run build"
+  },
+  "preview_urls": false
+}

@@ -1,0 +1,2296 @@
+{
+  "prepared_on": "2026-10-30",
+  "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+  "documents": [
+    {
+      "id": "guide-admin",
+      "language": "zh",
+      "title": "TianshanOS admin 日常使用指南",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "operating-instructions",
+      "applicability": "TianshanOS 0.6.3",
+      "source_files": [
+        "website/guides/content/admin.md"
+      ],
+      "source_urls": [
+        "https://rminte.com/guides/admin"
+      ],
+      "path": "zh/guide-admin.md",
+      "sha256": "89d5c48f5fd90d27e3edbf9765abc864db4ced7fde2f7d9e0d53c371340a5b8a",
+      "default_retrieval": true,
+      "evidence_status": "source transcription; not independent operational verification"
+    },
+    {
+      "id": "guide-admin",
+      "language": "en",
+      "title": "TianshanOS Admin User Guide",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "operating-instructions",
+      "applicability": "TianshanOS 0.6.3",
+      "source_files": [
+        "website/guides/content/admin.md"
+      ],
+      "source_urls": [
+        "https://rminte.com/guides/admin"
+      ],
+      "path": "en/guide-admin.md",
+      "sha256": "e6f14697148ff68ff2f86b09830a52b2b009843fd3cfb43bddb4c15a16217ee5",
+      "default_retrieval": true,
+      "evidence_status": "source transcription; not independent operational verification"
+    },
+    {
+      "id": "guide-root",
+      "language": "zh",
+      "title": "TianshanOS root 运维指南",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "operating-instructions",
+      "applicability": "TianshanOS 0.6.3",
+      "source_files": [
+        "website/guides/content/root.md"
+      ],
+      "source_urls": [
+        "https://rminte.com/guides/root"
+      ],
+      "path": "zh/guide-root.md",
+      "sha256": "37e63cddfc7d9882c1dae67db134657677575a51e99535885e337c468c378070",
+      "default_retrieval": true,
+      "evidence_status": "source transcription; not independent operational verification"
+    },
+    {
+      "id": "guide-root",
+      "language": "en",
+      "title": "TianshanOS Root Operations Guide",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "operating-instructions",
+      "applicability": "TianshanOS 0.6.3",
+      "source_files": [
+        "website/guides/content/root.md"
+      ],
+      "source_urls": [
+        "https://rminte.com/guides/root"
+      ],
+      "path": "en/guide-root.md",
+      "sha256": "79b40eed3a92c78136f07d7144788e32a284c8992c7d00266da6df7b5eb88f75",
+      "default_retrieval": true,
+      "evidence_status": "source transcription; not independent operational verification"
+    },
+    {
+      "id": "guide-network",
+      "language": "zh",
+      "title": "RM-01 网络配置指南",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "operating-instructions",
+      "applicability": "version-independent (confirmed by owner)",
+      "source_files": [
+        "website/guides/content/network.md"
+      ],
+      "source_urls": [
+        "https://rminte.com/guides/network"
+      ],
+      "path": "zh/guide-network.md",
+      "sha256": "23f84c32a68a4bbeb074ead9fd13dc272b1631c92e9047fb5d7be2ab63191f85",
+      "default_retrieval": true,
+      "evidence_status": "source transcription; not independent operational verification"
+    },
+    {
+      "id": "guide-network",
+      "language": "en",
+      "title": "RM-01 Network Configuration Guide",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "operating-instructions",
+      "applicability": "version-independent (confirmed by owner)",
+      "source_files": [
+        "website/guides/content/network.md"
+      ],
+      "source_urls": [
+        "https://rminte.com/guides/network"
+      ],
+      "path": "en/guide-network.md",
+      "sha256": "ba37c90632fb640b8aa0fc3c75716454bcbec6d0e156c9d883d86cb596bbfaab",
+      "default_retrieval": true,
+      "evidence_status": "source transcription; not independent operational verification"
+    },
+    {
+      "id": "guide-security",
+      "language": "zh",
+      "title": "TianShanOS 安全页面完整操作指南",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "operating-instructions",
+      "applicability": "Based on 0.6.1; unchanged features remain applicable; later-version differences require checking.",
+      "source_files": [
+        "website/guides/content/security.zh.md"
+      ],
+      "source_urls": [
+        "https://rminte.com/guides/security"
+      ],
+      "path": "zh/guide-security.md",
+      "sha256": "1740b750f80cefd59dcdb254a2904cbc42e4aeeffd383a977f5f9843fbc908e1",
+      "default_retrieval": true,
+      "evidence_status": "source transcription; not independent operational verification"
+    },
+    {
+      "id": "guide-security",
+      "language": "en",
+      "title": "TianShanOS Security Page Guide",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "operating-instructions",
+      "applicability": "Based on 0.6.1; unchanged features remain applicable; later-version differences require checking.",
+      "source_files": [
+        "website/guides/content/security.en.md"
+      ],
+      "source_urls": [
+        "https://rminte.com/guides/security"
+      ],
+      "path": "en/guide-security.md",
+      "sha256": "8db686d17684ed826168730b4200f25b5f66c367ce1656f165b3db20d73cd2e3",
+      "default_retrieval": true,
+      "evidence_status": "source transcription; not independent operational verification"
+    },
+    {
+      "id": "hardware-security",
+      "language": "zh",
+      "title": "RM-01 硬件安全说明",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "product-security-document",
+      "applicability": "2026-09-11; version-independent (confirmed by owner). PDF page references retained; page layout is not reproduced.",
+      "source_files": [
+        "website/assets/downloads/rm01-hardware-security-zh.pdf"
+      ],
+      "source_urls": [
+        "https://rminte.com/assets/downloads/rm01-hardware-security-zh.pdf"
+      ],
+      "path": "zh/hardware-security.md",
+      "sha256": "d483da7201251a8d7135a1d1eb00cbffe233dc8f3f977614fa2597d230631ca3",
+      "default_retrieval": true,
+      "evidence_status": "source transcription; not independent operational verification"
+    },
+    {
+      "id": "hardware-security",
+      "language": "en",
+      "title": "RM-01 Hardware Security",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "product-security-document",
+      "applicability": "2026-09-11; version-independent (confirmed by owner). PDF page references retained; page layout is not reproduced.",
+      "source_files": [
+        "website/assets/downloads/rm01-hardware-security-en.pdf"
+      ],
+      "source_urls": [
+        "https://rminte.com/assets/downloads/rm01-hardware-security-en.pdf"
+      ],
+      "path": "en/hardware-security.md",
+      "sha256": "6d3809ed2a94070f1e8e20d455593e33dcf3ec4683051911a4fc950a34a679b2",
+      "default_retrieval": true,
+      "evidence_status": "source transcription; not independent operational verification"
+    },
+    {
+      "id": "product-overview",
+      "language": "zh",
+      "title": "RM-01 让 AI 在本地， 为你工作",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "official-product-copy",
+      "applicability": "Preserve marketing claims as attributed site statements; diagrams/animations are illustrative, not measurements.",
+      "source_files": [
+        "website/index.html",
+        "website/assets/site-data.js",
+        "website/assets/main.js"
+      ],
+      "source_urls": [
+        "https://rminte.com/#hero"
+      ],
+      "path": "zh/product-overview.md",
+      "sha256": "27035e11c8d314b7f090a539f4fb2e26d391c2070f072529e8f1219fd44fac23",
+      "default_retrieval": true,
+      "evidence_status": "published claim; not independently tested"
+    },
+    {
+      "id": "inference-engine",
+      "language": "zh",
+      "title": "让算力，承载更多任务",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "official-product-copy",
+      "applicability": "Preserve marketing claims as attributed site statements; diagrams/animations are illustrative, not measurements.",
+      "source_files": [
+        "website/index.html",
+        "website/assets/site-data.js",
+        "website/assets/main.js"
+      ],
+      "source_urls": [
+        "https://rminte.com/#engine"
+      ],
+      "path": "zh/inference-engine.md",
+      "sha256": "eb2616cd522dedaebc5dd601d6f7c14dd3b925b1bd106f762c911be6d6d10083",
+      "default_retrieval": true,
+      "evidence_status": "published claim; not independently tested"
+    },
+    {
+      "id": "system-overview",
+      "language": "zh",
+      "title": "TianshanOS 让整机协同有序",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "official-product-copy",
+      "applicability": "Preserve marketing claims as attributed site statements; diagrams/animations are illustrative, not measurements.",
+      "source_files": [
+        "website/index.html",
+        "website/assets/site-data.js",
+        "website/assets/main.js",
+        "website/assets/home-architecture.js"
+      ],
+      "source_urls": [
+        "https://rminte.com/#tianshanos"
+      ],
+      "path": "zh/system-overview.md",
+      "sha256": "6e986a98d2c67679dab9aed2fa73dbcb5adb17037bb1334d1e5185e032380c60",
+      "default_retrieval": true,
+      "evidence_status": "published claim; not independently tested"
+    },
+    {
+      "id": "hardware-modules",
+      "language": "zh",
+      "title": "各司其职，整机交付",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "official-product-copy",
+      "applicability": "Preserve marketing claims as attributed site statements; diagrams/animations are illustrative, not measurements.",
+      "source_files": [
+        "website/index.html",
+        "website/assets/site-data.js",
+        "website/assets/main.js"
+      ],
+      "source_urls": [
+        "https://rminte.com/#hardware"
+      ],
+      "path": "zh/hardware-modules.md",
+      "sha256": "681cd7b58530ab2aa41b299d1e35397fd400a71192e376629094634a83985dba",
+      "default_retrieval": true,
+      "evidence_status": "published claim; not independently tested"
+    },
+    {
+      "id": "structure",
+      "language": "zh",
+      "title": "机身展开，协作可见",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "official-product-copy",
+      "applicability": "Preserve marketing claims as attributed site statements; diagrams/animations are illustrative, not measurements.",
+      "source_files": [
+        "website/index.html",
+        "website/assets/site-data.js",
+        "website/assets/main.js"
+      ],
+      "source_urls": [
+        "https://rminte.com/#teardown"
+      ],
+      "path": "zh/structure.md",
+      "sha256": "27256213d37aeb339e0ae9e9e85967b6212374136d0d3b589348f23e3291bb93",
+      "default_retrieval": true,
+      "evidence_status": "published claim; not independently tested"
+    },
+    {
+      "id": "thermal-tti",
+      "language": "zh",
+      "title": "热将起，\n风先知",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "official-product-copy",
+      "applicability": "Preserve marketing claims as attributed site statements; diagrams/animations are illustrative, not measurements.",
+      "source_files": [
+        "website/index.html",
+        "website/assets/site-data.js",
+        "website/assets/main.js"
+      ],
+      "source_urls": [
+        "https://rminte.com/#tti"
+      ],
+      "path": "zh/thermal-tti.md",
+      "sha256": "1ec100090b83c8ea3122a1d15921b661a33a1213549b133905d80f4176c7325a",
+      "default_retrieval": true,
+      "evidence_status": "published claim; not independently tested"
+    },
+    {
+      "id": "thermal-design",
+      "language": "zh",
+      "title": "EricLake 封闭式热管理系统",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "official-product-copy",
+      "applicability": "Preserve marketing claims as attributed site statements; diagrams/animations are illustrative, not measurements.",
+      "source_files": [
+        "website/index.html",
+        "website/assets/site-data.js",
+        "website/assets/main.js"
+      ],
+      "source_urls": [
+        "https://rminte.com/#thermal"
+      ],
+      "path": "zh/thermal-design.md",
+      "sha256": "c7487025248ad7ef796335eea4d66d984e020da6cf17150ed493130a3e1fa4a9",
+      "default_retrieval": true,
+      "evidence_status": "published claim; not independently tested"
+    },
+    {
+      "id": "sapphire",
+      "language": "zh",
+      "title": "蓝宝石亮起，\n智能开始工作",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "official-product-copy",
+      "applicability": "Preserve marketing claims as attributed site statements; diagrams/animations are illustrative, not measurements.",
+      "source_files": [
+        "website/index.html",
+        "website/assets/site-data.js",
+        "website/assets/main.js"
+      ],
+      "source_urls": [
+        "https://rminte.com/#sapphire"
+      ],
+      "path": "zh/sapphire.md",
+      "sha256": "69349b8640c4007986089fff32e31d5f7c0a820fa1041f84a9dc9c6225a9dcb3",
+      "default_retrieval": true,
+      "evidence_status": "published claim; not independently tested"
+    },
+    {
+      "id": "glass-surface",
+      "language": "zh",
+      "title": "绒光玻璃，温润触感",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "official-product-copy",
+      "applicability": "Preserve marketing claims as attributed site statements; diagrams/animations are illustrative, not measurements.",
+      "source_files": [
+        "website/index.html",
+        "website/assets/site-data.js",
+        "website/assets/main.js"
+      ],
+      "source_urls": [
+        "https://rminte.com/#glass-touch"
+      ],
+      "path": "zh/glass-surface.md",
+      "sha256": "341e2a3a4956b2bd364c06170967623c6452334beba05e9ec380c56769e0b36d",
+      "default_retrieval": true,
+      "evidence_status": "published claim; not independently tested"
+    },
+    {
+      "id": "connections",
+      "language": "zh",
+      "title": "连接电源\n接入世界",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "official-product-copy",
+      "applicability": "Preserve marketing claims as attributed site statements; diagrams/animations are illustrative, not measurements.",
+      "source_files": [
+        "website/index.html",
+        "website/assets/site-data.js",
+        "website/assets/main.js"
+      ],
+      "source_urls": [
+        "https://rminte.com/#agent-terminal"
+      ],
+      "path": "zh/connections.md",
+      "sha256": "4cc3b85946bbfc4ac68eb4621db158def565d12837139ac67c32739bff270793",
+      "default_retrieval": true,
+      "evidence_status": "published claim; not independently tested"
+    },
+    {
+      "id": "storage-card",
+      "language": "zh",
+      "title": "换一张卡，\n切换一套 AI",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "official-product-copy",
+      "applicability": "Preserve marketing claims as attributed site statements; diagrams/animations are illustrative, not measurements.",
+      "source_files": [
+        "website/index.html",
+        "website/assets/site-data.js",
+        "website/assets/main.js"
+      ],
+      "source_urls": [
+        "https://rminte.com/#cartridge"
+      ],
+      "path": "zh/storage-card.md",
+      "sha256": "2261ab5c27c5c7d29f4600918e9dc2eb5ae58849df3966172a4880a5ffa4fc21",
+      "default_retrieval": true,
+      "evidence_status": "published claim; not independently tested"
+    },
+    {
+      "id": "manufacturing",
+      "language": "zh",
+      "title": "材料、表面与装配\n每一处都有标准",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "official-product-copy",
+      "applicability": "Preserve marketing claims as attributed site statements; diagrams/animations are illustrative, not measurements.",
+      "source_files": [
+        "website/index.html",
+        "website/assets/site-data.js",
+        "website/assets/main.js"
+      ],
+      "source_urls": [
+        "https://rminte.com/#craft"
+      ],
+      "path": "zh/manufacturing.md",
+      "sha256": "78ee013d1181e90931ff9dd58cfbca86651bee41d8230f20312f7fae0e60033e",
+      "default_retrieval": true,
+      "evidence_status": "published claim; not independently tested"
+    },
+    {
+      "id": "homepage-source-copy",
+      "language": "zh",
+      "title": "首页完整原文补充",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "official-source-text",
+      "applicability": "Includes dynamic states and text not simultaneously visible. UI keys identify original source fields.",
+      "source_files": [
+        "website/assets/site-data.js"
+      ],
+      "source_urls": [
+        "https://rminte.com/"
+      ],
+      "path": "zh/homepage-source-copy.md",
+      "sha256": "696714f80fff22d35c142b3cc2198a00e009de39e62d3d50fb3453acd9e214f8",
+      "default_retrieval": true,
+      "evidence_status": "source transcription; not independent operational verification"
+    },
+    {
+      "id": "company-contact",
+      "language": "zh",
+      "title": "企业与联系",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "public-contact-information",
+      "applicability": "Published contact details only; no unverified enterprise profile is inferred.",
+      "source_files": [
+        "website/scripts/footer-template.mjs",
+        "website/assets/site-data.js"
+      ],
+      "source_urls": [
+        "https://rminte.com/"
+      ],
+      "path": "zh/company-contact.md",
+      "sha256": "8a381ae319976bd1d8acf1efcacdf26acfce56324e1f2056770bc3af6904ee45",
+      "default_retrieval": true,
+      "evidence_status": "source transcription; not independent operational verification"
+    },
+    {
+      "id": "models",
+      "language": "zh",
+      "title": "RMQ3x 与 RMQ4 专业 AI 模型 | 推理引擎与 Agent 能力 | RMinte",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "official-site-text",
+      "applicability": "Model performance statements retain original qualification and hardware applicability. Industry scenarios are not evidence of customer deployments.",
+      "source_files": [
+        "website/models/index.html",
+        "website/models/models.js"
+      ],
+      "source_urls": [
+        "https://rminte.com/models/"
+      ],
+      "path": "zh/models.md",
+      "sha256": "49e857b1cadc4406f7f13f08ad87e997cf2c3a72f13a089b599a75107661a752",
+      "default_retrieval": true,
+      "evidence_status": "published source text; qualification retained"
+    },
+    {
+      "id": "cases-overview",
+      "language": "zh",
+      "title": "应用案例 · RMinte",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "official-site-text",
+      "applicability": "Public text only; private downloads and account-specific contents excluded.",
+      "source_files": [
+        "website/cases/index.html",
+        "website/cases/cases.js",
+        "website/assets/case-catalog.mjs"
+      ],
+      "source_urls": [
+        "https://rminte.com/cases/"
+      ],
+      "path": "zh/cases-overview.md",
+      "sha256": "0d350e278f6c7973e5568cffdbdad8a8f853ab9743f9ed2029454e0d94221f8a",
+      "default_retrieval": true,
+      "evidence_status": "published source text; qualification retained"
+    },
+    {
+      "id": "gallery",
+      "language": "zh",
+      "title": "RM-01 产品图册 | 实拍影像、结构与工业设计 | RMinte",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "official-site-text",
+      "applicability": "Public text only; private downloads and account-specific contents excluded.",
+      "source_files": [
+        "website/gallery/index.html",
+        "website/assets/gallery.js"
+      ],
+      "source_urls": [
+        "https://rminte.com/gallery/"
+      ],
+      "path": "zh/gallery.md",
+      "sha256": "3e775d139b2cf15e46a9000cc5fe187ed10b2a21906549d4b9d9b3e83fc3048e",
+      "default_retrieval": true,
+      "evidence_status": "published source text; qualification retained"
+    },
+    {
+      "id": "downloads",
+      "language": "zh",
+      "title": "RM-01 下载中心 | TianshanOS 固件、文档与软件 | RMinte",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "official-site-text",
+      "applicability": "Public text only; private downloads and account-specific contents excluded.",
+      "source_files": [
+        "website/downloads/index.html"
+      ],
+      "source_urls": [
+        "https://rminte.com/downloads/"
+      ],
+      "path": "zh/downloads.md",
+      "sha256": "282cdc38136682051511723a6016903122ec9304826f7ef73394b3b859ba8805",
+      "default_retrieval": true,
+      "evidence_status": "published source text; qualification retained"
+    },
+    {
+      "id": "guides-index",
+      "language": "zh",
+      "title": "RM-01 使用指南 | TianshanOS 管理、运维与网络配置 | RMinte",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "official-site-text",
+      "applicability": "Public text only; private downloads and account-specific contents excluded.",
+      "source_files": [
+        "website/guides/index.html"
+      ],
+      "source_urls": [
+        "https://rminte.com/guides/"
+      ],
+      "path": "zh/guides-index.md",
+      "sha256": "77236726fcfbda4e37e474fe8231a55164f32d5c92deed90bef496624e844293",
+      "default_retrieval": true,
+      "evidence_status": "published source text; qualification retained"
+    },
+    {
+      "id": "product-overview",
+      "language": "en",
+      "title": "RM-01 AI working for you, locally",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "official-product-copy",
+      "applicability": "Preserve marketing claims as attributed site statements; diagrams/animations are illustrative, not measurements.",
+      "source_files": [
+        "website/index.html",
+        "website/assets/site-data.js",
+        "website/assets/main.js"
+      ],
+      "source_urls": [
+        "https://rminte.com/#hero"
+      ],
+      "path": "en/product-overview.md",
+      "sha256": "4df3b35b3167a34eaf58c43c983e6eb2b788c5511122e7f48bd880256ab84abc",
+      "default_retrieval": true,
+      "evidence_status": "published claim; not independently tested"
+    },
+    {
+      "id": "inference-engine",
+      "language": "en",
+      "title": "Compute that takes on more tasks",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "official-product-copy",
+      "applicability": "Preserve marketing claims as attributed site statements; diagrams/animations are illustrative, not measurements.",
+      "source_files": [
+        "website/index.html",
+        "website/assets/site-data.js",
+        "website/assets/main.js"
+      ],
+      "source_urls": [
+        "https://rminte.com/#engine"
+      ],
+      "path": "en/inference-engine.md",
+      "sha256": "bbc40e67c7a1ac4136061ab3f7b269c8d84727e8e7d7ab50852b151b8efc47ab",
+      "default_retrieval": true,
+      "evidence_status": "published claim; not independently tested"
+    },
+    {
+      "id": "system-overview",
+      "language": "en",
+      "title": "TianshanOS Bringing the system together",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "official-product-copy",
+      "applicability": "Preserve marketing claims as attributed site statements; diagrams/animations are illustrative, not measurements.",
+      "source_files": [
+        "website/index.html",
+        "website/assets/site-data.js",
+        "website/assets/main.js",
+        "website/assets/home-architecture.js"
+      ],
+      "source_urls": [
+        "https://rminte.com/#tianshanos"
+      ],
+      "path": "en/system-overview.md",
+      "sha256": "8c1288fbf97624519efa5d5c8d0125be21a90ae54049e0499ee85c66777f6f90",
+      "default_retrieval": true,
+      "evidence_status": "published claim; not independently tested"
+    },
+    {
+      "id": "hardware-modules",
+      "language": "en",
+      "title": "Dedicated roles. One complete system.",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "official-product-copy",
+      "applicability": "Preserve marketing claims as attributed site statements; diagrams/animations are illustrative, not measurements.",
+      "source_files": [
+        "website/index.html",
+        "website/assets/site-data.js",
+        "website/assets/main.js"
+      ],
+      "source_urls": [
+        "https://rminte.com/#hardware"
+      ],
+      "path": "en/hardware-modules.md",
+      "sha256": "a6e07fc327bf7637b2243bc9d173d0b917de961d60651c8fc1c5f61b4edb13bb",
+      "default_retrieval": true,
+      "evidence_status": "published claim; not independently tested"
+    },
+    {
+      "id": "structure",
+      "language": "en",
+      "title": "See the system unfold",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "official-product-copy",
+      "applicability": "Preserve marketing claims as attributed site statements; diagrams/animations are illustrative, not measurements.",
+      "source_files": [
+        "website/index.html",
+        "website/assets/site-data.js",
+        "website/assets/main.js"
+      ],
+      "source_urls": [
+        "https://rminte.com/#teardown"
+      ],
+      "path": "en/structure.md",
+      "sha256": "d3d880845c7449ac3cd73bd7b8d6136af47a196a4711a40ae3086dc8b898d1f7",
+      "default_retrieval": true,
+      "evidence_status": "published claim; not independently tested"
+    },
+    {
+      "id": "thermal-tti",
+      "language": "en",
+      "title": "Ahead of\nthe heat",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "official-product-copy",
+      "applicability": "Preserve marketing claims as attributed site statements; diagrams/animations are illustrative, not measurements.",
+      "source_files": [
+        "website/index.html",
+        "website/assets/site-data.js",
+        "website/assets/main.js"
+      ],
+      "source_urls": [
+        "https://rminte.com/#tti"
+      ],
+      "path": "en/thermal-tti.md",
+      "sha256": "161228ea2f6fd80e693f3c2c6fa766c66a0a3d1030ecb6a45edde6062172c1ac",
+      "default_retrieval": true,
+      "evidence_status": "published claim; not independently tested"
+    },
+    {
+      "id": "thermal-design",
+      "language": "en",
+      "title": "EricLake closed thermal system",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "official-product-copy",
+      "applicability": "Preserve marketing claims as attributed site statements; diagrams/animations are illustrative, not measurements.",
+      "source_files": [
+        "website/index.html",
+        "website/assets/site-data.js",
+        "website/assets/main.js"
+      ],
+      "source_urls": [
+        "https://rminte.com/#thermal"
+      ],
+      "path": "en/thermal-design.md",
+      "sha256": "71a31eb66c79385e829721edeba6919f8dc0a62c1e2867cc93e5da7ed6e92735",
+      "default_retrieval": true,
+      "evidence_status": "published claim; not independently tested"
+    },
+    {
+      "id": "sapphire",
+      "language": "en",
+      "title": "When sapphire lights up,\nintelligence gets to work",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "official-product-copy",
+      "applicability": "Preserve marketing claims as attributed site statements; diagrams/animations are illustrative, not measurements.",
+      "source_files": [
+        "website/index.html",
+        "website/assets/site-data.js",
+        "website/assets/main.js"
+      ],
+      "source_urls": [
+        "https://rminte.com/#sapphire"
+      ],
+      "path": "en/sapphire.md",
+      "sha256": "0982acf505fa86d6c7827d08fb7bb07be618f889098d2194360c07868b10b2a0",
+      "default_retrieval": true,
+      "evidence_status": "published claim; not independently tested"
+    },
+    {
+      "id": "glass-surface",
+      "language": "en",
+      "title": "Velvet-touch glass. A warmth you can feel.",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "official-product-copy",
+      "applicability": "Preserve marketing claims as attributed site statements; diagrams/animations are illustrative, not measurements.",
+      "source_files": [
+        "website/index.html",
+        "website/assets/site-data.js",
+        "website/assets/main.js"
+      ],
+      "source_urls": [
+        "https://rminte.com/#glass-touch"
+      ],
+      "path": "en/glass-surface.md",
+      "sha256": "ec123f381a91b85a8ddb73446445b7d23785d8fddffec68d3f5dd750834fa097",
+      "default_retrieval": true,
+      "evidence_status": "published claim; not independently tested"
+    },
+    {
+      "id": "connections",
+      "language": "en",
+      "title": "Connect to power.\nConnect to the world.",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "official-product-copy",
+      "applicability": "Preserve marketing claims as attributed site statements; diagrams/animations are illustrative, not measurements.",
+      "source_files": [
+        "website/index.html",
+        "website/assets/site-data.js",
+        "website/assets/main.js"
+      ],
+      "source_urls": [
+        "https://rminte.com/#agent-terminal"
+      ],
+      "path": "en/connections.md",
+      "sha256": "d9f5b7feafbff4ca224a1e96f6bb08943be933164097816223b1519e73c65494",
+      "default_retrieval": true,
+      "evidence_status": "published claim; not independently tested"
+    },
+    {
+      "id": "storage-card",
+      "language": "en",
+      "title": "Change the card,\nchange the AI",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "official-product-copy",
+      "applicability": "Preserve marketing claims as attributed site statements; diagrams/animations are illustrative, not measurements.",
+      "source_files": [
+        "website/index.html",
+        "website/assets/site-data.js",
+        "website/assets/main.js"
+      ],
+      "source_urls": [
+        "https://rminte.com/#cartridge"
+      ],
+      "path": "en/storage-card.md",
+      "sha256": "ae73be4bcddd77ab3cc597caba1af3f5bce4657fa7cb8ea685dce51bee4792a7",
+      "default_retrieval": true,
+      "evidence_status": "published claim; not independently tested"
+    },
+    {
+      "id": "manufacturing",
+      "language": "en",
+      "title": "Materials, finish, and fit.\nA standard for every detail.",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "official-product-copy",
+      "applicability": "Preserve marketing claims as attributed site statements; diagrams/animations are illustrative, not measurements.",
+      "source_files": [
+        "website/index.html",
+        "website/assets/site-data.js",
+        "website/assets/main.js"
+      ],
+      "source_urls": [
+        "https://rminte.com/#craft"
+      ],
+      "path": "en/manufacturing.md",
+      "sha256": "fcfd09e01cd6d876faaa18433859193fd4048d0e1f215411173c793cb7d80008",
+      "default_retrieval": true,
+      "evidence_status": "published claim; not independently tested"
+    },
+    {
+      "id": "homepage-source-copy",
+      "language": "en",
+      "title": "Complete homepage source copy",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "official-source-text",
+      "applicability": "Includes dynamic states and text not simultaneously visible. UI keys identify original source fields.",
+      "source_files": [
+        "website/assets/site-data.js"
+      ],
+      "source_urls": [
+        "https://rminte.com/"
+      ],
+      "path": "en/homepage-source-copy.md",
+      "sha256": "0195eefe136eceb7cda5b4677eae8a86219af5c993ae512b7fbc7f66eae6ae3f",
+      "default_retrieval": true,
+      "evidence_status": "source transcription; not independent operational verification"
+    },
+    {
+      "id": "company-contact",
+      "language": "en",
+      "title": "Company and contact",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "public-contact-information",
+      "applicability": "Published contact details only; no unverified enterprise profile is inferred.",
+      "source_files": [
+        "website/scripts/footer-template.mjs",
+        "website/assets/site-data.js"
+      ],
+      "source_urls": [
+        "https://rminte.com/"
+      ],
+      "path": "en/company-contact.md",
+      "sha256": "e55e45c70937af4e4d863f045023cca49bfabf204ff7e1bb56e0c2149c9bcff3",
+      "default_retrieval": true,
+      "evidence_status": "source transcription; not independent operational verification"
+    },
+    {
+      "id": "models",
+      "language": "en",
+      "title": "RMQ3x & RMQ4 Models | Specialized Reasoning & Inference | RMinte",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "official-site-text",
+      "applicability": "Model performance statements retain original qualification and hardware applicability. Industry scenarios are not evidence of customer deployments.",
+      "source_files": [
+        "website/models/index.html",
+        "website/models/models.js"
+      ],
+      "source_urls": [
+        "https://rminte.com/models/"
+      ],
+      "path": "en/models.md",
+      "sha256": "c90e9e3a8c9504e2c1ab0730c9a3c554488c2affb50defe9b1760702c58083e0",
+      "default_retrieval": true,
+      "evidence_status": "published source text; qualification retained"
+    },
+    {
+      "id": "cases-overview",
+      "language": "en",
+      "title": "Application cases · RMinte",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "official-site-text",
+      "applicability": "Public text only; private downloads and account-specific contents excluded.",
+      "source_files": [
+        "website/cases/index.html",
+        "website/cases/cases.js",
+        "website/assets/case-catalog.mjs"
+      ],
+      "source_urls": [
+        "https://rminte.com/cases/"
+      ],
+      "path": "en/cases-overview.md",
+      "sha256": "b3e5baf5bf590ddd48fd19f44119ca121cb6aa2387c638097ce260d7e7efb49c",
+      "default_retrieval": true,
+      "evidence_status": "published source text; qualification retained"
+    },
+    {
+      "id": "gallery",
+      "language": "en",
+      "title": "RM-01 Gallery | Product Photography & Industrial Design | RMinte",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "official-site-text",
+      "applicability": "Public text only; private downloads and account-specific contents excluded.",
+      "source_files": [
+        "website/gallery/index.html",
+        "website/assets/gallery.js"
+      ],
+      "source_urls": [
+        "https://rminte.com/gallery/"
+      ],
+      "path": "en/gallery.md",
+      "sha256": "799a2a28813c653356cbf617c3f83dd40055e4933eb0520abe4740c159d36dba",
+      "default_retrieval": true,
+      "evidence_status": "published source text; qualification retained"
+    },
+    {
+      "id": "downloads",
+      "language": "en",
+      "title": "RM-01 Downloads | TianshanOS Firmware, Guides & Software | RMinte",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "official-site-text",
+      "applicability": "Public text only; private downloads and account-specific contents excluded.",
+      "source_files": [
+        "website/downloads/index.html"
+      ],
+      "source_urls": [
+        "https://rminte.com/downloads/"
+      ],
+      "path": "en/downloads.md",
+      "sha256": "729e3aac3e6dfe990d0d6f52b76f8fda53f725bc73cca3b7d1a8edb32ca8cb75",
+      "default_retrieval": true,
+      "evidence_status": "published source text; qualification retained"
+    },
+    {
+      "id": "guides-index",
+      "language": "en",
+      "title": "RM-01 Guides | TianshanOS Setup, Security & Operations | RMinte",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "official-site-text",
+      "applicability": "Public text only; private downloads and account-specific contents excluded.",
+      "source_files": [
+        "website/guides/index.html"
+      ],
+      "source_urls": [
+        "https://rminte.com/guides/"
+      ],
+      "path": "en/guides-index.md",
+      "sha256": "702cf45ff1a764952a71f5348d2e2c09c6a403053f0a1989dab0a0d97b4e4c40",
+      "default_retrieval": true,
+      "evidence_status": "published source text; qualification retained"
+    },
+    {
+      "id": "led-tool",
+      "language": "zh",
+      "title": "灯板图形转换工具 · RMinte",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "official-site-text",
+      "applicability": "Public text only; private downloads and account-specific contents excluded.",
+      "source_files": [
+        "website/tools/emoji2pixel/index.html",
+        "website/tools/emoji2pixel/locales/zh-CN.json"
+      ],
+      "source_urls": [
+        "https://rminte.com/tools/emoji2pixel/"
+      ],
+      "path": "zh/led-tool.md",
+      "sha256": "4c534404cd4d082a5950f2e3134c76ec73b89f0b400e766cbd0d1d1cceb11713",
+      "default_retrieval": true,
+      "evidence_status": "published source text; qualification retained"
+    },
+    {
+      "id": "led-tool",
+      "language": "en",
+      "title": "LED graphics studio · RMinte",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "official-site-text",
+      "applicability": "Public text only; private downloads and account-specific contents excluded.",
+      "source_files": [
+        "website/tools/emoji2pixel/index.html",
+        "website/tools/emoji2pixel/locales/en-US.json"
+      ],
+      "source_urls": [
+        "https://rminte.com/tools/emoji2pixel/"
+      ],
+      "path": "en/led-tool.md",
+      "sha256": "580d4c685f91c1b519c3a56b51a4aa4c58706d910b7a3da8a1cb776c7d8937fe",
+      "default_retrieval": true,
+      "evidence_status": "published source text; qualification retained"
+    },
+    {
+      "id": "case-digital-toll",
+      "language": "zh",
+      "title": "AI 数字收费员",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "public-case-description",
+      "applicability": "Do not infer customer identity, deployment status or results beyond this public description.",
+      "source_files": [
+        "website/assets/case-catalog.mjs"
+      ],
+      "source_urls": [
+        "https://rminte.com/cases/"
+      ],
+      "path": "zh/case-digital-toll.md",
+      "sha256": "60c07b3b5b816463d6a52823baba9a01e90d2652f21fe6f3b70f404cdb95c52d",
+      "default_retrieval": true,
+      "evidence_status": "source transcription; not independent operational verification"
+    },
+    {
+      "id": "case-asset-audit",
+      "language": "zh",
+      "title": "AI 信息资产审计",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "public-case-description",
+      "applicability": "Do not infer customer identity, deployment status or results beyond this public description.",
+      "source_files": [
+        "website/assets/case-catalog.mjs"
+      ],
+      "source_urls": [
+        "https://rminte.com/cases/"
+      ],
+      "path": "zh/case-asset-audit.md",
+      "sha256": "4e54aaf7f9719720a92e7e70015983309197562458450ac604cb70c39c4bd224",
+      "default_retrieval": true,
+      "evidence_status": "source transcription; not independent operational verification"
+    },
+    {
+      "id": "case-community-assistant",
+      "language": "zh",
+      "title": "基层事务 AI 助理",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "public-case-description",
+      "applicability": "Do not infer customer identity, deployment status or results beyond this public description.",
+      "source_files": [
+        "website/assets/case-catalog.mjs"
+      ],
+      "source_urls": [
+        "https://rminte.com/cases/"
+      ],
+      "path": "zh/case-community-assistant.md",
+      "sha256": "fb23156f5e87284ca6e0388d5e5c181e65715e3ae2a7b36d44cb8cd284853a29",
+      "default_retrieval": true,
+      "evidence_status": "source transcription; not independent operational verification"
+    },
+    {
+      "id": "case-energy-dispatch",
+      "language": "zh",
+      "title": "AI 节能调度专家",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "public-case-description",
+      "applicability": "Do not infer customer identity, deployment status or results beyond this public description.",
+      "source_files": [
+        "website/assets/case-catalog.mjs"
+      ],
+      "source_urls": [
+        "https://rminte.com/cases/"
+      ],
+      "path": "zh/case-energy-dispatch.md",
+      "sha256": "bb5c332379f6a95f91a6c5b9447d0fa2f36b59ec206ff582ec2ba1d6ec614eef",
+      "default_retrieval": true,
+      "evidence_status": "source transcription; not independent operational verification"
+    },
+    {
+      "id": "case-document-knowledge",
+      "language": "zh",
+      "title": "AI 文档识别与翻译知识库",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "public-case-description",
+      "applicability": "Do not infer customer identity, deployment status or results beyond this public description.",
+      "source_files": [
+        "website/assets/case-catalog.mjs"
+      ],
+      "source_urls": [
+        "https://rminte.com/cases/"
+      ],
+      "path": "zh/case-document-knowledge.md",
+      "sha256": "ac872e0ae1a5914b50e02465df534cee37cfa1364f88d3e1c661c82a1f7b56d5",
+      "default_retrieval": true,
+      "evidence_status": "source transcription; not independent operational verification"
+    },
+    {
+      "id": "case-official-writing",
+      "language": "zh",
+      "title": "AI 公文写作助手",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "public-case-description",
+      "applicability": "Do not infer customer identity, deployment status or results beyond this public description.",
+      "source_files": [
+        "website/assets/case-catalog.mjs"
+      ],
+      "source_urls": [
+        "https://rminte.com/cases/"
+      ],
+      "path": "zh/case-official-writing.md",
+      "sha256": "cf3a1ad1d689a76ec8cc3f83f465ef70bcc1d7651a08c3c00abf40bfcf1442e5",
+      "default_retrieval": true,
+      "evidence_status": "source transcription; not independent operational verification"
+    },
+    {
+      "id": "case-archive-management",
+      "language": "zh",
+      "title": "AI 企业档案管理",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "public-case-description",
+      "applicability": "Do not infer customer identity, deployment status or results beyond this public description.",
+      "source_files": [
+        "website/assets/case-catalog.mjs"
+      ],
+      "source_urls": [
+        "https://rminte.com/cases/"
+      ],
+      "path": "zh/case-archive-management.md",
+      "sha256": "f9662fa6aa362967ba0ed700e18f795fe3ab08b63efbaa355890a764f72ab511",
+      "default_retrieval": true,
+      "evidence_status": "source transcription; not independent operational verification"
+    },
+    {
+      "id": "case-drone-analysis",
+      "language": "zh",
+      "title": "无人机机场 AI 分析师",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "public-case-description",
+      "applicability": "Do not infer customer identity, deployment status or results beyond this public description.",
+      "source_files": [
+        "website/assets/case-catalog.mjs"
+      ],
+      "source_urls": [
+        "https://rminte.com/cases/"
+      ],
+      "path": "zh/case-drone-analysis.md",
+      "sha256": "e96a1dd23349bf5de384084d6be0f9d4bdfe46df98db65ce6eac0ed66aeb450c",
+      "default_retrieval": true,
+      "evidence_status": "source transcription; not independent operational verification"
+    },
+    {
+      "id": "case-industrial-modeling",
+      "language": "zh",
+      "title": "AI 汽车研发与工业建模",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "public-case-description",
+      "applicability": "Do not infer customer identity, deployment status or results beyond this public description.",
+      "source_files": [
+        "website/assets/case-catalog.mjs"
+      ],
+      "source_urls": [
+        "https://rminte.com/cases/"
+      ],
+      "path": "zh/case-industrial-modeling.md",
+      "sha256": "9e605d4b52519a82d89c793545db30470a62a91aebb97673d0484bba202a9978",
+      "default_retrieval": true,
+      "evidence_status": "source transcription; not independent operational verification"
+    },
+    {
+      "id": "case-legal-materials",
+      "language": "zh",
+      "title": "刑事律师材料与线索 AI 整理师",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "public-case-description",
+      "applicability": "Do not infer customer identity, deployment status or results beyond this public description.",
+      "source_files": [
+        "website/assets/case-catalog.mjs"
+      ],
+      "source_urls": [
+        "https://rminte.com/cases/"
+      ],
+      "path": "zh/case-legal-materials.md",
+      "sha256": "1f3cd892e114b20d2755b68f07a40ae7f78e3386b2069c7b2071dc6849fc51b9",
+      "default_retrieval": true,
+      "evidence_status": "source transcription; not independent operational verification"
+    },
+    {
+      "id": "case-functional-safety",
+      "language": "zh",
+      "title": "AI 汽车功能安全检测",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "public-case-description",
+      "applicability": "Do not infer customer identity, deployment status or results beyond this public description.",
+      "source_files": [
+        "website/assets/case-catalog.mjs"
+      ],
+      "source_urls": [
+        "https://rminte.com/cases/"
+      ],
+      "path": "zh/case-functional-safety.md",
+      "sha256": "7989eb53ff029ebde8ae7b3c79f3cff1fdb9ff5d6d283325b4169ac4771247e1",
+      "default_retrieval": true,
+      "evidence_status": "source transcription; not independent operational verification"
+    },
+    {
+      "id": "case-highway-coordination",
+      "language": "zh",
+      "title": "高速公路现场智能协同",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "public-case-description",
+      "applicability": "Do not infer customer identity, deployment status or results beyond this public description.",
+      "source_files": [
+        "website/assets/case-catalog.mjs"
+      ],
+      "source_urls": [
+        "https://rminte.com/cases/"
+      ],
+      "path": "zh/case-highway-coordination.md",
+      "sha256": "514898a61f06c2cb65ae2e520bfba96b429894789605e8f1a69c18668dc5b5d4",
+      "default_retrieval": true,
+      "evidence_status": "source transcription; not independent operational verification"
+    },
+    {
+      "id": "case-digital-toll",
+      "language": "en",
+      "title": "AI Digital Toll Operator",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "public-case-description",
+      "applicability": "Do not infer customer identity, deployment status or results beyond this public description.",
+      "source_files": [
+        "website/assets/case-catalog.mjs"
+      ],
+      "source_urls": [
+        "https://rminte.com/cases/"
+      ],
+      "path": "en/case-digital-toll.md",
+      "sha256": "98e8f08be5b206fe06f67713e92b86249d10a88b87c7d3b22944cffbebb3daee",
+      "default_retrieval": true,
+      "evidence_status": "source transcription; not independent operational verification"
+    },
+    {
+      "id": "case-asset-audit",
+      "language": "en",
+      "title": "AI Information Asset Audit",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "public-case-description",
+      "applicability": "Do not infer customer identity, deployment status or results beyond this public description.",
+      "source_files": [
+        "website/assets/case-catalog.mjs"
+      ],
+      "source_urls": [
+        "https://rminte.com/cases/"
+      ],
+      "path": "en/case-asset-audit.md",
+      "sha256": "217a9d8eaa407d2d049bab352cd6dfa89326ab0803217826ed20f5d5ec0601ee",
+      "default_retrieval": true,
+      "evidence_status": "source transcription; not independent operational verification"
+    },
+    {
+      "id": "case-community-assistant",
+      "language": "en",
+      "title": "Community Affairs AI Assistant",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "public-case-description",
+      "applicability": "Do not infer customer identity, deployment status or results beyond this public description.",
+      "source_files": [
+        "website/assets/case-catalog.mjs"
+      ],
+      "source_urls": [
+        "https://rminte.com/cases/"
+      ],
+      "path": "en/case-community-assistant.md",
+      "sha256": "232a9cc73ad721a9bb1de2af47b5f559328ed86edfb146f18ab4c2fc2179de42",
+      "default_retrieval": true,
+      "evidence_status": "source transcription; not independent operational verification"
+    },
+    {
+      "id": "case-energy-dispatch",
+      "language": "en",
+      "title": "AI Energy Dispatch Expert",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "public-case-description",
+      "applicability": "Do not infer customer identity, deployment status or results beyond this public description.",
+      "source_files": [
+        "website/assets/case-catalog.mjs"
+      ],
+      "source_urls": [
+        "https://rminte.com/cases/"
+      ],
+      "path": "en/case-energy-dispatch.md",
+      "sha256": "4128a8014241945b7c612e0d094031f8fed3deed4ed8f142c63ce74aa98a0247",
+      "default_retrieval": true,
+      "evidence_status": "source transcription; not independent operational verification"
+    },
+    {
+      "id": "case-document-knowledge",
+      "language": "en",
+      "title": "AI Document Recognition, Translation and Knowledge Base",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "public-case-description",
+      "applicability": "Do not infer customer identity, deployment status or results beyond this public description.",
+      "source_files": [
+        "website/assets/case-catalog.mjs"
+      ],
+      "source_urls": [
+        "https://rminte.com/cases/"
+      ],
+      "path": "en/case-document-knowledge.md",
+      "sha256": "a4e82b3b61ca20442a7616d6518109abb071bded7f0513212db12b16d11abcc1",
+      "default_retrieval": true,
+      "evidence_status": "source transcription; not independent operational verification"
+    },
+    {
+      "id": "case-official-writing",
+      "language": "en",
+      "title": "AI Official Writing Assistant",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "public-case-description",
+      "applicability": "Do not infer customer identity, deployment status or results beyond this public description.",
+      "source_files": [
+        "website/assets/case-catalog.mjs"
+      ],
+      "source_urls": [
+        "https://rminte.com/cases/"
+      ],
+      "path": "en/case-official-writing.md",
+      "sha256": "f3be33b83cf00d06d45dcd8544cea3d5ae3475ac9e824e257d5a55ed1d0e2cf7",
+      "default_retrieval": true,
+      "evidence_status": "source transcription; not independent operational verification"
+    },
+    {
+      "id": "case-archive-management",
+      "language": "en",
+      "title": "AI Enterprise Archive Management",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "public-case-description",
+      "applicability": "Do not infer customer identity, deployment status or results beyond this public description.",
+      "source_files": [
+        "website/assets/case-catalog.mjs"
+      ],
+      "source_urls": [
+        "https://rminte.com/cases/"
+      ],
+      "path": "en/case-archive-management.md",
+      "sha256": "ce193f52f680916d5b78b7ac739e40f7a0e12af314a4e5930576c311cdb406f2",
+      "default_retrieval": true,
+      "evidence_status": "source transcription; not independent operational verification"
+    },
+    {
+      "id": "case-drone-analysis",
+      "language": "en",
+      "title": "Drone Airport AI Analyst",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "public-case-description",
+      "applicability": "Do not infer customer identity, deployment status or results beyond this public description.",
+      "source_files": [
+        "website/assets/case-catalog.mjs"
+      ],
+      "source_urls": [
+        "https://rminte.com/cases/"
+      ],
+      "path": "en/case-drone-analysis.md",
+      "sha256": "30371ec22faff61f27d933af38176b5dc5d44d3f4c41ddbe9d51fd6761092320",
+      "default_retrieval": true,
+      "evidence_status": "source transcription; not independent operational verification"
+    },
+    {
+      "id": "case-industrial-modeling",
+      "language": "en",
+      "title": "AI Automotive R&D and Industrial Modelling",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "public-case-description",
+      "applicability": "Do not infer customer identity, deployment status or results beyond this public description.",
+      "source_files": [
+        "website/assets/case-catalog.mjs"
+      ],
+      "source_urls": [
+        "https://rminte.com/cases/"
+      ],
+      "path": "en/case-industrial-modeling.md",
+      "sha256": "695b3a0ce13e2d831a0a588b2b995846d49432fca6dbc7d9c84872edb87e3dee",
+      "default_retrieval": true,
+      "evidence_status": "source transcription; not independent operational verification"
+    },
+    {
+      "id": "case-legal-materials",
+      "language": "en",
+      "title": "AI Organiser for Criminal Defence Materials and Leads",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "public-case-description",
+      "applicability": "Do not infer customer identity, deployment status or results beyond this public description.",
+      "source_files": [
+        "website/assets/case-catalog.mjs"
+      ],
+      "source_urls": [
+        "https://rminte.com/cases/"
+      ],
+      "path": "en/case-legal-materials.md",
+      "sha256": "a9a4cdf54165cff5969a2dc793216c779c72bfce5de8cf5144857f254b9637e0",
+      "default_retrieval": true,
+      "evidence_status": "source transcription; not independent operational verification"
+    },
+    {
+      "id": "case-functional-safety",
+      "language": "en",
+      "title": "AI Automotive Functional Safety Inspection",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "public-case-description",
+      "applicability": "Do not infer customer identity, deployment status or results beyond this public description.",
+      "source_files": [
+        "website/assets/case-catalog.mjs"
+      ],
+      "source_urls": [
+        "https://rminte.com/cases/"
+      ],
+      "path": "en/case-functional-safety.md",
+      "sha256": "57f13e300bb8b5a110d94c612c1981cfa01e0bb72b1b52b15ca15a7a60c2b6af",
+      "default_retrieval": true,
+      "evidence_status": "source transcription; not independent operational verification"
+    },
+    {
+      "id": "case-highway-coordination",
+      "language": "en",
+      "title": "Intelligent Highway Field Coordination",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "public-case-description",
+      "applicability": "Do not infer customer identity, deployment status or results beyond this public description.",
+      "source_files": [
+        "website/assets/case-catalog.mjs"
+      ],
+      "source_urls": [
+        "https://rminte.com/cases/"
+      ],
+      "path": "en/case-highway-coordination.md",
+      "sha256": "311f42c5f366a100ec14a14f9534c980c1b282dafaf6730c3285de4634828a2d",
+      "default_retrieval": true,
+      "evidence_status": "source transcription; not independent operational verification"
+    },
+    {
+      "id": "sample-loan",
+      "language": "zh",
+      "title": "样机申请与重点事项",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "public-application-instructions",
+      "applicability": "RM01-LOAN-20261027-r6; availability, approved dates, value and bank details must be confirmed for each application. No application was submitted.",
+      "source_files": [
+        "website/sample-loan/application.json",
+        "website/sample-loan/locales.json",
+        "website/sample-loan/application.mjs",
+        "website/sample-loan/fields.mjs",
+        "services/sample-loan/terms.json",
+        "services/sample-loan/notices.json"
+      ],
+      "source_urls": [
+        "https://rminte.com/",
+        "https://rminte.com/sample-loan/#apply",
+        "https://rminte.com/api/sample-loans/terms"
+      ],
+      "path": "zh/sample-loan.md",
+      "sha256": "c2d9fae614a83cd584348bb43eadd91e028ce75a04ffc7080b520713bbd73a4e",
+      "default_retrieval": true,
+      "evidence_status": "public form and terms; no application submitted"
+    },
+    {
+      "id": "sample-loan",
+      "language": "en",
+      "title": "Sample-loan application and key notices",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "public-application-instructions",
+      "applicability": "RM01-LOAN-20261027-r6; availability, approved dates, value and bank details must be confirmed for each application. No application was submitted.",
+      "source_files": [
+        "website/sample-loan/application.json",
+        "website/sample-loan/locales.json",
+        "website/sample-loan/application.mjs",
+        "website/sample-loan/fields.mjs",
+        "services/sample-loan/terms.json",
+        "services/sample-loan/notices.json"
+      ],
+      "source_urls": [
+        "https://rminte.com/",
+        "https://rminte.com/sample-loan/#apply",
+        "https://rminte.com/api/sample-loans/terms"
+      ],
+      "path": "en/sample-loan.md",
+      "sha256": "6733a16e7d2bf158572915782f1b8e9252ab5f7cd96ce5590b21cc4aafcc3060",
+      "default_retrieval": true,
+      "evidence_status": "public form and terms; no application submitted"
+    },
+    {
+      "id": "sample-loan-agreement",
+      "language": "zh",
+      "title": "RM-01 产品借用协议（申请前公开模板）",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "public-agreement-template",
+      "applicability": "RM01-LOAN-20261027-r6; placeholders are not approved or fulfilled values. Full agreement original is Chinese only.",
+      "source_files": [
+        "website/sample-loan/contract.mjs",
+        "services/sample-loan/terms.json"
+      ],
+      "source_urls": [
+        "https://rminte.com/sample-loan/#apply",
+        "https://rminte.com/api/sample-loans/terms"
+      ],
+      "path": "zh/sample-loan-agreement.md",
+      "sha256": "198116790f1bab001470be4701580e80338a69d8a371db3ab4b22cfc9413fac8",
+      "default_retrieval": true,
+      "evidence_status": "source transcription; not independent operational verification"
+    },
+    {
+      "id": "sample-loan-agreement",
+      "language": "en",
+      "title": "Sample-loan agreement: authoritative original and English coverage",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "source-availability-note",
+      "applicability": "RM01-LOAN-20261027-r6",
+      "source_files": [
+        "website/sample-loan/contract.mjs",
+        "services/sample-loan/terms.json"
+      ],
+      "source_urls": [
+        "https://rminte.com/sample-loan/#apply",
+        "https://rminte.com/api/sample-loans/terms"
+      ],
+      "path": "en/sample-loan-agreement.md",
+      "sha256": "bdde54c19856e6a7de41bdd0bff1c93b57005fead71c92c86ca84d55f4142376",
+      "default_retrieval": true,
+      "evidence_status": "source transcription; not independent operational verification"
+    },
+    {
+      "id": "company-identification",
+      "language": "zh",
+      "title": "公开企业主体信息",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "public-company-identification",
+      "applicability": "Public pre-application template; approved agreement may specify current party details. Not an enterprise registry verification.",
+      "source_files": [
+        "website/sample-loan/contract.mjs"
+      ],
+      "source_urls": [
+        "https://rminte.com/sample-loan/#apply"
+      ],
+      "path": "zh/company-identification.md",
+      "sha256": "f7490c44bbad10a5a053a54a645dfecab2b1eb1a23983544123400215e27deea",
+      "default_retrieval": true,
+      "evidence_status": "source transcription; not independent operational verification"
+    },
+    {
+      "id": "company-identification",
+      "language": "en",
+      "title": "Published company identification",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "public-company-identification",
+      "applicability": "Public pre-application template; approved agreement may specify current party details. Not an enterprise registry verification.",
+      "source_files": [
+        "website/sample-loan/contract.mjs"
+      ],
+      "source_urls": [
+        "https://rminte.com/sample-loan/#apply"
+      ],
+      "path": "en/company-identification.md",
+      "sha256": "32d20f9163cc51904d7548f5e3dd9b319723ec61da6ee5d7707ff25ee51f8241",
+      "default_retrieval": true,
+      "evidence_status": "source transcription; not independent operational verification"
+    },
+    {
+      "id": "demonstrations-and-releases",
+      "language": "zh",
+      "title": "演示与版本边界",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "source-interpretation",
+      "applicability": "Read-only knowledge preparation; no real-device test, authorization change or deployment.",
+      "source_files": [
+        "website/tianshanos-demo/README.md",
+        "website/downloads/index.html",
+        "website/assets/case-catalog.mjs"
+      ],
+      "source_urls": [
+        "https://rminte.com/tianshanos-demo/",
+        "https://rminte.com/downloads/",
+        "https://ota.rminte.com/"
+      ],
+      "path": "zh/demonstrations-and-releases.md",
+      "sha256": "1be8beffdeaf928b70d94954c8d0fd57896f02630e3e5ab28c3a5745a3ba5fef",
+      "default_retrieval": true,
+      "evidence_status": "source transcription; not independent operational verification"
+    },
+    {
+      "id": "demonstrations-and-releases",
+      "language": "en",
+      "title": "Demonstrations and release boundaries",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "source-interpretation",
+      "applicability": "Read-only knowledge preparation; no real-device test, authorization change or deployment.",
+      "source_files": [
+        "website/tianshanos-demo/README.md",
+        "website/downloads/index.html",
+        "website/assets/case-catalog.mjs"
+      ],
+      "source_urls": [
+        "https://rminte.com/tianshanos-demo/",
+        "https://rminte.com/downloads/",
+        "https://ota.rminte.com/"
+      ],
+      "path": "en/demonstrations-and-releases.md",
+      "sha256": "cda381e9a02ce20adbccb16c6aea38b0c425ff9dcd9d9cddefb46107ec80482f",
+      "default_retrieval": true,
+      "evidence_status": "source transcription; not independent operational verification"
+    },
+    {
+      "id": "company-brochure",
+      "language": "zh",
+      "title": "泛灵人工智能-中文介绍-2026",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "historical-company-brochure",
+      "applicability": "2026-09-07 filename; 24 PDF pages. Historical source; not current specification authority. Original Chinese and English brochures have different wording.",
+      "source_files": [],
+      "source_urls": [
+        "https://downloads.rminte.com/materials/rminte-introduction-2026-zh-20260907.pdf"
+      ],
+      "path": "zh/company-brochure.md",
+      "sha256": "5e142fdab2c9df33310d420bdf2b211aac3aeaa618806c073b1de77645c5f547",
+      "default_retrieval": true,
+      "evidence_status": "historical published source; compare current pages"
+    },
+    {
+      "id": "company-brochure-ocr",
+      "language": "zh",
+      "title": "企业介绍图片文字 OCR 补充",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "unverified-ocr-reference",
+      "applicability": "Reference only; not default retrieval evidence; includes image captions, press clippings and certificate imagery.",
+      "source_files": [],
+      "source_urls": [
+        "https://downloads.rminte.com/materials/rminte-introduction-2026-zh-20260907.pdf"
+      ],
+      "path": "zh/company-brochure-ocr.md",
+      "sha256": "a3b974982357684d12f1aa3f3fc0007f5b2ede048389be82692f0d72b55bf996",
+      "default_retrieval": false,
+      "evidence_status": "OCR reference; item-level verification pending"
+    },
+    {
+      "id": "ota-service",
+      "language": "zh",
+      "title": "TianshanOS OTA 更新服务",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "public-service-instructions",
+      "applicability": "Live page snapshot on 2026-10-30; current release is time-sensitive.",
+      "source_files": [
+        "services/tianshanos-ota/src/page.js"
+      ],
+      "source_urls": [
+        "https://ota.rminte.com/"
+      ],
+      "path": "zh/ota-service.md",
+      "sha256": "3912aa774d44cf2b337995e2fd142a1b05f4e355f4672a6d2f2e29c525afcc52",
+      "default_retrieval": true,
+      "evidence_status": "source transcription; not independent operational verification"
+    },
+    {
+      "id": "company-brochure",
+      "language": "en",
+      "title": "RMinte introduction 2026 (English)",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "historical-company-brochure",
+      "applicability": "2026-09-07 filename; 24 PDF pages. Historical source; not current specification authority. Original Chinese and English brochures have different wording.",
+      "source_files": [],
+      "source_urls": [
+        "https://downloads.rminte.com/materials/rminte-introduction-2026-en-20260907.pdf"
+      ],
+      "path": "en/company-brochure.md",
+      "sha256": "4abfa762790a6fb806480708e17c449812e6abeb98414b1c2456b53b9ffc637d",
+      "default_retrieval": true,
+      "evidence_status": "historical published source; compare current pages"
+    },
+    {
+      "id": "company-brochure-ocr",
+      "language": "en",
+      "title": "Company introduction image-text OCR supplement",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "unverified-ocr-reference",
+      "applicability": "Reference only; not default retrieval evidence; includes image captions, press clippings and certificate imagery.",
+      "source_files": [],
+      "source_urls": [
+        "https://downloads.rminte.com/materials/rminte-introduction-2026-en-20260907.pdf"
+      ],
+      "path": "en/company-brochure-ocr.md",
+      "sha256": "132391283c78f3641090d139a9eb90a62fe008315e4a5263a0237939c925b0c9",
+      "default_retrieval": false,
+      "evidence_status": "OCR reference; item-level verification pending"
+    },
+    {
+      "id": "ota-service",
+      "language": "en",
+      "title": "TianshanOS OTA update service",
+      "source_commit": "c9b0897aa87a7e22a0ab264f9007a131f43a1135",
+      "prepared_on": "2026-10-30",
+      "content_kind": "public-service-instructions",
+      "applicability": "Live page snapshot on 2026-10-30; current release is time-sensitive.",
+      "source_files": [
+        "services/tianshanos-ota/src/page.js"
+      ],
+      "source_urls": [
+        "https://ota.rminte.com/"
+      ],
+      "path": "en/ota-service.md",
+      "sha256": "6e22c0957d5580323a94a62ccd6b363d5f76fa5b6eb20b346354eb43b4d7125a",
+      "default_retrieval": true,
+      "evidence_status": "source transcription; not independent operational verification"
+    }
+  ],
+  "source_files": [
+    {
+      "path": "services/sample-loan/notices.json",
+      "sha256": "5295ec417523fc7702f321345ead947090522ecca418064aecbecd12b0dfe81a"
+    },
+    {
+      "path": "services/sample-loan/terms.json",
+      "sha256": "0e35f072c9b22ec1968a1868d9962999976032755c7abd4c0636f5c5cd5091ee"
+    },
+    {
+      "path": "services/tianshanos-ota/src/page.js",
+      "sha256": "4d96a50c3c7768fc215846c3b39d72f1a97351fd253ad4d0feb96164265cb1ac"
+    },
+    {
+      "path": "website/assets/case-catalog.mjs",
+      "sha256": "6b34f9fe52cc421f8dd48f232e300ce6ab3dc87dc9cd21bd11190bb888746441"
+    },
+    {
+      "path": "website/assets/downloads/rm01-hardware-security-en.pdf",
+      "sha256": "3ada0f19012805b8c63f5d6ed4a350b08306390c22b099a513e61edfe44320c7"
+    },
+    {
+      "path": "website/assets/downloads/rm01-hardware-security-zh.pdf",
+      "sha256": "3067670ed4d014e9d1c9828948eb683c69c0a67fc6b78453c490e080b6a9b602"
+    },
+    {
+      "path": "website/assets/gallery.js",
+      "sha256": "00ebfe49eedaacf4d14bfe4fbc20737e5a130cb87af5dfab97f1d7ebb3a901c4"
+    },
+    {
+      "path": "website/assets/home-architecture.js",
+      "sha256": "c0999a03893459dbb26e8ac9b3e6ea4bee6bb1eaf2622416448a81a071208d39"
+    },
+    {
+      "path": "website/assets/main.js",
+      "sha256": "fb9e46af6e103e842dff0b5da6b447f80fb4bbb1e4872f59995e8f8f026f31bc"
+    },
+    {
+      "path": "website/assets/site-data.js",
+      "sha256": "6d7eab2633cfdedb7853e5e499ae4922d60931c81093debecad457ea0f39ab11"
+    },
+    {
+      "path": "website/cases/cases.js",
+      "sha256": "caf5a7e0b4d2d55f097e810cf754b22b6f89d8bb4d9e0727ef491b0096b5ce51"
+    },
+    {
+      "path": "website/cases/index.html",
+      "sha256": "ff5241f16e970f5153ff60b7eb999719e0d346d99b15242489d8f1c8792564d0"
+    },
+    {
+      "path": "website/downloads/index.html",
+      "sha256": "4fefc894d4c99349b9f3bee11023912f6d9b11800bbea917633b5e47e3816054"
+    },
+    {
+      "path": "website/gallery/index.html",
+      "sha256": "ab0a9e39696f9516dd56608a5c72bf79cac088576ed7cb3c5c3c3908e11715d5"
+    },
+    {
+      "path": "website/guides/content/admin.md",
+      "sha256": "ced0466f1757086a61866883a399549dfd0d043ff8c996f175daac48a55d10ca"
+    },
+    {
+      "path": "website/guides/content/network.md",
+      "sha256": "fc4e470f1a2f17255569dded3daca7d37cd974887be78d00051cd24841ee0780"
+    },
+    {
+      "path": "website/guides/content/root.md",
+      "sha256": "8c10b5864c00ced419924eafa2f9e167cda4a4309073ffcce133e0bbf761a397"
+    },
+    {
+      "path": "website/guides/content/security.en.md",
+      "sha256": "3b496fda747007b66ebcbbf665fab021c58c895fc2c85111eed2e7953ffd0370"
+    },
+    {
+      "path": "website/guides/content/security.zh.md",
+      "sha256": "a8ef530053836b75626b709f224054979dfb31957182463f1610eecb09e3d7e0"
+    },
+    {
+      "path": "website/guides/index.html",
+      "sha256": "147adbbda2fd7ae88e702150dd800055280c0e3f359480c6968d0afcf44ee3a6"
+    },
+    {
+      "path": "website/index.html",
+      "sha256": "f52ea8474a9ba5b386e899e9ba0e3071da8da5d84f0f54fd87d004dc98bc02bd"
+    },
+    {
+      "path": "website/models/index.html",
+      "sha256": "7e3613b55e1a3bcb47800c47de2de8e1a0e225979574281f592a75cd30d7d554"
+    },
+    {
+      "path": "website/models/models.js",
+      "sha256": "07c7dd249ef860519ba0ade700c0cb40ce1a88a243a711ec9dd5fd65d47af7ee"
+    },
+    {
+      "path": "website/sample-loan/application.json",
+      "sha256": "177299ba2637ce57f5a526ec4d995f5b80fc9fa5c433a7f78487831d34baa778"
+    },
+    {
+      "path": "website/sample-loan/application.mjs",
+      "sha256": "b7c48811f007f85c37ebf7589fc383bedc866a4c10122666c086818a76001641"
+    },
+    {
+      "path": "website/sample-loan/contract.mjs",
+      "sha256": "1f602b786680ebf3b458d4fc3b0e05388d15784740b3921c64fb576330fb1f3f"
+    },
+    {
+      "path": "website/sample-loan/fields.mjs",
+      "sha256": "d3f54a9425b65ee8215a7ab77f53d8b42a5243e9df9e25ace9bc691eab80e790"
+    },
+    {
+      "path": "website/sample-loan/locales.json",
+      "sha256": "af3b6510622a565311076707476ba869f2b8b83143af72a716a04d386777d4a0"
+    },
+    {
+      "path": "website/scripts/footer-template.mjs",
+      "sha256": "d6e164f39be2e804093f627ff4007ec9d296ae67199eaf2da79debb9fae18ad0"
+    },
+    {
+      "path": "website/tianshanos-demo/README.md",
+      "sha256": "d7ea0f53fef23a2d9ad0753c642987bf9352afcecdf7b27f4be874035b042fbe"
+    },
+    {
+      "path": "website/tools/emoji2pixel/index.html",
+      "sha256": "6308c14e521069454588956eea61aed519ddac9d8efb26066cdc7e8c2957cb73"
+    },
+    {
+      "path": "website/tools/emoji2pixel/locales/en-US.json",
+      "sha256": "e384fd58af16d5645064b2a4002f5eeff90efcba1875bfc5980354c0e09b000c"
+    },
+    {
+      "path": "website/tools/emoji2pixel/locales/zh-CN.json",
+      "sha256": "f8e974b06d7a6ddb77eb9767889c4b7b88c6ca0485c1bcda5473f8f2ee755f7e"
+    }
+  ],
+  "external_sources": [
+    {
+      "url": "https://downloads.rminte.com/materials/rminte-introduction-2026-zh-20260907.pdf",
+      "sha256": "4b7a260f141ba5328bd5fd5684ad888391e491d7d0987ca0443e07543b88a668",
+      "pages": 24,
+      "date_in_filename": "2026-09-07",
+      "role": "historical official introduction linked from download center"
+    },
+    {
+      "url": "https://downloads.rminte.com/materials/rminte-introduction-2026-en-20260907.pdf",
+      "sha256": "68dffde06b5daac7647dde98414026d132e15432ea33d35612efab21213cb778",
+      "pages": 24,
+      "date_in_filename": "2026-09-07",
+      "role": "historical official introduction linked from download center"
+    }
+  ],
+  "public_terms_version": "RM01-LOAN-20261027-r6",
+  "public_terms_sha256": "832b8ca3c9173e179eef73f274ac7f7b95f78513bf3cd1a32456decc9aa01453",
+  "ocr_audit": [
+    {
+      "language": "zh",
+      "page": 1,
+      "embedded_characters": 0,
+      "ocr_lines": 0,
+      "low_confidence_lines": 0,
+      "table_or_screenshot": false
+    },
+    {
+      "language": "zh",
+      "page": 2,
+      "embedded_characters": 269,
+      "ocr_lines": 13,
+      "low_confidence_lines": 7,
+      "table_or_screenshot": false
+    },
+    {
+      "language": "zh",
+      "page": 3,
+      "embedded_characters": 72,
+      "ocr_lines": 8,
+      "low_confidence_lines": 8,
+      "table_or_screenshot": false
+    },
+    {
+      "language": "zh",
+      "page": 4,
+      "embedded_characters": 135,
+      "ocr_lines": 9,
+      "low_confidence_lines": 2,
+      "table_or_screenshot": false
+    },
+    {
+      "language": "zh",
+      "page": 5,
+      "embedded_characters": 128,
+      "ocr_lines": 9,
+      "low_confidence_lines": 5,
+      "table_or_screenshot": false
+    },
+    {
+      "language": "zh",
+      "page": 6,
+      "embedded_characters": 42,
+      "ocr_lines": 5,
+      "low_confidence_lines": 5,
+      "table_or_screenshot": false
+    },
+    {
+      "language": "zh",
+      "page": 7,
+      "embedded_characters": 83,
+      "ocr_lines": 7,
+      "low_confidence_lines": 4,
+      "table_or_screenshot": false
+    },
+    {
+      "language": "zh",
+      "page": 8,
+      "embedded_characters": 104,
+      "ocr_lines": 11,
+      "low_confidence_lines": 5,
+      "table_or_screenshot": false
+    },
+    {
+      "language": "zh",
+      "page": 9,
+      "embedded_characters": 94,
+      "ocr_lines": 8,
+      "low_confidence_lines": 1,
+      "table_or_screenshot": false
+    },
+    {
+      "language": "zh",
+      "page": 10,
+      "embedded_characters": 89,
+      "ocr_lines": 10,
+      "low_confidence_lines": 5,
+      "table_or_screenshot": false
+    },
+    {
+      "language": "zh",
+      "page": 11,
+      "embedded_characters": 206,
+      "ocr_lines": 14,
+      "low_confidence_lines": 5,
+      "table_or_screenshot": false
+    },
+    {
+      "language": "zh",
+      "page": 12,
+      "embedded_characters": 86,
+      "ocr_lines": 12,
+      "low_confidence_lines": 3,
+      "table_or_screenshot": true
+    },
+    {
+      "language": "zh",
+      "page": 13,
+      "embedded_characters": 715,
+      "ocr_lines": 50,
+      "low_confidence_lines": 34,
+      "table_or_screenshot": true
+    },
+    {
+      "language": "zh",
+      "page": 14,
+      "embedded_characters": 636,
+      "ocr_lines": 47,
+      "low_confidence_lines": 26,
+      "table_or_screenshot": true
+    },
+    {
+      "language": "zh",
+      "page": 15,
+      "embedded_characters": 110,
+      "ocr_lines": 24,
+      "low_confidence_lines": 10,
+      "table_or_screenshot": false
+    },
+    {
+      "language": "zh",
+      "page": 16,
+      "embedded_characters": 155,
+      "ocr_lines": 15,
+      "low_confidence_lines": 4,
+      "table_or_screenshot": false
+    },
+    {
+      "language": "zh",
+      "page": 17,
+      "embedded_characters": 162,
+      "ocr_lines": 16,
+      "low_confidence_lines": 6,
+      "table_or_screenshot": false
+    },
+    {
+      "language": "zh",
+      "page": 18,
+      "embedded_characters": 157,
+      "ocr_lines": 36,
+      "low_confidence_lines": 9,
+      "table_or_screenshot": true
+    },
+    {
+      "language": "zh",
+      "page": 19,
+      "embedded_characters": 178,
+      "ocr_lines": 15,
+      "low_confidence_lines": 4,
+      "table_or_screenshot": false
+    },
+    {
+      "language": "zh",
+      "page": 20,
+      "embedded_characters": 33,
+      "ocr_lines": 9,
+      "low_confidence_lines": 7,
+      "table_or_screenshot": true
+    },
+    {
+      "language": "zh",
+      "page": 21,
+      "embedded_characters": 14,
+      "ocr_lines": 40,
+      "low_confidence_lines": 20,
+      "table_or_screenshot": true
+    },
+    {
+      "language": "zh",
+      "page": 22,
+      "embedded_characters": 18,
+      "ocr_lines": 60,
+      "low_confidence_lines": 40,
+      "table_or_screenshot": true
+    },
+    {
+      "language": "zh",
+      "page": 23,
+      "embedded_characters": 6,
+      "ocr_lines": 28,
+      "low_confidence_lines": 23,
+      "table_or_screenshot": true
+    },
+    {
+      "language": "zh",
+      "page": 24,
+      "embedded_characters": 47,
+      "ocr_lines": 5,
+      "low_confidence_lines": 5,
+      "table_or_screenshot": false
+    },
+    {
+      "language": "en",
+      "page": 1,
+      "embedded_characters": 0,
+      "ocr_lines": 0,
+      "low_confidence_lines": 0,
+      "table_or_screenshot": false
+    },
+    {
+      "language": "en",
+      "page": 2,
+      "embedded_characters": 622,
+      "ocr_lines": 15,
+      "low_confidence_lines": 0,
+      "table_or_screenshot": false
+    },
+    {
+      "language": "en",
+      "page": 3,
+      "embedded_characters": 146,
+      "ocr_lines": 8,
+      "low_confidence_lines": 1,
+      "table_or_screenshot": false
+    },
+    {
+      "language": "en",
+      "page": 4,
+      "embedded_characters": 249,
+      "ocr_lines": 9,
+      "low_confidence_lines": 0,
+      "table_or_screenshot": false
+    },
+    {
+      "language": "en",
+      "page": 5,
+      "embedded_characters": 0,
+      "ocr_lines": 5,
+      "low_confidence_lines": 0,
+      "table_or_screenshot": false
+    },
+    {
+      "language": "en",
+      "page": 6,
+      "embedded_characters": 180,
+      "ocr_lines": 9,
+      "low_confidence_lines": 0,
+      "table_or_screenshot": false
+    },
+    {
+      "language": "en",
+      "page": 7,
+      "embedded_characters": 166,
+      "ocr_lines": 6,
+      "low_confidence_lines": 0,
+      "table_or_screenshot": false
+    },
+    {
+      "language": "en",
+      "page": 8,
+      "embedded_characters": 335,
+      "ocr_lines": 15,
+      "low_confidence_lines": 2,
+      "table_or_screenshot": false
+    },
+    {
+      "language": "en",
+      "page": 9,
+      "embedded_characters": 307,
+      "ocr_lines": 11,
+      "low_confidence_lines": 1,
+      "table_or_screenshot": false
+    },
+    {
+      "language": "en",
+      "page": 10,
+      "embedded_characters": 238,
+      "ocr_lines": 10,
+      "low_confidence_lines": 0,
+      "table_or_screenshot": false
+    },
+    {
+      "language": "en",
+      "page": 11,
+      "embedded_characters": 399,
+      "ocr_lines": 14,
+      "low_confidence_lines": 0,
+      "table_or_screenshot": false
+    },
+    {
+      "language": "en",
+      "page": 12,
+      "embedded_characters": 210,
+      "ocr_lines": 14,
+      "low_confidence_lines": 0,
+      "table_or_screenshot": true
+    },
+    {
+      "language": "en",
+      "page": 13,
+      "embedded_characters": 746,
+      "ocr_lines": 51,
+      "low_confidence_lines": 1,
+      "table_or_screenshot": true
+    },
+    {
+      "language": "en",
+      "page": 14,
+      "embedded_characters": 730,
+      "ocr_lines": 48,
+      "low_confidence_lines": 0,
+      "table_or_screenshot": true
+    },
+    {
+      "language": "en",
+      "page": 15,
+      "embedded_characters": 275,
+      "ocr_lines": 22,
+      "low_confidence_lines": 0,
+      "table_or_screenshot": false
+    },
+    {
+      "language": "en",
+      "page": 16,
+      "embedded_characters": 353,
+      "ocr_lines": 16,
+      "low_confidence_lines": 1,
+      "table_or_screenshot": false
+    },
+    {
+      "language": "en",
+      "page": 17,
+      "embedded_characters": 374,
+      "ocr_lines": 17,
+      "low_confidence_lines": 0,
+      "table_or_screenshot": false
+    },
+    {
+      "language": "en",
+      "page": 18,
+      "embedded_characters": 468,
+      "ocr_lines": 31,
+      "low_confidence_lines": 12,
+      "table_or_screenshot": true
+    },
+    {
+      "language": "en",
+      "page": 19,
+      "embedded_characters": 420,
+      "ocr_lines": 19,
+      "low_confidence_lines": 0,
+      "table_or_screenshot": false
+    },
+    {
+      "language": "en",
+      "page": 20,
+      "embedded_characters": 73,
+      "ocr_lines": 10,
+      "low_confidence_lines": 3,
+      "table_or_screenshot": true
+    },
+    {
+      "language": "en",
+      "page": 21,
+      "embedded_characters": 40,
+      "ocr_lines": 16,
+      "low_confidence_lines": 8,
+      "table_or_screenshot": true
+    },
+    {
+      "language": "en",
+      "page": 22,
+      "embedded_characters": 75,
+      "ocr_lines": 28,
+      "low_confidence_lines": 18,
+      "table_or_screenshot": true
+    },
+    {
+      "language": "en",
+      "page": 23,
+      "embedded_characters": 22,
+      "ocr_lines": 17,
+      "low_confidence_lines": 8,
+      "table_or_screenshot": true
+    },
+    {
+      "language": "en",
+      "page": 24,
+      "embedded_characters": 53,
+      "ocr_lines": 4,
+      "low_confidence_lines": 0,
+      "table_or_screenshot": false
+    }
+  ]
+}

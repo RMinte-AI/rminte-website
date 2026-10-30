@@ -58,7 +58,16 @@ if(run.scope.caseService)unit.push('services/case-access/tests/crypto.test.mjs',
 if(run.scope.sampleLoan)unit.push('services/sample-loan/tests/integration.test.mjs');
 if(run.scope.ota)unit.push('services/tianshanos-ota/tests/releases.test.mjs');
 await check('unit and gate regressions',unit.length>0,()=>command(process.execPath,['--test',...unit],'unit'),'No corresponding unit-test consumer changed.');
-await check('deployment and operational configurations',run.scope.caseService||run.scope.caseMigrations||run.scope.ota||run.scope.configurationFiles.length>0,()=>checkConfigurations(root,run.scope),'No deployment or operational configuration dependency changed.');
+await check('official knowledge MCP',run.scope.knowledgeMcp,async()=>{
+  const directory=join(root,'services/official-knowledge-mcp');
+  await command('npm',['ci','--ignore-scripts'],'knowledge-install',directory);
+  await command('npm',['run','build'],'knowledge-build',directory);
+  await command('npm',['run','check'],'knowledge-typecheck',directory);
+  await command('npm',['test'],'knowledge-tests',directory);
+  await command(process.execPath,['--experimental-strip-types','scripts/evaluate.ts'],'knowledge-retrieval',directory);
+  return 'Isolated locked dependencies, type check, source build, code/corpus regressions and offline retrieval; no Agent connection.';
+},'No official knowledge runtime or source changed.');
+await check('deployment and operational configurations',run.scope.caseService||run.scope.caseMigrations||run.scope.ota||run.scope.knowledgeMcp||run.scope.configurationFiles.length>0,()=>checkConfigurations(root,run.scope),'No deployment or operational configuration dependency changed.');
 requirePassing('Build and configuration validation');
 
 let after,before,beforeRoot;

@@ -4930,5 +4930,82 @@
     "sources": [
       "index.html:tti"
     ]
+  },
+  {
+    "zh": "让你的 Agent 帮你用好",
+    "en": "Get more from",
+    "sources": [
+      "guides/index.html:132"
+    ]
+  },
+  {
+    "zh": "",
+    "en": " with your agent",
+    "sources": [
+      "guides/index.html:132"
+    ]
+  },
+  {
+    "zh": "从了解产品、申请样机到配置系统、排查问题，让你的 Agent 根据官方资料提供帮助。",
+    "en": "From exploring the product and requesting a demo unit to system setup and troubleshooting, let your agent help with guidance from official sources.",
+    "sources": [
+      "guides/index.html:133"
+    ]
+  },
+  {
+    "zh": "查看接入说明",
+    "en": "View setup instructions",
+    "sources": [
+      "guides/index.html:135"
+    ]
+  },
+  {
+    "zh": "复制给你的 Agent",
+    "en": "Copy this to your agent",
+    "sources": [
+      "guides/index.html:270"
+    ]
+  },
+  {
+    "zh": "复制以下指令，发送给你的 Agent，让它帮你完成接入。",
+    "en": "Copy the instructions below and send them to your agent to set up the connection.",
+    "sources": [
+      "guides/index.html:271"
+    ]
+  },
+  {
+    "zh": "接入指令",
+    "en": "Setup instructions",
+    "sources": [
+      "guides/index.html:272"
+    ]
+  },
+  {
+    "zh": "复制指令",
+    "en": "Copy instructions",
+    "sources": [
+      "guides/index.html:306"
+    ]
+  },
+  {
+    "zh": "连接后即可查询 RM-01 官方资料。",
+    "en": "Connect to search the official RM-01 sources.",
+    "sources": [
+      "guides/index.html:308"
+    ]
+  },
+  {
+    "zh": "已复制，发送给你的 Agent 即可。",
+    "en": "Copied. Send it to your agent.",
+    "sources": [
+      "assets/i18n-ui.json"
+    ]
+  },
+  {
+    "zh": "复制未成功，请选中文字后手动复制。",
+    "en": "Copy failed. Select the instructions and copy them manually.",
+    "sources": [
+      "assets/i18n-ui.json"
+    ]
   }
 ]

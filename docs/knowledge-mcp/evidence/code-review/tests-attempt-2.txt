@@ -1,0 +1,54 @@
+
+> rminte-official-knowledge-mcp@0.1.0 test
+> npm run build && node --experimental-strip-types --test tests/*.test.ts
+
+
+> rminte-official-knowledge-mcp@0.1.0 build
+> node --experimental-strip-types scripts/build.ts
+
+{"revision":"8a16b4f3d2137caf530aa231cb3187496581f891e28632220c9b31a8e9e4fa22","sections":1278,"bytes":3469884}
+✔ All 88 reviewed entries accounted for; unverified OCR absent from runtime, history separate (0.427209ms)
+✔ Deterministic build, IDs unique, content/context hashes accurate, bounded replies (1037.515083ms)
+✔ Every nonblank original source line is preserved in body or original heading path (30.822417ms)
+✔ Security-page inherited HTTP limitation follows certificate operation (0.280417ms)
+✔ Source versions and history policy are enforced at search and read (1.722584ms)
+✔ No arbitrary URL/path input and no silently truncated queries/results (0.3895ms)
+✖ Chinese and English source coverage; authoritative Chinese agreement reachable from English note (2.031667ms)
+✔ All nine specialist workflow stages retain their corresponding scenario identity (0.480167ms)
+✔ Protocol names are not treated as plural nouns; English aliases require complete words (1.176292ms)
+✔ Chinese function-word removal does not destroy ownership or wired-network terms (1.827958ms)
+✔ Unknown terms matching Object.prototype do not crash or enter the index (3.462084ms)
+✔ Parent scope follows heading nesting, including skipped levels and repeated sibling titles (0.723958ms)
+✔ Tilde and longer backtick fences keep embedded headings/code blocks intact (0.250209ms)
+✔ Identical body with different prerequisite context is not deduplicated away (0.430459ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 13
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2181.528541
+
+✖ failing tests:
+
+test at tests/corpus.test.ts:34:1
+✖ Chinese and English source coverage; authoritative Chinese agreement reachable from English note (2.031667ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+
+    assert(terms('供电功耗 256GB').includes('power'))
+
+      at TestContext.<anonymous> (file:///Users/massif/.codex/worktrees/rm01-knowledge-mcp-plan/rminte-website/services/official-knowledge-mcp/tests/corpus.test.ts:36:2)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
