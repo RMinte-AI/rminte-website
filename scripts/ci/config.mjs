@@ -6,6 +6,7 @@ import {pathToFileURL} from 'node:url';
 
 // These are the actual consumers documented by each service: Pages, D1 operations and Worker deployment.
 export const configurationProfiles={
+  knowledgeMcp:[{file:'services/official-knowledge-mcp/wrangler.jsonc',kind:'worker',cwd:'services/official-knowledge-mcp'}],
   caseService:[
     {file:'services/case-access/wrangler.jsonc',kind:'pages'}
   ],

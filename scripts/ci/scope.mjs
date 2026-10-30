@@ -82,15 +82,20 @@ export function classify(changes,{all=false,staticRoutes=[],workerRoutes=[]}={})
     if(existing)existing.dependencies=[...(existing.dependencies||[]),...route.dependencies];
     else catalog.push({...route});
   }
-  const scope={files,changes,pages:[],languages:[],widths:[1440,390],fonts:false,brand:false,exif:false,guides:false,translations:false,seo:false,caseService:false,sampleLoan:false,caseMigrations:false,ota:false,infrastructure:false,homeMotion:false,configurationFiles:[],navigationAll:false};
+  const scope={files,changes,pages:[],languages:[],widths:[1440,390],fonts:false,brand:false,exif:false,guides:false,translations:false,seo:false,caseService:false,sampleLoan:false,caseMigrations:false,ota:false,knowledgeMcp:false,infrastructure:false,homeMotion:false,configurationFiles:[],navigationAll:false};
   const addAll=()=>{catalog.forEach(page=>ids.add(page.id));scope.widths=[1440,768,390,320];};
   const guidePages=()=>pages.filter(page=>page.id.startsWith('guide')).forEach(page=>ids.add(page.id));
   if(changes.some(change=>/^[DR]/.test(change.status)&&/\.html?$/i.test(change.paths[0])))scope.navigationAll=true;
   for(const file of files) {
     for(const page of catalog)if(page.dependencies?.some(input=>input.endsWith('/')?file.startsWith(input):file===input)){ids.add(page.id);scope.fonts=true;}
     if(file===workerPageManifest) {workerRoutes.forEach(route=>ids.add(catalog.find(page=>page.path===route.path).id));scope.fonts=true;scope.navigationAll=true;continue;}
+    if(file.startsWith('services/official-knowledge-mcp/')||file.startsWith('docs/official-knowledge/')) scope.knowledgeMcp=true;
+    if(file.startsWith('services/official-knowledge-mcp/')) {
+      if(destinations.has(file)&&configuredFiles.has(file))scope.configurationFiles.push(file);
+      continue;
+    }
     if(document(file)) continue;
-    if(infrastructure(file)) {scope.infrastructure=true;addAll();Object.assign(scope,{fonts:true,brand:true,exif:true,guides:true,translations:true,seo:true,caseService:true,sampleLoan:true,caseMigrations:true,ota:true,homeMotion:true,navigationAll:true});continue;}
+    if(infrastructure(file)) {scope.infrastructure=true;addAll();Object.assign(scope,{fonts:true,brand:true,exif:true,guides:true,translations:true,seo:true,caseService:true,sampleLoan:true,caseMigrations:true,ota:true,knowledgeMcp:true,homeMotion:true,navigationAll:true});continue;}
     if(destinations.has(file)&&(configuredFiles.has(file)||/(?:^|\/)wrangler\.(?:jsonc?|toml)$/.test(file)))scope.configurationFiles.push(file);
     if(configuredFiles.get(file)?.kind==='d1') {scope.caseMigrations=true;continue;}
     if(file.startsWith('website/')&&/\.html?$/i.test(file)&&file!=='website/404.html'&&!pages.some(page=>page.file===file)) {
@@ -137,7 +142,7 @@ export function classify(changes,{all=false,staticRoutes=[],workerRoutes=[]}={})
     if(file==='website/index.html'||/website\/assets\/(?:main\.js|engine|system|images\/|videos\/|teardown-frames)/.test(file)) {ids.add('home');scope.homeMotion=true;continue;}
     addAll();scope.homeMotion=true; // Unknown production assets can also affect normal homepage motion.
   }
-  if(all) {addAll();Object.assign(scope,{fonts:true,brand:true,exif:true,guides:true,translations:true,seo:true,caseService:true,sampleLoan:true,caseMigrations:true,ota:true,homeMotion:true,infrastructure:true,navigationAll:true});}
+  if(all) {addAll();Object.assign(scope,{fonts:true,brand:true,exif:true,guides:true,translations:true,seo:true,caseService:true,sampleLoan:true,caseMigrations:true,ota:true,knowledgeMcp:true,homeMotion:true,infrastructure:true,navigationAll:true});}
   // A removed URL can still be linked by unchanged JavaScript-rendered navigation.
   if(scope.navigationAll)catalog.forEach(page=>ids.add(page.id));
   scope.pages=[...catalog,...routes.values()].filter(page=>ids.has(page.id)).map(page=>({...page}));
