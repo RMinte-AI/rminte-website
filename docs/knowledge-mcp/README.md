@@ -1,5 +1,7 @@
 # RM-01 官方知识 MCP
 
+当前发布状态见 [首次发布记录](RELEASE.md)。下文保留原阶段方案与验证边界。
+
 - [上轮修复的代码复审](REPAIR_REVIEW.md)
 - [代码缺陷复审与修正](CODE_REVIEW.md)
 - [本地实现与验证结果](IMPLEMENTATION.md)

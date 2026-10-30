@@ -675,7 +675,7 @@
   "Copy the instructions below and send them to your agent to set up the connection.": "Copia las siguientes instrucciones y envíaselas a tu agente para que configure la conexión.",
   "Setup instructions": "Instrucciones de conexión",
   "Copy instructions": "Copiar instrucciones",
-  "The connection service is not yet available. Its official URL will be provided when it goes live.": "El servicio de conexión aún no está disponible. La URL oficial se facilitará cuando esté en funcionamiento.",
   "Copied. Send it to your agent.": "Copiado. Envíalo a tu agente.",
-  "Copy failed. Select the instructions and copy them manually.": "No se ha podido copiar. Selecciona las instrucciones y cópialas manualmente."
+  "Copy failed. Select the instructions and copy them manually.": "No se ha podido copiar. Selecciona las instrucciones y cópialas manualmente.",
+  "Connect to search the official RM-01 sources.": "Conéctate para consultar las fuentes oficiales de RM-01."
 }

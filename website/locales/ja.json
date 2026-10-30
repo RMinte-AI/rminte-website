@@ -675,7 +675,7 @@
   "Copy the instructions below and send them to your agent to set up the connection.": "以下の指示をコピーして Agent に送信すると、接続設定を進められます。",
   "Setup instructions": "接続用の指示",
   "Copy instructions": "指示をコピー",
-  "The connection service is not yet available. Its official URL will be provided when it goes live.": "接続サービスはまだ公開されていません。正式な URL は公開時に案内します。",
   "Copied. Send it to your agent.": "コピーしました。Agent に送信してください。",
-  "Copy failed. Select the instructions and copy them manually.": "コピーできませんでした。指示を選択して手動でコピーしてください。"
+  "Copy failed. Select the instructions and copy them manually.": "コピーできませんでした。指示を選択して手動でコピーしてください。",
+  "Connect to search the official RM-01 sources.": "接続すると RM-01 の公式資料を検索できます。"
 }

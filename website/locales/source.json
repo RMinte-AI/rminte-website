@@ -4988,8 +4988,8 @@
     ]
   },
   {
-    "zh": "接入服务尚未开放，正式地址将在上线后提供。",
-    "en": "The connection service is not yet available. Its official URL will be provided when it goes live.",
+    "zh": "连接后即可查询 RM-01 官方资料。",
+    "en": "Connect to search the official RM-01 sources.",
     "sources": [
       "guides/index.html:308"
     ]

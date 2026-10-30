@@ -675,7 +675,7 @@
   "Copy the instructions below and send them to your agent to set up the connection.": "아래 지침을 복사하여 Agent에게 보내면 연결 설정을 진행할 수 있습니다.",
   "Setup instructions": "연결 지침",
   "Copy instructions": "지침 복사",
-  "The connection service is not yet available. Its official URL will be provided when it goes live.": "연결 서비스는 아직 공개되지 않았습니다. 공식 URL은 서비스 공개 시 제공됩니다.",
   "Copied. Send it to your agent.": "복사했습니다. Agent에게 보내세요.",
-  "Copy failed. Select the instructions and copy them manually.": "복사하지 못했습니다. 지침을 선택하여 직접 복사해 주세요."
+  "Copy failed. Select the instructions and copy them manually.": "복사하지 못했습니다. 지침을 선택하여 직접 복사해 주세요.",
+  "Connect to search the official RM-01 sources.": "연결하면 RM-01 공식 자료를 검색할 수 있습니다."
 }
