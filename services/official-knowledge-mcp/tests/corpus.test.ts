@@ -7,8 +7,8 @@ import { buildCorpus, corpusRoot, hash, splitBlocks } from '../scripts/build.ts'
 import { createKnowledge } from '../src/knowledge.ts';
 import { bytes, terms } from '../src/text.ts';
 const c=await buildCorpus();const kb=createKnowledge(c);
-test('All 88 reviewed entries accounted for; unverified OCR absent from runtime, history separate',()=>{
- assert.equal(c.documents.length,88);assert.equal(c.documents.filter(d=>d.status==='excluded').length,2);assert(c.documents.filter(d=>d.status==='excluded').every(d=>d.id==='company-brochure-ocr'));assert.equal(c.documents.filter(d=>d.status==='history-only').length,2);assert(!c.sections.some(s=>s.doc_id==='company-brochure-ocr'));
+test('All 90 reviewed entries accounted for; unverified OCR absent from runtime, history separate',()=>{
+ assert.equal(c.documents.length,90);assert.equal(c.documents.filter(d=>d.status==='excluded').length,2);assert(c.documents.filter(d=>d.status==='excluded').every(d=>d.id==='company-brochure-ocr'));assert.equal(c.documents.filter(d=>d.status==='history-only').length,2);assert(!c.sections.some(s=>s.doc_id==='company-brochure-ocr'));
 });
 test('Deterministic build, IDs unique, content/context hashes accurate, bounded replies',async()=>{
  assert.deepEqual(await buildCorpus(),c);assert.equal(new Set(c.sections.map(s=>s.section_id)).size,c.sections.length);
